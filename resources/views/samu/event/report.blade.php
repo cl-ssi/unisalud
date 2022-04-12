@@ -26,6 +26,7 @@
                     <th>Dirección</th>
                     <th>Teléfono</th>
                     <th>OPT</th>
+                    <th>BLS</th>
                     <th>OP ID</th>
                 </tr>
             </thead>
@@ -37,6 +38,7 @@
                         <td>{{ $event->call->full_address }} {{ optional($event->call->commune)->name }}</td>
                         <td class="right">{{ $event->call->telephone }}</td>
                         <td class="center">{{ $event->call->classification }}</td>
+                        <td class="center">{{ optional($event->call->bls)->format('i:s') }}</td>
                         <td class="center">{{ $event->call->receptor_id }}</td>
                     </tr>
                     <tr>

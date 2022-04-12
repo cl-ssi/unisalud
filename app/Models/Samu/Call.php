@@ -40,6 +40,7 @@ class Call extends Model implements Auditable
         'police_intervention',
         'information',
         'regulation',
+        'bls',
         'sex',
         'applicant',
         'age',
@@ -58,7 +59,7 @@ class Call extends Model implements Auditable
     * @var array
     */
     protected $dates = [
-        'hour',
+        'hour','bls'
     ];
 
     public function events()

@@ -43,6 +43,7 @@ class UpdateCallRequest extends FormRequest
             'latitude'          => 'nullable|numeric',
             'longitude'         => 'nullable|numeric',
             'regulation'        => 'nullable|string|min:3|max:5000',
+            'bls'               => 'nullable|date_format:H:i:s',
             'sex' => [
                 'nullable',
                 Rule::in(['MALE', 'FEMALE', 'UNKNOWN', 'OTHER']),
