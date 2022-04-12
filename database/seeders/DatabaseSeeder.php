@@ -62,6 +62,7 @@ class DatabaseSeeder extends Seeder
             LocationSeeder::class,
 
             /* SAMU */
+            SamuMobileTypeSeeder::class,
             SamuMobileSeeder::class,
             SamuJobTypeSeeder::class,
             SamuKeySeeder::class,

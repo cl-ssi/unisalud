@@ -24,7 +24,7 @@ class MobileInService extends Model implements Auditable
         'id',
         'shift_id',
         'mobile_id',
-        'type',
+        'type_id',
         'position',
         'o2',
         'lunch_start_at',
@@ -58,6 +58,11 @@ class MobileInService extends Model implements Auditable
     {
         /* HasOne? */
         return $this->belongsTo(Mobile::class);
+    }
+
+    public function type()
+    {
+        return $this->belongsTo(MobileType::class,'type_id');
     }
 
     public function crew()

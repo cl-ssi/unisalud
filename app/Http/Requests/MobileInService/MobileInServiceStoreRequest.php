@@ -37,7 +37,7 @@ class MobileInServiceStoreRequest extends FormRequest
                     ->where('shift_id', $this->shift->id)
             ],
             'mobile_id'     => 'required|exists:samu_mobiles,id',
-            'type'          => 'required|string',
+            'type_id'       => 'required|exists:samu_mobile_types,id',
             'o2'            => 'nullable|string|min:0|max:255',
             'observation'   => 'nullable|string|min:0|max:5000'
         ];

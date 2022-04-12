@@ -32,9 +32,9 @@
                 <th></th>
                 <th>Codigo</th>
                 <th>Nombre</th>
+                <th>Tipo</th>
                 <th>Estado</th>
                 <th>Patente</th>
-                <th>Tipo</th>
                 <th>Descripción</th>
                 <th></th>
             </tr>
@@ -47,9 +47,9 @@
                 </td>
                 <td>{{ $mobile->code }}</td>
                 <td>{{ $mobile->name }}</td>
+                <td>{{ optional($mobile->type)->name }}</td>
                 <td>{{ $mobile->status ? 'Activo':'Inactivo' }}</td>
                 <td>{{ $mobile->plate }}</td>
-                <td>{{ $mobile->type }}</td>
                 <td>{{ $mobile->description }}</td>
                 <td>
                     <form method="POST" action="{{ route('samu.mobile.destroy', $mobile) }}">

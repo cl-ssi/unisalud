@@ -1,7 +1,7 @@
 <div class="table-responsive">
     <table class="table table-bordered">
         <tbody>
-            @foreach($mobilesInService as $mis)
+            @foreach($mobilesInService->reverse() as $mis)
             <tr class="table-secondary">
                 <th width="90"></th>
                 <th>Movil</th>
@@ -24,7 +24,7 @@
                 </td>
                 <td><b>{{ $mis->mobile->code }} {{ $mis->mobile->name }}</b></td>
                 <td>{{ $mis->position }}</td>
-                <td>{{ $mis->type }}</td>
+                <td>{{ optional($mis->type)->name }}</td>
                 <td>{{ $mis->status ? 'Activo' : 'Inactivo'  }}</td>
                 <td>{{ $mis->o2 }}</td>
                 <td>{{ $mis->observation }}</td>

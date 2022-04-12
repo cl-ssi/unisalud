@@ -30,17 +30,17 @@ class MobileCrew extends pivot
 
     public function mobileInService()
     {
-        return $this->BelongsTo(MobileInService::class, 'mobiles_in_service_id');
+        return $this->belongsTo(MobileInService::class, 'mobiles_in_service_id');
     }
 
     public function user()
     {
-        return $this->BelongsTo(User::class);
+        return $this->belongsTo(User::class);
     }
 
     public function jobType()
     {
-        return $this->BelongsTo(JobType::class);
+        return $this->belongsTo(JobType::class);
     }
 
     public function getCrewStatusAttribute()

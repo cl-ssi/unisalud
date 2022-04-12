@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Samu;
 
 use App\Http\Controllers\Controller;
 use App\Models\Samu\Mobile;
+use App\Models\Samu\MobileType;
 use Illuminate\Http\Request;
 
 class MobileController extends Controller
@@ -30,7 +31,8 @@ class MobileController extends Controller
      */
     public function create()
     {
-        return view('samu.mobile.create');
+        $types = MobileType::pluck('name','id');
+        return view('samu.mobile.create',compact('types'));
     }
 
     /**
@@ -41,7 +43,6 @@ class MobileController extends Controller
      */
     public function store(Request $request)
     {
-      
         $mobile = new mobile($request->all());
         //consultando si esta o no clickeado un checkbox
         $mobile->managed = $request->has('managed') ? 1:0;
@@ -71,7 +72,8 @@ class MobileController extends Controller
      */
     public function edit(Mobile $mobile)
     {
-        return view('samu.mobile.edit', compact('mobile'));
+        $types = MobileType::pluck('name','id');
+        return view('samu.mobile.edit', compact('mobile','types'));
     }
 
     /**

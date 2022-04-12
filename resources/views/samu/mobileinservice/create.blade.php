@@ -19,7 +19,7 @@
         
         <fieldset class="form-group col-8 col-md-2">
             <label for="for-mobile-id">Móvil*</label>
-            <select class="form-control" name="mobile_id" id="for-mobile-id">
+            <select class="form-control" name="mobile_id" id="for-mobile-id" required>
             <option></option>
                 @foreach($mobiles as $mobile)
                 @if ($mobile->managed == true)
@@ -31,14 +31,11 @@
 
         <fieldset class="form-group col-12 col-md-2">
             <label for="for-type">Tipo de móvil*</label>
-            <select class="form-control" name="type" id="for-type">
+            <select class="form-control" name="type_id" id="for-type" required>
                 <option value=""></option>
-                <option value="M1">M1</option>
-                <option value="M2">M2</option>
-                <option value="M3">M3</option>
-                <option value="Hibrido">Hibrido</option>
-                <option value="RU1">RU1</option>
-                <option value="RU2" >RU2</option>
+                @foreach($types as $id => $name)
+                    <option value="{{ $id }}">{{ $name }}</option>
+                @endforeach
             </select>
         </fieldset>
 

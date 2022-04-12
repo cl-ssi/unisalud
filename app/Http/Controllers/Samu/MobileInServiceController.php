@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Access\Response;
 use App\Models\Samu\MobileInService;
 use App\Models\Samu\MobileCrew;
+use App\Models\Samu\MobileType;
 use App\Models\Samu\Shift;
 use App\Models\Samu\Mobile;
 use Illuminate\Http\Request;
@@ -52,8 +53,9 @@ class MobileInServiceController extends Controller
         }
 
         $mobiles = Mobile::whereManaged(1)->get();
+        $types = MobileType::pluck('name','id');
         
-        return view('samu.mobileinservice.create', compact('mobiles','shift'));
+        return view('samu.mobileinservice.create', compact('mobiles','shift','types'));
     }
 
     /**
@@ -119,8 +121,9 @@ class MobileInServiceController extends Controller
             return redirect()->route('samu.welcome');
         }
         $mobiles = Mobile::whereManaged(true)->get();
+        $types = MobileType::pluck('name','id');
 
-        return view('samu.mobileinservice.edit', compact('mobiles','shift','mobileInService'));
+        return view('samu.mobileinservice.edit', compact('mobiles','types','shift','mobileInService'));
     }
 
     /**
