@@ -478,9 +478,12 @@ use App\Http\Livewire\Samu\MobileSelector;
 use App\Http\Livewire\Samu\TimestampsAndLocation;
 use App\Http\Livewire\Samu\GetLocation;
 use App\Http\Livewire\Samu\SearchCalls;
+use App\Http\Livewire\Samu\Procedures;
 use App\Http\Livewire\Samu\Shift\ShiftSearcher;
 
 Route::prefix('samu')->name('samu.')->middleware('auth')->group(function () {
+
+	Route::get('/procedures', Procedures::class)->name('procedures');
 
     Route::view('/', 'samu.welcome')->name('welcome');
 	Route::get('/map', [CallController::class, 'maps'])->name('map');
