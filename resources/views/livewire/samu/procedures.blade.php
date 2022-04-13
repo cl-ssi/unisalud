@@ -1,12 +1,7 @@
 <div>
     @switch($view)
-
-        @case('create')
-            form
-        @break
-
-
         @case('index')
+        <button class="btn btn-primary" wire:click="create">Crear</button>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -40,9 +35,14 @@
         </table>
         @break
 
+        @case('create')
         @case('edit')
-            <h4>Editar</h4>
-            <h5>{{ $procedure->name }}</h5>
+
+            @if($view == 'create')
+                <h4>Crear Procedimiento</h4>
+            @else
+                <h4>Editar Procedimiento</h4>
+            @endif
             
             <div class="form-row mb-3">
                 <fieldset class="col-md-2">
@@ -66,7 +66,11 @@
                 </fieldset>
             </div>
 
-            <button type="button" class="btn btn-primary" wire:click="update({{$procedure}})">Guardar</button>
+            @if($view == 'create')
+                <button type="button" class="btn btn-primary" wire:click="store">Crear</button>
+            @else
+                <button type="button" class="btn btn-primary" wire:click="update({{$procedure}})">Guardar</button>
+            @endif
             <button type="button" class="btn btn-outline-secondary" wire:click="index">Cancelar</button>
         
         @break

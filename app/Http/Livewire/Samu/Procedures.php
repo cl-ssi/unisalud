@@ -24,6 +24,29 @@ class Procedures extends Component
         $this->view = 'index';
     }
 
+    public function create()
+    {
+        $this->view = 'create';
+        $this->procedure = null;
+        
+        $this->code = null;
+        $this->name = null;
+        $this->valid_from = null;
+        $this->valid_to = null;
+    }
+
+    public function store()
+    {
+        $this->procedure->code = $this->code;
+        $this->procedure->name = $this->name;
+        $this->procedure->valid_from = $this->valid_from;
+        $this->procedure->valid_to = $this->valid_to;
+        $this->procedure->save();
+
+        $this->mount();
+        $this->view = 'index';
+    }
+
     public function edit(Procedure $procedure)
     {
         $this->view = 'edit';
