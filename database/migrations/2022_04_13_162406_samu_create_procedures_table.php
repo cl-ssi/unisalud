@@ -19,6 +19,7 @@ class SamuCreateProceduresTable extends Migration
             $table->string('name');
             $table->date('valid_from');
             $table->date('valid_to')->nullable();
+            $table->integer('value');
             $table->softDeletes();
             $table->timestamps();
         });

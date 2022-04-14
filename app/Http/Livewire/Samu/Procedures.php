@@ -11,7 +11,22 @@ class Procedures extends Component
     public $view;
 
     public $procedure;
-    public $code,$name,$valid_from,$valid_to;
+    public $code,$name,$valid_from,$valid_to,$value;
+
+    protected $rules = [
+        'code' => 'required',
+        'name' => 'required|min:4',
+        'valid_from' => 'required|date_format:Y-m-d',
+        'valid_to' => 'nullable|date',
+        'value' => 'integer',
+    ];
+
+    protected $messages = [
+        'code.required' => 'El código es requerido.',
+        'name.required' => 'El nombre es requerido.',
+        'valid_from.required' => 'La vigencia desde es requerida.',
+        'value.required' => 'El valor del procedimiento es requerido.',
+    ];
 
     public function mount()
     {
@@ -33,16 +48,12 @@ class Procedures extends Component
         $this->name = null;
         $this->valid_from = null;
         $this->valid_to = null;
+        $this->value = null;
     }
 
     public function store()
     {
-        $this->procedure->code = $this->code;
-        $this->procedure->name = $this->name;
-        $this->procedure->valid_from = $this->valid_from;
-        $this->procedure->valid_to = $this->valid_to;
-        $this->procedure->save();
-
+        Procedure::create($this->validate());
         $this->mount();
         $this->view = 'index';
     }
@@ -55,16 +66,13 @@ class Procedures extends Component
         $this->code = $procedure->code;
         $this->name = $procedure->name;
         $this->valid_from = $procedure->valid_from->format('Y-m-d');
-        $this->valid_to = $procedure->valid_to;
+        $this->valid_to = optional($procedure->valid_to)->format('Y-m-d');
+        $this->value = $procedure->value;
     }
 
     public function update(Procedure $procedure)
     {
-        $this->procedure->code = $this->code;
-        $this->procedure->name = $this->name;
-        $this->procedure->valid_from = $this->valid_from;
-        $this->procedure->valid_to = $this->valid_to;
-        $this->procedure->save();
+        $procedure->update($this->validate());
 
         $this->mount();
         $this->view = 'index';

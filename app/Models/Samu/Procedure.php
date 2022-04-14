@@ -18,7 +18,8 @@ class Procedure extends Model
         'code',
         'name',
         'valid_from',
-        'valid_to'
+        'valid_to',
+        'value'
     ];
 
     /**
@@ -37,5 +38,4 @@ class Procedure extends Model
     * @var string
     */
     protected $table = 'samu_procedures';
-    
 }

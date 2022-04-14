@@ -17,17 +17,20 @@ class SamuProcedureSeeder extends Seeder
         Procedure::create([
             'code'=>'1707017',
             'name'=>'CAPNOGRAFÍA',
-            'valid_from'=>'2022-01-01'
+            'valid_from'=>'2022-01-01',
+            'value'=>15000,
         ]);
         Procedure::create([
             'code'=>'1701034',
             'name'=>'CARDIOVERSIÓN',
-            'valid_from'=>'2022-01-01'    
+            'valid_from'=>'2022-01-01',
+            'value'=>25000,   
         ]);
         Procedure::create([
             'code'=>'1701009',
             'name'=>'CONTROL SIGNOS VITALES',
-            'valid_from'=>'2022-01-01'
+            'valid_from'=>'2022-01-01',
+            'value'=>3000,
         ]);
     }
 }
