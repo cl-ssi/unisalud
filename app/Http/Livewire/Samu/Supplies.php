@@ -4,10 +4,12 @@ namespace App\Http\Livewire\Samu;
 
 use Livewire\Component;
 use App\Models\Samu\Supply;
+use App\Models\Samu\SupplyCategory;
 
 class Supplies extends Component
 {
     public $supplies;
+    public $categories;
     public $view;
 
     public $supply;
@@ -33,6 +35,8 @@ class Supplies extends Component
     public function mount()
     {
         $this->supplies = Supply::orderBy('name')->get();
+        $this->categories = SupplyCategory::orderBy('name')->get();
+
         $this->view = 'index';
     }
 

@@ -1,7 +1,11 @@
 <div class="form-row mb-3">
     <fieldset class="col-md-2">
         <label for="for-cod">Categoría*</label>
-        <input type="text" wire:model="category_id" class="form-control">
+        <select class="form-control" name="category_id" id="for-category" wire:model="category_id">
+            @foreach($categories as $category)
+                <option value="{{ $category->id }}">{{ $category->name }}</option>
+            @endforeach
+        </select>
         @error('code') <span class="text-danger">{{ $message }}</span> @enderror
     </fieldset>
 

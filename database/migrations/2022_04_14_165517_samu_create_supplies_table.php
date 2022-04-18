@@ -13,9 +13,15 @@ class SamuCreateSuppliesTable extends Migration
      */
     public function up()
     {
+        Schema::create('samu_supply_categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+
         Schema::create('samu_supplies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id');
+            $table->foreignId('category_id')->constrained('samu_supply_categories');
             $table->string('code');
             $table->string('name');
             $table->date('valid_from');
@@ -24,6 +30,7 @@ class SamuCreateSuppliesTable extends Migration
             $table->softDeletes();
             $table->timestamps();
         });
+
     }
 
     /**
@@ -34,5 +41,6 @@ class SamuCreateSuppliesTable extends Migration
     public function down()
     {
         Schema::dropIfExists('samu_supplies');
+        Schema::dropIfExists('samu_supply_categories');
     }
 }
