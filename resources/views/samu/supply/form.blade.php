@@ -2,6 +2,7 @@
     <fieldset class="col-md-2">
         <label for="for-cod">Categoría*</label>
         <select class="form-control" name="category_id" id="for-category" wire:model="category_id">
+            <option value=""></option>
             @foreach($categories as $category)
                 <option value="{{ $category->id }}">{{ $category->name }}</option>
             @endforeach
@@ -29,7 +30,7 @@
 
     <fieldset class="col-md-2">
         <label for="for-valid-to">Válido hasta</label>
-        <input type="date" wire:model="valid_to" class="form-control">
+        <input type="date" wire:model="valid_to" value="" class="form-control">
         @error('valid_to') <span class="text-danger">{{ $message }}</span> @enderror
     </fieldset>
 

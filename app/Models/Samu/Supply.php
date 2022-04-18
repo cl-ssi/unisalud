@@ -4,6 +4,7 @@ namespace App\Models\Samu;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Samu\SupplyCategory;
 
 class Supply extends Model
 {
@@ -39,4 +40,10 @@ class Supply extends Model
     * @var string
     */
     protected $table = 'samu_supplies';
+
+    public function category()
+    {
+        return $this->belongsTo(SupplyCategory::class);
+    }
+    
 }

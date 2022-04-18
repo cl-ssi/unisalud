@@ -16,11 +16,11 @@ class Supplies extends Component
     public $category_id, $code, $name, $valid_from, $valid_to, $value;
 
     protected $rules = [
-        'category_id' => 'required',
+        'category_id' => 'required|exists:samu_supply_categories,id',
         'code' => 'required',
         'name' => 'required|min:4',
         'valid_from' => 'required|date_format:Y-m-d',
-        'valid_to' => 'nullable|date',
+        'valid_to' => 'nullable|date_format:Y-m-d',
         'value' => 'integer',
     ];
 
@@ -60,6 +60,9 @@ class Supplies extends Component
 
     public function store()
     {
+        /** Esto fixea que al seleccionar una fecha y luego borrarla no envíe vacio */
+        empty($this->valid_to) ? $this->valid_to = null : $this->valid_to;
+
         Supply::create($this->validate());
         $this->mount();
         $this->view = 'index';
@@ -80,6 +83,9 @@ class Supplies extends Component
 
     public function update(Supply $supply)
     {
+        /** Esto fixea que al seleccionar una fecha y luego borrarla no envíe vacio */
+        empty($this->valid_to) ? $this->valid_to = null : $this->valid_to;
+
         $supply->update($this->validate());
 
         $this->mount();

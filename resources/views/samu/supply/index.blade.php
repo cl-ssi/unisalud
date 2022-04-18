@@ -1,14 +1,14 @@
 <table class="table table-sm table-bordered">
     <thead>
         <tr>
-            <th>Editar</th>
+            <th width="50">Editar</th>
             <th>Categoría</th>
             <th>Codigo</th>
             <th>Nombre</th>
             <th>Válido desde</th>
             <th>Válido hasta</th>
             <th>Valor</th>
-            <th>Eliminar</th>
+            <th width="50"></th>
         </tr>
     </thead>
     <tbody>
@@ -20,7 +20,7 @@
                     <i class="fas fa-edit"></i>
                 </button>
             </td>
-            <td>{{ $supply->category_id }}</td>
+            <td>{{ $supply->category->name }}</td>
             <td>{{ $supply->code }}</td>
             <td>{{ $supply->name }}</td>
             <td>{{ $supply->valid_from->format('Y-m-d') }}</td>
