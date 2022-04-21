@@ -177,6 +177,18 @@ class Event extends Model implements Auditable
         return $this->hasOne(VitalSign::class);
     }
 
+    public function getMobileTypeAttribute()
+    {
+        if($this->mobileInService)
+        {
+            return optional(optional($this->mobileInService)->type)->name;
+        }
+        else
+        {
+            return optional(optional($this->mobile)->type)->name;
+        }
+    }
+
     public function getColorAttribute()
     {
         if(!$this->mobile_departure_at)     $color = 'danger';

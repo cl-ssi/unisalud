@@ -61,9 +61,9 @@
             <a class="btn btn-secondary" target="_blank"  href="{{ route('samu.event.report',$event) }}">
                 <i class="fas fa-print"></i> Imprimir
             </a>
-            @if( $event->created_at->gt(now()->subDays(30)) )
+            @if( $event->created_at->gt(now()->subDays(90)) )
             <a class="btn btn-warning float-right" href="{{ route('samu.event.reopen',$event) }}">
-                <i class="fas fa-lock-open"></i> Reabrir < 30 días
+                <i class="fas fa-lock-open"></i> Reabrir < 90 días
             </a>
             @endif
         @endcan
