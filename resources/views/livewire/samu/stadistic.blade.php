@@ -1,8 +1,6 @@
 <div>
-    @include('samu.nav')
-    <h3>Estadisticas</h3>
+    <h3 class="mt-4">Eventos por variables</h3>
 
-    
     <div class="form-row">
         <fieldset class="form-group col-md-2">
             <label for="for-from">Desde</label>
@@ -59,7 +57,7 @@
     
     <button class="btn btn-primary" wire:click="search">Buscar</button>
 
-    <h4>Total de eventos {{ $total }}</h4>
+    <h4 class="text-center">Total de eventos {{ $total }}</h4>
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <div id="piechart" style="width: 900px; height: 500px;"></div>

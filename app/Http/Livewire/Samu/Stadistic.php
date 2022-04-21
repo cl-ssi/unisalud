@@ -20,14 +20,14 @@ class Stadistic extends Component
 
     public $total = null;
 
-    protected $rules =  [
+    protected $rules = [
         'from' => 'required|date',
         'to'   => 'required|date'
     ];
 
     protected $messages = [
         'from.required' => 'La fecha desde es obligatoria.',
-        'to.required' => 'La fecha hasta es obligatoria.',
+        'to.required'   => 'La fecha hasta es obligatoria.',
     ];
 
     public function mount()
@@ -53,10 +53,15 @@ class Stadistic extends Component
                 $totalEvents->where('key_id',$this->key_id);
             }
 
+            if($this->return_key_id)
+            {
+                $totalEvents->where('return_key_id',$this->key_id);
+            }
+
             $totalEvents->whereBetween('date',[$this->from,$this->to]);
             $this->total = $totalEvents->count();
             
-            $totalEvents->where('commune_id',$id);    
+            $totalEvents->where('commune_id',$id);
 
             if($totalEvents->count() > 0)
             {
@@ -64,25 +69,26 @@ class Stadistic extends Component
             }
         }
 
+        
+        $totalEvents = Event::query();
+        $totalEvents->whereNull('commune_id');
+        $totalEvents->whereBetween('date',[$this->from,$this->to]);
+        
         if($this->key_id)
         {
-            $totalEvents = Event::whereNull('commune_id')
-                ->where('key_id',$this->key_id)
-                ->whereBetween('date',[$this->from,$this->to])
-                ->count();
+            $totalEvents->where('key_id',$this->key_id);
         }
-        else
+        
+        if($this->return_key_id)
         {
-            $totalEvents = Event::whereNull('commune_id')
-                ->whereBetween('date',[$this->from,$this->to])
-                ->count();
+            $totalEvents->where('return_key_id',$this->key_id);
         }
 
-        $this->total += $totalEvents;
+        //$this->total += $totalEvents->count();
 
-        if($totalEvents > 0)
+        if($totalEvents->count() > 0)
         {
-            $chartData[] = array('Sin comuna',$totalEvents);
+            $chartData[] = array('Sin comuna',$totalEvents->count());
         }
 
         array_unshift($chartData, ["Comuna", "Eventos"]);

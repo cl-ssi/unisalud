@@ -487,7 +487,7 @@ Route::prefix('samu')->name('samu.')->middleware('auth')->group(function () {
 
 	Route::get('/procedures', Procedures::class)->name('procedures');
 	Route::get('/supplies', Supplies::class)->name('supplies');
-	Route::get('/stadistic', Stadistic::class)->name('stadistic');
+	//Route::get('/stadistic', Stadistic::class)->name('stadistic');
 
     Route::view('/', 'samu.welcome')->name('welcome');
 	Route::get('/map', [CallController::class, 'maps'])->name('map');

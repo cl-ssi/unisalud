@@ -5,7 +5,7 @@
         <i class="fas fa-chart-line"></i> Panel de Estadísticas
     </h3>
    
-    <div class="row mb-2">
+    <div class="form-row mb-2">
         <div class="col">
             <div class="card" style="height:350px">
                 <h6 class="card-header"># de Eventos atendidos en los últimos 30 días</h6>
@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    <div class="row mb-2">
+    <div class="form-row mb-2">
         <div class="col-12 col-md-6">
             <div class="card" style="height:300px">
                 <h6 class="card-header"># de Eventos atendidos por comuna durante el mes de {{ translateMonth(now()->format('F')) }}</h6>
@@ -38,7 +38,7 @@
         </div>
     </div>
     
-    <div class="row mb-2">
+    <div class="form-row mb-2">
         <div class="col-12 col-md-6">
             <div class="card" style="height:300px">
                 <h6 class="card-header"># de Eventos atendidos agrupados por sexo durante el mes de {{ translateMonth(now()->format('F')) }}</h6>
@@ -57,6 +57,10 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="form-row">
+        @livewire('samu.stadistic')
     </div>
 </div>
 
