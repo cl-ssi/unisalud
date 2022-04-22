@@ -17,8 +17,8 @@ class CreateSamuMobileTypesTable extends Migration
             $table->id();
             $table->string('name',16);
             $table->string('description')->nullable();
-            $table->datetime('valid_from');
-            $table->datetime('valid_to');
+            $table->date('valid_from');
+            $table->date('valid_to');
             $table->boolean('status')->default(1);
             $table->softDeletes();
             $table->timestamps();
