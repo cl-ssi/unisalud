@@ -4,13 +4,26 @@ namespace App\Rules\Samu;
 
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 
 class EventTimestamp implements Rule
 {
+    // Stores the data of all timestamps
     public $data;
+
+    // Name of the timestamp field to validate
     public $field;
+
+    // Stores the name of timestamps
     public $fields;
+
+    // TimestampI less than or equal to TimestampJ
+    public $validateDate;
+
+    // Position of the timestamps that are evaluated in validateDate
+    public $validatePosition;
+
+    // Timestamps name is spanish
+    public $translate;
 
     /**
      * Initialize attributes
@@ -112,13 +125,16 @@ class EventTimestamp implements Rule
     }
 
     /**
-     * Validate the dates
+     * Validate datetime timestamps
      *
      * @return void
      */
     public function validateDate()
     {
+        // Current timestamp: TimestampI
         $i = 1;
+
+        // The next non-null timestamp: TimestampJ
         $j = 2;
 
         while($i <= 7 && $j <= 8)
@@ -143,21 +159,7 @@ class EventTimestamp implements Rule
     }
 
     /**
-     * Find the string in the fields attribute
-     *
-     * @param  string $field
-     * @return integer
-     */
-    public function searchField($field)
-    {
-        $index = $this->fields->search(function ($item) use($field) {
-            return $item == $field;
-        });
-        return $index;
-    }
-
-    /**
-     * Create the date using carbon
+     * Create the date using Carbon
      *
      * @return \Illuminate\Support\Carbon|null
      */
