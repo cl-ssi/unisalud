@@ -25,11 +25,17 @@ class SuspectCaseController extends Controller
             // dd('soy organizacion');
             $suspectcases = SuspectCase::where('organization_id', Auth::user()->practitioners->last()->organization->id)->get();
             //dd($suspectcases);
+        }
+        if ($tray == 'Pendientes de Recepción') {
+            $suspectcases = SuspectCase::where('reception_at', NULL)->get();
+        }
+        if ($tray == 'Pendientes de Resultado') {
+            $suspectcases = SuspectCase::where('reception_at','<>', NULL)->get();
         } 
         else {
             $suspectcases = SuspectCase::all();
         }
-        return view('epi.chagas.index', compact('suspectcases','tray'));
+        return view('epi.chagas.index', compact('suspectcases', 'tray'));
     }
 
     /**
@@ -44,6 +50,22 @@ class SuspectCaseController extends Controller
         return view('epi.chagas.create', compact('organizations', 'user'));
     }
 
+    public function reception(SuspectCase $suspectcase)
+    {
+        $suspectcase->receptor_id = Auth::id();
+        $suspectcase->reception_at = date('Y-m-d H:i:s');
+        //TODO código duro, debería ser dinámico. ¿otra tabla solo para los labotatorios u ocupar organizatión?
+        $suspectcase->laboratory_id = 4;
+        $suspectcase->save();
+
+        session()->flash('success', 'Se ha recepcionada la muestra: '
+            . $suspectcase->id . ' en laboratorio: Hospital Ernesto Torres Galdames ');
+            
+
+        return redirect()->back();
+    }
+
+
     /**
      * Store a newly created resource in storage.
      *
@@ -55,6 +77,11 @@ class SuspectCaseController extends Controller
         $sc = new SuspectCase($request->All());
         $sc->save();
         session()->flash('success', 'Se creo caso sospecha exitosamente');
+        if ($request->research_group == 'Tranmisión Vertical') {
+            Mail::to('claudia.caronna@redsalud.gob.cl')                
+                ->send(new DelegateChagasNotification($sc));
+        }
+
         return redirect()->back();
         //return redirect()->route('epi.chagas.index');
     }
@@ -98,10 +125,10 @@ class SuspectCaseController extends Controller
 
         if ($request->chagas_result_screening == 'En Proceso') {
             Mail::to('marina.miranda@cormudesi.cl')
-            // Mail::to('tebiccr@gmail.com')
-            ->send(new DelegateChagasNotification($suspectCase));
+                // Mail::to('tebiccr@gmail.com')
+                ->send(new DelegateChagasNotification($suspectCase));
         }
-        
+
 
         session()->flash('success', 'Se añadieron los datos adicionales a Caso sospecha');
         return redirect()->back();
@@ -133,5 +160,4 @@ class SuspectCaseController extends Controller
         $pdf = \PDF::loadView('epi.chagas.resultchagasnegative', compact('case'));
         return $pdf->stream();
     }
-
 }

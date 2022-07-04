@@ -32,7 +32,7 @@ class DelegateChagasNotification extends Mailable
      */
     public function build()
     {
-        $subject = "Solicitud N° {$this->suspectCase->id} de Chagas, en Proceso";
+        $subject = "Solicitud N° {$this->suspectCase->id} de Chagas";
         return $this->view('epi.chagas.mail.delegatenotification')->subject($subject);
     }
 }

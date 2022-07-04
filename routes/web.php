@@ -676,7 +676,8 @@ Route::prefix('epi')->name('epi.')->group(function () {
 		Route::get('/print/{suspectCase}',[SuspectCaseController::class, 'printresultchagasnegative'])->name('printresultchagasnegative');
 		Route::get('/{tray}', [SuspectCaseController::class, 'index'])->name('index');
 		Route::get('/{user}/create', [SuspectCaseController::class, 'create'])->name('create');
-		Route::post('/', [SuspectCaseController::class, 'store'])->name('store');		
+		Route::post('/', [SuspectCaseController::class, 'store'])->name('store');
+		Route::post('reception/{suspectcase}', [SuspectCaseController::class, 'reception'])->name('reception');
 		
 
 	});

@@ -30,14 +30,24 @@
             @foreach($suspectcases as $suspectcase)
             <tr>
                 <td>{{$suspectcase->id??''}}
+
                     @can('Epi: Add Value')
+                    @if($suspectcase->reception_at == null)
+                    <form method="POST" class="form-inline" action="{{ route('epi.chagas.reception',$suspectcase) }}">
+                            @csrf
+                            @method('POST')
+                    <button type="submit" class="btn btn-sm btn-primary" title="Recepcionar"><i class="fas fa-inbox"></i></button>
+                    </form>
+                    @else
                     <a href="{{ route('epi.chagas.edit',$suspectcase) }}" pclass="btn_edit"><i class="fas fa-edit"></i></a>
+                    @endif
                     @endcan
+
                 </td>
                 <td>{{$suspectcase->sample_at? $suspectcase->sample_at: ''}}</td>
                 <td>{{$suspectcase->organization->alias??''}}</td>
                 <td>{{$suspectcase->patient->OfficialFullName ??''}}
-                @if($suspectcase->research_group == "Gestante (+semana gestacional)") <img align="center" src="{{ asset('images/pregnant.png') }}" width="24"> @endif
+                    @if($suspectcase->research_group == "Gestante (+semana gestacional)") <img align="center" src="{{ asset('images/pregnant.png') }}" width="24"> @endif
                 </td>
                 <td>@if($suspectcase->patient->identifierRun)
                     {{$suspectcase->patient->identifierRun->value ??''}}-{{$suspectcase->patient->identifierRun->dv}}

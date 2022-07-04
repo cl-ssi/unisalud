@@ -196,7 +196,7 @@
 
         <fieldset class="form-group col-6 col-md-6">
             <label for="for_observation">Observación</label>
-            <input type="text" class="form-control" name="observation" id="for_observation">
+            <input type="text" class="form-control" name="observation" id="for_observation" autocomplete="off">
         </fieldset>
 
 

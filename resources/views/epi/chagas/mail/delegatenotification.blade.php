@@ -4,7 +4,12 @@
 
 <div style="text-align: justify;">
 
-    <h4>Estimado/a Delegado de Epidemiología: </h4>
+    <h4>Estimado/a 
+    @if($suspectCase->chagas_result_screening)
+    Delegado de Epidemiología: </h4>
+    @else
+    Funcionario de la Unidad de Pediatría
+    @endif
 
     <br>
 
@@ -13,8 +18,8 @@
     <p>Se informa que la Muestra:</p>
 
     <ul>
-        <li><strong>ID:</strong>: {{ $suspectCase->id }}</li>
-        <li><strong>De Tipo:</strong>: {{ $suspectCase->type }}</li>
+        <li><strong>ID:</strong> {{ $suspectCase->id }}</li>
+        <li><strong>De Tipo:</strong> {{ $suspectCase->type }}</li>
     </ul>
 
 
@@ -32,11 +37,18 @@
         <li><strong>Edad</strong>: {{\Carbon\Carbon::parse($suspectCase->patient->birthday)->age}}</li>
         <li><strong>Sexo</strong>: {{$suspectCase->patient->actualSex()->text ??''}}</li>
         <li><strong>Nacionalidad</strong>: {{$suspectCase->patient->nationality->name ??''}}</li>
+        <li><strong>Tipo de Pesquisa</strong>: {{$suspectCase->research_group ??''}}</li>
         
     </ul>
 
 
-    <p>Se encuentra <b>EN PROCESO</b> </p>
+    <p>Se encuentra 
+    @if($suspectCase->chagas_result_screening)
+    <b>{{strtoupper($suspectCase->chagas_result_screening)}}</b> 
+    @else
+    <b>Creada</b> 
+    @endif
+</p>
 
 </div>
 @endsection

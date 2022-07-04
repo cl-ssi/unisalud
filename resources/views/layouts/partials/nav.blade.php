@@ -426,6 +426,20 @@
             Todas las Solicitudes Chagas<span class="sr-only">(en desarrollo)</span>
         </a>
     </li>
+
+    <li class="nav-item">
+        <a class="nav-link {{ active('epi.chagas.index','Pendientes de Recepción') }}" href="{{ route('epi.chagas.index','Pendientes de Recepción') }}">
+            <span data-feather="chevrons-right"></span>
+            Pendientes de Recepción<span class="sr-only"></span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link {{ active('epi.chagas.index','Pendientes de Resultado') }}" href="{{ route('epi.chagas.index','Pendientes de Resultado') }}">
+            <span data-feather="chevrons-right"></span>
+            Pendientes de Resultado<span class="sr-only"></span>
+        </a>
+    </li>
 </ul>
 @endcan
 
