@@ -27,14 +27,15 @@ class SuspectCaseController extends Controller
             //dd($suspectcases);
         }
         if ($tray == 'Pendientes de Recepción') {
-            $suspectcases = SuspectCase::where('reception_at', NULL)->get();
+            $suspectcases = SuspectCase::whereNull('reception_at')->get();
+            //dd('entre acá');
         }
         if ($tray == 'Pendientes de Resultado') {
             $suspectcases = SuspectCase::where('reception_at','<>', NULL)->get();
-        } 
-        else {
-            $suspectcases = SuspectCase::all();
         }
+        if ($tray == 'Todas las Solicitudes') {
+            $suspectcases = SuspectCase::all();
+        }         
         return view('epi.chagas.index', compact('suspectcases', 'tray'));
     }
 

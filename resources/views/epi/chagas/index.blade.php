@@ -32,13 +32,24 @@
                 <td>{{$suspectcase->id??''}}
 
                     @can('Epi: Add Value')
-                    @if($suspectcase->reception_at == null)
+                    @if($tray === 'Todas las Solicitudes' and $suspectcase->reception_at === null)
                     <form method="POST" class="form-inline" action="{{ route('epi.chagas.reception',$suspectcase) }}">
                             @csrf
                             @method('POST')
                     <button type="submit" class="btn btn-sm btn-primary" title="Recepcionar"><i class="fas fa-inbox"></i></button>
                     </form>
-                    @else
+                    @endif
+                    @if($tray === 'Todas las Solicitudes' and $suspectcase->reception_at != null)
+                    <a href="{{ route('epi.chagas.edit',$suspectcase) }}" pclass="btn_edit"><i class="fas fa-edit"></i></a>
+                    @endif
+                    @if($tray === 'Pendientes de Recepción' and $suspectcase->reception_at === null)
+                    <form method="POST" class="form-inline" action="{{ route('epi.chagas.reception',$suspectcase) }}">
+                            @csrf
+                            @method('POST')                            
+                    <button type="submit" class="btn btn-sm btn-primary" title="Recepcionar"><i class="fas fa-inbox"></i></button>
+                    </form>
+                    @endif
+                    @if($tray === 'Pendientes de Resultado' and $suspectcase->reception_at <> null)
                     <a href="{{ route('epi.chagas.edit',$suspectcase) }}" pclass="btn_edit"><i class="fas fa-edit"></i></a>
                     @endif
                     @endcan

@@ -423,7 +423,7 @@
     <li class="nav-item">
         <a class="nav-link {{ active('epi.chagas.index','Todas las Solicitudes') }}" href="{{ route('epi.chagas.index','Todas las Solicitudes') }}">
             <span data-feather="chevrons-right"></span>
-            Todas las Solicitudes Chagas<span class="sr-only">(en desarrollo)</span>
+            Todas las Solicitudes Chagas<span class="sr-only"></span>
         </a>
     </li>
 
