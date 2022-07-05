@@ -26,14 +26,16 @@ class SuspectCaseController extends Controller
             $suspectcases = SuspectCase::where('organization_id', Auth::user()->practitioners->last()->organization->id)->get();
             //dd($suspectcases);
         }
-        if ($tray == 'Pendientes de Recepción') {
+        if ($tray === 'Pendientes de Recepción') {
             $suspectcases = SuspectCase::whereNull('reception_at')->get();
             //dd('entre acá');
         }
-        if ($tray == 'Pendientes de Resultado') {
-            $suspectcases = SuspectCase::where('reception_at','<>', NULL)->get();
+        if ($tray === 'Pendientes de Resultado') {
+            //dd('entre');
+            $suspectcases = SuspectCase::whereNull('chagas_result_screening_at')->whereNotNull('reception_at')->get();
+            // dd($suspectcases->reception_at);
         }
-        if ($tray == 'Todas las Solicitudes') {
+        if ($tray === 'Todas las Solicitudes') {
             $suspectcases = SuspectCase::all();
         }         
         return view('epi.chagas.index', compact('suspectcases', 'tray'));
