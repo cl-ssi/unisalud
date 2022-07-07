@@ -31,3 +31,14 @@ RUN echo "PS1='\[\033[01;35m\]UniSalud\[\033[00m\]@\[\033[01;34m\]\w\[\033[00m\]
 RUN echo "alias serve='php artisan serve --host=0.0.0.0 --port=8000'" >> ~/.bashrc
 RUN echo "alias tinker='php artisan tinker'" >> ~/.bashrc
 RUN echo "alias s='cd ..'" >> ~/.bashrc
+
+# Crear el usuario y grupo tic
+RUN chmod 666 /root
+RUN addgroup -g 1000 tic
+RUN adduser -G tic -u 1000 -D -h /root -s /bin/bash tic
+
+##  Algunos Alias para el terminal
+# alias dbuild='docker build docker/dev -t `basename "$PWD"`'
+# alias drun='docker run --rm -it -v $(pwd):/var/www/html -p 8000:8000 -d --name `basename "$PWD"` `basename "$PWD"`'
+# alias dexec='docker exec -it `basename "$PWD"` /bin/bash'
+# alias dstop='docker stop `basename "$PWD"`'
