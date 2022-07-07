@@ -19,7 +19,7 @@ class ShiftController extends Controller
     public function index()
     {
         $openShift = Shift::where('status',true)->exists() ?? false;
-        $shifts = Shift::with('users')->latest()->paginate(50);
+        $shifts = Shift::with('users')->with('users')->latest()->paginate(50);
 
         return view('samu.shift.index', compact('shifts','openShift'));
     }
