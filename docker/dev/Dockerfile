@@ -1,4 +1,4 @@
-FROM php:8.1-fpm-alpine
+FROM php:7.4.3-fpm-alpine
 
 # Install dependencies for GD and install GD with support for jpeg, png webp and freetype
 # Info about installing GD in PHP https://www.php.net/manual/en/image.installation.php
