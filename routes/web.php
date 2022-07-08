@@ -487,164 +487,165 @@ Route::prefix('soap')->name('soap.')->group(function(){
 
 
 /* Rutas SAMU */
-use App\Http\Controllers\Samu\ShiftController;
-use App\Http\Controllers\Samu\MobileInServiceController;
-use App\Http\Controllers\Samu\ShiftMobileController;
-use App\Http\Controllers\Samu\KeyController;
-use App\Http\Controllers\Samu\MobileController;
-use App\Http\Controllers\Samu\EventController;
-use App\Http\Controllers\Samu\CallController;
-use App\Http\Controllers\Samu\NoveltieController;
-use App\Http\Controllers\Samu\EstablishmentController;
-use App\Http\Controllers\Samu\GpsController;
-use App\Http\Controllers\Samu\CommuneController;
-use App\Http\Livewire\Samu\Coordinate\CoordinateIndex;
-use App\Http\Livewire\Samu\FindEvent;
-use App\Http\Livewire\Samu\MobileSelector;
-use App\Http\Livewire\Samu\TimestampsAndLocation;
-use App\Http\Livewire\Samu\GetLocation;
-use App\Http\Livewire\Samu\SearchCalls;
-use App\Http\Livewire\Samu\Procedures;
-use App\Http\Livewire\Samu\Supplies;
-use App\Http\Livewire\Samu\Stadistic;
-use App\Http\Livewire\Samu\Shift\ShiftSearcher;
+// use App\Http\Controllers\Samu\ShiftController;
+// use App\Http\Controllers\Samu\MobileInServiceController;
+// use App\Http\Controllers\Samu\ShiftMobileController;
+// use App\Http\Controllers\Samu\KeyController;
+// use App\Http\Controllers\Samu\MobileController;
+// use App\Http\Controllers\Samu\EventController;
+// use App\Http\Controllers\Samu\CallController;
+// use App\Http\Controllers\Samu\NoveltieController;
+// use App\Http\Controllers\Samu\EstablishmentController;
+// use App\Http\Controllers\Samu\GpsController;
+// use App\Http\Controllers\Samu\CommuneController;
+// use App\Http\Livewire\Samu\Coordinate\CoordinateIndex;
+// use App\Http\Livewire\Samu\FindEvent;
+// use App\Http\Livewire\Samu\MobileSelector;
+// use App\Http\Livewire\Samu\TimestampsAndLocation;
+// use App\Http\Livewire\Samu\GetLocation;
+// use App\Http\Livewire\Samu\SearchCalls;
+// use App\Http\Livewire\Samu\Procedures;
+// use App\Http\Livewire\Samu\Supplies;
+// use App\Http\Livewire\Samu\Stadistic;
+// use App\Http\Livewire\Samu\Shift\ShiftSearcher;
 
-Route::prefix('samu')->name('samu.')->middleware('auth')->group(function () {
+// Route::prefix('samu')->name('samu.')->middleware('auth')->group(function () {
+    
+// 	Route::view('/', 'samu.welcome')->name('welcome');
 
-	Route::get('/procedures', Procedures::class)->name('procedures');
-	Route::get('/supplies', Supplies::class)->name('supplies');
-	//Route::get('/stadistic', Stadistic::class)->name('stadistic');
+// 	// Route::get('/procedures', Procedures::class)->name('procedures');
+// 	// Route::get('/supplies', Supplies::class)->name('supplies');
+// 	//Route::get('/stadistic', Stadistic::class)->name('stadistic');
 
-    Route::view('/', 'samu.welcome')->name('welcome');
-	Route::get('/map', [CallController::class, 'maps'])->name('map');
-	Route::get('/dashboard', DashboardIndex::class)->name('dashboard');
+// 	Route::get('/map', [CallController::class, 'maps'])->name('map');
+// 	Route::get('/dashboard', DashboardIndex::class)->name('dashboard');
 
-	Route::prefix('shifts')->name('shift.')
-	->middleware('permission:SAMU administrador|SAMU regulador|SAMU despachador')
-	->group(function () {
-		Route::get('/',				[ShiftController::class, 'index'])->name('index');
-		Route::get('/create',		[ShiftController::class, 'create'])->name('create');
-		Route::post('/store',		[ShiftController::class, 'store'])->name('store');
-		Route::get('/searcher',		ShiftSearcher::class)->name('searcher');
-		Route::get('/edit/{shift}',	[ShiftController::class, 'edit'])->name('edit');
-		Route::put('/{shift}',		[ShiftController::class, 'update'])->name('update');
-		Route::delete('/{shift}', 	[ShiftController::class, 'destroy'])->name('destroy');
-    });
+// 	Route::prefix('shifts')->name('shift.')
+// 	->middleware('permission:SAMU administrador|SAMU regulador|SAMU despachador')
+// 	->group(function () {
+// 		Route::get('/',				[ShiftController::class, 'index'])->name('index');
+// 		Route::get('/create',		[ShiftController::class, 'create'])->name('create');
+// 		Route::post('/store',		[ShiftController::class, 'store'])->name('store');
+// 		Route::get('/searcher',		ShiftSearcher::class)->name('searcher');
+// 		Route::get('/edit/{shift}',	[ShiftController::class, 'edit'])->name('edit');
+// 		Route::put('/{shift}',		[ShiftController::class, 'update'])->name('update');
+// 		Route::delete('/{shift}', 	[ShiftController::class, 'destroy'])->name('destroy');
+//     });
 
-	Route::prefix('mobiles-in-service')->name('mobileinservice.')
-	->middleware('permission:SAMU administrador|SAMU regulador|SAMU despachador')
-	->group(function () {
-		Route::get('/',							[MobileInServiceController::class, 'index'])->name('index');
-		Route::get('/create',					[MobileInServiceController::class, 'create'])->name('create');
-		Route::post('/store',					[MobileInServiceController::class, 'store'])->name('store');
-		Route::get('/{mobileInService}/edit',	[MobileInServiceController::class, 'edit'])->name('edit');
-		Route::put('/{mobileInService}',		[MobileInServiceController::class, 'update'])->name('update');
-		Route::get('/crewedit/{mobileCrew}',	[MobileInServiceController::class, 'crewedit'])->name('crewedit');
-		Route::put('/crewupdate/{mobileCrew}',	[MobileInServiceController::class, 'crewupdate'])->name('crewupdate');
-		Route::delete('/{mobileInService}', 	[MobileInServiceController::class, 'destroy'])->name('destroy');
-		Route::get('/{mobileInService}/location',[MobileInServiceController::class, 'location'])->name('location');
-    });
+// 	Route::prefix('mobiles-in-service')->name('mobileinservice.')
+// 	->middleware('permission:SAMU administrador|SAMU regulador|SAMU despachador')
+// 	->group(function () {
+// 		Route::get('/',							[MobileInServiceController::class, 'index'])->name('index');
+// 		Route::get('/create',					[MobileInServiceController::class, 'create'])->name('create');
+// 		Route::post('/store',					[MobileInServiceController::class, 'store'])->name('store');
+// 		Route::get('/{mobileInService}/edit',	[MobileInServiceController::class, 'edit'])->name('edit');
+// 		Route::put('/{mobileInService}',		[MobileInServiceController::class, 'update'])->name('update');
+// 		Route::get('/crewedit/{mobileCrew}',	[MobileInServiceController::class, 'crewedit'])->name('crewedit');
+// 		Route::put('/crewupdate/{mobileCrew}',	[MobileInServiceController::class, 'crewupdate'])->name('crewupdate');
+// 		Route::delete('/{mobileInService}', 	[MobileInServiceController::class, 'destroy'])->name('destroy');
+// 		Route::get('/{mobileInService}/location',[MobileInServiceController::class, 'location'])->name('location');
+//     });
 
-    Route::prefix('crews')->name('crew.')
-	->middleware('permission:SAMU administrador|SAMU regulador|SAMU despachador')
-	->group(function () {
-		Route::view('/', 'samu.crew.index')->name('index');
-		Route::view('/create', 'samu.crew.create')->name('create');
-		Route::view('/edit', 'samu.crew.edit')->name('edit');
+//     Route::prefix('crews')->name('crew.')
+// 	->middleware('permission:SAMU administrador|SAMU regulador|SAMU despachador')
+// 	->group(function () {
+// 		Route::view('/', 'samu.crew.index')->name('index');
+// 		Route::view('/create', 'samu.crew.create')->name('create');
+// 		Route::view('/edit', 'samu.crew.edit')->name('edit');
 
-    });
+//     });
 
-	Route::prefix('novelties')->name('noveltie.')
-	->middleware('permission:SAMU administrador|SAMU regulador|SAMU operador|SAMU despachador')
-	->group(function () {
-		Route::get('/', 			[NoveltieController::class, 'index'])->name('index');
-		Route::post('/store', 		[NoveltieController::class, 'store'])->name('store');
-		Route::get('/edit/{noveltie}', [NoveltieController::class, 'edit'])->name('edit');
-		Route::put('/update/{noveltie}',[NoveltieController::class, 'update'])->name('update');
-	});
+// 	Route::prefix('novelties')->name('noveltie.')
+// 	->middleware('permission:SAMU administrador|SAMU regulador|SAMU operador|SAMU despachador')
+// 	->group(function () {
+// 		Route::get('/', 			[NoveltieController::class, 'index'])->name('index');
+// 		Route::post('/store', 		[NoveltieController::class, 'store'])->name('store');
+// 		Route::get('/edit/{noveltie}', [NoveltieController::class, 'edit'])->name('edit');
+// 		Route::put('/update/{noveltie}',[NoveltieController::class, 'update'])->name('update');
+// 	});
 
 
-    Route::prefix('calls')->name('call.')
-	->middleware('permission:SAMU administrador|SAMU regulador|SAMU operador|SAMU despachador')
-	->group(function () {
-		Route::get('/',				[CallController::class, 'index'])->name('index');
-		Route::get('/ots',			[CallController::class, 'ots'])->name('ots');
-		Route::get('/create',		[CallController::class, 'create'])->name('create');
-		Route::get('/edit/{call}',	[CallController::class, 'edit'])->name('edit');
-		Route::post('/store',		[CallController::class, 'store'])->name('store');
-		Route::delete('/{call}', 	[CallController::class, 'destroy'])->name('destroy');
-		Route::put('/update/{call}',[CallController::class, 'update'])->name('update');
-		Route::post('/sync-events/{call}',[CallController::class, 'syncEvents'])->name('syncEvents');
-		Route::get('/search',SearchCalls::class)->name('search');
-    });
+//     Route::prefix('calls')->name('call.')
+// 	->middleware('permission:SAMU administrador|SAMU regulador|SAMU operador|SAMU despachador')
+// 	->group(function () {
+// 		Route::get('/',				[CallController::class, 'index'])->name('index');
+// 		Route::get('/ots',			[CallController::class, 'ots'])->name('ots');
+// 		Route::get('/create',		[CallController::class, 'create'])->name('create');
+// 		Route::get('/edit/{call}',	[CallController::class, 'edit'])->name('edit');
+// 		Route::post('/store',		[CallController::class, 'store'])->name('store');
+// 		Route::delete('/{call}', 	[CallController::class, 'destroy'])->name('destroy');
+// 		Route::put('/update/{call}',[CallController::class, 'update'])->name('update');
+// 		Route::post('/sync-events/{call}',[CallController::class, 'syncEvents'])->name('syncEvents');
+// 		Route::get('/search',SearchCalls::class)->name('search');
+//     });
 
-    Route::prefix('events')->name('event.')
-	->middleware('permission:SAMU administrador|SAMU despachador')
-	->group(function () {
-		Route::get('/', 			[EventController::class, 'index'])->name('index');
-		Route::get('/{event}/duplicate', [EventController::class, 'create'])->name('duplicate');
-		Route::get('/create/{call?}', [EventController::class, 'create'])->name('create');
-		Route::post('/store/{call?}', [EventController::class, 'store'])->name('store');
-		Route::post('/store/{event?}/duplicate', [EventController::class, 'store'])->name('store.duplicate');
-		Route::get('/edit/{event}', [EventController::class, 'edit'])->name('edit');
-		Route::put('/update/{event}',[EventController::class, 'update'])->name('update');
-		Route::delete('/{event}', 	[EventController::class, 'destroy'])->name('destroy');
-		Route::get('/{event}/reopen',[EventController::class, 'reopen'])
-			->middleware('permission:SAMU administrador')->name('reopen');
-		Route::match(['get','post'], '/filter',	[EventController::class, 'filter'])->name('filter');
-		Route::get('/{event}/report',[EventController::class, 'report'])
-			->middleware('permission:SAMU administrador')->name('report');
-		Route::get('/find', FindEvent::class);
-    });
+//     Route::prefix('events')->name('event.')
+// 	->middleware('permission:SAMU administrador|SAMU despachador')
+// 	->group(function () {
+// 		Route::get('/', 			[EventController::class, 'index'])->name('index');
+// 		Route::get('/{event}/duplicate', [EventController::class, 'create'])->name('duplicate');
+// 		Route::get('/create/{call?}', [EventController::class, 'create'])->name('create');
+// 		Route::post('/store/{call?}', [EventController::class, 'store'])->name('store');
+// 		Route::post('/store/{event?}/duplicate', [EventController::class, 'store'])->name('store.duplicate');
+// 		Route::get('/edit/{event}', [EventController::class, 'edit'])->name('edit');
+// 		Route::put('/update/{event}',[EventController::class, 'update'])->name('update');
+// 		Route::delete('/{event}', 	[EventController::class, 'destroy'])->name('destroy');
+// 		Route::get('/{event}/reopen',[EventController::class, 'reopen'])
+// 			->middleware('permission:SAMU administrador')->name('reopen');
+// 		Route::match(['get','post'], '/filter',	[EventController::class, 'filter'])->name('filter');
+// 		Route::get('/{event}/report',[EventController::class, 'report'])
+// 			->middleware('permission:SAMU administrador')->name('report');
+// 		Route::get('/find', FindEvent::class);
+//     });
 
-	Route::prefix('keys')->name('key.')
-	->middleware('permission:SAMU administrador')
-	->group(function () {
-		Route::get('/' , 			[KeyController::class, 'index'])->name('index');
-		Route::get('/create' , 		[KeyController::class, 'create'])->name('create');
-		Route::post('/store', 		[KeyController::class, 'store'])->name('store');
-		Route::put('/{key}',		[KeyController::class, 'update'])->name('update');
-		Route::get('/edit/{key}',	[KeyController::class, 'edit'])->name('edit');
-		Route::delete('/{key}',		[KeyController::class, 'destroy'])->name('destroy');
-	});
+// 	Route::prefix('keys')->name('key.')
+// 	->middleware('permission:SAMU administrador')
+// 	->group(function () {
+// 		Route::get('/' , 			[KeyController::class, 'index'])->name('index');
+// 		Route::get('/create' , 		[KeyController::class, 'create'])->name('create');
+// 		Route::post('/store', 		[KeyController::class, 'store'])->name('store');
+// 		Route::put('/{key}',		[KeyController::class, 'update'])->name('update');
+// 		Route::get('/edit/{key}',	[KeyController::class, 'edit'])->name('edit');
+// 		Route::delete('/{key}',		[KeyController::class, 'destroy'])->name('destroy');
+// 	});
 
-	Route::prefix('mobiles')->name('mobile.')
-	->middleware('permission:SAMU administrador')
-	->group(function () {
-		Route::get('/',				[MobileController::class, 'index'])->name('index');
-		Route::get('/create',		[MobileController::class, 'create'])->name('create');
-		Route::post('/store',		[MobileController::class, 'store'])->name('store');
-		Route::get('/edit/{mobile}',[MobileController::class, 'edit'])->name('edit');
-		Route::put('/{mobile}',		[MobileController::class, 'update'])->name('update');
-		Route::delete('/{mobile}', 	[MobileController::class, 'destroy'])->name('destroy');
-		Route::get('/{mobile}/gps', [GpsController::class, 'index'])->name('gps');
-		Route::get('/gps', GetLocation::class);
-	});
+// 	Route::prefix('mobiles')->name('mobile.')
+// 	->middleware('permission:SAMU administrador')
+// 	->group(function () {
+// 		Route::get('/',				[MobileController::class, 'index'])->name('index');
+// 		Route::get('/create',		[MobileController::class, 'create'])->name('create');
+// 		Route::post('/store',		[MobileController::class, 'store'])->name('store');
+// 		Route::get('/edit/{mobile}',[MobileController::class, 'edit'])->name('edit');
+// 		Route::put('/{mobile}',		[MobileController::class, 'update'])->name('update');
+// 		Route::delete('/{mobile}', 	[MobileController::class, 'destroy'])->name('destroy');
+// 		Route::get('/{mobile}/gps', [GpsController::class, 'index'])->name('gps');
+// 		Route::get('/gps', GetLocation::class);
+// 	});
 
-	Route::get('/movil/event/{event}', TimestampsAndLocation::class)->name('mobiles.timestamps_locations');
-	Route::get('/movil', MobileSelector::class)->name('mobiles.mobile_selector');
+// 	Route::get('/movil/event/{event}', TimestampsAndLocation::class)->name('mobiles.timestamps_locations');
+// 	Route::get('/movil', MobileSelector::class)->name('mobiles.mobile_selector');
 
-	Route::prefix('establishments')->name('establishment.')
-	->middleware('permission:SAMU administrador')
-	->group(function () {
-		Route::get('/', 			[EstablishmentController::class, 'index'])->name('index');
-		Route::post('/', 			[EstablishmentController::class, 'store'])->name('store');
-	});
+// 	Route::prefix('establishments')->name('establishment.')
+// 	->middleware('permission:SAMU administrador')
+// 	->group(function () {
+// 		Route::get('/', 			[EstablishmentController::class, 'index'])->name('index');
+// 		Route::post('/', 			[EstablishmentController::class, 'store'])->name('store');
+// 	});
 
-	Route::prefix('communes')->name('commune.')
-	->middleware('permission:SAMU administrador')
-	->group(function () {
-		Route::get('/', 			[CommuneController::class, 'index'])->name('index');
-		Route::post('/', 			[CommuneController::class, 'store'])->name('store');
-	});
+// 	Route::prefix('communes')->name('commune.')
+// 	->middleware('permission:SAMU administrador')
+// 	->group(function () {
+// 		Route::get('/', 			[CommuneController::class, 'index'])->name('index');
+// 		Route::post('/', 			[CommuneController::class, 'store'])->name('store');
+// 	});
 
-	Route::prefix('coordinates')->name('coordinate.')
-	->group(function () {
-		Route::get('/', CoordinateIndex::class)->name('index');
-		Route::get('/search', [CoordinateController::class, 'search'])->name('search');
-		Route::post('/', [CoordinateController::class, 'store'])->name('store');
-	});
-});
+// 	Route::prefix('coordinates')->name('coordinate.')
+// 	->group(function () {
+// 		Route::get('/', CoordinateIndex::class)->name('index');
+// 		Route::get('/search', [CoordinateController::class, 'search'])->name('search');
+// 		Route::post('/', [CoordinateController::class, 'store'])->name('store');
+// 	});
+// });
 
 Route::get('/miubicacion', [CoordinateController::class, 'create'])->name('coordinate.create');
 Route::post('/miubicacion', [CoordinateController::class, 'store'])->name('coordinate.store')->middleware('throttle:2');

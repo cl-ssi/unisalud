@@ -478,17 +478,18 @@
 
 
 <!--SAMU-->
+{{--
 <ul class="nav flex-column">
-
     @canany(['SAMU'])
     <!--li class="nav-item">
-        <a class="nav-link {{ active('samu.welcome') }}" href="{{ route('samu.welcome') }}">
-            <i class="fas fa-ambulance"></i> SAMU
-        </a>
-    </li-->
-    @endcanany
+    <a class="nav-link {{ active('samu.welcome') }}" href="{{ route('samu.welcome') }}">
+        <i class="fas fa-ambulance"></i> SAMU
+    </a>
+</li-->
+@endcanany
 
 </ul>
+--}}
 <!--SAMU-->
 
 @can('Developer')
