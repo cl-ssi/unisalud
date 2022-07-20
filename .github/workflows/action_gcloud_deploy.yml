@@ -6,7 +6,7 @@ on:
       - test
 jobs:
   deploy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - name: Setup PHP with PECL extension
         uses: shivammathur/setup-php@v2
@@ -14,7 +14,7 @@ jobs:
           php-version: '7.3'
       - name: Check PHP Version
         run: php -v
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           repository: cl-ssi/config
           token: ${{ secrets.CONFIG_REPO_TOKEN }}
@@ -23,7 +23,7 @@ jobs:
       - run: echo "${{ secrets.CRYPT_KEY_BASE64_CONFIG_REPO }}" | base64 -d > config-git-crypt.key
       - run: cd config && git-crypt unlock ../config-git-crypt.key
       - run: mkdir unisalud
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           repository: cl-ssi/unisalud
           path: unisalud
@@ -32,7 +32,11 @@ jobs:
       - run: mv config/unisalud.yaml unisalud/app.yaml
         if: github.ref == 'refs/heads/main'
       - run: cd unisalud && composer install
-      - uses: google-github-actions/deploy-appengine@v0.4.0
+      - run: curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+      - run: sudo apt-get clean
+      - run: wget -qO - https://packages.confluent.io/deb/5.0/archive.key | sudo apt-key add -
+      - run: sudo apt-get update
+      - uses: google-github-actions/deploy-appengine@v0.8.0
         with:
           working_directory: unisalud
           credentials: ${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}
