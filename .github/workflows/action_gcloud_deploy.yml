@@ -34,6 +34,8 @@ jobs:
       - run: cd unisalud && composer install
       - run: curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
       - run: sudo apt-get clean
+      - run: sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8B1DA6120C2BF624
+      - run: sudo apt-get update
       - uses: google-github-actions/deploy-appengine@v0.8.0
         with:
           working_directory: unisalud
