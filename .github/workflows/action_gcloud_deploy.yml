@@ -19,6 +19,7 @@ jobs:
           repository: cl-ssi/config
           token: ${{ secrets.CONFIG_REPO_TOKEN }}
           path: config
+      - run: apt --fix-broken install & apt upgrade
       - run: sudo apt install git-crypt
       - run: echo "${{ secrets.CRYPT_KEY_BASE64_CONFIG_REPO }}" | base64 -d > config-git-crypt.key
       - run: cd config && git-crypt unlock ../config-git-crypt.key
