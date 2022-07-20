@@ -6,7 +6,7 @@ on:
       - test
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - name: Setup PHP with PECL extension
         uses: shivammathur/setup-php@v2
@@ -19,7 +19,6 @@ jobs:
           repository: cl-ssi/config
           token: ${{ secrets.CONFIG_REPO_TOKEN }}
           path: config
-      - run: sudo apt --fix-broken install
       - run: sudo apt install git-crypt
       - run: echo "${{ secrets.CRYPT_KEY_BASE64_CONFIG_REPO }}" | base64 -d > config-git-crypt.key
       - run: cd config && git-crypt unlock ../config-git-crypt.key
