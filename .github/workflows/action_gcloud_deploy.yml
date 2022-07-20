@@ -34,7 +34,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
       - run: cd unisalud && composer install
       - run: sudo apt-get update
-      - uses: google-github-actions/deploy-appengine@v0.8.0
+      - uses: google-github-actions/deploy-appengine@v0.4.0
         with:
           working_directory: unisalud
           credentials: ${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}
