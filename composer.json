@@ -13,6 +13,7 @@
         "league/config": "1.0.1",
         "league/uri": "6.5.0",
         "maennchen/zipstream-php": "2.1.0",
+        "psr/container": "1.1.1",
         "ext-gd": "*",
         "ext-soap": "*",
         "barryvdh/laravel-debugbar": "^3.5",
