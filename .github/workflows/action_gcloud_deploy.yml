@@ -11,7 +11,7 @@ jobs:
       - name: Setup PHP with PECL extension
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: '7.3'
       - name: Check PHP Version
         run: php -v
       - uses: actions/checkout@v3
@@ -23,7 +23,7 @@ jobs:
       - run: echo "${{ secrets.CRYPT_KEY_BASE64_CONFIG_REPO }}" | base64 -d > config-git-crypt.key
       - run: cd config && git-crypt unlock ../config-git-crypt.key
       - run: mkdir unisalud
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           repository: cl-ssi/unisalud
           path: unisalud
