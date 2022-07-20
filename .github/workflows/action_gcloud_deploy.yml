@@ -34,7 +34,7 @@ jobs:
       - run: cd unisalud && composer install
       - run: curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
       - run: sudo apt-get clean
-      - run: wget -qO - https://packages.confluent.io/deb/7.2/archive.key | sudo apt-key add -
+      - run: wget -qO - https://packages.confluent.io/deb/5.0/archive.key | sudo apt-key add -
       - run: sudo apt-get update
       - uses: google-github-actions/deploy-appengine@v0.8.0
         with:
