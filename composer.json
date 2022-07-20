@@ -9,6 +9,10 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
+        "league/commonmark": "1.6.7",
+        "league/config": "1.0.1",
+        "league/uri": "6.5.0",
+        "maennchen/zipstream-php": "2.1.0",
         "ext-gd": "*",
         "ext-soap": "*",
         "barryvdh/laravel-debugbar": "^3.5",
