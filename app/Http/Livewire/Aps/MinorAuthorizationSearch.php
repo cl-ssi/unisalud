@@ -7,7 +7,7 @@ use Livewire\Component;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Models\aPS\MinorAuthorization;
+use App\Models\Aps\MinorAuthorization;
 
 class MinorAuthorizationSearch extends Component
 {

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Aps;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-use App\Models\aPS\AuthorizationType;
+use App\Models\Aps\AuthorizationType;
 
 class AuthorizationTypeController extends Controller
 {

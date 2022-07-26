@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Aps;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-use App\Models\aPS\AuthorizationType;
-use App\Models\aPS\MinorAuthorization;
+use App\Models\Aps\AuthorizationType;
+use App\Models\Aps\MinorAuthorization;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
