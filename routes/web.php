@@ -63,7 +63,7 @@ use App\Http\Controllers\RayenWs\SoapController;
 use Spatie\Permission\Contracts\Role;
 
 
-use App\Http\Controllers\Epi\SuspectCaseController;
+
 use App\Http\Controllers\CoordinateController;
 use App\Http\Livewire\Samu\Dashboard\DashboardIndex;
 
@@ -667,8 +667,12 @@ Route::prefix('absences')->name('absences.')->group(function () {
 });
 
 
-//Rutas Epi
+//Rutas Chagas
+use App\Http\Controllers\Epi\SuspectCaseController;
+use App\Http\Controllers\Epi\TracingController;
+
 Route::prefix('epi')->name('epi.')->group(function () {
+	//Route::get('/{tray}', [SuspectCaseController::class, 'index'])->name('index');
 	Route::prefix('chagas')->name('chagas.')->group(function () {
 
 		Route::get('/{suspectCase}/edit', [SuspectCaseController::class, 'edit'])->name('edit');
@@ -680,6 +684,12 @@ Route::prefix('epi')->name('epi.')->group(function () {
 		Route::post('/', [SuspectCaseController::class, 'store'])->name('store');
 		Route::post('reception/{suspectcase}', [SuspectCaseController::class, 'reception'])->name('reception');
 		
+
+	});
+
+	Route::prefix('tracings')->name('tracings.')->middleware('auth')->group(function () {
+		Route::get('/', [TracingController::class, 'index'])->name('index');
+		Route::get('/create', [TracingController::class, 'create'])->name('create');
 
 	});
 
