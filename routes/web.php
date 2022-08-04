@@ -16,6 +16,7 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Some\ObservationController;
 
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\ContactPatientController;
 
 use App\Http\Controllers\Fq\CysticFibrosisRequest;
 use App\Http\Controllers\Fq\ContactUserController;
@@ -690,8 +691,13 @@ Route::prefix('epi')->name('epi.')->group(function () {
 	Route::prefix('tracings')->name('tracings.')->middleware('auth')->group(function () {
 		Route::get('/', [TracingController::class, 'index'])->name('index');
 		Route::get('/create', [TracingController::class, 'create'])->name('create');
-
 	});
+
+	Route::prefix('contacts')->name('contacts.')->middleware('auth')->group(function () {
+		Route::get('/create/{patient?}', [ContactPatientController::class, 'create'])->name('create');
+	
+	});
+	
 
 
 

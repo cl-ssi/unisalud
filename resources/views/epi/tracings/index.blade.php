@@ -21,6 +21,7 @@
                 <th>Resultado Confirmación</th>
                 <th>Observación</th>
                 <th>Cantidad de Notificaciones</th>
+                <th>Contacto</th>
             </tr>
         </thead>
 
@@ -56,6 +57,11 @@
                 <td>{{$suspectcase->observation??''}}</td>
                 <td>
                     0
+                </td>
+                <td>
+                <a class="btn btn-primary btn-sm" href="{{ route('epi.contacts.create',$suspectcase->patient) }}">
+                <i class="fas fa-plus"></i> 
+                </a>
                 </td>
             </tr>
             @endforeach

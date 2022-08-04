@@ -435,6 +435,13 @@
     </li>
 
     <li class="nav-item">
+        <a class="nav-link {{ active('epi.chagas.index','Finalizadas') }}" href="{{ route('epi.chagas.index','Finalizadas') }}">
+            <span data-feather="chevrons-right"></span>
+            Fializadas<span class="sr-only"></span>
+        </a>
+    </li>
+
+    <li class="nav-item">
         <a class="nav-link {{ active('epi.chagas.index','Pendientes de Recepción') }}" href="{{ route('epi.chagas.index','Pendientes de Recepción') }}">
             <span data-feather="chevrons-right"></span>
             Pendientes de Recepción<span class="sr-only"></span>

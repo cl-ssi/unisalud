@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Epi;
+namespace App\Http\Controllers;
 
-use App\Models\Epi\Tracing;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\Epi\SuspectCase;
+use App\Models\User;
 
-class TracingController extends Controller
+class ContactPatientController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,9 +15,6 @@ class TracingController extends Controller
     public function index()
     {
         //
-        //dd('llegue al index');
-        $suspectcases = SuspectCase::where('chagas_result_confirmation','positivo')->get();
-        return view('epi.tracings.index',compact('suspectcases'));
     }
 
     /**
@@ -27,11 +22,12 @@ class TracingController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(request $request, User $patient)
     {
         //
-        return view('epi.tracings.create');
-        //dd('soy el create');
+        //dd($patient);
+        return view('patients.contact.create',compact('patient','request'));
+        
     }
 
     /**
@@ -48,10 +44,10 @@ class TracingController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Tracing  $tracing
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Tracing $tracing)
+    public function show($id)
     {
         //
     }
@@ -59,10 +55,10 @@ class TracingController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Tracing  $tracing
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Tracing $tracing)
+    public function edit($id)
     {
         //
     }
@@ -71,10 +67,10 @@ class TracingController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Tracing  $tracing
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Tracing $tracing)
+    public function update(Request $request, $id)
     {
         //
     }
@@ -82,10 +78,10 @@ class TracingController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Tracing  $tracing
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Tracing $tracing)
+    public function destroy($id)
     {
         //
     }
