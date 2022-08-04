@@ -170,9 +170,9 @@
             <label for="for_chagas_result_confirmation">Resultado Confirmación</label>
             <select name="chagas_result_confirmation" id="for_chagas_result_confirmation" class="form-control">
                 <option value=""></option>
-                <option value="negative" {{$suspectCase->chagas_result_confirmation === 'negative'? 'selected' : ''}}>Negativo</option>
-                <option value="positive" {{$suspectCase->chagas_result_confirmation === 'positive'? 'selected' : ''}}>Positivo</option>
-                <option value="inconclusive" {{$suspectCase->chagas_result_confirmation === 'inconclusive'? 'selected' : ''}}>No Concluyente</option>
+                <option value="Negativo" {{$suspectCase->chagas_result_confirmation === 'Negativo'? 'selected' : ''}}>Negativo</option>
+                <option value="Positivo" {{$suspectCase->chagas_result_confirmation === 'Positivo'? 'selected' : ''}}>Positivo</option>
+                <option value="No Concluyente" {{$suspectCase->chagas_result_confirmation === 'No Concluyente'? 'selected' : ''}}>No Concluyente</option>
             </select>
         </fieldset>
 

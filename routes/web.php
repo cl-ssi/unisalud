@@ -16,6 +16,7 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Some\ObservationController;
 
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\ContactPatientController;
 
 use App\Http\Controllers\Fq\CysticFibrosisRequest;
 use App\Http\Controllers\Fq\ContactUserController;
@@ -63,7 +64,7 @@ use App\Http\Controllers\RayenWs\SoapController;
 use Spatie\Permission\Contracts\Role;
 
 
-use App\Http\Controllers\Epi\SuspectCaseController;
+
 use App\Http\Controllers\CoordinateController;
 use App\Http\Livewire\Samu\Dashboard\DashboardIndex;
 
@@ -667,8 +668,12 @@ Route::prefix('absences')->name('absences.')->group(function () {
 });
 
 
-//Rutas Epi
+//Rutas Chagas
+use App\Http\Controllers\Epi\SuspectCaseController;
+use App\Http\Controllers\Epi\TracingController;
+
 Route::prefix('epi')->name('epi.')->group(function () {
+	//Route::get('/{tray}', [SuspectCaseController::class, 'index'])->name('index');
 	Route::prefix('chagas')->name('chagas.')->group(function () {
 
 		Route::get('/{suspectCase}/edit', [SuspectCaseController::class, 'edit'])->name('edit');
@@ -682,6 +687,17 @@ Route::prefix('epi')->name('epi.')->group(function () {
 		
 
 	});
+
+	Route::prefix('tracings')->name('tracings.')->middleware('auth')->group(function () {
+		Route::get('/', [TracingController::class, 'index'])->name('index');
+		Route::get('/create', [TracingController::class, 'create'])->name('create');
+	});
+
+	Route::prefix('contacts')->name('contacts.')->middleware('auth')->group(function () {
+		Route::get('/create/{patient?}', [ContactPatientController::class, 'create'])->name('create');
+	
+	});
+	
 
 
 

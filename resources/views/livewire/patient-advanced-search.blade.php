@@ -34,8 +34,8 @@
                     <th scope="col">Selec.</th>
                     @can('Epi: Create')
                     <th scope="col">Añadir Caso Sospecha</th>
+                    <th scope="col">Añadir Contacto</th>
                     @endcan
-
             </thead>
             <tbody>
                 @if($patients)
@@ -54,6 +54,12 @@
                         @can('Epi: Create')
                         <td>
                             <a href="{{ route('epi.chagas.create',$patient) }}"><i class="fas fa-viruses"></i></a>
+                        </td>
+                        <td>
+                            <a class="btn btn-primary btn-sm" href="" data-toggle="modal" data-target="#exampleModal">
+                                <i class="fas fa-people-arrows"></i> 
+                            </a>
+                            @include('patients.modals.create_contact')
                         </td>
                         @endcan
                     </tr>

@@ -388,7 +388,7 @@
     <li class="nav-item">
         <a class="nav-link {{ active('patient.index') }}" href="{{ route('patient.index') }}">
             <span data-feather="chevrons-right"></span>
-            Solicitud Examen Chagas<span class="sr-only">(en desarrollo)</span>
+            Solicitud Examen Chagas<span class="sr-only"></span>
         </a>
     </li>
 
@@ -396,7 +396,14 @@
     <li class="nav-item">
         <a class="nav-link {{ active('epi.chagas.index','Mi Organización') }}"  href="{{ route('epi.chagas.index','Mi Organización') }}">
             <span data-feather="chevrons-right"></span>
-            Sol. Chagas de mi Organización<span class="sr-only">(en desarrollo)</span>
+            Sol. Chagas de mi Organización<span class="sr-only"></span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link"  href="{{ route('epi.tracings.index') }}">
+            <span data-feather="chevrons-right"></span>
+            Seguimiento/Notificación<span class="sr-only"></span>
         </a>
     </li>
 </ul>
@@ -424,6 +431,13 @@
         <a class="nav-link {{ active('epi.chagas.index','Todas las Solicitudes') }}" href="{{ route('epi.chagas.index','Todas las Solicitudes') }}">
             <span data-feather="chevrons-right"></span>
             Todas las Solicitudes Chagas<span class="sr-only"></span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link {{ active('epi.chagas.index','Finalizadas') }}" href="{{ route('epi.chagas.index','Finalizadas') }}">
+            <span data-feather="chevrons-right"></span>
+            Fializadas<span class="sr-only"></span>
         </a>
     </li>
 
