@@ -437,7 +437,7 @@
     <li class="nav-item">
         <a class="nav-link {{ active('epi.chagas.index','Finalizadas') }}" href="{{ route('epi.chagas.index','Finalizadas') }}">
             <span data-feather="chevrons-right"></span>
-            Fializadas<span class="sr-only"></span>
+            Finalizadas<span class="sr-only"></span>
         </a>
     </li>
 
