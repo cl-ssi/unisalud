@@ -330,9 +330,10 @@ class User extends Authenticatable implements Auditable
 
     function getAgeStringAttribute(){
         if($this->birthday){
-            $age = $this->birthday->age;
-            if($age > 0){
-                return $age .' años';
+            $age = $this->birthday->age;            
+            $edad = $this->birthday->diff(now());            
+            if($age > 0){                
+                return $edad->format('%y años, %m meses y %d días');
             }elseif($this->birthday->diffInMonths(now()) > 0){
                 return $this->birthday->diffInMonths(now()) . ' meses';
             }else{
@@ -586,4 +587,7 @@ class User extends Authenticatable implements Auditable
             $user->text = $user->given.' '.$user->fathers_family.' '.$user->mothers_family;
         });
     }
+
+
+    
 }

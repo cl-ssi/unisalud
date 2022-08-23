@@ -46,7 +46,7 @@
                     @endif
                 </td>
                 <td>
-                    {{\Carbon\Carbon::parse($suspectcase->patient->birthday)->age}}
+                    {{ $suspectcase->patient->AgeString ?? '' }}
                 </td>
                 <td>{{$suspectcase->patient->actualSex()->text ??''}}</td>
                 <td>{{$suspectcase->patient->nationality->name ??''}}</td>
