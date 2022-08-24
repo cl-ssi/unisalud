@@ -684,6 +684,10 @@ Route::prefix('epi')->name('epi.')->group(function () {
 		Route::get('/{user}/create', [SuspectCaseController::class, 'create'])->name('create');
 		Route::post('/', [SuspectCaseController::class, 'store'])->name('store');
 		Route::post('reception/{suspectcase}', [SuspectCaseController::class, 'reception'])->name('reception');
+		Route::get('downloadscreening/{suspect_case}', [SuspectCaseController::class, 'downloadscreening'])->name('downloadscreening');
+		Route::get('downloadsconfirmation/{suspect_case}', [SuspectCaseController::class, 'downloadconfirmation'])->name('downloadconfirmation');
+		Route::get('file/{suspect_case}/screening', [SuspectCaseController::class, 'fileDeletescreening'])->name('fileDeletescreening');
+		Route::get('file/{suspect_case}/confirmation', [SuspectCaseController::class, 'fileDeleteconfirmation'])->name('fileDeleteconfirmation');
 		
 
 	});

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Support\Facades\Mail;
 use App\Mail\DelegateChagasNotification;
+use Illuminate\Support\Facades\Storage;
 
 class SuspectCaseController extends Controller
 {
@@ -124,8 +125,23 @@ class SuspectCaseController extends Controller
      */
     public function update(Request $request, SuspectCase $suspectCase)
     {
-        //
+        //               
         $suspectCase->fill($request->all());
+        if($request->hasFile('chagas_result_screening_file'))
+        {            
+            $file_name = $suspectCase->id.'_screening';
+            $file = $request->file('chagas_result_screening_file');
+            $suspectCase->chagas_result_screening_file = $file->storeAs('/unisalud/chagas', $file_name.'.'.$file->extension(), 'gcs');
+        }
+
+        if($request->hasFile('chagas_result_confirmation_file'))
+        {            
+            $file_name = $suspectCase->id.'_confirmation';
+            $file = $request->file('chagas_result_confirmation_file');
+            $suspectCase->chagas_result_confirmation_file = $file->storeAs('/unisalud/chagas', $file_name.'.'.$file->extension(), 'gcs');
+        }
+
+
         $suspectCase->save();
 
         if ($request->chagas_result_screening == 'En Proceso') {
@@ -137,8 +153,37 @@ class SuspectCaseController extends Controller
 
         session()->flash('success', 'Se añadieron los datos adicionales a Caso sospecha');
         return redirect()->back();
-        //return redirect()->route('epi.chagas.index');
     }
+
+    public function downloadscreening(SuspectCase $suspectCase)
+    {
+        return Storage::disk('gcs')->download($suspectCase->chagas_result_screening_file);
+    }
+
+    public function downloadconfirmation(SuspectCase $suspectCase)
+    {
+        return Storage::disk('gcs')->download($suspectCase->chagas_result_confirmation_file);
+    }
+    
+
+    public function fileDeletescreening(SuspectCase $suspectCase)
+    {        
+        Storage::disk('gcs')->delete($suspectCase->chagas_result_screening_file);
+        $suspectCase->chagas_result_screening_file = false;
+        $suspectCase->save();
+        session()->flash('info', 'Se ha eliminado el archivo correctamente.');
+        return redirect()->back();
+    }
+
+    public function fileDeleteconfirmation(SuspectCase $suspectCase)
+    {        
+        Storage::disk('gcs')->delete($suspectCase->chagas_result_confirmation_file);
+        $suspectCase->chagas_result_confirmation_file = false;
+        $suspectCase->save();
+        session()->flash('info', 'Se ha eliminado el archivo correctamente.');
+        return redirect()->back();
+    }
+    
 
     /**
      * Remove the specified resource from storage.

@@ -153,6 +153,27 @@
             </select>
         </fieldset>
 
+        <fieldset class="form-group col-4 col-md-3 alert-warning">
+            <label for="for_file">Archivo</label>
+            <div class="custom-file">
+                <input type="file" name="chagas_result_screening_file" class="custom-file-input" id="forfile" lang="es" multiple>
+                <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
+            </div>
+
+            @if($suspectCase->chagas_result_screening_file)
+            <a href="{{ route('epi.chagas.downloadscreening', $suspectCase->id) }}"
+               target="_blank" data-toggle="tooltip" data-placement="top"
+               data-original-title="{{ $suspectCase->id . 'pdf' }}">Resultado <i class="fas fa-paperclip"></i>&nbsp
+            </a>
+                - <a href="{{ route('epi.chagas.fileDeletescreening', $suspectCase->id) }}" onclick="return confirm('Está seguro?')">
+                    [ Borrar ]
+                </a>
+            @endif
+
+
+
+        </fieldset>
+
     </div>
 
     <div class="form-row">
@@ -176,25 +197,28 @@
             </select>
         </fieldset>
 
-        @endcan
-
-        @can('SuspectCase: tecnologo')
-
-        <fieldset class="form-group col-12 col-md-12">
+        <fieldset class="form-group col-4 col-md-3 alert-danger">
             <label for="for_file">Archivo</label>
             <div class="custom-file">
-                <input type="file" name="forfile[]" class="custom-file-input" id="forfile" lang="es" multiple>
+                <input type="file" name="chagas_result_confirmation_file" class="custom-file-input" id="forfile" lang="es" multiple>
                 <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
             </div>
+
+            @if($suspectCase->chagas_result_confirmation_file)
+            <a href="{{ route('epi.chagas.downloadconfirmation', $suspectCase->id) }}"
+               target="_blank" data-toggle="tooltip" data-placement="top"
+               data-original-title="{{ $suspectCase->id . 'pdf' }}">Resultado <i class="fas fa-paperclip"></i>&nbsp
+            </a>
+                - <a href="{{ route('epi.chagas.fileDeleteconfirmation', $suspectCase->id) }}" onclick="return confirm('Está seguro?')">
+                    [ Borrar ]
+                </a>
+        @endif
         </fieldset>
 
-
-
-
-
+        @endcan
         <hr>
 
-        @endcan
+        
     </div>
     <div class="form-row">
         <button type="submit" class="btn btn-primary">Guardar</button>

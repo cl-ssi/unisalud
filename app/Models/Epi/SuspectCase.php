@@ -35,13 +35,16 @@ class SuspectCase extends Model
         'observation', 'minsal_ws_id','case_type', 'positive_condition',
         'patient_id', 'laboratory_id', 'establishment_id', 'organization_id',
         'user_id',
-        'ct', 'candidate_for_sq'
+        'ct', 
+        'candidate_for_sq',
+        'chagas_result_screening_file',
+        'chagas_result_confirmation_file'
         
     ];
 
     protected $dates = [
         'sample_at', 'symptoms_at', 'reception_at', 'result_ifd_at', 'pcr_sars_cov_2_at', 'sent_external_lab_at',
-        'notification_at', 'discharged_at', 'deleted_at','chagas_result_confirmation_at','chagas_result_screening_at',
+        'notification_at', 'discharged_at', 'deleted_at','chagas_result_confirmation_at','chagas_result_screening_at',        
     ];
 
 
