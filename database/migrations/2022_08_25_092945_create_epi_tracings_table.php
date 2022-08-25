@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTracingsTable extends Migration
+class CreateEpiTracingsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateTracingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('tracings', function (Blueprint $table) {
+        Schema::create('epi_tracings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('patient_id');
 
@@ -41,6 +41,6 @@ class CreateTracingsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tracings');
+        Schema::dropIfExists('epi_tracings');
     }
 }
