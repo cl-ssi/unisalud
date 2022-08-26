@@ -6,6 +6,7 @@ use App\Models\Epi\Tracing;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Epi\SuspectCase;
+use Illuminate\Support\Facades\DB;
 
 class TracingController extends Controller
 {
@@ -16,8 +17,6 @@ class TracingController extends Controller
      */
     public function index()
     {
-        //
-        //dd('llegue al index');
         $suspectcases = SuspectCase::where('chagas_result_confirmation','positivo')->get();
         return view('epi.tracings.index',compact('suspectcases'));
     }
@@ -29,9 +28,10 @@ class TracingController extends Controller
      */
     public function create()
     {
-        //
-        return view('epi.tracings.create');
-        //dd('soy el create');
+        //$cie10s = DB::table('cie10')->get();
+        $cie10s = DB::select('select * from cie10 where name like  "%chag%"');
+        return view('epi.tracings.create',compact('cie10s'));
+        
     }
 
     /**

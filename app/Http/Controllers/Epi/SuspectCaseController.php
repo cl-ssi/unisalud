@@ -146,7 +146,7 @@ class SuspectCaseController extends Controller
 
         if ($request->chagas_result_screening == 'En Proceso') {
             Mail::to('marina.miranda@cormudesi.cl')
-                // Mail::to('tebiccr@gmail.com')
+            ->Mail::to('sandra@cormudesi.cl')
                 ->send(new DelegateChagasNotification($suspectCase));
         }
 

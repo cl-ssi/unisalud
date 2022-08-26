@@ -74,9 +74,14 @@
                 <input type="number" name="epivigila" id="for_epivigila" class="form-control" required>
             </fieldset>
 
-            <fieldset class="form-group col-8 col-sm-5 col-md-3 col-lg-2">
+            <fieldset class="form-group col-8 col-sm-5 col-md-6 col-lg-2">
                 <label for="for_cie-10">Código CIE-10</label>
-                <input type="text" class="form-control" name="cie-10" id="for_cie-10">
+                <select name="cie10" id="for_cie10" class="form-control selectpicker" data-actions-box="true" data-size="10" title="Seleccione..." data-live-search="true">
+                    <option value="">Seleccionar</option>
+                    @foreach($cie10s as $cie10)
+                    <option value="{{$cie10->name}}">{{$cie10->name}}</option>
+                    @endforeach
+                </select>
             </fieldset>
 
         </div>
@@ -192,5 +197,8 @@
 @endsection
 
 @section('custom_js')
+<link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap-select.min.css') }}">
+<script src="{{ asset('js/bootstrap-select.min.js') }}"></script>
+
 
 @endsection
