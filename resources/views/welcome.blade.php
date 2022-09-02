@@ -76,7 +76,7 @@
                 </tr>
             </table>
         </div>
-        <p class="text-muted mt-4">Bienvenido al portal de sistemas del Servicio de Salud de Iquique.</p>
+        <p class="text-muted mt-4">Bienvenido al portal para la comunidad del Servicio de Salud de Iquique.</p>
 
     </div>
 
@@ -105,43 +105,49 @@
                         </a>
                         <!--./ fin botón-->
                     </div>
+
+                    <hr>
+
+                    <a class="text-primary" href="{{ route('login') }}">Login local</a>
                 </div>
             </div>
 
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h4 class="my-0 font-weight-normal">Coronavirus</h4>
-                </div>
-                <div class="card-body">
+            
+            
+            <div class="card shadow-sm text-center">
 
-
-                </div>
             </div>
 
-            <div class="card shadow-sm">
+
+
+            <div class="card shadow-md">
                 <div class="card-header">
-                    <h4 class="my-0 font-weight-normal">Estado de Urgencias</h4>
+                    <h4 class="my-0 font-weight-normal">
+						<a href="https://portal.saludtarapaca.gob.cl" class="btn btn-secondary btn-block">Portal de sistemas</a>
+					</h4>
                 </div>
 
-                @php($array = json_decode(file_get_contents('status.json'),true))
+				<ul class="list-group list-group-flush">
+					<li class="list-group-item">
+						<a href="https://i.saludiquique.cl" class="btn btn-outline-info btn-block">iOnline</a>
+					</li>
+					<li class="list-group-item">
+						<a href="https://i.saludiquique.cl/login/external" class="btn btn-outline-info btn-block">Externos</a>
+					</li>
+					<li class="list-group-item">
+						<a href="https://neo.saludtarapaca.gob.cl" class="btn btn-outline-info btn-block">NeoSalud</a>
+					</li>
+					<li class="list-group-item">
+						<a href="https://uni.saludtarapaca.gob.cl" class="btn btn-info btn-block disabled">Unisalud</a>
+					</li>
+					<li class="list-group-item">
+						<a href="https://esmeralda.saludtarapaca.org" class="btn btn-outline-info btn-block">Esmeralda</a>
+					</li>
+					<li class="list-group-item">
+						<a href="https://i.saludiquique.cl/claveunica?redirect=L3NpcmVteC9sb2dpbmN1" class="btn btn-outline-info btn-block">Sirmx</a>
+					</li>
 
-                <p class="text-muted mt-2 mb-2">Ultima actualización: {{ $array['updated'] }}</p>
-
-                <table class="table table-sm">
-                    <tr>
-                        <th>Establecimiento</th>
-                        <th>En espera</th>
-                        <th>En box</th>
-                    </tr>
-                    @foreach($array['data'] as $nombre => $element)
-                        <tr>
-                            <td>{{ $nombre }}</td>
-                            <td>{{ $element['En espera'] }}</td>
-                            <td>{{ $element['En box'] }}</td>
-                        </tr>
-                    @endforeach
-                </table>
-
+				</ul>
             </div>
 
 
@@ -153,27 +159,17 @@
                     <img class="mb-2" src="{{ asset('images/logo_ssi_100px.png') }}" alt="Logo Servicio de Salud Iquique">
                 </div>
                 <div class="col-6 col-md">
-                    <h5>Portales del estado</h5>
-                    <ul class="list-unstyled text-small">
-                        <li><a class="text-muted" href="http://www.gob.cl">Gobierno de Chile</a></li>
-                        <li><a class="text-muted" href="http://www.minsal.cl">Ministerio de Salud</a></li>
-                        <li><a class="text-muted" href="http://www.saludiquique.cl">Servicio de Salud Iquique</a> </li>
-                    </ul>
+
                 </div>
                 <div class="col-6 col-md">
-                    <h5>Servicio de Salud</h5>
-                    <ul class="list-unstyled text-small">
-                        <li><a class="text-muted" href="https://i.saludiquique.cl/login">iOnline</a></li>
-                        <li><a class="text-muted" href="http://intranet.saludiquique.cl">Intranet</a> </li>
-                        <li><a class="text-muted" href="{{ route('login') }}">Login local</a></li>
-                    </ul>
+
                 </div>
                 <div class="col-6 col-md">
                     <h5>Desarrollado por</h5>
                     <ul class="list-unstyled text-small">
                         <li>Departamento TIC del SSI</li>
                         <li><a class="text-muted" href="mailto:sistemas.ssi@redsalud.gobc.">sistemas.ssi@redsalud.gob.cl</a></li>
-                        <small class="d-block mb-3 text-muted">&copy; 2021</small>
+                        <small class="d-block mb-3 text-muted"> 2021</small>
                     </ul>
                 </div>
             </div>
