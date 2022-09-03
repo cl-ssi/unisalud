@@ -81,21 +81,16 @@
     </div>
 
     <div class="container">
-        <div class="card-deck mb-3 text-center">
+        <div class="card-deck mb-3">
 
             <div class="card shadow-sm">
                 <div class="card-header">
-                    <h4 class="my-0 font-weight-normal">Portal de Salud</h4>
+                    <h4 class="my-0 font-weight-normal text-center">Ingreso al portal</h4>
                 </div>
                 <div class="card-body">
 
-                    <ul class="list-unstyled mt-3 mb-4">
-                        <h2>Ciudadanía</h2>
-                        <p>Bienvenido al portal de Salud de la Región de Tarapacá. Acá encontrarás la información 
-                        que esté disponible para ti y la podrás consultar en línea utilizando tu clave única del estado, 
-                        haciendo click en el botón de abajo.</p>
+					<h6 class="mb-3 text-center">Utilizando tu clave única</h6>
 
-                    </ul>
                     <div class="row justify-content-center">
                         <!-- Código para visualizar botón oficial iniciar sesión con ClaveÚnica-->
                         <a class="btn-cu btn-m btn-color-estandar text-center" href="{{ route('claveunica') }}"
@@ -108,14 +103,73 @@
 
                     <hr>
 
-                    <a class="text-primary" href="{{ route('login') }}">Login local</a>
+					<h6 class="mb-3 text-center">O con tu cuenta del sistema</h6>
+
+                    <form method="POST" action="{{ route('authenticate') }}">
+                        @csrf
+
+                        <div class="form-group row">
+                            <label for="email" class="col-4 col-form-label text-md-right">
+                            {{ __('RUN') }}</label>
+
+                            <div class="col-8 col-md-6">
+                                <input id="run" type="text" class="form-control @error('run') is-invalid @enderror"
+                                    name="run" value="{{ old('run') }}" required autocomplete="run" autofocus>
+
+                                @error('run')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="password" class="col-4 col-form-label text-md-right">{{ __('Clave') }}</label>
+
+                            <div class="col-8 col-md-6">
+                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+
+                                @error('password')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-8 col-md-6 offset-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="remember" id="remember" value=1 {{ old('remember') ? 'checked' : '' }}>
+
+                                    <label class="form-check-label" for="remember">
+                                        {{ __('Recuerdame') }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-0">
+                            <div class="col-8 col-md-6 offset-4">
+                                <button type="submit" class="btn btn-secondary btn-block">
+                                    {{ __('Iniciar sesión') }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            
             
             <div class="card shadow-sm text-center">
-
+				<div class="card-header">
+                    <h4 class="my-0 font-weight-normal">Ciudadanía</h4>
+                </div>
+				<div class="card-body">
+				<p>Bienvenido al portal de Salud de la Región de Tarapacá. Acá encontrarás la información 
+				que esté disponible para ti y la podrás consultar en línea utilizando tu clave única del estado, 
+				haciendo click en el botón al lado izquierdo.</p>
+				</div>
             </div>
 
 
