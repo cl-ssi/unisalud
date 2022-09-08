@@ -17,6 +17,7 @@ Installation:
 - Requires having the php soap extension enabled `extension=soap`.
 - Build on laravel 8.24 + bootstrap + livewire
 
+
 ## License
 
 Open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
