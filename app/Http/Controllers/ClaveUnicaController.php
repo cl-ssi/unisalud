@@ -34,9 +34,9 @@ class ClaveUnicaController extends Controller
         /* Segundo paso, el usuario ya se autentificó correctamente en CU y retornó a nuestro sistema */
 
 		/* Nos aseguramos que vengan los parámetros desde CU */
-//		if ($request->missing(['code','name'])) {
-//			return redirect()->route('welcome');
-//		}
+        //		if ($request->missing(['code','name'])) {
+        //			return redirect()->route('welcome');
+        //		}
 
         /* Recepcionamos los siguientes parametros desde CU */
         $code   = $request->input('code');
