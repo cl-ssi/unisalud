@@ -509,6 +509,7 @@ class User extends Authenticatable implements Auditable
     {
         return $this->hasMany('App\Models\MedicalProgrammer\OperatingRoom');
     }
+    
 
     //programador (funciones)
     public function getSpecialtiesArray()

@@ -20,7 +20,7 @@
                 <th>Fecha de Resultado Confirmación</th>
                 <th>Resultado Confirmación</th>
                 <th>Observación</th>
-                <th>Cantidad de Notificaciones</th>
+                <th>Ver/Editar Serguimientos</th>
                 <th>Contacto</th>
             </tr>
         </thead>
@@ -32,7 +32,7 @@
             <tr>
                 <td>{{$suspectcase->id??''}}
                 
-                <a href="{{ route('epi.tracings.create', $suspectcase->patient->id) }}" pclass="btn_edit"><i class="fas fa-phone"></i></a>
+                <a href="{{ route('epi.tracings.create', $suspectcase->id) }}" pclass="btn_edit"><i class="fas fa-phone"></i></a>
                 </td>
                 <td>{{$suspectcase->sample_at? $suspectcase->sample_at: ''}}</td>
                 <td>{{$suspectcase->organization->alias??''}}</td>
@@ -56,7 +56,9 @@
                 <td>{{$suspectcase->chagas_result_confirmation ?? ''}}</td>
                 <td>{{$suspectcase->observation??''}}</td>
                 <td>
-                    0
+                    @foreach($suspectcase->tracings as $tracing)
+                    <a href="{{ route('epi.tracings.edit', $tracing) }}" pclass="btn_edit">Seguimiento {{$tracing->id ?? ''}}</i></a>
+                    @endforeach                    
                 </td>
                 <td>
                 <a class="btn btn-primary btn-sm" href="{{ route('epi.contacts.create',$suspectcase->patient) }}">

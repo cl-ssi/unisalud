@@ -56,6 +56,11 @@ class SuspectCase extends Model
         return $this->belongsTo('App\Models\User');
     }
 
+    public function tracings()
+    {
+        return $this->hasMany('App\Models\Epi\Tracing');
+    }
+
     protected $table = 'epi_suspect_cases';
 
 
