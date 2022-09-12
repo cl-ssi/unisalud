@@ -17,17 +17,24 @@ class CreateEpiTracingsTable extends Migration
             $table->id();
             $table->foreignId('patient_id');
 
-            //Datos Resultado
+            //Entrega de Resultado
             $table->date('delivery_of_result')->nullable();
             $table->string('mechanism_of_result')->nullable();
             $table->string('observation_of_result')->nullable();
 
-            //interconsulta
-            $table->date('delivery_of_result')->nullable();
+            //Interconsulta
+            $table->date('date_of_sic')->nullable();
+            $table->string('polyclinic_sic')->nullable();
+
+            //Notificación
+            $table->date('date_of_notification')->nullable();
+            $table->unsignedInteger('epi_notification')->nullable();
+            $table->string('cie10name_notification')->nullable();
+
             
 
 
-            $table->boolean('index')->nullable();
+            
 
             $table->foreign('patient_id')->references('id')->on('users');
             $table->timestamps();

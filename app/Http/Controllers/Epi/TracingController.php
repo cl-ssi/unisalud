@@ -6,7 +6,9 @@ use App\Models\Epi\Tracing;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Epi\SuspectCase;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
+
 
 class TracingController extends Controller
 {
@@ -26,11 +28,12 @@ class TracingController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(User $user)
     {
         //$cie10s = DB::table('cie10')->get();
         $cie10s = DB::select('select * from cie10 where name like  "%chag%"');
-        return view('epi.tracings.create',compact('cie10s'));
+        //dd($user);
+        return view('epi.tracings.create',compact('cie10s','user'));
         
     }
 
@@ -43,6 +46,9 @@ class TracingController extends Controller
     public function store(Request $request)
     {
         //
+        $trace = new Tracing($request->All());
+        $trace->save();
+        return redirect()->route('epi.tracings.index');
     }
 
     /**

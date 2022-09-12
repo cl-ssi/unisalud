@@ -32,7 +32,7 @@
             <tr>
                 <td>{{$suspectcase->id??''}}
                 
-                <a href="{{ route('epi.tracings.create') }}" pclass="btn_edit"><i class="fas fa-phone"></i></a>
+                <a href="{{ route('epi.tracings.create', $suspectcase->patient->id) }}" pclass="btn_edit"><i class="fas fa-phone"></i></a>
                 </td>
                 <td>{{$suspectcase->sample_at? $suspectcase->sample_at: ''}}</td>
                 <td>{{$suspectcase->organization->alias??''}}</td>

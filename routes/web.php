@@ -694,7 +694,8 @@ Route::prefix('epi')->name('epi.')->group(function () {
 
 	Route::prefix('tracings')->name('tracings.')->middleware('auth')->group(function () {
 		Route::get('/', [TracingController::class, 'index'])->name('index');
-		Route::get('/create', [TracingController::class, 'create'])->name('create');
+		Route::get('/{user}/create', [TracingController::class, 'create'])->name('create');
+		Route::post('/', [TracingController::class, 'store'])->name('store');
 	});
 
 	Route::prefix('contacts')->name('contacts.')->middleware('auth')->group(function () {
