@@ -1,4 +1,4 @@
-FROM php:7.4.3-fpm-alpine
+FROM php:8.1-fpm-alpine
 
 RUN apk add --no-cache nginx wget
 
@@ -27,6 +27,9 @@ RUN docker-php-ext-install zip
 
 RUN docker-php-ext-install bcmath
 
+RUN cd /usr/local/etc/php/conf.d/ && \
+  echo 'memory_limit = 256M' >> docker-php-memlimit.ini
+  
 RUN mkdir -p /run/nginx
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf

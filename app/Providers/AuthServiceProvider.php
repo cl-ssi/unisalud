@@ -26,10 +26,11 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //Rutas para oauth2 passport test
-        if (! $this->app->routesAreCached()) {
-            Passport::routes();
-        }
+        //TODO: esto se está ocupando? en laravel 9 da error routes()
+		//Rutas para oauth2 passport test
+        // if (! $this->app->routesAreCached()) {
+        //     Passport::routes();
+        // }
         Passport::tokensExpireIn(now()->addMinutes(30));
     }
 }

@@ -12,30 +12,28 @@
         "ext-gd": "*",
         "ext-soap": "*",
         "barryvdh/laravel-debugbar": "^3.5",
-        "barryvdh/laravel-dompdf": "^1.0",
+        "barryvdh/laravel-dompdf": "^2.0",
         "econea/nusoap": "^0.9.11",
-        "fideloper/proxy": "^4.4",
-        "firebase/php-jwt": "^5.2",
+        "firebase/php-jwt": "^6.3",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
-        "laravel/framework": "^8.12",
-        "laravel/passport": "10.3.3",
+        "laravel/framework": "^9.0",
+        "laravel/passport": "^11.2",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.2",
-        "lcobucci/clock": "1.2.0",
-        "lcobucci/jwt": "3.4.6",
-        "league/commonmark": "1.6.7",
-        "league/config": "1.0.1",
+        "league/commonmark": "^2.2",
+        "league/config": "^1.1",
         "league/uri": "6.5.0",
         "livewire/livewire": "^2.4",
         "maatwebsite/excel": "^3.1",
         "maennchen/zipstream-php": "2.1.0",
-        "nunomaduro/collision": "^5.0",
+        "nunomaduro/collision": "^6.1",
         "owen-it/laravel-auditing": "^12.0",
         "psr/container": "1.1.1",
         "snapappointments/bootstrap-select": "^1.13",
-        "spatie/laravel-permission": "^4.0",
-        "superbalist/laravel-google-cloud-storage": "^2.2",
+        "spatie/laravel-google-cloud-storage": "^2.0",
+        "spatie/laravel-ignition": "^1.4",
+        "spatie/laravel-permission": "^5.5",
         "twilio/sdk": "^6.24"
     },
     "require-dev": {
@@ -74,7 +72,9 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php artisan package:discover --ansi",
+            "@php artisan vendor:publish --force --tag=livewire:assets --ansi",
+            "@php artisan passport:keys"
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
