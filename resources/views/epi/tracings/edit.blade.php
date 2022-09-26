@@ -12,16 +12,16 @@
     <div class="card">
         <div class="card-body">
             <h4>Entrega de Resultado</h4>
-            @for ($i = 1; $i <= 3; $i++)
             <div class="form-row">
                 <fieldset class="form-group col-8 col-sm-5 col-md-3 col-lg-2">
-                    <label for="for_delivery_of_result_{{$i}}">Fecha de Entrega</label>
-                    <input type="date" class="form-control" name="delivery_of_result_{{$i}}" id="for_delivery_of_result_{{$i}}" value="{{$tracing->delivery_of_result_.$i}}">
-                </fieldset>
+                    <label for="for_delivery_of_result_1">Fecha de Entrega</label>
+                    <input type="date" class="form-control" name="delivery_of_result_1" id="for_delivery_of_result_1"
+                    value="{{$tracing->delivery_of_result_1}}">
+                </fieldset>                
 
                 <fieldset class="form-group col-9 col-sm-5 col-md-4 col-lg-3">
-                    <label for="for_mechanism_of_result_{{$i}}">Mecanismo de Entrega</label>
-                    <select name="mechanism_of_result_{{$i}}" id="for_mechanism_of_result_{{$i}}" class="form-control">
+                    <label for="for_mechanism_of_result_1">Mecanismo de Entrega</label>
+                    <select name="mechanism_of_result_1" id="for_mechanism_of_result_1" class="form-control">
                         <option></option>
                         <option value="Pendiente">
                             Pendiente
@@ -46,10 +46,10 @@
 
                 <fieldset class="form-group col-12 col-sm-6">
                     <label for="for_observation_of_result">Observación</label>
-                    <input type="text" class="form-control" name="observation_of_result_{{$i}}" id="for_observation_of_result_{{$i}}" value="{{$tracing->observations_of_result_.$i}}" autocomplete="off">
-                </fieldset>
+                    <input type="text" class="form-control" name="observation_of_result_1" id="for_observation_of_result_1" value="{{$tracing->observation_of_result_1}}" autocomplete="off">
+                </fieldset>                
             </div>
-            @endfor
+            
 
             
             <hr>

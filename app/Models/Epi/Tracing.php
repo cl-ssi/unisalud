@@ -53,7 +53,7 @@ class Tracing extends Model
 
     ];
 
-    protected $dates = [
+    protected $dates = [        
         'next_control_at',
     ];
 
