@@ -45,7 +45,7 @@ class ClaveUnicaController extends Controller
 
 		/** debug */
 		$route  		= $request->input('route');
-		Log::channel('slack')->info('Recibimos la ruta desde CU? : ', $route);
+		Log::channel('slack')->info('Recibimos la ruta desde CU? : ', ['ruta' => $route]);
 
 		$url_base       = "https://accounts.claveunica.gob.cl/openid/token/";
 		$client_id      = env("CLAVEUNICA_CLIENT_ID");
