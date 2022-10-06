@@ -13,11 +13,19 @@ use Illuminate\Support\Facades\Log;
 
 class ClaveUnicaController extends Controller
 {
-	public function autenticar(Request $request){
+	/** 
+	 * Está implementada un login alternativo para iOnline
+	 * Una vez que se migre ya no será necesario
+	 */
+	/** iOnline Borrar el utlimo parametro $route (tambien en el web.php) cuando ya no se ocupe la redireccion */ 
+	public function autenticar(Request $request, $route = null){
 		/* Primer paso, redireccionar al login de clave única */
 		$url_base       = "https://accounts.claveunica.gob.cl/openid/authorize/";
 		$client_id      = env("CLAVEUNICA_CLIENT_ID");
-		$redirect_uri   = urlencode(env('APP_URL')."/claveunica/callback?route=test");
+
+		/** iOnline, descomentar y borrar la otra linea */
+		$redirect_uri   = urlencode(env('APP_URL')."/claveunica/callback?route=$route");
+		// $redirect_uri   = urlencode(env('APP_URL')."/claveunica/callback");
 
 		$state 			= csrf_token();
 		$scope      	= 'openid run name';
@@ -43,10 +51,6 @@ class ClaveUnicaController extends Controller
 		$code   		= $request->input('code');
 		$state  		= $request->input('state');
 
-		/** debug */
-		$route  		= $request->input('route');
-		Log::channel('slack')->info('Recibimos la ruta desde CU? : ', ['ruta' => $route]);
-
 		$url_base       = "https://accounts.claveunica.gob.cl/openid/token/";
 		$client_id      = env("CLAVEUNICA_CLIENT_ID");
 		$client_secret  = env("CLAVEUNICA_SECRET_ID");
@@ -63,7 +67,19 @@ class ClaveUnicaController extends Controller
 			'state'         => $state,
 		]);
 
-		return $this->getUserInfo(json_decode($response)->access_token);
+
+		/** iOnline dejar solo el ultimo return */
+		$route  		= $request->input('route');
+		if(isset($route))
+		{
+			$redirect = str_ireplace('uni.', $route.'.', parse_url(env('APP_URL'), PHP_URL_HOST));
+			Log::channel('slack')->info('Recibimos la ruta desde CU? : ', ['ruta' => $redirect]);
+			return redirect('https://'.$redirect.'/claveunica/login/'.json_decode($response)->access_token);
+		}
+		else
+		{
+			return $this->getUserInfo(json_decode($response)->access_token);
+		}
 	}
 
     public function getUserInfo($access_token) {

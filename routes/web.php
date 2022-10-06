@@ -89,7 +89,8 @@ Route::get('/', function () {
 
 //Auth::routes();
 
-Route::get('/claveunica', [ClaveUnicaController::class,'autenticar'])->name('claveunica.login');
+/** iOnline login temporal, eliminar parametro {route?} cuando se deje de ocupar */
+Route::get('/claveunica/{route?}', [ClaveUnicaController::class,'autenticar'])->name('claveunica.login');
 Route::get('/claveunica/callback', [ClaveUnicaController::class,'callback']);
 Route::get('/claveunica/callback-testing', [ClaveUnicaController::class,'callback']);
 Route::get('/claveunica/logout', [ClaveUnicaController::class,'logout'])->name('claveunica.logout');
