@@ -35,8 +35,7 @@ class ClaveUnicaController extends Controller
 						'&scope='.$scope.
 						'&response_type=code'.
 						'&state='.$state;
-
-		Log::channel('slack')->info('Autenticar CU : ', ['redirect_uri' => $redirect_uri]);
+		
 		return redirect()->to($url_base.$params)->send();
 	}
 
@@ -59,8 +58,6 @@ class ClaveUnicaController extends Controller
 
 		$scope = 'openid+run+name';
 
-		Log::channel('slack')->info('Callback obtener token : ', ['redirect_uri' => $redirect_uri]);
-
 		$response = Http::asForm()->post($url_base, [
 			'client_id'     => $client_id,
 			'client_secret' => $client_secret,
@@ -73,11 +70,11 @@ class ClaveUnicaController extends Controller
 
 		/** iOnline dejar solo el ultimo return */
 		$route  		= $request->input('route');
-		Log::channel('slack')->info('RUTA para redireccionar : ', ['ruta' => $route]);
+
 		if(isset($route))
 		{
 			$redirect = str_ireplace('uni.', $route.'.', parse_url(env('APP_URL'), PHP_URL_HOST));
-			Log::channel('slack')->info('Recibimos la ruta desde CU? : ', ['ruta' => $redirect]);
+			Log::channel('slack')->info('Logeo por CU desde unisalud a iOnline');
 			return redirect('https://'.$redirect.'/claveunica/login/'.json_decode($response)->access_token);
 		}
 		else

@@ -90,7 +90,7 @@ Route::get('/', function () {
 //Auth::routes();
 
 /** iOnline login temporal, eliminar parametro {route?} cuando se deje de ocupar */
-/** Callback tiene que estar primero ya que el login  */
+/** Tuve que bajar el metodo "autenticar" porque tienen un comodin y coincide con callback y logout */
 Route::get('/claveunica/callback', [ClaveUnicaController::class,'callback']);
 Route::get('/claveunica/callback-testing', [ClaveUnicaController::class,'callback']);
 Route::get('/claveunica/logout', [ClaveUnicaController::class,'logout'])->name('claveunica.logout');
