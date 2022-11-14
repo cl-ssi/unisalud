@@ -491,40 +491,6 @@
 
 
 
-<!--SAMU-->
-{{--
-<ul class="nav flex-column">
-    @canany(['SAMU'])
-    <!--li class="nav-item">
-    <a class="nav-link {{ active('samu.welcome') }}" href="{{ route('samu.welcome') }}">
-        <i class="fas fa-ambulance"></i> SAMU
-    </a>
-</li-->
-@endcanany
-
-</ul>
---}}
-<!--SAMU-->
-
-@can('Developer')
-<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted">
-    <span>Desarrollador</span>
-    <a class="d-flex align-items-center text-muted" data-toggle="collapse" aria-expanded="false" aria-label="Desarrollador" href="#desarrollador" aria-controls="desarrollador">
-        <span id="icon_administrador" data-feather="plus-circle"></span>
-    </a>
-</h6>
-<ul class="nav flex-column collapse collapse-menu" id="administrador">
-    <li class="nav-item">
-        <a class="nav-link {{ active('developer.artisan') }}" href="{{ route('developer.artisan') }}">
-            <span data-feather="lock"></span>
-            Artisan<span class="sr-only">(current)</span>
-        </a>
-    </li>
-</ul>
-@endcan
-
-
-
 <!-- aps -->
 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted">
     <span>APS</span>
