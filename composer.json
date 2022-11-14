@@ -11,6 +11,7 @@
         "php": "^7.4|^8.0",
         "ext-gd": "*",
         "ext-soap": "*",
+        "aquaro/laravel-maintenance-mode": "^0.0.10",
         "barryvdh/laravel-debugbar": "^3.5",
         "barryvdh/laravel-dompdf": "^2.0",
         "econea/nusoap": "^0.9.11",
