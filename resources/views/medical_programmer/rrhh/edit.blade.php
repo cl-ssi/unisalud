@@ -8,97 +8,6 @@
   @csrf
   @method('PUT')
 
-    <!-- <div class="row">
-
-        <fieldset class="form-group col-8 col-md-2">
-            <label for="for_id_deis">Id Deis</label>
-            <input type="number" class="form-control" name="id_deis" id="for_id_deis" value="{{ $user->id_deis }}">
-        </fieldset>
-
-        <fieldset class="form-group col-8 col-md-2">
-            <label for="for_cod_estab_sirh">Cod Estab SIRH</label>
-            <input type="number" class="form-control" name="cod_estab_sirh" id="for_cod_estab_sirh" value="{{ $user->cod_estab_sirh }}">
-        </fieldset>
-
-        <fieldset class="form-group col-3">
-            <label for="for_value">Rut</label>
-            <input type="text" class="form-control" id="for_value" placeholder="Rut" name="value" readonly="readonly" value="{{$user->IdentifierRun->value}}">
-        </fieldset>
-
-        <fieldset class="form-group col-1">
-            <label for="for_dv">Dv</label>
-            <input type="text" class="form-control" id="for_dv" placeholder="Dv" name="dv" readonly="readonly"="" value="{{$user->IdentifierRun->dv}}">
-        </fieldset>
-
-    </div>
-
-    <div class="row">
-
-        <fieldset class="form-group col">
-            <label for="risk_group">Grupo de riesgo</label>
-            <select name="risk_group" id="for_risk_group" class="form-control">
-              <option value="1" {{ $user->risk_group == 1 ? 'selected' : '' }}>Sí</option>
-              <option value="0" {{ $user->risk_group == 0 ? 'selected' : '' }}>No</option>
-            </select>
-        </fieldset>
-
-        <fieldset class="form-group col">
-            <label for="for_missing_condition">Ausentismo</label>
-            <select name="missing_condition" id="for_missing_condition" class="form-control">
-              <option value="1" {{ $user->missing_condition == 1 ? 'selected' : '' }}>Sí</option>
-              <option value="0" {{ $user->missing_condition == 0 ? 'selected' : '' }}>No</option>
-            </select>
-        </fieldset>
-
-        <fieldset class="form-group col">
-            <label for="for_missing_reason">Motivo</label>
-            <input type="text" class="form-control" id="for_missing_reason" name="missing_reason" value="{{$user->missing_reason}}">
-        </fieldset>
-
-    </div>
-
-    <div class="row">
-
-        <fieldset class="form-group col-4">
-          <label for="for_text">Nombre</label>
-          <input type="text" class="form-control" id="for_name" placeholder="" name="text" required="" value="{{$user->ActualOfficialHumanName->text}}">
-        </fieldset>
-
-        <fieldset class="form-group col-4">
-          <label for="for_fathers_family">Apellido Paterno</label>
-          <input type="text" class="form-control" id="for_fathers_family" placeholder="" name="fathers_family" required="" value="{{$user->ActualOfficialHumanName->fathers_family}}">
-        </fieldset>
-
-        <fieldset class="form-group col-4">
-            <label for="for_mothers_family">Apellido Materno</label>
-            <input type="text" class="form-control" id="for_mothers_family" placeholder="" name="mothers_family" required="" value="{{$user->ActualOfficialHumanName->mothers_family}}">
-        </fieldset>
-    </div>
-
-    <div class="row">
-      <fieldset class="form-group col">
-          <label for="for_job_title">Función</label>
-          <input type="text" class="form-control" id="for_job_title" placeholder="" name="job_title" value="{{$user->job_title}}">
-      </fieldset>
-    </div>
-
-    <hr> -->
-
-    <!-- <div class="container">
-      <div class="row">
-        <div class="col-sm">
-            <h4>Permisos</h4>
-            <select class="selectpicker" name="permissions[]" multiple>
-                @foreach($permissions as $permission)
-                    <option value="{{ $permission->name }}" {{ ($user->hasPermissionTo($permission->name))?'selected':'' }}>{{ $permission->name }}</option>
-                @endforeach
-            </select>
-        </div>
-      </div>
-    </div>
-
-    <br /> -->
-
     <div class="container">
       <div class="row">
         <div class="col-sm">
@@ -249,14 +158,17 @@ $(document).ready(function(){
   //profesiones
 
   @foreach($user->userProfessions as $userProfession)
-    @if($userProfession->principal == 1)
-      $('#principal_profession').append('<option selected value="'+{{$userProfession->profession->id}}+'">'+'{{$userProfession->profession->profession_name}}'+'</option>');
-    @else
-      $('#principal_profession').append('<option value="'+{{$userProfession->profession->id}}+'">'+'{{$userProfession->profession->profession_name}}'+'</option>');
+    @if($userProfession->profession)
+      @if($userProfession->principal == 1)
+        $('#principal_profession').append('<option selected value="'+{{$userProfession->profession->id}}+'">'+'{{$userProfession->profession->profession_name}}'+'</option>');
+      @else
+        $('#principal_profession').append('<option value="'+{{$userProfession->profession->id}}+'">'+'{{$userProfession->profession->profession_name}}'+'</option>');
+      @endif
     @endif
   @endforeach
 
   //al modificar especialidades
+
   $('#professions').on('change', function() {
     $('#principal_profession').empty();
     $.each($("#professions option:selected"), function(){
@@ -269,7 +181,9 @@ $(document).ready(function(){
     @if($user->userProfessions->count() > 0)
       @foreach($user->userProfessions as $userProfession)
         if({{$userProfession->principal}} == 1){
-          $("#principal_profession option[value='{{$userProfession->profession->id}}']").attr("selected", true);
+          @if($userProfession->profession)
+            $("#principal_profession option[value='{{$userProfession->profession->id}}']").attr("selected", true);
+          @endif
         }
       @endforeach
     @endif
