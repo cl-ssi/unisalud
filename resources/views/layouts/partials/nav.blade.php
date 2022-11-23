@@ -68,7 +68,7 @@
 
 
 
-@can('Some: user')
+<!-- @can('Some: user')
 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted">
     <span>SOME</span>
     <a class="d-flex align-items-center text-muted" data-toggle="collapse" aria-expanded="false" aria-label="SOME" href="#some" aria-controls="some">
@@ -113,7 +113,7 @@
         </a>
     </li>
 </ul>
-@endcan
+@endcan -->
 
 
 
@@ -179,14 +179,14 @@
 
 
 
-    @canany(['Mp: programador'])
+    <!-- @canany(['Mp: programador'])
     <li class="nav-item">
         <a class="nav-link" href="{{ route('medical_programmer.programming_proposal.index') }}">
             <span data-feather="chevrons-right"></span>
             Propuestas de programación<span class="sr-only">(current)</span>
         </a>
     </li>
-    @endcanany
+    @endcanany -->
 
     <!-- <li class="nav-item">
         <a class="nav-link" href="{{ route('medical_programmer.programming_proposal.programming_by_practioner') }}">
@@ -195,7 +195,7 @@
         </a>
     </li> -->
 
-    <li class="nav-item">
+    <!-- <li class="nav-item">
         <a class="nav-link" href="{{ route('medical_programmer.programming_proposal.consolidated_programmings') }}">
             <span data-feather="chevrons-right"></span>
             Programaciones<span class="sr-only">(current)</span>
@@ -211,7 +211,7 @@
 
 
 </ul>
-@endcanany
+@endcanany -->
 
 <!-- programador teorico -->
 <!-- @canany(['Mp: programacion teorica'])
@@ -266,7 +266,7 @@
 
 
 <!-- mantenedores -->
-@canany(['Mp: mantenedores'])
+<!-- @canany(['Mp: mantenedores'])
 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted">
     <span>Mantenedores</span>
     <a class="d-flex align-items-center text-muted" data-toggle="collapse" aria-expanded="false" aria-label="Mantenedores del programador" href="#mp_settings" aria-controls="mp_settings">
@@ -338,7 +338,6 @@
         <a class="nav-link {{ active('medical_programmer.specialties.index') }}" href="{{ route('medical_programmer.specialties.index') }}">
             <span data-feather="chevrons-right"></span>
             Especialidades
-            <!-- (Rdtos sugeridos) -->
         </a>
     </li>
 
@@ -346,9 +345,8 @@
         <a class="nav-link {{ active('medical_programmer.professions.index') }}" href="{{ route('medical_programmer.professions.index') }}">
             <span data-feather="chevrons-right"></span>
             Profesiones
-            <!-- (Rdtos sugeridos) -->
         </a>
-    </li>
+    </li> -->
 
     <!-- <li class="nav-item">
     <a class="nav-link {{ active('medical_programmer.cutoffdates.index') }}" href="{{ route('medical_programmer.cutoffdates.index') }}">
@@ -369,10 +367,10 @@
     <span data-feather="chevrons-right"></span>
     Clonar
     </a>
-    </li> -->
+    </li> 
 
 </ul>
-@endcanany
+@endcanany-->
 
 
 
