@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Epi\SuspectCase;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use App\Models\Organization;
+use Illuminate\Support\Facades\Auth;
 
 
 class TracingController extends Controller
@@ -32,7 +34,8 @@ class TracingController extends Controller
     {
         //$cie10s = DB::table('cie10')->get();
         $cie10s = DB::select('select * from cie10 where name like  "%chag%"');
-        return view('epi.tracings.create',compact('cie10s','suspectcase'));
+        $organizations = Organization::where('id', Auth::user()->practitioners->last()->organization->id)->OrderBy('alias')->get();
+        return view('epi.tracings.create',compact('cie10s','suspectcase','organizations'));
         
     }
 
