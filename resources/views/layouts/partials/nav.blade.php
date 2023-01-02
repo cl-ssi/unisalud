@@ -150,6 +150,7 @@
 
 
 
+<!--
 @canany(['Mp: user'])
 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted">
     <span>Programador médico</span>
