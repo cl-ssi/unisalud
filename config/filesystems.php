@@ -51,16 +51,35 @@ return [
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
         ],
-        
+
         'gcs' => [
             'driver' => 'gcs',
-            'project_id' => env('GOOGLE_CLOUD_PROJECT_ID', 'saludiquique'),
-            'key_file' => base_path().env('GOOGLE_CLOUD_SERVICE_ACCOUNT', null), // optional: /path/to/service-account.json
-            'bucket' => env('GOOGLE_CLOUD_STORAGE_BUCKET', 'saludiquique-storage'),
-            //'path_prefix' => env('GOOGLE_CLOUD_STORAGE_PATH_PREFIX', null), // optional: /default/path/to/apply/in/bucket
+            'key_file_path' => env('GOOGLE_CLOUD_KEY_FILE', env('GOOGLE_CLOUD_SERVICE_ACCOUNT',null)), // optional: /path/to/service-account.json
+            'key_file' => [], // optional: Array of data that substitutes the .json file (see below)
+            'project_id' => env('GOOGLE_CLOUD_PROJECT_ID', env('GOOGLE_CLOUD_PROJECT_ID')), // optional: is included in key file
+            'bucket' => env('GOOGLE_CLOUD_STORAGE_BUCKET', env('GOOGLE_CLOUD_STORAGE_BUCKET')),
+            'path_prefix' => env('GOOGLE_CLOUD_STORAGE_PATH_PREFIX', ''), // optional: /default/path/to/apply/in/bucket
             'storage_api_uri' => env('GOOGLE_CLOUD_STORAGE_API_URI', null), // see: Public URLs below
+            'apiEndpoint' => env('GOOGLE_CLOUD_STORAGE_API_ENDPOINT', null), // set storageClient apiEndpoint
             'visibility' => 'public', // optional: public|private
+            'metadata' => ['cacheControl'=> 'public,max-age=86400'], // optional: default metadata
+            'throw' => true,
         ],
+
+
+        
+        // 'gcs' => [
+        //     'driver' => 'gcs',
+        //     'project_id' => env('GOOGLE_CLOUD_PROJECT_ID', 'saludiquique'),
+        //     'key_file_path' => env('GOOGLE_CLOUD_KEY_FILE', null), // optional: /path/to/service-account.json
+        //     'key_file' => base_path().env('GOOGLE_CLOUD_SERVICE_ACCOUNT', null), // optional: /path/to/service-account.json
+        //     'bucket' => env('GOOGLE_CLOUD_STORAGE_BUCKET', 'saludiquique-storage'),
+        //     //'path_prefix' => env('GOOGLE_CLOUD_STORAGE_PATH_PREFIX', null), // optional: /default/path/to/apply/in/bucket
+        //     'storage_api_uri' => env('GOOGLE_CLOUD_STORAGE_API_URI', null), // see: Public URLs below
+        //     'visibility' => 'public', // optional: public|private
+        //     // muestra los errores
+        //     'throw' => true,
+        // ],
 
     ],
 
