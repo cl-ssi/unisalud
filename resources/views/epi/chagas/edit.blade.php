@@ -156,7 +156,7 @@
         <fieldset class="form-group col-4 col-md-3 alert-warning">
             <label for="for_file">Archivo</label>
             <div class="custom-file">
-                <input type="file" name="chagas_result_screening_file" class="custom-file-input" id="forfile" lang="es" multiple>
+                <input type="file" name="chagas_result_screening_file" class="custom-file-input" id="forfile" lang="es">
                 <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
             </div>
 
@@ -200,7 +200,7 @@
         <fieldset class="form-group col-4 col-md-3 alert-danger">
             <label for="for_file">Archivo</label>
             <div class="custom-file">
-                <input type="file" name="chagas_result_confirmation_file" class="custom-file-input" id="forfile" lang="es" multiple>
+                <input type="file" name="chagas_result_confirmation_file" class="custom-file-input" id="forfile" lang="es">
                 <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
             </div>
 
