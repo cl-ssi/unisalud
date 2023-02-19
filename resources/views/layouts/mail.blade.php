@@ -99,7 +99,7 @@
 
         <table class="cuerpo">
             <tr>
-                <td width="60" id="margen_izquierdo"></td>
+                <td width="50" id="margen_izquierdo"></td>
                 <td class="texto">
                     @yield('content')
                     <br>

@@ -4,9 +4,9 @@
 
 <div style="text-align: justify;">
 
-    <h4>Estimado/a: </h4>
+    <h4>Estimado/a usuario: </h4>
 
-    <p>Su clave nueva clave de acceso local a UniSalud y NeoSalud es:</p>
+    <p>Su nueva clave de acceso local a UniSalud y NeoSalud es:</p>
     <strong>{{ $newPassword }}</strong>
 
     <br>
