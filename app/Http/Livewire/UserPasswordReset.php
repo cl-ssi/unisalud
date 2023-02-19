@@ -19,7 +19,7 @@ class UserPasswordReset extends Component
             $this->user->password = bcrypt($newPassword);
             $this->user->save();
             Mail::to($this->user->officialEmail)->send(new PasswordReset($this->user,$newPassword));
-            $this->message = "Ok";
+            $this->message = $newPassword;
         }
         else {
             $this->message = "No tiene registrado un correo oficial";
