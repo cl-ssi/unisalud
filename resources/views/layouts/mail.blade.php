@@ -76,7 +76,7 @@
             <tr>
                 <td colspan="2">
                     <div class="letra_servicio"
-                        style="font-size:10.5pt;
+                        style="font-size:9pt;
                                 font-family: Arial, Helvetica, sans-serif;
                                 color: #505050;
                                 font-weight: 800;
@@ -99,7 +99,7 @@
 
         <table class="cuerpo">
             <tr>
-                <!-- <td width="160" id="margen_izquierdo"></td> -->
+                <td width="60" id="margen_izquierdo"></td>
                 <td class="texto">
                     @yield('content')
                     <br>
