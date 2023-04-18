@@ -84,7 +84,7 @@ class SuspectCaseController extends Controller
         $sc->save();
         session()->flash('success', 'Se creo caso sospecha exitosamente');
         if ($request->research_group == 'Tranmisión Vertical') {
-            Mail::to('claudia.caronna@redsalud.gob.cl')                
+            Mail::to('claudia.caronna@redsalud.gob.cl')
                 ->send(new DelegateChagasNotification($sc));
         }
 
@@ -145,9 +145,8 @@ class SuspectCaseController extends Controller
         $suspectCase->save();
 
         if ($request->chagas_result_screening == 'En Proceso') {
-            Mail::to('marina.miranda@cormudesi.cl')
-            ->Mail::to('sandra@cormudesi.cl')
-                ->send(new DelegateChagasNotification($suspectCase));
+            Mail::to('sandra.rojas@cormudesi.cl')->send(new DelegateChagasNotification($suspectCase));
+            
         }
 
 
