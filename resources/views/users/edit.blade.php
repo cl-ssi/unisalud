@@ -65,13 +65,19 @@
                 >
                 </fieldset>
 
-                {{-- <fieldset class="form-group col-md-2">
+                {{-- 
+                <fieldset class="form-group col-md-2">
                     <label for="for_social_name">Clave</label>
                     <input type="password" class="form-control" name="password" id="for_password"
                         value="{{old('password')}}"
-                > --}}
+                >
                 </fieldset>
+                --}}
 
+                <fieldset class="form-group col-md-2">
+                    <label for="for-reset-password">Clave</label>
+                    @livewire('user-password-reset', ['user' => $user])
+                </fieldset>
             </div>
 
         </div>

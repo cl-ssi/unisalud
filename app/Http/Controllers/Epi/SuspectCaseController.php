@@ -128,10 +128,13 @@ class SuspectCaseController extends Controller
         //               
         $suspectCase->fill($request->all());
         if($request->hasFile('chagas_result_screening_file'))
-        {            
+        {   
+            // dd('entre a tamizaje');
             $file_name = $suspectCase->id.'_screening';
             $file = $request->file('chagas_result_screening_file');
-            $suspectCase->chagas_result_screening_file = $file->storeAs('/unisalud/chagas', $file_name.'.'.$file->extension(), 'gcs');
+            //$suspectCase->chagas_result_screening_file = $file->storeAs('/unisalud/chagas', $file_name.'.'.$file->extension(), 'gcs');
+            $suspectCase->chagas_result_screening_file = $file->storeAs('/unisalud/chagas', $file_name.'.'.$file->extension(), ['disk' => 'gcs']);
+            //$file->file = $request->file->storeAs('ionline/rni_db', $originalname, ['disk' => 'gcs']);
         }
 
         if($request->hasFile('chagas_result_confirmation_file'))
