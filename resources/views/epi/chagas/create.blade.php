@@ -32,10 +32,10 @@
         <fieldset class="form-group col-6 col-md-2">
             <label for="for_sex">Sexo</label>
             <select name="sex" id="for_sex" class="form-control sex" readonly>
-                <option value="male" {{$user->sex === 'male'? 'selected' : ''}}>Masculino</option>
-                <option value="female" {{$user->sex === 'female'? 'selected' : ''}}>Femenino</option>
-                <option value="other" {{$user->sex === 'other'? 'selected' : ''}}>Otro</option>
-                <option value="unknown" {{$user->sex === 'unknown'? 'selected' : ''}}>Desconocido</option>
+                <option value="male" {{$user->actualSex === 'Masculino'? 'selected' : ''}}>Masculino</option>
+                <option value="female" {{$user->actualSex === 'Femenino'? 'selected' : ''}}>Femenino</option>
+                <option value="other" {{$user->actualSex === 'Otro'? 'selected' : ''}}>Otro</option>
+                <option value="unknown" {{$user->actualSex === 'Desconocido'? 'selected' : ''}}>Desconocido</option>
             </select>
         </fieldset>
 
