@@ -23,24 +23,23 @@ class SuspectCaseController extends Controller
     public function index($tray)
     {
         if ($tray == 'Mi Organización') {
-            // dd('soy organizacion');
-            $suspectcases = SuspectCase::where('organization_id', Auth::user()->practitioners->last()->organization->id)->get();
+            $suspectcases = SuspectCase::where('organization_id', Auth::user()->practitioners->last()->organization->id)->paginate(100);
         }
         if ($tray === 'Pendientes de Recepción') {
-            $suspectcases = SuspectCase::whereNull('reception_at')->get();
+            $suspectcases = SuspectCase::whereNull('reception_at')->orderBy('id', 'desc')->paginate(100);
         }
+
         if ($tray === 'Pendientes de Resultado') {
-            $suspectcases = SuspectCase::whereNull('chagas_result_screening_at')->whereNotNull('reception_at')->get();
-        }        
+            $suspectcases = SuspectCase::whereNull('chagas_result_screening_at')->orderBy('id', 'desc')->whereNotNull('reception_at')->paginate(100);
+        }
 
         if ($tray === 'Finalizadas') {
-            $suspectcases = SuspectCase::whereNotNull('chagas_result_screening_at')->whereNotNull('reception_at')->get();
+            $suspectcases = SuspectCase::whereNotNull('chagas_result_screening_at')->whereNotNull('reception_at')->paginate(100);
         }
 
-
         if ($tray === 'Todas las Solicitudes') {
-            $suspectcases = SuspectCase::all();
-        }         
+            $suspectcases = SuspectCase::paginate(100);
+        }
         return view('epi.chagas.index', compact('suspectcases', 'tray'));
     }
 
@@ -147,8 +146,11 @@ class SuspectCaseController extends Controller
 
         $suspectCase->save();
 
+        $organization = Organization::where('id', $suspectCase->organization_id)->first();
+        $epi_mail = $organization->epi_mail;
+
         if ($request->chagas_result_screening == 'En Proceso') {
-            Mail::to('sandra.rojas@cormudesi.cl')->send(new DelegateChagasNotification($suspectCase));
+            Mail::to($epi_mail)->send(new DelegateChagasNotification($suspectCase));
             
         }
 
@@ -200,8 +202,7 @@ class SuspectCaseController extends Controller
 
     public function resultchagasnegative(SuspectCase $case)
     {
-        //
-        // dd(llegue);
+        //        
         return view('epi.chagas.resultchagasnegative', compact('case'));
     }
 
@@ -212,4 +213,20 @@ class SuspectCaseController extends Controller
         $pdf = \PDF::loadView('epi.chagas.resultchagasnegative', compact('case'));
         return $pdf->stream();
     }
+
+    public function delegateMail()
+    {        
+        $organizations = Organization::where('id', Auth::user()->practitioners->last()->organization->id)->OrderBy('alias')->get();
+
+        return view('epi.delegate_mail', compact('organizations'));
+    }
+
+    public function updateMail(Organization $organization, Request $request)
+    {    
+        $organization->epi_mail = $request->epi_mail;
+        $organization->save();
+        return redirect()->back()->with('success', 'Correo electrónico actualizado correctamente.');
+    }
+    
+    
 }

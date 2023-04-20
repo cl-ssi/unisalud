@@ -72,7 +72,7 @@
                 <td>{{$suspectcase->patient->actualSex()->text ??''}}</td>
                 <td>{{$suspectcase->patient->nationality->name ??''}}</td>
                 <td>
-                    {{$suspectcase->chagas_result_screening_at ??''}}                    
+                    {{$suspectcase->chagas_result_screening_at ??''}}
                 </td>
                 <td>
                     {{$suspectcase->chagas_result_screening ?? ''}}
@@ -104,8 +104,8 @@
             @endforeach
         </tbody>
     </table>
-
 </div>
+{{ $suspectcases->appends(request()->query())->links() }}
 
 
 @endsection

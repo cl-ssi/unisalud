@@ -11,7 +11,7 @@
         <fieldset class="form-group col-10 col-md-3">
             <input type="hidden" class="form-control" id="for_id" name="patient_id" value="{{$suspectCase->patient->id}}">
 
-            
+
             <input type="hidden" class="form-control" id="for_id" name="type" value="Chagas">
             <label for="for_run">Run/Identificación</label>
 
@@ -88,6 +88,8 @@
                 <option value="Gestante (+semana gestacional)" {{$suspectCase->research_group === 'Gestante (+semana gestacional)'? 'selected' : ''}}>Gestante (+semana gestacional)</option>
                 <option value="Estudio de contacto" {{$suspectCase->research_group === 'Estudio de contacto'? 'selected' : ''}}>Estudio de contacto</option>
                 <option value="Morbilidad (cualquier persona)" {{$suspectCase->research_group === 'Morbilidad (cualquier persona)'? 'selected' : ''}}>Morbilidad (cualquier persona)</option>
+                <option value="Tranmisión Vertical" {{$suspectCase->research_group === 'Tranmisión Vertical'? 'selected' : ''}}>Tranmisión Vertical</option>
+
             </select>
         </fieldset>
 
@@ -130,15 +132,12 @@
 
     </div>
 
-    
+
     <div class="form-row">
 
         <fieldset class="form-group col-6 col-md-3 alert-warning">
             <label for="for_chagas_result_screening_at">Fecha Resultado Tamizaje</label>
-            <input type="datetime-local" class="form-control" id="for_chagas_result_screening_at" name="chagas_result_screening_at" 
-            max="{{ date('Y-m-d\TH:i:s') }}"
-            value="{{ $suspectCase->chagas_result_screening_at? $suspectCase->chagas_result_screening_at->format('Y-m-d\TH:i:s'):'' }}"            
-            >
+            <input type="datetime-local" class="form-control" id="for_chagas_result_screening_at" name="chagas_result_screening_at" max="{{ date('Y-m-d\TH:i:s') }}" value="{{ $suspectCase->chagas_result_screening_at? $suspectCase->chagas_result_screening_at->format('Y-m-d\TH:i:s'):'' }}">
         </fieldset>
 
         <fieldset class="form-group col-6 col-md-3 alert-warning">
@@ -156,18 +155,17 @@
         <fieldset class="form-group col-4 col-md-3 alert-warning">
             <label for="for_file">Archivo</label>
             <div class="custom-file">
-                <input type="file" name="chagas_result_screening_file" class="custom-file-input" id="forfile" lang="es">
+                <input type="file" name="chagas_result_screening_file" class="custom-file-input" id="forfile" lang="es" accept="application/pdf">
                 <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
             </div>
 
+
             @if($suspectCase->chagas_result_screening_file)
-            <a href="{{ route('epi.chagas.downloadscreening', $suspectCase->id) }}"
-               target="_blank" data-toggle="tooltip" data-placement="top"
-               data-original-title="{{ $suspectCase->id . 'pdf' }}">Resultado <i class="fas fa-paperclip"></i>&nbsp
+            <a href="{{ route('epi.chagas.downloadscreening', $suspectCase->id) }}" target="_blank" data-toggle="tooltip" data-placement="top" data-original-title="{{ $suspectCase->id . 'pdf' }}">Resultado <i class="fas fa-paperclip"></i>&nbsp
             </a>
-                - <a href="{{ route('epi.chagas.fileDeletescreening', $suspectCase->id) }}" onclick="return confirm('Está seguro?')">
-                    [ Borrar ]
-                </a>
+            - <a href="{{ route('epi.chagas.fileDeletescreening', $suspectCase->id) }}" onclick="return confirm('Está seguro?')">
+                [ Borrar ]
+            </a>
             @endif
 
 
@@ -180,11 +178,7 @@
 
         <fieldset class="form-group col-6 col-md-3 alert-danger">
             <label for="for_pcr_sars_cov_2_at">Fecha Resultado Confirmación</label>
-            <input type="datetime-local" class="form-control" id="for_chagas_result_confirmation_at" name="chagas_result_confirmation_at"
-            max="{{ date('Y-m-d\TH:i:s') }}"
-            value="{{ $suspectCase->chagas_result_confirmation_at? $suspectCase->chagas_result_confirmation_at->format('Y-m-d\TH:i:s'):'' }}"
-            
-            >
+            <input type="datetime-local" class="form-control" id="for_chagas_result_confirmation_at" name="chagas_result_confirmation_at" max="{{ date('Y-m-d\TH:i:s') }}" value="{{ $suspectCase->chagas_result_confirmation_at? $suspectCase->chagas_result_confirmation_at->format('Y-m-d\TH:i:s'):'' }}">
         </fieldset>
 
         <fieldset class="form-group col-6 col-md-3 alert-danger">
@@ -200,25 +194,23 @@
         <fieldset class="form-group col-4 col-md-3 alert-danger">
             <label for="for_file">Archivo</label>
             <div class="custom-file">
-                <input type="file" name="chagas_result_confirmation_file" class="custom-file-input" id="forfile" lang="es">
+                <input type="file" name="chagas_result_confirmation_file" class="custom-file-input" id="forfile" lang="es" accept="application/pdf">
                 <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
             </div>
 
             @if($suspectCase->chagas_result_confirmation_file)
-            <a href="{{ route('epi.chagas.downloadconfirmation', $suspectCase->id) }}"
-               target="_blank" data-toggle="tooltip" data-placement="top"
-               data-original-title="{{ $suspectCase->id . 'pdf' }}">Resultado <i class="fas fa-paperclip"></i>&nbsp
+            <a href="{{ route('epi.chagas.downloadconfirmation', $suspectCase->id) }}" target="_blank" data-toggle="tooltip" data-placement="top" data-original-title="{{ $suspectCase->id . 'pdf' }}">Resultado <i class="fas fa-paperclip"></i>&nbsp
             </a>
-                - <a href="{{ route('epi.chagas.fileDeleteconfirmation', $suspectCase->id) }}" onclick="return confirm('Está seguro?')">
-                    [ Borrar ]
-                </a>
-        @endif
+            - <a href="{{ route('epi.chagas.fileDeleteconfirmation', $suspectCase->id) }}" onclick="return confirm('Está seguro?')">
+                [ Borrar ]
+            </a>
+            @endif
         </fieldset>
 
         @endcan
         <hr>
 
-        
+
     </div>
     <div class="form-row">
         <button type="submit" class="btn btn-primary">Guardar</button>

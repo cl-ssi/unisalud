@@ -393,7 +393,7 @@
 
     
     <li class="nav-item">
-        <a class="nav-link {{ active('epi.chagas.index','Mi Organización') }}"  href="{{ route('epi.chagas.index','Mi Organización') }}">
+        <a class="nav-link"  href="{{ route('epi.chagas.index','Mi Organización') }}">
             <span data-feather="chevrons-right"></span>
             Sol. Chagas de mi Organización<span class="sr-only"></span>
         </a>
@@ -403,6 +403,13 @@
         <a class="nav-link"  href="{{ route('epi.tracings.index') }}">
             <span data-feather="chevrons-right"></span>
             Seguimiento/Notificación<span class="sr-only"></span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link"  href="{{ route('epi.delegateMail') }}">
+            <span data-feather="chevrons-right"></span>
+            Correo encargado de Epidemiología<span class="sr-only"></span>
         </a>
     </li>
 </ul>
@@ -427,28 +434,28 @@
 
 
     <li class="nav-item">
-        <a class="nav-link {{ active('epi.chagas.index','Todas las Solicitudes') }}" href="{{ route('epi.chagas.index','Todas las Solicitudes') }}">
+        <a class="nav-link" href="{{ route('epi.chagas.index','Todas las Solicitudes') }}">
             <span data-feather="chevrons-right"></span>
             Todas las Solicitudes Chagas<span class="sr-only"></span>
         </a>
     </li>
 
     <li class="nav-item">
-        <a class="nav-link {{ active('epi.chagas.index','Finalizadas') }}" href="{{ route('epi.chagas.index','Finalizadas') }}">
+        <a class="nav-link" href="{{ route('epi.chagas.index','Finalizadas') }}">
             <span data-feather="chevrons-right"></span>
             Finalizadas<span class="sr-only"></span>
         </a>
     </li>
 
     <li class="nav-item">
-        <a class="nav-link {{ active('epi.chagas.index','Pendientes de Recepción') }}" href="{{ route('epi.chagas.index','Pendientes de Recepción') }}">
+        <a class="nav-link" href="{{ route('epi.chagas.index','Pendientes de Recepción') }}">
             <span data-feather="chevrons-right"></span>
             Pendientes de Recepción<span class="sr-only"></span>
         </a>
     </li>
 
     <li class="nav-item">
-        <a class="nav-link {{ active('epi.chagas.index','Pendientes de Resultado') }}" href="{{ route('epi.chagas.index','Pendientes de Resultado') }}">
+        <a class="nav-link" href="{{ route('epi.chagas.index','Pendientes de Resultado') }}">
             <span data-feather="chevrons-right"></span>
             Pendientes de Resultado<span class="sr-only"></span>
         </a>

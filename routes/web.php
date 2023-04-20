@@ -675,7 +675,10 @@ use App\Http\Controllers\Epi\SuspectCaseController;
 use App\Http\Controllers\Epi\TracingController;
 
 Route::prefix('epi')->name('epi.')->group(function () {
-    //Route::get('/{tray}', [SuspectCaseController::class, 'index'])->name('index');
+    //Muestra el correo de delegeado de epidemiologia 
+    Route::get('/delegate-mail', [SuspectCaseController::class, 'delegateMail'])->name('delegateMail');
+    Route::put('/update-mail/{organization}', [SuspectCaseController::class, 'updateMail'])->name('updateMail');
+
     Route::prefix('chagas')->name('chagas.')->group(function () {
 
         Route::get('/{suspectCase}/edit', [SuspectCaseController::class, 'edit'])->name('edit');
@@ -690,8 +693,6 @@ Route::prefix('epi')->name('epi.')->group(function () {
         Route::get('downloadsconfirmation/{suspect_case}', [SuspectCaseController::class, 'downloadconfirmation'])->name('downloadconfirmation');
         Route::get('file/{suspect_case}/screening', [SuspectCaseController::class, 'fileDeletescreening'])->name('fileDeletescreening');
         Route::get('file/{suspect_case}/confirmation', [SuspectCaseController::class, 'fileDeleteconfirmation'])->name('fileDeleteconfirmation');
-        
-
     });
 
     Route::prefix('tracings')->name('tracings.')->middleware('auth')->group(function () {
