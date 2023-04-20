@@ -89,6 +89,7 @@
                 <option value="Estudio de contacto">Estudio de contacto</option>
                 <option value="Morbilidad (cualquier persona)">Morbilidad (cualquier persona)</option>
                 <option value="Tranmisión Vertical">Tranmisión Vertical</option>
+                <option value="Control Chagas Crónico">Control Chagas Crónico</option>
             </select>
         </fieldset>
 

@@ -65,7 +65,7 @@ class SuspectCaseController extends Controller
 
         session()->flash('success', 'Se ha recepcionada la muestra: '
             . $suspectcase->id . ' en laboratorio: Hospital Ernesto Torres Galdames ');
-            
+
 
         return redirect()->back();
     }
@@ -126,32 +126,32 @@ class SuspectCaseController extends Controller
     {
         //               
         $suspectCase->fill($request->all());
-        if($request->hasFile('chagas_result_screening_file'))
-        {   
+        if ($request->hasFile('chagas_result_screening_file')) {
             // dd('entre a tamizaje');
-            $file_name = $suspectCase->id.'_screening';
+            $file_name = $suspectCase->id . '_screening';
             $file = $request->file('chagas_result_screening_file');
             //$suspectCase->chagas_result_screening_file = $file->storeAs('/unisalud/chagas', $file_name.'.'.$file->extension(), 'gcs');
-            $suspectCase->chagas_result_screening_file = $file->storeAs('/unisalud/chagas', $file_name.'.'.$file->extension(), ['disk' => 'gcs']);
+            $suspectCase->chagas_result_screening_file = $file->storeAs('/unisalud/chagas', $file_name . '.' . $file->extension(), ['disk' => 'gcs']);
             //$file->file = $request->file->storeAs('ionline/rni_db', $originalname, ['disk' => 'gcs']);
         }
 
-        if($request->hasFile('chagas_result_confirmation_file'))
-        {            
-            $file_name = $suspectCase->id.'_confirmation';
+        if ($request->hasFile('chagas_result_confirmation_file')) {
+            $file_name = $suspectCase->id . '_confirmation';
             $file = $request->file('chagas_result_confirmation_file');
-            $suspectCase->chagas_result_confirmation_file = $file->storeAs('/unisalud/chagas', $file_name.'.'.$file->extension(), 'gcs');
+            $suspectCase->chagas_result_confirmation_file = $file->storeAs('/unisalud/chagas', $file_name . '.' . $file->extension(), 'gcs');
         }
 
 
         $suspectCase->save();
 
-        $organization = Organization::where('id', $suspectCase->organization_id)->first();
-        $epi_mail = $organization->epi_mail;
-
         if ($request->chagas_result_screening == 'En Proceso') {
-            Mail::to($epi_mail)->send(new DelegateChagasNotification($suspectCase));
+            $organization = Organization::where('id', $suspectCase->organization_id)->first();
+            $epi_mails = $organization->epi_mail;
+            $emails = explode(',', $epi_mails);
             
+            foreach ($emails as $email) {
+                Mail::to(trim($email))->send(new DelegateChagasNotification($suspectCase));
+            }            
         }
 
 
@@ -168,10 +168,10 @@ class SuspectCaseController extends Controller
     {
         return Storage::disk('gcs')->download($suspectCase->chagas_result_confirmation_file);
     }
-    
+
 
     public function fileDeletescreening(SuspectCase $suspectCase)
-    {        
+    {
         Storage::disk('gcs')->delete($suspectCase->chagas_result_screening_file);
         $suspectCase->chagas_result_screening_file = false;
         $suspectCase->save();
@@ -180,14 +180,14 @@ class SuspectCaseController extends Controller
     }
 
     public function fileDeleteconfirmation(SuspectCase $suspectCase)
-    {        
+    {
         Storage::disk('gcs')->delete($suspectCase->chagas_result_confirmation_file);
         $suspectCase->chagas_result_confirmation_file = false;
         $suspectCase->save();
         session()->flash('info', 'Se ha eliminado el archivo correctamente.');
         return redirect()->back();
     }
-    
+
 
     /**
      * Remove the specified resource from storage.
@@ -215,18 +215,16 @@ class SuspectCaseController extends Controller
     }
 
     public function delegateMail()
-    {        
+    {
         $organizations = Organization::where('id', Auth::user()->practitioners->last()->organization->id)->OrderBy('alias')->get();
 
         return view('epi.delegate_mail', compact('organizations'));
     }
 
     public function updateMail(Organization $organization, Request $request)
-    {    
+    {
         $organization->epi_mail = $request->epi_mail;
         $organization->save();
         return redirect()->back()->with('success', 'Correo electrónico actualizado correctamente.');
     }
-    
-    
 }

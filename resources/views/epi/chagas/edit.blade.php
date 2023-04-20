@@ -89,6 +89,7 @@
                 <option value="Estudio de contacto" {{$suspectCase->research_group === 'Estudio de contacto'? 'selected' : ''}}>Estudio de contacto</option>
                 <option value="Morbilidad (cualquier persona)" {{$suspectCase->research_group === 'Morbilidad (cualquier persona)'? 'selected' : ''}}>Morbilidad (cualquier persona)</option>
                 <option value="Tranmisión Vertical" {{$suspectCase->research_group === 'Tranmisión Vertical'? 'selected' : ''}}>Tranmisión Vertical</option>
+                <option value="Control Chagas Crónico" {{$suspectCase->research_group === 'Control Chagas Crónico'? 'selected' : ''}}>Control Chagas Crónico</option>
 
             </select>
         </fieldset>
