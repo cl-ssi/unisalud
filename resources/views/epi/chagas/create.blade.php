@@ -250,7 +250,7 @@
             }
 
             //código para transmisión vertical
-            if (value == "Tranmisión Vertical") {
+            if (value == "Transmisión Vertical") {
                 $('#mother_id').removeAttr('disabled');
                 $("#mother_id").prop('required', true);
             } else {
