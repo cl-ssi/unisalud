@@ -79,7 +79,7 @@
                 <td>
                     {{$suspectcase->chagas_result_screening ?? ''}}
                     @if($suspectcase->chagas_result_screening_file)
-                    <a href="{{ route('epi.chagas.downloadscreening', $suspectcase->id) }}" target="_blank" data-toggle="tooltip" data-placement="top" data-original-title="{{ $suspectcase->id . 'pdf' }}">Descargar <i class="fas fa-paperclip"></i>&nbsp
+                    <a href="{{ route('epi.chagas.downloadFile', ['fileName' => $suspectcase->chagas_result_screening_file]) }}" target="_blank" data-toggle="tooltip" data-placement="top" data-original-title="{{ $suspectcase->id . 'pdf' }}">Descargar <i class="fas fa-paperclip"></i>&nbsp
                     </a>
                     @endif
 
@@ -88,7 +88,7 @@
                 <td>{{$suspectcase->chagas_result_confirmation}}
 
                     @if($suspectcase->chagas_result_confirmation_file)
-                    <a href="{{ route('epi.chagas.downloadscreening', $suspectcase->id) }}" target="_blank" data-toggle="tooltip" data-placement="top" data-original-title="{{ $suspectcase->id . 'pdf' }}">Descargar <i class="fas fa-paperclip"></i>&nbsp
+                    <a href="{{ route('epi.chagas.downloadFile', ['fileName' => $suspectcase->chagas_result_confirmation_file]) }}" target="_blank" data-toggle="tooltip" data-placement="top" data-original-title="{{ $suspectcase->id . 'pdf' }}">Descargar <i class="fas fa-paperclip"></i>&nbsp
                     </a>
                     @endif
 
