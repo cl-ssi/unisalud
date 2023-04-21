@@ -125,29 +125,17 @@
 
     </div>
     @can('Epi: Add Value')
+
     <div class="form-row">
 
         <fieldset class="form-group col-6 col-md-6">
             <label for="for_observation">Observación</label>
             <input type="text" class="form-control" name="observation" id="for_observation" value="{{$suspectCase->observation??''}}" readonly>
         </fieldset>
-
-
-
-
-
-
-        <!-- <fieldset class="form-group col-6 col-md-6">
-            <label for="for_epivigila">Epivigila</label>
-            <input type="number" class="form-control" id="for_epivigila" name="epivigila" value="{{$suspectCase->epivigila??''}}" readonly>
-        </fieldset> -->
-
-
     </div>
 
-
+    @if ($suspectCase->research_group !== 'Transmisión Vertical')
     <div class="form-row">
-
         <fieldset class="form-group col-6 col-md-3 alert-warning">
             <label for="for_chagas_result_screening_at">Fecha Resultado Tamizaje</label>
             <input type="datetime-local" class="form-control" id="for_chagas_result_screening_at" name="chagas_result_screening_at" max="{{ date('Y-m-d\TH:i:s') }}" value="{{ $suspectCase->chagas_result_screening_at? $suspectCase->chagas_result_screening_at->format('Y-m-d\TH:i:s'):'' }}">
@@ -174,11 +162,9 @@
 
 
             @if($suspectCase->chagas_result_screening_file)
-            <a href="{{ route('epi.chagas.downloadscreening', $suspectCase->id) }}" target="_blank" data-toggle="tooltip" data-placement="top" data-original-title="{{ $suspectCase->id . 'pdf' }}">Resultado <i class="fas fa-paperclip"></i>&nbsp
+            <a href="{{ route('epi.chagas.downloadFile', ['fileName' => $suspectCase->chagas_result_screening_file]) }}" target="_blank" data-toggle="tooltip" data-placement="top" data-original-title="{{ $suspectCase->id . 'pdf' }}">Resultado <i class="fas fa-paperclip"></i>&nbsp
             </a>
-            - <a href="{{ route('epi.chagas.fileDeletescreening', $suspectCase->id) }}" onclick="return confirm('Está seguro?')">
-                [ Borrar ]
-            </a>
+            - <a href="{{ route('epi.chagas.deleteFile', [$suspectCase->id, 'chagas_result_screening']) }}" onclick="return confirm('Está seguro?')">[ Borrar ]</a>
             @endif
 
 
@@ -212,30 +198,152 @@
             </div>
 
             @if($suspectCase->chagas_result_confirmation_file)
-            <a href="{{ route('epi.chagas.downloadconfirmation', $suspectCase->id) }}" target="_blank" data-toggle="tooltip" data-placement="top" data-original-title="{{ $suspectCase->id . 'pdf' }}">Resultado <i class="fas fa-paperclip"></i>&nbsp
+            <a href="{{ route('epi.chagas.downloadFile', ['fileName' => $suspectCase->chagas_result_confirmation_file]) }}" target="_blank" data-toggle="tooltip" data-placement="top" data-original-title="{{ $suspectCase->id . 'pdf' }}">Resultado <i class="fas fa-paperclip"></i>&nbsp
             </a>
-            - <a href="{{ route('epi.chagas.fileDeleteconfirmation', $suspectCase->id) }}" onclick="return confirm('Está seguro?')">
+            - <<a href="{{ route('epi.chagas.deleteFile', [$suspectCase->id, 'chagas_result_confirmation']) }}" onclick="return confirm('Está seguro?')">[ Borrar ]</a>
                 [ Borrar ]
+                </a>
+                @endif
+        </fieldset>
+    </div>
+    <hr>
+
+    @else
+    <div class="form-row">
+        <fieldset class="form-group col-4 col-md-3 alert-danger">
+            <label for="for_pcr_sars_cov_2_at">Fecha Resultado Examen Directo</label>
+            <input type="datetime-local" class="form-control" id="for_direct_exam_at" name="direct_exam_at" max="{{ date('Y-m-d\TH:i:s') }}" value="{{ $suspectCase->direct_exam_at? $suspectCase->direct_exam_at->format('Y-m-d\TH:i:s'):'' }}">
+        </fieldset>
+
+        <fieldset class="form-group col-6 col-md-3 alert-danger">
+            <label for="for_direct_exam_result">Resultado Examen Directo</label>
+            <select name="direct_exam_result" id="for_direct_exam_result" class="form-control">
+                <option value=""></option>
+                <option value="Negativo" {{$suspectCase->direct_exam_result === 'Negativo'? 'selected' : ''}}>Negativo</option>
+                <option value="Positivo" {{$suspectCase->direct_exam_result === 'Positivo'? 'selected' : ''}}>Positivo</option>
+                <option value="No Concluyente" {{$suspectCase->direct_exam_result === 'No Concluyente'? 'selected' : ''}}>No Concluyente</option>
+            </select>
+        </fieldset>
+
+        <fieldset class="form-group col-4 col-md-3 alert-danger">
+            <label for="for_file">Archivo</label>
+            <div class="custom-file">
+                <input type="file" name="direct_exam_file" class="custom-file-input" id="forfile" lang="es" accept="application/pdf">
+                <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
+            </div>
+            @if($suspectCase->direct_exam_file)
+            <a href="{{ route('epi.chagas.downloadFile', ['fileName' => $suspectCase->direct_exam_file]) }}" target="_blank" data-toggle="tooltip" data-placement="top" data-original-title="{{ $suspectCase->id . 'pdf' }}">Resultado <i class="fas fa-paperclip"></i>&nbsp
+            </a>
+            - <a href="{{ route('epi.chagas.deleteFile', [$suspectCase->id, 'direct_exam']) }}" onclick="return confirm('Está seguro?')">[ Borrar ]</a>
             </a>
             @endif
         </fieldset>
+    </div>
 
-        @endcan
-        <hr>
+    <div class="form-row">
+        <fieldset class="form-group col-4 col-md-3 alert-danger">
+            <label for="for_pcr_first_at">Fecha Primer PCR</label>
+            <input type="datetime-local" class="form-control" id="for_pcr_first_at" name="pcr_first_at" max="{{ date('Y-m-d\TH:i:s') }}" value="{{ $suspectCase->pcr_first_at? $suspectCase->pcr_first_at->format('Y-m-d\TH:i:s'):'' }}">
+        </fieldset>
 
+        <fieldset class="form-group col-6 col-md-3 alert-danger">
+            <label for="for_pcr_first_result">Resultado Examen Primer PCR</label>
+            <select name="pcr_first_result" id="for_pcr_first_result" class="form-control">
+                <option value=""></option>
+                <option value="Negativo" {{$suspectCase->pcr_first_result === 'Negativo'? 'selected' : ''}}>Negativo</option>
+                <option value="Positivo" {{$suspectCase->pcr_first_result === 'Positivo'? 'selected' : ''}}>Positivo</option>
+                <option value="No Concluyente" {{$suspectCase->pcr_first_result === 'No Concluyente'? 'selected' : ''}}>No Concluyente</option>
+            </select>
+        </fieldset>
+
+        <fieldset class="form-group col-4 col-md-3 alert-danger">
+            <label for="for_file">Archivo</label>
+            <div class="custom-file">
+                <input type="file" name="pcr_first_file" class="custom-file-input" id="forfile" lang="es" accept="application/pdf">
+                <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
+            </div>
+            @if($suspectCase->pcr_first_file)
+            <a href="{{ route('epi.chagas.downloadFile', ['fileName' => $suspectCase->pcr_first_file]) }}" target="_blank" data-toggle="tooltip" data-placement="top" data-original-title="{{ $suspectCase->id . 'pdf' }}">Resultado <i class="fas fa-paperclip"></i>&nbsp
+            </a>
+            - <a href="{{ route('epi.chagas.deleteFile', [$suspectCase->id, 'pcr_first']) }}" onclick="return confirm('Está seguro?')">[ Borrar ]</a>
+            @endif
+        </fieldset>
 
     </div>
+
+    <div class="form-row">
+        <fieldset class="form-group col-4 col-md-3 alert-danger">
+            <label for="for_pcr_second_at">Fecha Segundo PCR</label>
+            <input type="datetime-local" class="form-control" id="for_pcr_second_at" name="pcr_second_at" max="{{ date('Y-m-d\TH:i:s') }}" value="{{ $suspectCase->pcr_second_at? $suspectCase->pcr_second_at->format('Y-m-d\TH:i:s'):'' }}">
+        </fieldset>
+
+        <fieldset class="form-group col-6 col-md-3 alert-danger">
+            <label for="for_pcr_second_result">Resultado Examen Segundo PCR</label>
+            <select name="pcr_second_result" id="for_pcr_second_result" class="form-control">
+                <option value=""></option>
+                <option value="Negativo" {{$suspectCase->pcr_second_result === 'Negativo'? 'selected' : ''}}>Negativo</option>
+                <option value="Positivo" {{$suspectCase->pcr_second_result === 'Positivo'? 'selected' : ''}}>Positivo</option>
+                <option value="No Concluyente" {{$suspectCase->pcr_second_result === 'No Concluyente'? 'selected' : ''}}>No Concluyente</option>
+            </select>
+        </fieldset>
+
+        <fieldset class="form-group col-4 col-md-3 alert-danger">
+            <label for="for_file">Archivo</label>
+            <div class="custom-file">
+                <input type="file" name="pcr_second_file" class="custom-file-input" id="forfile" lang="es" accept="application/pdf">
+                <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
+            </div>
+            @if($suspectCase->pcr_second_file)
+            <a href="{{ route('epi.chagas.downloadFile', ['fileName' => $suspectCase->pcr_second_file]) }}" target="_blank" data-toggle="tooltip" data-placement="top" data-original-title="{{ $suspectCase->id . 'pdf' }}">Resultado <i class="fas fa-paperclip"></i>&nbsp
+            </a>
+            - <a href="{{ route('epi.chagas.deleteFile', [$suspectCase->id, 'pcr_second']) }}" onclick="return confirm('Está seguro?')">[ Borrar ]</a>
+            @endif
+        </fieldset>
+
+    </div>
+
+
+    <div class="form-row">
+        <fieldset class="form-group col-4 col-md-3 alert-danger">
+            <label for="for_pcr_third_at">Fecha Tercer PCR</label>
+            <input type="datetime-local" class="form-control" id="for_pcr_third_at" name="pcr_third_at" max="{{ date('Y-m-d\TH:i:s') }}" value="{{ $suspectCase->pcr_third_at? $suspectCase->pcr_third_at->format('Y-m-d\TH:i:s'):'' }}">
+        </fieldset>
+
+        <fieldset class="form-group col-6 col-md-3 alert-danger">
+            <label for="for_pcr_third_result">Resultado Examen Tercer PCR</label>
+            <select name="pcr_third_result" id="for_pcr_third_result" class="form-control">
+                <option value=""></option>
+                <option value="Negativo" {{$suspectCase->pcr_third_result === 'Negativo'? 'selected' : ''}}>Negativo</option>
+                <option value="Positivo" {{$suspectCase->pcr_third_result === 'Positivo'? 'selected' : ''}}>Positivo</option>
+                <option value="No Concluyente" {{$suspectCase->pcr_third_result === 'No Concluyente'? 'selected' : ''}}>No Concluyente</option>
+            </select>
+        </fieldset>
+
+        <fieldset class="form-group col-4 col-md-3 alert-danger">
+            <label for="for_file">Archivo</label>
+            <div class="custom-file">
+                <input type="file" name="pcr_third_file" class="custom-file-input" id="forfile" lang="es" accept="application/pdf">
+                <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
+            </div>
+            @if($suspectCase->pcr_third_file)
+            <a href="{{ route('epi.chagas.downloadFile', ['fileName' => $suspectCase->pcr_third_file]) }}" target="_blank" data-toggle="tooltip" data-placement="top" data-original-title="{{ $suspectCase->id . 'pdf' }}">Resultado <i class="fas fa-paperclip"></i>&nbsp;</a>
+            - <a href="{{ route('epi.chagas.deleteFile', [$suspectCase->id, 'pcr_third']) }}" onclick="return confirm('Está seguro?')">[ Borrar ]</a>
+            @endif
+        </fieldset>
+    </div>
+
+    @endif
+
+    @endcan
+
+
+
     <div class="form-row">
         <button type="submit" class="btn btn-primary">Guardar</button>
         <a class="btn btn-outline-secondary " href="{{ route('home') }}">
             Cancelar
         </a>
     </div>
-
-
-
-
-
 </form></br>
 
 

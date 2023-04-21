@@ -52,8 +52,8 @@ class SuspectCaseController extends Controller
     {
         //traigo la última organizacion
         $organizations = Organization::where('id', Auth::user()->practitioners->last()->organization->id)->OrderBy('alias')->get();
-        
-        $mothers = SuspectCase::where('chagas_result_confirmation','Positivo')->get();
+
+        $mothers = SuspectCase::where('chagas_result_confirmation', 'Positivo')->get();
 
         return view('epi.chagas.create', compact('organizations', 'user', 'mothers'));
     }
@@ -134,7 +134,6 @@ class SuspectCaseController extends Controller
             $file_name = $suspectCase->id . '_screening';
             $file = $request->file('chagas_result_screening_file');
             $suspectCase->chagas_result_screening_file = $file->storeAs('/unisalud/chagas', $file_name . '.' . $file->extension(), ['disk' => 'gcs']);
-            
         }
 
         if ($request->hasFile('chagas_result_confirmation_file')) {
@@ -143,13 +142,37 @@ class SuspectCaseController extends Controller
             $suspectCase->chagas_result_confirmation_file = $file->storeAs('/unisalud/chagas', $file_name . '.' . $file->extension(), 'gcs');
         }
 
+        if ($request->hasFile('direct_exam_file')) {
+            $file_name = $suspectCase->id . '_direct_exam';
+            $file = $request->file('direct_exam_file');
+            $suspectCase->direct_exam_file = $file->storeAs('/unisalud/chagas', $file_name . '.' . $file->extension(), 'gcs');
+        }
+
+        if ($request->hasFile('pcr_first_file')) {
+            $file_name = $suspectCase->id . '_primer_pcr';
+            $file = $request->file('pcr_first_file');
+            $suspectCase->pcr_first_file = $file->storeAs('/unisalud/chagas', $file_name . '.' . $file->extension(), 'gcs');
+        }
+
+        if ($request->hasFile('pcr_second_file')) {
+            $file_name = $suspectCase->id . '_segunda_pcr';
+            $file = $request->file('pcr_second_file');
+            $suspectCase->pcr_second_file = $file->storeAs('/unisalud/chagas', $file_name . '.' . $file->extension(), 'gcs');
+        }
+
+        if ($request->hasFile('pcr_third_file')) {
+            $file_name = $suspectCase->id . '_tercera_pcr';
+            $file = $request->file('pcr_third_file');
+            $suspectCase->pcr_third_file = $file->storeAs('/unisalud/chagas', $file_name . '.' . $file->extension(), 'gcs');
+        }
+
         $suspectCase->save();
 
         if ($request->chagas_result_screening == 'En Proceso') {
             $organization = Organization::where('id', $suspectCase->organization_id)->first();
             $epi_mails = $organization->epi_mail;
             $emails = explode(',', $epi_mails);
-            
+
             foreach ($emails as $email) {
                 Mail::to(trim($email))->send(new DelegateChagasNotification($suspectCase));
             }
@@ -159,35 +182,24 @@ class SuspectCaseController extends Controller
         session()->flash('success', 'Se añadieron los datos adicionales a Caso sospecha');
         return redirect()->back();
     }
-
-    public function downloadscreening(SuspectCase $suspectCase)
+    public function downloadFile($fileName)
     {
-        return Storage::disk('gcs')->download($suspectCase->chagas_result_screening_file);
+
+        return Storage::disk('gcs')->download($fileName);
     }
 
-    public function downloadconfirmation(SuspectCase $suspectCase)
-    {
-        return Storage::disk('gcs')->download($suspectCase->chagas_result_confirmation_file);
-    }
-
-
-    public function fileDeletescreening(SuspectCase $suspectCase)
-    {
-        Storage::disk('gcs')->delete($suspectCase->chagas_result_screening_file);
-        $suspectCase->chagas_result_screening_file = false;
-        $suspectCase->save();
-        session()->flash('info', 'Se ha eliminado el archivo correctamente.');
+    public function deleteFile(SuspectCase $suspectCase, $attribute)
+    {        
+        $fileAttribute = $attribute . '_file';
+        if ($suspectCase->$fileAttribute) {
+            Storage::disk('gcs')->delete($suspectCase->$fileAttribute);
+            $suspectCase->$fileAttribute = null;
+            $suspectCase->save();
+            session()->flash('info', 'Se ha eliminado el archivo correctamente.');
+        }
         return redirect()->back();
     }
 
-    public function fileDeleteconfirmation(SuspectCase $suspectCase)
-    {
-        Storage::disk('gcs')->delete($suspectCase->chagas_result_confirmation_file);
-        $suspectCase->chagas_result_confirmation_file = false;
-        $suspectCase->save();
-        session()->flash('info', 'Se ha eliminado el archivo correctamente.');
-        return redirect()->back();
-    }
 
 
     /**

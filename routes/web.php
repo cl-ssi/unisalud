@@ -91,15 +91,15 @@ Route::get('/', function () {
 
 /** iOnline login temporal, eliminar parametro {route?} cuando se deje de ocupar */
 /** Tuve que bajar el metodo "autenticar" porque tienen un comodin y coincide con callback y logout */
-Route::get('/claveunica/callback', [ClaveUnicaController::class,'callback']);
-Route::get('/claveunica/callback-testing', [ClaveUnicaController::class,'callback']);
-Route::get('/claveunica/logout', [ClaveUnicaController::class,'logout'])->name('claveunica.logout');
-Route::get('/claveunica/{route?}', [ClaveUnicaController::class,'autenticar'])->name('claveunica.login');
+Route::get('/claveunica/callback', [ClaveUnicaController::class, 'callback']);
+Route::get('/claveunica/callback-testing', [ClaveUnicaController::class, 'callback']);
+Route::get('/claveunica/logout', [ClaveUnicaController::class, 'logout'])->name('claveunica.logout');
+Route::get('/claveunica/{route?}', [ClaveUnicaController::class, 'autenticar'])->name('claveunica.login');
 
 
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('authenticate');
-Route::get('/logout', [LoginController::class,'logout'])->name('logout');
+Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
 
@@ -117,17 +117,17 @@ Route::prefix('parameter')->as('parameter.')->middleware('auth')->group(function
     //Route::resource('organization', OrganizationController::class);
 });
 
-Route::prefix('profile')->name('profile.')->middleware('auth')->group(function(){
+Route::prefix('profile')->name('profile.')->middleware('auth')->group(function () {
     Route::get('/', [ProfileController::class, 'show'])->name('show');
     Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
     Route::put('/', [ProfileController::class, 'update'])->name('update');
-    Route::prefix('observation')->name('observation.')->group(function(){
+    Route::prefix('observation')->name('observation.')->group(function () {
         Route::get('/', [ObservationController::class, 'index'])->name('index');
         Route::get('/download/{id}', [ObservationController::class, 'download'])->name('download');
     });
 });
 
-Route::prefix('user')->name('user.')->middleware('auth')->group(function(){
+Route::prefix('user')->name('user.')->middleware('auth')->group(function () {
     Route::get('/', [UserController::class, 'index'])->name('index');
     Route::get('/create', [UserController::class, 'create'])->name('create');
     Route::post('/', [UserController::class, 'store'])->name('store');
@@ -136,7 +136,7 @@ Route::prefix('user')->name('user.')->middleware('auth')->group(function(){
     Route::get('/search_by_name', [UserController::class, 'searchByName'])->name('search_by_name');
     Route::get('{user}/switch', [UserController::class, 'switch'])->name('switch');
 });
-Route::prefix('patient')->name('patient.')->middleware('auth')->group(function(){
+Route::prefix('patient')->name('patient.')->middleware('auth')->group(function () {
     Route::get('/', [PatientController::class, 'index'])->name('index');
     Route::post('/', [PatientController::class, 'store'])->name('store');
     Route::get('/create', [PatientController::class, 'create'])->name('create');
@@ -148,7 +148,7 @@ Route::prefix('patient')->name('patient.')->middleware('auth')->group(function()
     Route::match(['get', 'post'], '/{patient}/edit', [PatientController::class, 'edit'])->name('edit');
 });
 
-Route::prefix('some')->name('some.')->middleware('auth')->group(function(){
+Route::prefix('some')->name('some.')->middleware('auth')->group(function () {
     Route::get('/appointment/{appointmentId?}', AsignAppointment::class)->name('appointment');
     Route::get('/appointment-from-sic/{interconsultationId?}', AsignAppointment::class)->name('appointment.from_interconsultation');
     Route::get('/appointment-pending-practitioner/{pendingPractitionerId}/{from}/{to}', AsignAppointment::class)->name('appointment.pending_practitioner');
@@ -159,13 +159,13 @@ Route::prefix('some')->name('some.')->middleware('auth')->group(function(){
     Route::get('/agenda', [AppointmentController::class, 'agenda'])->name('agenda');
     Route::get('/reallocation_pending', ReallocationPending::class)->name('reallocationPending');
     Route::post('/open_agenda', [AppointmentController::class, 'openAgenda'])->name('openAgenda');
-    Route::match(['get', 'post'],'/open_tprogrammer/{programmingProposal?}', [AppointmentController::class, 'openTProgrammerView'])->name('open_tprogrammer');
+    Route::match(['get', 'post'], '/open_tprogrammer/{programmingProposal?}', [AppointmentController::class, 'openTProgrammerView'])->name('open_tprogrammer');
     Route::get('appointment_detail/{id}', [AppointmentController::class, 'appointment_detail'])->name('appointment_detail');
     Route::get('/appointed_available', AppointedAvailable::class)->name('appointedAvailable');
     Route::get('/open_pending', OpenPending::class)->name('openPending');
 
 
-    Route::prefix('locations')->name('locations.')->group(function(){
+    Route::prefix('locations')->name('locations.')->group(function () {
         Route::get('/', [LocationController::class, 'index'])->name('index');
         Route::post('/', [LocationController::class, 'store'])->name('store');
         Route::get('/create', [LocationController::class, 'create'])->name('create');
@@ -175,7 +175,7 @@ Route::prefix('some')->name('some.')->middleware('auth')->group(function(){
         Route::get('/{location}/edit', [LocationController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('observations')->name('observations.')->group(function(){
+    Route::prefix('observations')->name('observations.')->group(function () {
         Route::get('/', [ObservationController::class, 'index'])->name('index');
         Route::post('/', [ObservationController::class, 'store'])->name('store');
         Route::get('/create', [ObservationController::class, 'create'])->name('create');
@@ -186,8 +186,8 @@ Route::prefix('some')->name('some.')->middleware('auth')->group(function(){
     });
 });
 
-Route::prefix('aps')->name('aps.')->middleware('auth')->group(function(){
-    Route::prefix('minor_authorizations')->name('minor_authorizations.')->group(function(){
+Route::prefix('aps')->name('aps.')->middleware('auth')->group(function () {
+    Route::prefix('minor_authorizations')->name('minor_authorizations.')->group(function () {
         Route::get('parents_index', [MinorAuthorizationController::class, 'parents_index'])->name('parents_index');
 
         Route::get('/', [MinorAuthorizationController::class, 'index'])->name('index');
@@ -199,7 +199,7 @@ Route::prefix('aps')->name('aps.')->middleware('auth')->group(function(){
         Route::get('/{minorAuthorization}/edit', [MinorAuthorizationController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('authorization_types')->name('authorization_types.')->group(function(){
+    Route::prefix('authorization_types')->name('authorization_types.')->group(function () {
         Route::get('/', [AuthorizationTypeController::class, 'index'])->name('index');
         Route::post('/', [AuthorizationTypeController::class, 'store'])->name('store');
         Route::get('/create', [AuthorizationTypeController::class, 'create'])->name('create');
@@ -207,20 +207,20 @@ Route::prefix('aps')->name('aps.')->middleware('auth')->group(function(){
         Route::put('/{authorizationType}', [AuthorizationTypeController::class, 'update'])->name('update');
         Route::delete('/{authorizationType}', [AuthorizationTypeController::class, 'destroy'])->name('destroy');
         Route::get('/{authorizationType}/edit', [AuthorizationTypeController::class, 'edit'])->name('edit');
-    });	
+    });
 });
 
-Route::prefix('fq')->as('fq.')->group(function(){
+Route::prefix('fq')->as('fq.')->group(function () {
     Route::get('/', [CysticFibrosisRequest::class, 'index'])->name('index');
     Route::get('/home', [CysticFibrosisRequest::class, 'home'])->name('home')->middleware('auth');
-    Route::prefix('contact_user')->name('contact_user.')->middleware(['permission:Fq: admin'])->group(function(){
+    Route::prefix('contact_user')->name('contact_user.')->middleware(['permission:Fq: admin'])->group(function () {
         Route::get('/', [ContactUserController::class, 'index'])->name('index')->middleware('auth');
         Route::get('/create', [ContactUserController::class, 'create'])->name('create')->middleware('auth');
         Route::get('/store/{user}', [ContactUserController::class, 'store'])->name('store')->middleware('auth');
         Route::get('/addPatient/{contactUser}', [ContactUserController::class, 'addPatient'])->name('addPatient')->middleware('auth');
         Route::get('/storeAddPatient/{contactUser}/{user}', [ContactUserController::class, 'storeAddPatient'])->name('storeAddPatient')->middleware('auth');
     });
-    Route::prefix('request')->name('request.')->middleware('auth')->group(function(){
+    Route::prefix('request')->name('request.')->middleware('auth')->group(function () {
         Route::get('/', [FqRequestController::class, 'index'])->name('index')
             ->middleware(['permission:Fq: answer request dispensing|Fq: admin']);
         Route::get('/own_index', [FqRequestController::class, 'own_index'])->name('own_index');
@@ -232,8 +232,8 @@ Route::prefix('fq')->as('fq.')->group(function(){
     });
 });
 
-Route::prefix('surveys')->as('surveys.')->middleware('auth')->group(function(){
-    Route::prefix('teleconsultation')->name('teleconsultation.')->group(function(){
+Route::prefix('surveys')->as('surveys.')->middleware('auth')->group(function () {
+    Route::prefix('teleconsultation')->name('teleconsultation.')->group(function () {
         Route::get('/', [TeleconsultationSurveyController::class, 'index'])->name('index');
         Route::get('/own_index', [TeleconsultationSurveyController::class, 'own_index'])->name('own_index');
         Route::get('/create', [TeleconsultationSurveyController::class, 'create'])->name('create');
@@ -243,9 +243,9 @@ Route::prefix('surveys')->as('surveys.')->middleware('auth')->group(function(){
     });
 });
 
-Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('auth')->group(function(){
+Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('auth')->group(function () {
 
-    Route::prefix('operating_room_programming')->name('operating_room_programming.')->group(function(){
+    Route::prefix('operating_room_programming')->name('operating_room_programming.')->group(function () {
         Route::post('saveMyEvent', [OperatingRoomProgrammingController::class, 'saveMyEvent'])->name('saveMyEvent');
         Route::post('updateMyEvent', [OperatingRoomProgrammingController::class, 'updateMyEvent'])->name('updateMyEvent');
         Route::post('deleteMyEvent', [OperatingRoomProgrammingController::class, 'deleteMyEvent'])->name('deleteMyEvent');
@@ -260,7 +260,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
         Route::get('/{patient}/edit', [OperatingRoomProgrammingController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('rrhh')->name('rrhh.')->group(function(){
+    Route::prefix('rrhh')->name('rrhh.')->group(function () {
         Route::get('/', [RrhhController::class, 'index'])->name('index');
         Route::post('/', [RrhhController::class, 'store'])->name('store');
         Route::get('/create', [RrhhController::class, 'create'])->name('create');
@@ -270,7 +270,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
         Route::get('/{user}/edit', [RrhhController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('contracts')->name('contracts.')->group(function(){
+    Route::prefix('contracts')->name('contracts.')->group(function () {
         Route::get('/', [ContractController::class, 'index'])->name('index');
         Route::post('/', [ContractController::class, 'store'])->name('store');
         Route::get('/create', [ContractController::class, 'create'])->name('create');
@@ -280,7 +280,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
         Route::get('/{contract}/edit', [ContractController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('activities')->name('activities.')->group(function(){
+    Route::prefix('activities')->name('activities.')->group(function () {
         Route::get('/', [ActivityController::class, 'index'])->name('index');
         Route::post('/', [ActivityController::class, 'store'])->name('store');
         Route::get('/create', [ActivityController::class, 'create'])->name('create');
@@ -290,7 +290,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
         Route::get('/{activity}/edit', [ActivityController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('subactivities')->name('subactivities.')->group(function(){
+    Route::prefix('subactivities')->name('subactivities.')->group(function () {
         Route::get('/', [SubActivityController::class, 'index'])->name('index');
         Route::post('/', [SubActivityController::class, 'store'])->name('store');
         Route::get('/create', [SubActivityController::class, 'create'])->name('create');
@@ -300,7 +300,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
         Route::get('/{subactivity}/edit', [SubActivityController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('theoretical_programming')->name('theoretical_programming.')->group(function(){
+    Route::prefix('theoretical_programming')->name('theoretical_programming.')->group(function () {
         Route::post('saveMyEvent', [TheoreticalProgrammingController::class, 'saveMyEvent'])->name('saveMyEvent');
         Route::post('updateMyEvent', [TheoreticalProgrammingController::class, 'updateMyEvent'])->name('updateMyEvent');
         Route::post('deleteMyEvent', [TheoreticalProgrammingController::class, 'deleteMyEvent'])->name('deleteMyEvent');
@@ -323,7 +323,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
         Route::get('/{theoreticalProgramming}/edit', [TheoreticalProgrammingController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('unscheduled_programming')->name('unscheduled_programming.')->group(function(){
+    Route::prefix('unscheduled_programming')->name('unscheduled_programming.')->group(function () {
         Route::get('/', [UnscheduledProgrammingController::class, 'index'])->name('index');
         Route::post('/', [UnscheduledProgrammingController::class, 'store'])->name('store');
         Route::get('/create', [UnscheduledProgrammingController::class, 'create'])->name('create');
@@ -333,7 +333,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
         Route::get('/{theoreticalProgramming}/edit', [UnscheduledProgrammingController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('calendar_programming')->name('calendar_programming.')->group(function(){
+    Route::prefix('calendar_programming')->name('calendar_programming.')->group(function () {
         Route::get('indexbox', [CalendarProgrammingController::class, 'indexbox'])->name('indexbox');
         Route::post('saveMyEvent', [CalendarProgrammingController::class, 'saveMyEvent'])->name('saveMyEvent');
         Route::post('updateMyEvent', [CalendarProgrammingController::class, 'updateMyEvent'])->name('updateMyEvent');
@@ -350,7 +350,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
         Route::get('/{calendarProgramming}/edit', [CalendarProgrammingController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('operating_rooms')->name('operating_rooms.')->group(function(){
+    Route::prefix('operating_rooms')->name('operating_rooms.')->group(function () {
         Route::get('/', [OperatingRoomController::class, 'index'])->name('index');
         Route::post('/', [OperatingRoomController::class, 'store'])->name('store');
         Route::get('/create', [OperatingRoomController::class, 'create'])->name('create');
@@ -360,7 +360,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
         Route::get('/{operatingRoom}/edit', [OperatingRoomController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('mother_activities')->name('mother_activities.')->group(function(){
+    Route::prefix('mother_activities')->name('mother_activities.')->group(function () {
         Route::get('/', [MotherActivityController::class, 'index'])->name('index');
         Route::post('/', [MotherActivityController::class, 'store'])->name('store');
         Route::get('/create', [MotherActivityController::class, 'create'])->name('create');
@@ -372,7 +372,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
 
 
 
-    Route::prefix('services')->name('services.')->group(function(){
+    Route::prefix('services')->name('services.')->group(function () {
         Route::get('/', [ServiceController::class, 'index'])->name('index');
         Route::post('/', [ServiceController::class, 'store'])->name('store');
         Route::get('/create', [ServiceController::class, 'create'])->name('create');
@@ -382,7 +382,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
         Route::get('/{service}/edit', [ServiceController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('specialties')->name('specialties.')->group(function(){
+    Route::prefix('specialties')->name('specialties.')->group(function () {
         Route::get('/', [SpecialtyController::class, 'index'])->name('index');
         Route::post('/', [SpecialtyController::class, 'store'])->name('store');
         Route::get('/create', [SpecialtyController::class, 'create'])->name('create');
@@ -392,7 +392,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
         Route::get('/{specialty}/edit', [SpecialtyController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('professions')->name('professions.')->group(function(){
+    Route::prefix('professions')->name('professions.')->group(function () {
         Route::get('/', [ProfessionController::class, 'index'])->name('index');
         Route::post('/', [ProfessionController::class, 'store'])->name('store');
         Route::get('/create', [ProfessionController::class, 'create'])->name('create');
@@ -402,7 +402,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
         Route::get('/{profession}/edit', [ProfessionController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('cutoffdates')->name('cutoffdates.')->group(function(){
+    Route::prefix('cutoffdates')->name('cutoffdates.')->group(function () {
         Route::get('consolidated_programming', [CutOffDateController::class, 'consolidated_programming'])->name('consolidated_programming');
         Route::get('savePerformance', [CutOffDateController::class, 'savePerformance'])->name('savePerformance');
 
@@ -415,7 +415,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
         Route::get('/{cutoffdate}/edit', [CutOffDateController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('clone')->name('clone.')->group(function(){
+    Route::prefix('clone')->name('clone.')->group(function () {
         Route::get('/', [CloneController::class, 'index'])->name('index');
         Route::post('/', [CloneController::class, 'store'])->name('store');
         Route::get('/create', [CloneController::class, 'create'])->name('create');
@@ -425,7 +425,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
         Route::get('/{theoreticalProgramming}/edit', [CloneController::class, 'edit'])->name('edit');
     });
 
-    Route::prefix('reports')->name('reports.')->group(function(){
+    Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('specialty', [OperatingRoomController::class, 'reportSpecialty'])->name('specialty');
         Route::get('by_profesional', [OperatingRoomController::class, 'reportByProfesional'])->name('by_profesional');
         Route::get('weekly', [OperatingRoomController::class, 'reportWeekly'])->name('weekly');
@@ -438,7 +438,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
         Route::get('pendingPractitionersReport', [ReportController::class, 'pendingPractitionersReport'])->name('pendingPractitionersReport');
     });
 
-    Route::prefix('programming_proposal')->name('programming_proposal.')->group(function(){
+    Route::prefix('programming_proposal')->name('programming_proposal.')->group(function () {
         Route::get('/programming_by_practioner', [ProgrammingProposalController::class, 'programming_by_practioner'])->name('programming_by_practioner');
         Route::get('/consolidated_programmings', [ProgrammingProposalController::class, 'consolidated_programmings'])->name('consolidated_programmings');
 
@@ -452,16 +452,12 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
 
         Route::put('/{programmingProposal}', [ProgrammingProposalController::class, 'store_confirmation'])->name('store_confirmation');
 
-        Route::prefix('details')->name('details.')->group(function(){
-        Route::get('/create/{programmingProposal}', [ProgrammingProposalDetailController::class, 'create'])->name('create');
-        Route::post('/', [ProgrammingProposalDetailController::class, 'store'])->name('store');
-        Route::delete('/{programmingProposalDetail}', [ProgrammingProposalDetailController::class, 'destroy'])->name('destroy');
+        Route::prefix('details')->name('details.')->group(function () {
+            Route::get('/create/{programmingProposal}', [ProgrammingProposalDetailController::class, 'create'])->name('create');
+            Route::post('/', [ProgrammingProposalDetailController::class, 'store'])->name('store');
+            Route::delete('/{programmingProposalDetail}', [ProgrammingProposalDetailController::class, 'destroy'])->name('destroy');
+        });
     });
-});
-
-
-
-
 });
 
 // Route::prefix('dummy')->name('dummy.')->group(function(){
@@ -472,19 +468,19 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
 //    Route::view('/lista-espera', 'lista_espera')->name('lista_espera');
 // });
 
-Route::prefix('test')->name('test.')->group(function(){
+Route::prefix('test')->name('test.')->group(function () {
     Route::view('/livesearch', 'test.livesearch')->name('livesearch');
     Route::view('/fonasa', 'test.fonasa');
 });
 
-Route::prefix('medical-licence')->name('medical_licence.')->group(function(){
-    Route::get('/find-user',[MedicalLicenceController::class,'findUserForm'])->name('find-user-form');
-    Route::post('/find-user',[MedicalLicenceController::class,'findUser'])->name('find-user');
-    Route::get('/create/{user}',[MedicalLicenceController::class,'create'])->name('create');
-    Route::post('/{user}',[MedicalLicenceController::class,'store'])->name('store');
+Route::prefix('medical-licence')->name('medical_licence.')->group(function () {
+    Route::get('/find-user', [MedicalLicenceController::class, 'findUserForm'])->name('find-user-form');
+    Route::post('/find-user', [MedicalLicenceController::class, 'findUser'])->name('find-user');
+    Route::get('/create/{user}', [MedicalLicenceController::class, 'create'])->name('create');
+    Route::post('/{user}', [MedicalLicenceController::class, 'store'])->name('store');
 });
 
-Route::prefix('soap')->name('soap.')->group(function(){
+Route::prefix('soap')->name('soap.')->group(function () {
     Route::any('rayen', [SoapController::class, 'server'])->name('rayen');
 });
 
@@ -513,7 +509,7 @@ Route::prefix('soap')->name('soap.')->group(function(){
 // use App\Http\Livewire\Samu\Shift\ShiftSearcher;
 
 // Route::prefix('samu')->name('samu.')->middleware('auth')->group(function () {
-    
+
 // 	Route::view('/', 'samu.welcome')->name('welcome');
 
 // 	// Route::get('/procedures', Procedures::class)->name('procedures');
@@ -661,11 +657,11 @@ Route::post('/miubicacion', [CoordinateController::class, 'store'])->name('coord
 // ]);
 
 Route::prefix('absences')->name('absences.')->group(function () {
-    Route::get('/', 			[AbsenceController::class, 'index'])->name('index');
-    Route::get('/create', 		[AbsenceController::class, 'create'])->name('create');
-    Route::post('/', 			[AbsenceController::class, 'store'])->name('store');
-    Route::get('/load', 		[AbsenceController::class, 'load'])->name('load');
-    Route::post('/import', 		[AbsenceController::class, 'import'])->name('import');
+    Route::get('/',             [AbsenceController::class, 'index'])->name('index');
+    Route::get('/create',         [AbsenceController::class, 'create'])->name('create');
+    Route::post('/',             [AbsenceController::class, 'store'])->name('store');
+    Route::get('/load',         [AbsenceController::class, 'load'])->name('load');
+    Route::post('/import',         [AbsenceController::class, 'import'])->name('import');
     Route::delete('/{absence}', [AbsenceController::class, 'destroy'])->name('destroy');
 });
 
@@ -680,19 +676,23 @@ Route::prefix('epi')->name('epi.')->group(function () {
     Route::put('/update-mail/{organization}', [SuspectCaseController::class, 'updateMail'])->name('updateMail');
 
     Route::prefix('chagas')->name('chagas.')->group(function () {
-
+        Route::get('download/{url}', [SuspectCaseController::class, 'download'])->name('download');
         Route::get('/{suspectCase}/edit', [SuspectCaseController::class, 'edit'])->name('edit');
         Route::put('/{suspectCase}', [SuspectCaseController::class, 'update'])->name('update');
-        Route::get('/resultchagasnegative',[SuspectCaseController::class, 'resultchagasnegative'])->name('resultchagasnegative');
-        Route::get('/print/{suspectCase}',[SuspectCaseController::class, 'printresultchagasnegative'])->name('printresultchagasnegative');
+        Route::get('/resultchagasnegative', [SuspectCaseController::class, 'resultchagasnegative'])->name('resultchagasnegative');
+        Route::get('/print/{suspectCase}', [SuspectCaseController::class, 'printresultchagasnegative'])->name('printresultchagasnegative');
         Route::get('/{tray}', [SuspectCaseController::class, 'index'])->name('index');
         Route::get('/{user}/create', [SuspectCaseController::class, 'create'])->name('create');
         Route::post('/', [SuspectCaseController::class, 'store'])->name('store');
         Route::post('reception/{suspectcase}', [SuspectCaseController::class, 'reception'])->name('reception');
-        Route::get('downloadscreening/{suspect_case}', [SuspectCaseController::class, 'downloadscreening'])->name('downloadscreening');
-        Route::get('downloadsconfirmation/{suspect_case}', [SuspectCaseController::class, 'downloadconfirmation'])->name('downloadconfirmation');
-        Route::get('file/{suspect_case}/screening', [SuspectCaseController::class, 'fileDeletescreening'])->name('fileDeletescreening');
-        Route::get('file/{suspect_case}/confirmation', [SuspectCaseController::class, 'fileDeleteconfirmation'])->name('fileDeleteconfirmation');
+
+
+
+        // Nueva ruta que llama al método downloadFile
+        Route::get('download/{fileName}', [SuspectCaseController::class, 'downloadFile'])->where('fileName', '.*')->name('downloadFile');
+
+        // Nueva ruta única para borrado
+        Route::get('file/{suspect_case}/{attribute}', [SuspectCaseController::class, 'deleteFile'])->name('deleteFile');
     });
 
     Route::prefix('tracings')->name('tracings.')->middleware('auth')->group(function () {
@@ -705,13 +705,7 @@ Route::prefix('epi')->name('epi.')->group(function () {
 
     Route::prefix('contacts')->name('contacts.')->middleware('auth')->group(function () {
         Route::get('/create/{patient?}', [ContactPatientController::class, 'create'])->name('create');
-    
     });
-    
-
-
-
-
 });
 //fin rutas EPI
 
@@ -733,5 +727,5 @@ Route::prefix('vista')->name('vista.')->group(function () {
     Route::view('/control', 'vista.control')->name('control');
 });
 
-Route::get('/test/rayen' ,[RayenController::class, 'getUrgencyStatus'])->name('getUrgencyStatus');
-Route::get('/test/sendip',[TestController::class,'sendIp']);
+Route::get('/test/rayen', [RayenController::class, 'getUrgencyStatus'])->name('getUrgencyStatus');
+Route::get('/test/sendip', [TestController::class, 'sendIp']);
