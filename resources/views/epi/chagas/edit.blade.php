@@ -81,6 +81,18 @@
             <input type="datetime-local" class="form-control" id="for_sample_at" name="sample_at" value="{{ $suspectCase->sample_at->format('Y-m-d\TH:i:s') }}" required readonly>
         </fieldset>
 
+        <fieldset class="form-group col-12 col-md-4">
+            <label for="for_establishment_id">Establecimiento*</label>
+            <select name="organization_id" id="for_organization_id" class="form-control" readonly required>
+                <option value="">Seleccionar Establecimiento</option>
+                @foreach($organizations as $organization)
+                <option value="{{$organization->id}}" {{ ($organization->id == $suspectCase->organization_id)?'selected':'' }}>{{$organization->alias??''}}</option>
+                @endforeach
+            </select>
+        </fieldset>
+    </div>
+
+    <div class="form-row">
         <fieldset class="form-group col-6 col-md-3">
             <label for="for_sample_type">Grupo de Pesquiza</label>
             <select name="research_group" id="for_research_group" class="form-control" readonly>
@@ -88,9 +100,8 @@
                 <option value="Gestante (+semana gestacional)" {{$suspectCase->research_group === 'Gestante (+semana gestacional)'? 'selected' : ''}}>Gestante (+semana gestacional)</option>
                 <option value="Estudio de contacto" {{$suspectCase->research_group === 'Estudio de contacto'? 'selected' : ''}}>Estudio de contacto</option>
                 <option value="Morbilidad (cualquier persona)" {{$suspectCase->research_group === 'Morbilidad (cualquier persona)'? 'selected' : ''}}>Morbilidad (cualquier persona)</option>
-                <option value="Tranmisión Vertical" {{$suspectCase->research_group === 'Tranmisión Vertical'? 'selected' : ''}}>Tranmisión Vertical</option>
+                <option value="Transmisión Vertical" {{$suspectCase->research_group === 'Transmisión Vertical'? 'selected' : ''}}>Transmisión Vertical</option>
                 <option value="Control Chagas Crónico" {{$suspectCase->research_group === 'Control Chagas Crónico'? 'selected' : ''}}>Control Chagas Crónico</option>
-
             </select>
         </fieldset>
 
@@ -101,16 +112,17 @@
         </fieldset>
         @endif
 
-        <fieldset class="form-group col-12 col-md-4">
-            <label for="for_establishment_id">Establecimiento*</label>
-            <select name="organization_id" id="for_organization_id" class="form-control" readonly required>
-                <option value="">Seleccionar Establecimiento</option>
-                @foreach($organizations as $organization)
-                <option value="{{$organization->id}}" {{ ($organization->id == $suspectCase->organization_id)?'selected':'' }}>{{$organization->alias??''}}</option>
-                @endforeach
 
+        @if($suspectCase->research_group === 'Transmisión Vertical')
+        <fieldset class="form-group col-12 col-md-4">
+            <label for="for_mother_id">Madre</label>
+            <select name="mother_id" id="for_mother_id" class="form-control" readonly>
+                <option value="{{$suspectCase->mother_id}}">{{$suspectCase->mother->OfficialFullName ?? ''}}</option>
             </select>
         </fieldset>
+        @endif
+
+
     </div>
     @can('Epi: Add Value')
     <div class="form-row">

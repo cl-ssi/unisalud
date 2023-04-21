@@ -80,27 +80,6 @@
             <input type="datetime-local" class="form-control" id="for_sample_at" name="sample_at" value="{{ date('Y-m-d\TH:i:s') }}" required min="{{ date('Y-m-d\TH:i:s', strtotime('-2 week')) }}" max="{{ date('Y-m-d\TH:i:s') }}">
         </fieldset>
 
-        <fieldset class="form-group col-6 col-md-3">
-            <label for="for_sample_type">Grupo de Pesquisa</label>
-            <select name="research_group" id="research_group" class="form-control" requireds>
-                <option value=""></option>
-                <option value="Control Pre concepcional">Control Pre concepcional</option>
-                <option value="Gestante (+semana gestacional)">Gestante (+semana gestacional)</option>
-                <option value="Estudio de contacto">Estudio de contacto</option>
-                <option value="Morbilidad (cualquier persona)">Morbilidad (cualquier persona)</option>
-                <option value="Tranmisión Vertical">Tranmisión Vertical</option>
-                <option value="Control Chagas Crónico">Control Chagas Crónico</option>
-            </select>
-        </fieldset>
-
-
-        <fieldset class="form-group col-2 col-md-1">
-            <label for="newborn_week">Semanas</label>
-            <input type="number" class="form-control" id="newborn_week" name="newborn_week" disabled>
-        </fieldset>
-
-
-
         <fieldset class="form-group col-12 col-md-4">
             <label for="for_establishment_id">Establecimiento*</label>
             <select name="organization_id" id="for_organization_id" class="form-control" required>
@@ -108,9 +87,39 @@
                 @foreach($organizations as $organization)
                 <option value="{{$organization->id}}">{{$organization->alias??''}}</option>
                 @endforeach
-
             </select>
-        </fieldset>    
+        </fieldset>
+    </div>
+
+    <div class="form-row">
+        <fieldset class="form-group col-4 col-md-2">
+            <label for="for_sample_type">Grupo de Pesquisa</label>
+            <select name="research_group" id="research_group" class="form-control" required>
+                <option value=""></option>
+                <option value="Control Pre concepcional">Control Pre concepcional</option>
+                <option value="Gestante (+semana gestacional)">Gestante (+semana gestacional)</option>
+                <option value="Estudio de contacto">Estudio de contacto</option>
+                <option value="Morbilidad (cualquier persona)">Morbilidad (cualquier persona)</option>
+                <option value="Transmisión Vertical">Transmisión Vertical</option>
+                <option value="Control Chagas Crónico">Control Chagas Crónico</option>
+            </select>
+        </fieldset>
+
+        <fieldset class="form-group col-2 col-md-1">
+            <label for="newborn_week">Semanas</label>
+            <input type="number" class="form-control" id="newborn_week" name="newborn_week" min="2" max="44" disabled>
+        </fieldset>
+
+
+        <fieldset class="form-group col-6 col-md-4">
+            <label for="mothers_run">Madre</label>
+            <select name="mother_id" id="mother_id" class="form-control" disabled>
+            <option value="">Seleccionar Madre en caso de Transmisión Vertical</option>
+                @foreach($mothers as $mother)
+                <option value="{{$mother->patient_id}}">{{$mother->patient->OfficialFullName ?? ''}}</option>
+                @endforeach
+            </select>
+        </fieldset>
 
     </div>
 
@@ -199,22 +208,6 @@
             <label for="for_observation">Observación</label>
             <input type="text" class="form-control" name="observation" id="for_observation" autocomplete="off">
         </fieldset>
-
-
-
-        {{-- <fieldset class="form-group col-6 col-md-2">
-            <label for="for_run_medic">Run Médico Solicitante</label>
-            <input type="text" class="form-control" name="run_medic" id="for_run_medic"
-                placeholder="Ej: 12345678-9">
-        </fieldset> --}}
-
-
-        <!-- <fieldset class="form-group col-6 col-md-6">
-            <label for="for_epivigila">Epivigila</label>
-            <input type="number" class="form-control" id="for_epivigila" name="epivigila">
-        </fieldset> -->
-
-
     </div>
 
 
@@ -246,21 +239,26 @@
     $(document).ready(function() {
         $('#research_group').on('change', function() {
             var value = this.value;
-                if (value == "Gestante (+semana gestacional)") {
+
+            //código para Gestante
+            if (value == "Gestante (+semana gestacional)") {
                 $('#newborn_week').removeAttr('disabled');
                 $("#newborn_week").prop('required', true);
-                }
-                else
-                {
+            } else {
                 $('#newborn_week').attr('disabled', 'disabled');
                 $("#newborn_week").prop('required', false);
-                }
+            }
+
+            //código para transmisión vertical
+            if (value == "Tranmisión Vertical") {
+                $('#mother_id').removeAttr('disabled');
+                $("#mother_id").prop('required', true);
+            } else {
+                $('#mother_id').attr('disabled', 'disabled');
+                $("#mother_id").prop('required', false);
+            }
+
         });
-
-
-
     });
 </script>
-
-
 @endsection

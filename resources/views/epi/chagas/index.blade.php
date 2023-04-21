@@ -8,6 +8,7 @@
         <thead>
             <tr>
                 <th nowrap>ID</th>
+                <th>Grupo de Pesquisa</th>
                 <th>Fecha muestra</th>
                 <th>Origen</th>
                 <th>Nombre</th>
@@ -55,6 +56,7 @@
                         @endcan
 
                 </td>
+                <td>{{$suspectcase->research_group?? ''}}</td>
                 <td>{{$suspectcase->sample_at? $suspectcase->sample_at: ''}}</td>
                 <td>{{$suspectcase->organization->alias??''}}</td>
                 <td>{{$suspectcase->patient->OfficialFullName ??''}}

@@ -52,7 +52,10 @@ class SuspectCaseController extends Controller
     {
         //traigo la última organizacion
         $organizations = Organization::where('id', Auth::user()->practitioners->last()->organization->id)->OrderBy('alias')->get();
-        return view('epi.chagas.create', compact('organizations', 'user'));
+        
+        $mothers = SuspectCase::where('chagas_result_confirmation','Positivo')->get();
+
+        return view('epi.chagas.create', compact('organizations', 'user', 'mothers'));
     }
 
     public function reception(SuspectCase $suspectcase)
@@ -112,6 +115,7 @@ class SuspectCaseController extends Controller
     {
         //
         $organizations = Organization::OrderBy('alias')->get();
+
         return view('epi.chagas.edit', compact('suspectCase', 'organizations'));
     }
 
@@ -124,15 +128,13 @@ class SuspectCaseController extends Controller
      */
     public function update(Request $request, SuspectCase $suspectCase)
     {
-        //               
+        //
         $suspectCase->fill($request->all());
         if ($request->hasFile('chagas_result_screening_file')) {
-            // dd('entre a tamizaje');
             $file_name = $suspectCase->id . '_screening';
             $file = $request->file('chagas_result_screening_file');
-            //$suspectCase->chagas_result_screening_file = $file->storeAs('/unisalud/chagas', $file_name.'.'.$file->extension(), 'gcs');
             $suspectCase->chagas_result_screening_file = $file->storeAs('/unisalud/chagas', $file_name . '.' . $file->extension(), ['disk' => 'gcs']);
-            //$file->file = $request->file->storeAs('ionline/rni_db', $originalname, ['disk' => 'gcs']);
+            
         }
 
         if ($request->hasFile('chagas_result_confirmation_file')) {
@@ -140,7 +142,6 @@ class SuspectCaseController extends Controller
             $file = $request->file('chagas_result_confirmation_file');
             $suspectCase->chagas_result_confirmation_file = $file->storeAs('/unisalud/chagas', $file_name . '.' . $file->extension(), 'gcs');
         }
-
 
         $suspectCase->save();
 
@@ -151,7 +152,7 @@ class SuspectCaseController extends Controller
             
             foreach ($emails as $email) {
                 Mail::to(trim($email))->send(new DelegateChagasNotification($suspectCase));
-            }            
+            }
         }
 
 
