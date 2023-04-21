@@ -20,8 +20,7 @@
                 <th>Resultado Tamizaje</th>
                 <th>Fecha de Resultado Confirmación</th>
                 <th>Resultado Confirmación</th>
-                <th>Observación</th>
-                <!-- <th>Descargar resultado (Bosquejo)</th> -->
+                <th>Observación</th>                
             </tr>
         </thead>
 
@@ -94,14 +93,7 @@
 
 
                 </td>
-                <td>{{$suspectcase->observation??''}}</td>
-
-                <!-- <td>
-                    @if($suspectcase->chagas_result_screening == 'Negativo')
-                    <a href="{{ route('epi.chagas.printresultchagasnegative', $suspectcase) }}" target="_blank"><i class="fas fa-paperclip"></i>&nbsp</a>
-                    @endif
-
-                </td> -->
+                <td>{{$suspectcase->observation??''}}</td>                
             </tr>
             @endforeach
         </tbody>

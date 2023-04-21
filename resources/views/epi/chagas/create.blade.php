@@ -9,22 +9,21 @@
     @csrf
     @method('POST')
     <div class="form-row">
-        <fieldset class="form-group col-10 col-md-3">
+        <fieldset class="form-group col-6 col-md-2">
             <input type="hidden" class="form-control" id="for_id" name="patient_id" value="{{$user->id}}">
-
             <input type="hidden" class="form-control" id="for_id" name="type" value="Chagas">
             <label for="for_run">Run</label>
             <input type="number" max="50000000" class="form-control" id="for_run" name="run" value="{{$user->Identification->value}}" readonly>
         </fieldset>
 
         @if($user->IdentifierRun)
-        <fieldset class="form-group col-2 col-md-1">
+        <fieldset class="form-group col-1 col-md-1">
             <label for="for_dv">DV</label>
             <input type="text" class="form-control" id="for_dv" name="dv" value="{{$user->identifierRun->dv}}" readonly>
         </fieldset>
         @endif
 
-        <fieldset class="form-group col-12 col-md-3">
+        <fieldset class="form-group col-12 col-md-2">
             <label for="for_other_identification">Otra identificación</label>
             <input type="text" class="form-control" id="for_other_identification" placeholder="Extranjeros sin run" name="other_identification" readonly>
         </fieldset>
@@ -39,14 +38,19 @@
             </select>
         </fieldset>
 
-        <fieldset class="form-group col-6 col-md-2">
+        <fieldset class="form-group col-5 col-md-2">
             <label for="for_birthday">Fecha Nacimiento</label>
-            <input type="date" class="form-control" id="for_birthday" name="birthday" value="{{ $user->birthday }}" readonly required>
+            <input type="date" class="form-control" id="for_birthday" name="birthday" value="{{ $user->birthday->format('Y-m-d') }}" readonly required>
         </fieldset>
 
-        <fieldset class="form-group col-2 col-md-1">
+        <fieldset class="form-group col-1 col-md-1">
             <label for="for_age">Edad</label>
             <input type="number" class="form-control" id="for_age" name="age" value={{\Carbon\Carbon::parse($user->birthday)->age}} readonly>
+        </fieldset>
+        
+        <fieldset class="form-group col-2 col-md-2">
+            <label for="for_nationality">Nacionalidad</label>
+            <input type="text" class="form-control" id="for_nationality" name="nationality" value={{$user->nationality->name}} readonly>
         </fieldset>
 
     </div>
@@ -55,7 +59,7 @@
     <div class="form-row">
         <fieldset class="form-group col-12 col-md-4">
             <label for="for_name">Nombres *</label>
-            <input type="text" class="form-control" id="for_name" name="name" style="text-transform: uppercase;" autocomplete="off" value="{{ $user->actualOfficialHumanName->text?? '' }}" readonly>
+            <input type="text" class="form-control" id="for_name" name="name" style="text-transform: uppercase;" autocomplete="off" value="{{ $user->given?? '' }}" readonly>
         </fieldset>
 
         <fieldset class="form-group col-6 col-md-4">

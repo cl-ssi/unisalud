@@ -220,8 +220,7 @@
             <select name="direct_exam_result" id="for_direct_exam_result" class="form-control">
                 <option value=""></option>
                 <option value="Negativo" {{$suspectCase->direct_exam_result === 'Negativo'? 'selected' : ''}}>Negativo</option>
-                <option value="Positivo" {{$suspectCase->direct_exam_result === 'Positivo'? 'selected' : ''}}>Positivo</option>
-                <option value="No Concluyente" {{$suspectCase->direct_exam_result === 'No Concluyente'? 'selected' : ''}}>No Concluyente</option>
+                <option value="Positivo" {{$suspectCase->direct_exam_result === 'Positivo'? 'selected' : ''}}>Positivo</option>                
             </select>
         </fieldset>
 
