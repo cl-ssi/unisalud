@@ -40,7 +40,7 @@
 
         <fieldset class="form-group col-5 col-md-2">
             <label for="for_birthday">Fecha Nacimiento</label>
-            <input type="date" class="form-control" id="for_birthday" name="birthday" value="{{ $user->birthday->format('Y-m-d') }}" readonly required>
+            <input type="date" class="form-control" id="for_birthday" name="birthday" value="{{ $user->birthday?$user->birthday->format('Y-m-d'):'' }}" readonly required>
         </fieldset>
 
         <fieldset class="form-group col-1 col-md-1">

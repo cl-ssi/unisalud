@@ -42,7 +42,7 @@
 
         <fieldset class="form-group col-6 col-md-2">
             <label for="for_birthday">Fecha Nacimiento</label>
-            <input type="date" class="form-control" id="for_birthday" name="birthday" value="{{ $suspectCase->patient->birthday }}" readonly required>
+            <input type="date" class="form-control" id="for_birthday" name="birthday" value="{{ $user->birthday?$user->birthday->format('Y-m-d'):'' }}" readonly required>
         </fieldset>
 
         <fieldset class="form-group col-2 col-md-1">
@@ -216,11 +216,11 @@
         </fieldset>
 
         <fieldset class="form-group col-6 col-md-3 alert-danger">
-            <label for="for_direct_exam_result">Resultado Examen Directo</label>
+            <label for="for_direct_exam_result">Resultado Examen Directo (Microstrout)</label>
             <select name="direct_exam_result" id="for_direct_exam_result" class="form-control">
                 <option value=""></option>
                 <option value="Negativo" {{$suspectCase->direct_exam_result === 'Negativo'? 'selected' : ''}}>Negativo</option>
-                <option value="Positivo" {{$suspectCase->direct_exam_result === 'Positivo'? 'selected' : ''}}>Positivo</option>                
+                <option value="Positivo" {{$suspectCase->direct_exam_result === 'Positivo'? 'selected' : ''}}>Positivo</option>
             </select>
         </fieldset>
 
