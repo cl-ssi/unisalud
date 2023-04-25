@@ -37,6 +37,9 @@ class SuspectCase extends Model
         'user_id','mother_id',
         'chagas_result_screening_file',
         'chagas_result_confirmation_file',
+
+
+        //Datos Examen Directo o 
         'direct_exam_at',
         'direct_exam_result',
         'direct_exam_file',

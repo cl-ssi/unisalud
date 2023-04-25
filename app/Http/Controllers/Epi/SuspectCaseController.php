@@ -82,17 +82,24 @@ class SuspectCaseController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'research_group' => 'required',
+            'mother_id' => $request->research_group == 'Transmisión Vertical' ? 'required|exists:users,id' : '',
+            'newborn_week' => $request->research_group == 'Gestante (+semana gestacional)' ? 'required|numeric|min:2|max:44' : '',
+        ]);        
+
         $sc = new SuspectCase($request->All());
         $sc->save();
         session()->flash('success', 'Se creo caso sospecha exitosamente');
-        if ($request->research_group == 'Tranmisión Vertical') {
+
+        if ($request->research_group == 'Transmisión Vertical') {
             Mail::to('claudia.caronna@redsalud.gob.cl')
                 ->send(new DelegateChagasNotification($sc));
         }
-
+        $request->flash();
         return redirect()->back();
-        //return redirect()->route('epi.chagas.index');
     }
+
 
     /**
      * Display the specified resource.
@@ -189,7 +196,7 @@ class SuspectCaseController extends Controller
     }
 
     public function deleteFile(SuspectCase $suspectCase, $attribute)
-    {        
+    {
         $fileAttribute = $attribute . '_file';
         if ($suspectCase->$fileAttribute) {
             Storage::disk('gcs')->delete($suspectCase->$fileAttribute);

@@ -47,7 +47,7 @@
             <label for="for_age">Edad</label>
             <input type="number" class="form-control" id="for_age" name="age" value={{\Carbon\Carbon::parse($user->birthday)->age}} readonly>
         </fieldset>
-        
+
         <fieldset class="form-group col-2 col-md-2">
             <label for="for_nationality">Nacionalidad</label>
             <input type="text" class="form-control" id="for_nationality" name="nationality" value={{$user->nationality->name}} readonly>
@@ -89,7 +89,7 @@
             <select name="organization_id" id="for_organization_id" class="form-control" required>
                 <option value="">Seleccionar Establecimiento</option>
                 @foreach($organizations as $organization)
-                <option value="{{$organization->id}}">{{$organization->alias??''}}</option>
+                <option value="{{$organization->id}}" {{ old('organization_id') == $organization->id ? 'selected' : '' }}>{{$organization->alias??''}}</option>
                 @endforeach
             </select>
         </fieldset>
@@ -100,117 +100,34 @@
             <label for="for_sample_type">Grupo de Pesquisa</label>
             <select name="research_group" id="research_group" class="form-control" required>
                 <option value=""></option>
-                <option value="Control Pre concepcional">Control Pre concepcional</option>
-                <option value="Gestante (+semana gestacional)">Gestante (+semana gestacional)</option>
-                <option value="Estudio de contacto">Estudio de contacto</option>
-                <option value="Morbilidad (cualquier persona)">Morbilidad (cualquier persona)</option>
-                <option value="Transmisión Vertical">Transmisión Vertical</option>
-                <option value="Control Chagas Crónico">Control Chagas Crónico</option>
+                <option value="Control Pre concepcional" {{ old('research_group') == 'Control Pre concepcional' ? 'selected' : '' }}>Control Pre concepcional</option>
+                <option value="Gestante (+semana gestacional)" {{ old('research_group') == 'Gestante (+semana gestacional)' ? 'selected' : '' }}>Gestante (+semana gestacional)</option>
+                <option value="Estudio de contacto" {{ old('research_group') == 'Estudio de contacto' ? 'selected' : '' }}>Estudio de contacto</option>
+                <option value="Morbilidad (cualquier persona)" {{ old('research_group') == 'Morbilidad (cualquier persona)' ? 'selected' : '' }}>Morbilidad (cualquier persona)</option>
+                <option value="Transmisión Vertical" {{ old('research_group') == 'Transmisión Vertical' ? 'selected' : '' }}>Transmisión Vertical</option>
+                <option value="Control Chagas Crónico" {{ old('research_group') == 'Control Chagas Crónico' ? 'selected' : '' }}>Control Chagas Crónico</option>
             </select>
         </fieldset>
 
         <fieldset class="form-group col-2 col-md-1">
             <label for="newborn_week">Semanas</label>
-            <input type="number" class="form-control" id="newborn_week" name="newborn_week" min="2" max="44" disabled>
+            <input type="number" class="form-control" id="newborn_week" name="newborn_week" min="2" max="44" value="{{ old('newborn_week') }}" disabled>
         </fieldset>
-
-
-        <fieldset class="form-group col-6 col-md-4">
-            <label for="mothers_run">Madre</label>
-            <select name="mother_id" id="mother_id" class="form-control" disabled>
-            <option value="">Seleccionar Madre en caso de Transmisión Vertical</option>
-                @foreach($mothers as $mother)
-                <option value="{{$mother->patient_id}}">{{$mother->patient->OfficialFullName ?? ''}}</option>
-                @endforeach
-            </select>
-        </fieldset>
-
-    </div>
-
-    @can('SuspectCase: tecnologo')
-    <div class="form-row">
-
-        <fieldset class="form-group col-6 col-md-2 alert-warning">
-            <label for="for_result_ifd_at">Fecha Resultado IFD</label>
-            <input type="date" class="form-control" id="for_result_ifd_at" name="result_ifd_at" max="{{ date('Y-m-d') }}">
-        </fieldset>
-
-        <fieldset class="form-group col-6 col-md-2 alert-warning">
-            <label for="for_result_ifd">Resultado IFD</label>
-            <select name="result_ifd" id="for_result_ifd" class="form-control">
-                <option></option>
-                <option value="Negativo">Negativo</option>
-                <option value="Adenovirus">Adenovirus</option>
-                <option value="Influenza A">Influenza A</option>
-                <option value="Influenza B">Influenza B</option>
-                <option value="Metapneumovirus">Metapneumovirus</option>
-                <option value="Parainfluenza 1">Parainfluenza 1</option>
-                <option value="Parainfluenza 2">Parainfluenza 2</option>
-                <option value="Parainfluenza 3">Parainfluenza 3</option>
-                <option value="VRS">VRS</option>
-                <option value="No solicitado">No solicitado</option>
-            </select>
-        </fieldset>
-
-
-        <fieldset class="form-group col-6 col-md-2 alert-warning">
-            <label for="for_subtype">Subtipo</label>
-            <select name="subtype" id="for_subtype" class="form-control">
-                <option value=""></option>
-                <option value="H1N1">H1N1</option>
-                <option value="H3N2">H3N2</option>
-                <option value="INF B">INF B</option>
-            </select>
-        </fieldset>
-
     </div>
 
     <div class="form-row">
-
-        <fieldset class="form-group col-6 col-md-2 alert-danger">
-            <label for="for_pcr_sars_cov_2_at">Fecha Resultado PCR</label>
-            <input type="date" class="form-control" id="for_pcr_sars_cov_2_at" name="pcr_sars_cov_2_at" max="{{ date('Y-m-d') }}">
-        </fieldset>
-
-        <fieldset class="form-group col-6 col-md-2 alert-danger">
-            <label for="for_pcr_sars_cov_2">PCR SARS-Cov2</label>
-            <select name="pcr_sars_cov_2" id="for_pcr_sars_cov_2" class="form-control">
-                <option value="pending">Pendiente</option>
-                <option value="negative">Negativo</option>
-                <option value="positive">Positivo</option>
-                <option value="rejected">Rechazado</option>
-                <option value="undetermined">Indeterminado</option>
-            </select>
-        </fieldset>
-
-        <fieldset class="form-group col-6 col-md-2">
-            <label for="for_sent_external_lab_at">Fecha envío lab externo</label>
-            <input type="date" class="form-control" id="for_sent_external_lab_at" name="sent_external_lab_at">
-        </fieldset>
-
-        @endcan
-
-        @can('SuspectCase: tecnologo')
-
-        <fieldset class="form-group col-12 col-md-3">
-            <label for="for_file">Archivo</label>
-            <div class="custom-file">
-                <input type="file" name="forfile[]" class="custom-file-input" id="forfile" lang="es" multiple>
-                <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
-            </div>
-        </fieldset>
-
+        <div id="seccion_transmision_vertical" style="display:none;">
+            <fieldset class="form-group">
+                <label for="mothers_run">Madre</label>
+                @livewire('epi.search-patient-chagas')
+            </fieldset>
+        </div>
     </div>
 
-    <hr>
-
-    @endcan
-
     <div class="form-row">
-
         <fieldset class="form-group col-6 col-md-6">
             <label for="for_observation">Observación</label>
-            <input type="text" class="form-control" name="observation" id="for_observation" autocomplete="off">
+            <input type="text" class="form-control" name="observation" id="for_observation" autocomplete="off" value="{{ old('observation') }}"  >
         </fieldset>
     </div>
 
@@ -241,8 +158,9 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        $('#research_group').on('change', function() {
-            var value = this.value;
+        // función para manejar el cambio de valor y la carga inicial
+        function handleValueChange() {
+            var value = $('#research_group').val();
 
             //código para Gestante
             if (value == "Gestante (+semana gestacional)") {
@@ -253,16 +171,20 @@
                 $("#newborn_week").prop('required', false);
             }
 
-            //código para transmisión vertical
+            //condicional para mostrar la sección oculta que se muestra solo con Transmisión Vertical
             if (value == "Transmisión Vertical") {
-                $('#mother_id').removeAttr('disabled');
-                $("#mother_id").prop('required', true);
+                $('#seccion_transmision_vertical').show();
             } else {
-                $('#mother_id').attr('disabled', 'disabled');
-                $("#mother_id").prop('required', false);
+                $('#seccion_transmision_vertical').hide();
             }
+        }
 
-        });
+        // llamar a la función para manejar la carga inicial
+        handleValueChange();
+
+        // llamar a la función para manejar el cambio de valor
+        $('#research_group').on('change', handleValueChange);
     });
 </script>
+
 @endsection

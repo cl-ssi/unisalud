@@ -218,7 +218,7 @@ class User extends Authenticatable implements Auditable
     //Identificadores solo RUN
     public function getIdentificationAttribute()
     {
-        return $this->identifiers()            
+        return $this->identifiers()
             ->latest()
             ->first();
     }
