@@ -26,7 +26,7 @@
         <tbody id="tableCases">
             @foreach($suspectcases as $suspectcase)
             <tr>
-                <td>{{$suspectcase->id??''}}                    
+                <td>{{$suspectcase->id??''}}
                 </td>
                 <td>{{$suspectcase->sample_at? $suspectcase->sample_at: ''}}</td>
                 <td>{{$suspectcase->organization->alias??''}}</td>

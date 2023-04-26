@@ -6,7 +6,7 @@
     @csrf
     @method('PUT')
 
-    <input type="hidden" class="form-control" name="suspect_case_id" id="for_patient_id" value="{{$tracing->suspectcase_id}}">
+    <input type="hidden" class="form-control" name="suspect_case_id" id="suspect_case_id" value="{{$tracing->suspect_case_id}}">
     <input type="hidden" class="form-control" name="patient_id" id="for_patient_id" value="{{$tracing->patient_id}}">
 
     <div class="card">
