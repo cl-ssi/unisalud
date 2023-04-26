@@ -19,7 +19,7 @@
                 <th>Resultado Confirmación</th>
                 <th>Observación</th>
                 <th>Ver/Editar Seguimientos</th>
-                <th colspan="2">Contacto</th>
+                <th colspan="4">Contacto</th>
             </tr>
         </thead>
 
@@ -60,7 +60,9 @@
                     </a>
                     <ul class="list-unstyled">
                     @foreach($suspectcase->patient->contacts as $contact)
-                    <li class="small">{{ $contact->patient->text??'' }} ({{$contact->RelationshipName}})</li>
+                    <li class="small">{{ $contact->patient->text??'' }} ({{$contact->RelationshipName}})
+                    <a href="#" class="text-danger ml-2" onclick="return confirm('¿Está seguro que desea eliminar al contacto?')"><i class="fas fa-trash-alt"></i></a>
+                    </li>
                     <br>
                     @endforeach
                     </ul>

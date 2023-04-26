@@ -1,7 +1,7 @@
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <form method="POST" class="form-horizontal" action="{{ route('epi.contacts.store',$original_id) }}">
+            <form method="POST" class="form-horizontal" action="{{ route('epi.contacts.store') }}">
                 @csrf
                 @method('POST')
                 <div class="modal-header">
