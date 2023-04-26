@@ -413,12 +413,12 @@
         </a>
     </li>
 
-    <li class="nav-item">
+    <!-- <li class="nav-item">
         <a class="nav-link"  href="{{ route('epi.chagas.tutorials') }}">
             <span data-feather="chevrons-right"></span>
             Tutoriales<span class="sr-only"></span>
         </a>
-    </li>
+    </li> -->
 </ul>
 @endcan
 
