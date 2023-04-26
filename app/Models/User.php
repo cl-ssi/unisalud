@@ -135,6 +135,13 @@ class User extends Authenticatable implements Auditable
     }
 
 
+    public function Contacts() {
+        return $this->hasMany('App\Models\Epi\Contact','patient_id');
+    }
+
+    
+
+
 
     // public function manager_shifts(): HasMany
     // {

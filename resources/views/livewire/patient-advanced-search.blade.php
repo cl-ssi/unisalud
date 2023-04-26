@@ -59,6 +59,7 @@
                             <a class="btn btn-primary btn-sm" href="" data-toggle="modal" data-target="#exampleModal">
                                 <i class="fas fa-people-arrows"></i> 
                             </a>
+                            {{$original_id}}
                             @include('patients.modals.create_contact')
                         </td>
                         @endcan

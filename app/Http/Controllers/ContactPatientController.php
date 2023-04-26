@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Epi\Contact;
 
 class ContactPatientController extends Controller
 {
@@ -25,7 +26,8 @@ class ContactPatientController extends Controller
     public function create(request $request, User $patient)
     {
         //
-        //dd($patient);
+        
+        
         return view('patients.contact.create',compact('patient','request'));
         
     }
@@ -36,9 +38,14 @@ class ContactPatientController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, User $original_id)
     {
-        //
+        
+        
+        $contact = new Contact($request->All());
+        $contact->save();
+        session()->flash('info', 'El Contacto ha sido almacenado exitosamente');
+        return redirect()->route('epi.tracings.index');
     }
 
     /**

@@ -705,6 +705,8 @@ Route::prefix('epi')->name('epi.')->group(function () {
 
     Route::prefix('contacts')->name('contacts.')->middleware('auth')->group(function () {
         Route::get('/create/{patient?}', [ContactPatientController::class, 'create'])->name('create');
+        Route::post('/post/{patient}', [ContactPatientController::class, 'store'])->name('store');
+        
     });
 });
 //fin rutas EPI

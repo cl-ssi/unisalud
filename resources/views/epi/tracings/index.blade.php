@@ -4,7 +4,7 @@
 <h4 class="mb-3">Seguimiento/Notificación Casos Positivos</h4>
 
 <div class="table-responsive">
-<table class="table table-sm table-bordered" id="tabla_casos">
+    <table class="table table-sm table-bordered" id="tabla_casos">
         <thead>
             <tr>
                 <th nowrap>ID</th>
@@ -22,13 +22,13 @@
                 <th colspan="2">Contacto</th>
             </tr>
         </thead>
-        
+
         <tbody id="tableCases">
             @foreach($suspectcases as $suspectcase)
             <tr>
                 <td>{{$suspectcase->id??''}}
-                
-                <a href="{{ route('epi.tracings.create', $suspectcase->id) }}" pclass="btn_edit"><i class="fas fa-phone"></i></a>
+
+                    <a href="{{ route('epi.tracings.create', $suspectcase->id) }}" pclass="btn_edit"><i class="fas fa-phone"></i></a>
                 </td>
                 <td>{{$suspectcase->sample_at? $suspectcase->sample_at: ''}}</td>
                 <td>{{$suspectcase->organization->alias??''}}</td>
@@ -55,9 +55,15 @@
                     @endforeach
                 </td>
                 <td colspan="2">
-                <a class="btn btn-primary btn-sm" href="{{ route('epi.contacts.create',$suspectcase->patient) }}">
-                <i class="fas fa-plus"></i> 
-                </a>
+                    <a class="btn btn-primary btn-sm" href="{{ route('epi.contacts.create',$suspectcase->patient) }}">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                    <ul class="list-unstyled">
+                    @foreach($suspectcase->patient->contacts as $contact)
+                    <li class="small">{{ $contact->patient->text??'' }} ({{$contact->RelationshipName}})</li>
+                    <br>
+                    @endforeach
+                    </ul>
                 </td>
             </tr>
             @endforeach

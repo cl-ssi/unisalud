@@ -16,6 +16,7 @@ class PatientAdvancedSearch extends Component
     public $searchByAddress = null;
     public $searchByContactPoint = null;
     public $patients = null;
+    public $original_id = null;
 
     public function search()
     {
