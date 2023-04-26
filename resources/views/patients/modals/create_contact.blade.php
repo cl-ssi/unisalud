@@ -11,7 +11,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <h5>Contacto/Pariente: Original:{{$original_id}}/ Paciente:{{$patient->id}}</h5>
+                    <h5>Contacto/Pariente:</h5>
                     <div class="form-row">
 
                     <input type="hidden" name="patient_id" value="{{$original_id}}">
