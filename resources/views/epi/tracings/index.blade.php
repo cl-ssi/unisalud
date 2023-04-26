@@ -48,8 +48,8 @@
                 <td>{{$suspectcase->chagas_result_confirmation ?? ''}}</td>
                 <td>{{$suspectcase->observation??''}}</td>
                 <td>
-                <a href="{{ route('epi.tracings.create', $suspectcase->id) }}" pclass="btn_edit"><i class="fas fa-phone"></i></a>
-                <br>
+                    <a href="{{ route('epi.tracings.create', $suspectcase->id) }}" pclass="btn_edit"><i class="fas fa-phone"></i></a>
+                    <br>
                     @foreach($suspectcase->tracings as $tracing)
                     <a href="{{ route('epi.tracings.edit', $tracing) }}" pclass="btn_edit">{{ $loop->iteration }})Seguimiento </i></a>
                     @endforeach
@@ -59,12 +59,16 @@
                         <i class="fas fa-plus"></i>
                     </a>
                     <ul class="list-unstyled">
-                    @foreach($suspectcase->patient->contacts as $contact)
-                    <li class="small">{{ $contact->patient->text??'' }} ({{$contact->RelationshipName}})
-                    <a href="#" class="text-danger ml-2" onclick="return confirm('¿Está seguro que desea eliminar al contacto?')"><i class="fas fa-trash-alt"></i></a>
-                    </li>
-                    <br>
-                    @endforeach
+                        @foreach($suspectcase->patient->contacts as $contact)
+                        <li class="small">{{ $contact->patient->text ?? '' }} ({{$contact->RelationshipName}})
+                            <form method="POST" action="{{ route('epi.contacts.destroy', $contact) }}" style="display: inline-block">
+                                @csrf
+                                @method('DELETE')
+                                <a href="#" class="text-danger ml-2" onclick="event.preventDefault(); if(confirm('¿Está seguro que desea eliminar al contacto?')) { this.closest('form').submit(); }"><i class="fas fa-trash-alt"></i></a>
+                            </form>
+                        </li>
+                        <br>
+                        @endforeach
                     </ul>
                 </td>
             </tr>

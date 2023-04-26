@@ -702,11 +702,13 @@ Route::prefix('epi')->name('epi.')->group(function () {
         Route::post('/', [TracingController::class, 'store'])->name('store');
         Route::get('/{tracing}/edit', [TracingController::class, 'edit'])->name('edit');
         Route::put('/{tracing}', [TracingController::class, 'update'])->name('update');
+        
     });
 
     Route::prefix('contacts')->name('contacts.')->middleware('auth')->group(function () {
         Route::get('/create/{patient?}', [ContactPatientController::class, 'create'])->name('create');
         Route::post('/post', [ContactPatientController::class, 'store'])->name('store');
+        Route::delete('/{contact}', [ContactPatientController::class, 'destroy'])->name('destroy');
         
     });
 });

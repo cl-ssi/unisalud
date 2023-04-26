@@ -108,5 +108,9 @@ class TracingController extends Controller
     public function destroy(Tracing $tracing)
     {
         //
+        $tracing->delete();
+        session()->flash('success', 'La locacion ha sido eliminada');
+        return redirect()->route('some.locations.index');
+
     }
 }
