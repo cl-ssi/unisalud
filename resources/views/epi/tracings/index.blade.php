@@ -15,18 +15,14 @@
                 <th>Edad</th>
                 <th>Sexo</th>
                 <th>Nacionalidad</th>
-                <th>Fecha de Resultado Tamizaje</th>
-                <th>Resultado Tamizaje</th>
                 <th>Fecha de Resultado Confirmación</th>
                 <th>Resultado Confirmación</th>
                 <th>Observación</th>
-                <th>Ver/Editar Serguimientos</th>
-                <th>Contacto</th>
+                <th>Ver/Editar Seguimientos</th>
+                <th colspan="2">Contacto</th>
             </tr>
         </thead>
-
-
-
+        
         <tbody id="tableCases">
             @foreach($suspectcases as $suspectcase)
             <tr>
@@ -50,17 +46,15 @@
                 </td>
                 <td>{{$suspectcase->patient->actualSex()->text ??''}}</td>
                 <td>{{$suspectcase->patient->nationality->name ??''}}</td>
-                <td>{{$suspectcase->chagas_result_screening_at ??''}}</td>
-                <td>{{$suspectcase->chagas_result_screening ?? ''}}</td>
                 <td>{{$suspectcase->chagas_result_confirmation_at ??''}}</td>
                 <td>{{$suspectcase->chagas_result_confirmation ?? ''}}</td>
                 <td>{{$suspectcase->observation??''}}</td>
                 <td>
                     @foreach($suspectcase->tracings as $tracing)
                     <a href="{{ route('epi.tracings.edit', $tracing) }}" pclass="btn_edit">Seguimiento {{$tracing->id ?? ''}}</i></a>
-                    @endforeach                    
+                    @endforeach
                 </td>
-                <td>
+                <td colspan="2">
                 <a class="btn btn-primary btn-sm" href="{{ route('epi.contacts.create',$suspectcase->patient) }}">
                 <i class="fas fa-plus"></i> 
                 </a>
@@ -69,11 +63,5 @@
             @endforeach
         </tbody>
     </table>
-
 </div>
-
-@endsection
-
-@section('custom_js')
-
 @endsection

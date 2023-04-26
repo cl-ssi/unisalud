@@ -14,7 +14,7 @@
 
           <fieldset class="form-group col-md-3">
             <label for="for_run">Run u Otra identificación:</label>
-            <input type="text" class="form-control" value="{{ $patient->identifier }}" style="text-transform: uppercase;" readonly>
+            <input type="text" class="form-control" value="{{ $patient->identification->value }}" style="text-transform: uppercase;" readonly>
           </fieldset>
 
           <fieldset class="form-group col-md-3">
@@ -43,25 +43,11 @@
               <fieldset class="form-group col-md-3">
                   <label for="for_last_contact_at">Fecha último contacto *</label>
                   <input type="datetime-local" class="form-control" name="last_contact_at" id="for_last_contact_at" value="" required>
-              </fieldset>
-
-              <fieldset class="form-group col-md-3">
-                  <label for="for_category">Categoría *</label>
-                  <select class="form-control country" name="category" id="for_category" title="Seleccione..." data-live-search="true" data-size="5" required>
-                      <option value="institutional">Institucional</option>
-                      <option value="ocupational">Laboral</option>
-                      <option value="passenger">Pasajero</option>
-                      <option value="social">Social</option>
-                      <option value="waiting room">Sala de espera</option>
-                      <option value="family">Familiar/domiciliario</option>
-                      <option value="functionary">Personal de salud</option>
-                      <!-- <option value="intradomiciliary">Intradomiciliario</option> -->
-                  </select>
-              </fieldset>
+              </fieldset>     
 
               <fieldset class="form-group col-md-3">
                   <label for="for_register_at">Parentesco</label>
-                  <select class="form-control" name="relationship" id="for_relationship" title="Seleccione..." data-live-search="true" data-size="5">
+                  <select class="form-control" name="relationship" id="for_relationship" title="Seleccione..." data-live-search="true" data-size="5" required>
                     
                       @if($patient->actualSex == 'Femenino')
                         <option value=""></option>

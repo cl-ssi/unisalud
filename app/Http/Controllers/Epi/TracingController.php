@@ -74,8 +74,10 @@ class TracingController extends Controller
     public function edit(Tracing $tracing)
     {
         //
+        
+        $organizations = Organization::where('id', Auth::user()->practitioners->last()->organization->id)->OrderBy('alias')->get();
         $cie10s = DB::select('select * from cie10 where name like  "%chag%"');
-        return view('epi.tracings.edit',compact('cie10s','tracing'));
+        return view('epi.tracings.edit',compact('cie10s','tracing','organizations'));
 
         
     }

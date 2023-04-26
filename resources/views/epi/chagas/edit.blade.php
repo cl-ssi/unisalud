@@ -42,7 +42,8 @@
 
         <fieldset class="form-group col-6 col-md-2">
             <label for="for_birthday">Fecha Nacimiento</label>
-            <input type="date" class="form-control" id="for_birthday" name="birthday" value="{{ $user->birthday?$user->birthday->format('Y-m-d'):'' }}" readonly required>
+            <input type="date" class="form-control" id="for_birthday" name="birthday" value="{{ $suspectCase->patient->birthday? $suspectCase->patient->birthday->format('Y-m-d'):'' }}"
+ readonly required>
         </fieldset>
 
         <fieldset class="form-group col-2 col-md-1">

@@ -16,6 +16,10 @@ class Tracing extends Model
         'suspect_case_id',
         'patient_id',
 
+        //Resultado
+        'result_at',
+        'result_observation',
+
         //3 Entrega de Resultado
         'delivery_of_result_1',
         'mechanism_of_result_1',
@@ -26,6 +30,9 @@ class Tracing extends Model
         'delivery_of_result_3',
         'mechanism_of_result_3',
         'observation_of_result_3',
+        'delivery_of_result_4',
+        'mechanism_of_result_4',
+        'observation_of_result_4',
 
         //Interconsulta
         'date_of_sic',

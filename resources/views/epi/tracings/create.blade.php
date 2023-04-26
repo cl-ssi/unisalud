@@ -11,15 +11,30 @@
 
     <div class="card">
         <div class="card-body">
-            <h4>Entrega de Resultado</h4>
-            @for ($i = 1; $i <= 3; $i++) <div class="form-row">
+        <h4>Resultado</h4>
+        <div class="form-row">
                 <fieldset class="form-group col-8 col-sm-5 col-md-3 col-lg-2">
-                    <label for="for_delivery_of_result_{{$i}}">Fecha de Entrega</label>
+                    <label for="">Fecha de Entrega de Resultado</label>
+                    <input type="date" class="form-control" name="result_at" id="for_result_at" value="{{ old('result_at') }}">
+                </fieldset>
+
+                <fieldset class="form-group col-12 col-sm-6">
+                    <label for="for_observation_of_result">Observación</label>
+                    <input type="text" class="form-control" name="result_observation" id="for_result_observation" value="{{ old('result_observation') }}" autocomplete="off">
+                </fieldset>
+        </div>
+
+        <hr>
+            <h4>Mecanismo de entrega de Resultado</h4>
+            @for ($i = 1; $i <= 4; $i++) 
+            <div class="form-row">
+                <fieldset class="form-group col-8 col-sm-5 col-md-3 col-lg-2">
+                    <label for="for_delivery_of_result_{{$i}}">Fecha</label>
                     <input type="date" class="form-control" name="delivery_of_result_{{$i}}" id="for_delivery_of_result_{{$i}}" value="">
                 </fieldset>
 
                 <fieldset class="form-group col-9 col-sm-5 col-md-4 col-lg-3">
-                    <label for="for_mechanism_of_result_{{$i}}">Mecanismo de Entrega</label>
+                    <label for="for_mechanism_of_result_{{$i}}">Mecanismo</label>
                     <select name="mechanism_of_result_{{$i}}" id="for_mechanism_of_result_{{$i}}" class="form-control">
                         <option></option>
                         <option value="Pendiente">
