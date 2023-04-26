@@ -51,7 +51,7 @@
                 <td>{{$suspectcase->observation??''}}</td>
                 <td>
                     @foreach($suspectcase->tracings as $tracing)
-                    <a href="{{ route('epi.tracings.edit', $tracing) }}" pclass="btn_edit">Seguimiento {{$tracing->id ?? ''}}</i></a>
+                    <a href="{{ route('epi.tracings.edit', $tracing) }}" pclass="btn_edit">{{ $loop->iteration }})Seguimiento </i></a>
                     @endforeach
                 </td>
                 <td colspan="2">

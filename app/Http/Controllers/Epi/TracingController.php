@@ -31,9 +31,8 @@ class TracingController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(SuspectCase $suspectcase)
-    {
-        //$cie10s = DB::table('cie10')->get();
-        $cie10s = DB::select('select * from cie10 where name like  "%chag%"');
+    {        
+        $cie10s = DB::select('select * from cie10 WHERE id IN (12791, 13800,12897,3559,3560,3561, 12862)');
         $organizations = Organization::where('id', Auth::user()->practitioners->last()->organization->id)->OrderBy('alias')->get();
         return view('epi.tracings.create',compact('cie10s','suspectcase','organizations'));
         
@@ -76,7 +75,7 @@ class TracingController extends Controller
         //
         
         $organizations = Organization::where('id', Auth::user()->practitioners->last()->organization->id)->OrderBy('alias')->get();
-        $cie10s = DB::select('select * from cie10 where name like  "%chag%"');
+        $cie10s = DB::select('select * from cie10 WHERE id IN (12791, 13800,12897,3559,3560,3561, 12862)');
         return view('epi.tracings.edit',compact('cie10s','tracing','organizations'));
 
         
