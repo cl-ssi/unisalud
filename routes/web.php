@@ -676,6 +676,7 @@ Route::prefix('epi')->name('epi.')->group(function () {
     Route::put('/update-mail/{organization}', [SuspectCaseController::class, 'updateMail'])->name('updateMail');
 
     Route::prefix('chagas')->name('chagas.')->group(function () {
+        Route::get('/tutorials', [SuspectCaseController::class, 'tutorials'])->name('tutorials');
         Route::get('download/{url}', [SuspectCaseController::class, 'download'])->name('download');
         Route::get('/{suspectCase}/edit', [SuspectCaseController::class, 'edit'])->name('edit');
         Route::put('/{suspectCase}', [SuspectCaseController::class, 'update'])->name('update');

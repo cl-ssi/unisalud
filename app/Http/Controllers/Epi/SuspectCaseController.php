@@ -112,6 +112,12 @@ class SuspectCaseController extends Controller
         //
     }
 
+    public function tutorials()
+    {
+        //
+        return view('epi.chagas.tutorials');
+    }
+
     /**
      * Show the form for editing the specified resource.
      *

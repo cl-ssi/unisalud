@@ -4,7 +4,7 @@
 
 <form method="POST" class="form-horizontal" action="{{ route('epi.tracings.update',$tracing) }}" enctype="multipart/form-data">
     @csrf
-    @method('POST')
+    @method('PUT')
 
     <input type="hidden" class="form-control" name="suspect_case_id" id="for_patient_id" value="{{$tracing->suspectcase_id}}">
     <input type="hidden" class="form-control" name="patient_id" id="for_patient_id" value="{{$tracing->patient_id}}">
@@ -14,7 +14,7 @@
             <h4>Resultado</h4>
             <div class="form-row">
                 <fieldset class="form-group col-8 col-sm-5 col-md-3 col-lg-2">
-                    <label for="">Fecha de Entrega de Resultado</label>
+                    <label for="">Fecha Entrega Resultado</label>
                     <input type="date" class="form-control" name="result_at" id="" value="{{old('result_at',$tracing->result_at)}}">
                 </fieldset>
                 <fieldset class="form-group col-12 col-sm-6">
@@ -77,8 +77,8 @@
                 <label for="for_index">Policlínico</label>
                 <select name="polyclinic_sic" id="for_index" class="form-control" required>
                     <option value=""></option>
-                    <option value="Policlínico de Infectología">Policlínico de Infectología</option>
-                    <option value="Policlínico de ARO">Policlínico de ARO</option>
+                    <option value="Policlínico de Infectología" {{ ($tracing->polyclinic_sic == 'Policlínico de Infectología' ) ? 'selected' : '' }}>Policlínico de Infectología</option>
+                    <option value="Policlínico de ARO" {{ ($tracing->polyclinic_sic == 'Policlínico de ARO' ) ? 'selected' : '' }}>Policlínico de ARO</option>
                 </select>
             </fieldset>
         </div>
@@ -102,7 +102,7 @@
                 <select name="cie10name_notification" id="for_cie10name_notification" class="form-control selectpicker" data-actions-box="true" data-size="10" title="Seleccione..." data-live-search="true">
                     <option value="">Seleccionar</option>
                     @foreach($cie10s as $cie10)
-                    <option value="{{$cie10->name}}">{{$cie10->name}}</option>
+                    <option value="{{$cie10->name}} " {{ ($tracing->cie10name_notification == $cie10->name) ? 'selected' : '' }}>{{$cie10->name}}</option>
                     @endforeach
                 </select>
             </fieldset>

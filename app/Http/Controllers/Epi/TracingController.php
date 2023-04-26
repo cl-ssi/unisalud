@@ -91,6 +91,10 @@ class TracingController extends Controller
     public function update(Request $request, Tracing $tracing)
     {
         //
+        $tracing->fill($request->all());
+        $tracing->save();
+        session()->flash('info', 'El Seguimiento ha sido actualizado exitosamente');
+        return redirect()->route('epi.tracings.index');
     }
 
     /**

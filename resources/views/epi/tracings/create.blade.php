@@ -14,7 +14,7 @@
         <h4>Resultado</h4>
         <div class="form-row">
                 <fieldset class="form-group col-8 col-sm-5 col-md-3 col-lg-2">
-                    <label for="">Fecha de Entrega de Resultado</label>
+                    <label for="">Fecha Entrega Resultado</label>
                     <input type="date" class="form-control" name="result_at" id="for_result_at" value="{{ old('result_at') }}">
                 </fieldset>
 

@@ -20,7 +20,7 @@
                 <th>Resultado Tamizaje</th>
                 <th>Fecha de Resultado Confirmación</th>
                 <th>Resultado Confirmación</th>
-                <th>Observación</th>                
+                <th>Observación</th>
             </tr>
         </thead>
 
@@ -100,10 +100,5 @@
     </table>
 </div>
 {{ $suspectcases->appends(request()->query())->links() }}
-
-
 @endsection
 
-@section('custom_js')
-
-@endsection

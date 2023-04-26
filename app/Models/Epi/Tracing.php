@@ -46,7 +46,7 @@ class Tracing extends Model
         //Seguimiento
         'index',
         'next_control_at',
-        'status',        
+        'status',
         'establishment_id',
         'date_of_last_birth',
         'occupation',

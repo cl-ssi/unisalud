@@ -26,9 +26,7 @@
         <tbody id="tableCases">
             @foreach($suspectcases as $suspectcase)
             <tr>
-                <td>{{$suspectcase->id??''}}
-
-                    <a href="{{ route('epi.tracings.create', $suspectcase->id) }}" pclass="btn_edit"><i class="fas fa-phone"></i></a>
+                <td>{{$suspectcase->id??''}}                    
                 </td>
                 <td>{{$suspectcase->sample_at? $suspectcase->sample_at: ''}}</td>
                 <td>{{$suspectcase->organization->alias??''}}</td>
@@ -50,6 +48,8 @@
                 <td>{{$suspectcase->chagas_result_confirmation ?? ''}}</td>
                 <td>{{$suspectcase->observation??''}}</td>
                 <td>
+                <a href="{{ route('epi.tracings.create', $suspectcase->id) }}" pclass="btn_edit"><i class="fas fa-phone"></i></a>
+                <br>
                     @foreach($suspectcase->tracings as $tracing)
                     <a href="{{ route('epi.tracings.edit', $tracing) }}" pclass="btn_edit">{{ $loop->iteration }})Seguimiento </i></a>
                     @endforeach
