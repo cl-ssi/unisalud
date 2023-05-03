@@ -671,6 +671,12 @@ use App\Http\Controllers\Epi\SuspectCaseController;
 use App\Http\Controllers\Epi\TracingController;
 
 Route::prefix('epi')->name('epi.')->group(function () {
+
+    Route::get('/tutorials', function () {
+        return view('epi.tutorials');
+    });
+
+
     //Muestra el correo de delegeado de epidemiologia 
     Route::get('/delegate-mail', [SuspectCaseController::class, 'delegateMail'])->name('delegateMail');
     Route::put('/update-mail/{organization}', [SuspectCaseController::class, 'updateMail'])->name('updateMail');
