@@ -106,6 +106,7 @@
                 <option value="Morbilidad (cualquier persona)" {{ old('research_group') == 'Morbilidad (cualquier persona)' ? 'selected' : '' }}>Morbilidad (cualquier persona)</option>
                 <option value="Transmisión Vertical" {{ old('research_group') == 'Transmisión Vertical' ? 'selected' : '' }}>Transmisión Vertical</option>
                 <option value="Control Chagas Crónico" {{ old('research_group') == 'Control Chagas Crónico' ? 'selected' : '' }}>Control Chagas Crónico</option>
+                <option value="Perdidas Productivas" {{ old('research_group') == 'Perdidas Productivas' ? 'selected' : '' }}>Perdidas Productivas</option>
             </select>
         </fieldset>
 

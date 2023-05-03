@@ -103,6 +103,7 @@
                 <option value="Morbilidad (cualquier persona)" {{$suspectCase->research_group === 'Morbilidad (cualquier persona)'? 'selected' : ''}}>Morbilidad (cualquier persona)</option>
                 <option value="Transmisión Vertical" {{$suspectCase->research_group === 'Transmisión Vertical'? 'selected' : ''}}>Transmisión Vertical</option>
                 <option value="Control Chagas Crónico" {{$suspectCase->research_group === 'Control Chagas Crónico'? 'selected' : ''}}>Control Chagas Crónico</option>
+                <option value="Perdidas Productivas" {{$suspectCase->research_group === 'Perdidas Productivas'? 'selected' : ''}}>Perdidas Productivas</option>
             </select>
         </fieldset>
 
