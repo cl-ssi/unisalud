@@ -79,8 +79,8 @@
                 <label for="for_index">Policlínico</label>
                 <select name="polyclinic_sic" id="for_index" class="form-control" required>
                     <option value=""></option>
-                    <option value="Policlínico de Infectología">Policlínico de Infectología</option>
-                    <option value="Policlínico de ARO">Policlínico de ARO</option>
+                    <option value="Policlínico de Infectología+Policlínico de ARO">Policlínico de Infectología+Policlínico de ARO</option>
+                    <option value="Policlínico de Pediatría">Policlínico de Pediatría</option>
                 </select>
             </fieldset>
         </div>
@@ -104,7 +104,7 @@
                 <select name="cie10name_notification" id="for_cie10name_notification" class="form-control selectpicker" data-actions-box="true" data-size="10" title="Seleccione..." data-live-search="true">
                     <option value="">Seleccionar</option>
                     @foreach($cie10s as $cie10)
-                    <option value="{{$cie10->name}}">{{$cie10->name}}</option>
+                    <option value="{{$cie10->code}}-{{$cie10->name}}">{{$cie10->code}}-{{$cie10->name}}</option>
                     @endforeach
                 </select>
             </fieldset>
