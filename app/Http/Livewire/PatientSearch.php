@@ -38,7 +38,7 @@ class PatientSearch extends Component
                 ->orwhere('mothers_family', 'like', "%$this->searchf%");
             })
             //cuando sea usuario del programador, solo trae usuarios que sean del programador
-            ->when(Auth::user()->hasPermissionTo('Mp: user creator'), function ($query) {
+            ->when(Auth::user()->hasPermissionTo('Mp: perfil administrador'), function ($query) {
                 $query->permission('Mp: user');
             })
             ->paginate(200);

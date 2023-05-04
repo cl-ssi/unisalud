@@ -77,7 +77,7 @@ class TheoreticalProgrammingController extends Controller
       // dd(UserSpecialty::select('user_id')->groupBy('user_id')->get()->toArray());
 
     //si es admin, se devuelve todo, si no, se devuelve lo configurado
-    if (Auth::user()->hasPermissionTo('Mp: administrador')) {
+    if (Auth::user()->hasPermissionTo('Mp: perfil administrador')) {
         $rrhhs = User::whereHas('contracts', function ($query) use ($year) {
                         return $query->where('year',$year);
                     })
@@ -175,7 +175,7 @@ class TheoreticalProgrammingController extends Controller
             if ($TheoreticalProgramming!=null) {
                 $collection1 = Specialty::where('id',$TheoreticalProgramming->specialty_id)->get();
                 //si es admin, se devuelve todo, si no, se devuelve lo configurado
-                if (Auth::user()->hasPermissionTo('Mp: administrador')) {
+                if (Auth::user()->hasPermissionTo('Mp: perfil administrador')) {
                     $collection2 = Specialty::where('id','!=',$TheoreticalProgramming->specialty_id)->orderBy('specialty_name','ASC')->get();
                 }else{
                     $collection2 = Specialty::whereIn('id',Auth::user()->getSpecialtiesArray())->orderBy('specialty_name','ASC')->get();
@@ -190,7 +190,7 @@ class TheoreticalProgrammingController extends Controller
             }else{
 
                 //si es admin, se devuelve todo, si no, se devuelve lo configurado
-                if (Auth::user()->hasPermissionTo('Mp: administrador')) {
+                if (Auth::user()->hasPermissionTo('Mp: perfil administrador')) {
                     $specialties = Specialty::orderBy('specialty_name','ASC')->get();
                 }else{
 
@@ -201,7 +201,7 @@ class TheoreticalProgrammingController extends Controller
             }
         }else{
             //si es admin, se devuelve todo, si no, se devuelve lo configurado
-            if (Auth::user()->hasPermissionTo('Mp: administrador')) {
+            if (Auth::user()->hasPermissionTo('Mp: perfil administrador')) {
                 $specialties = Specialty::orderBy('specialty_name','ASC')->get();
             }else{
                 $specialties = Specialty::whereIn('id',Auth::user()->getSpecialtiesArray())->orderBy('specialty_name','ASC')->get();
@@ -261,7 +261,7 @@ class TheoreticalProgrammingController extends Controller
         if ($rut != null) {
             if ($TheoreticalProgramming!=null) {
                 $collection1 = Profession::where('id',$TheoreticalProgramming->profession_id)->get();
-                // if (Auth::user()->hasPermissionTo('Mp: administrador')) {
+                // if (Auth::user()->hasPermissionTo('Mp: perfil administrador')) {
                 //     $collection2 = Profession::where('id','!=',$TheoreticalProgramming->profession_id)->orderBy('profession_name','ASC')->get();
                 // }else{
                 //     $collection2 = Profession::whereIn('id',Auth::user()->getProfessionsArray())->orderBy('profession_name','ASC')->get();
@@ -274,7 +274,7 @@ class TheoreticalProgrammingController extends Controller
                 $professions = $collection1;
                 // $request->merge(['profession_id' => $collection1->first()->id]);
             }else{
-                // if (Auth::user()->hasPermissionTo('Mp: administrador')) {
+                // if (Auth::user()->hasPermissionTo('Mp: perfil administrador')) {
                 //     $professions = Profession::orderBy('profession_name','ASC')->get();
                 // }else{
                 //     $professions = Profession::whereIn('id',Auth::user()->getProfessionsArray())->orderBy('profession_name','ASC')->get();
@@ -282,7 +282,7 @@ class TheoreticalProgrammingController extends Controller
                 $professions = Profession::whereIn('id',Auth::user()->getProfessionsArray())->orderBy('profession_name','ASC')->get();
             }
         }else{
-            // if (Auth::user()->hasPermissionTo('Mp: administrador')) {
+            // if (Auth::user()->hasPermissionTo('Mp: perfil administrador')) {
             //     $professions = Profession::orderBy('profession_name','ASC')->get();
             // }else{
             //     $professions = Profession::whereIn('id',Auth::user()->getProfessionsArray())->orderBy('profession_name','ASC')->get();

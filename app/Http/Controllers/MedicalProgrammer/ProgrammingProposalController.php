@@ -25,6 +25,7 @@ class ProgrammingProposalController extends Controller
     public function index(Request $request)
     {
 
+        dd("");
       $type = $request->get('type');
       $specialty_id = $request->get('specialty_id');
       $profesion_id = $request->get('profesion_id');

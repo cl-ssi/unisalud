@@ -51,7 +51,7 @@ class PatientAdvancedSearch extends Component
                     });
                 })
                 // //cuando sea usuario del programador, solo trae usuarios que sean del programador
-                // ->when(Auth::user()->hasPermissionTo('Mp: user creator'), function ($query) {
+                // ->when(Auth::user()->hasPermissionTo('Mp: perfil administrador'), function ($query) {
                 //     $query->permission('Mp: user');
                 // })
                 ->get();

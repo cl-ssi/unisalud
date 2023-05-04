@@ -22,7 +22,7 @@
 
 
 
-@canany(['Developer', 'Administrator', 'Mp: user creator'])
+@canany(['Developer', 'Administrator', 'Mp: perfil administrador'])
 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted">
     <span>Pacientes</span>
     <a class="d-flex align-items-center text-muted" data-toggle="collapse" aria-expanded="false" aria-label="Pacientes" href="#patients" aria-controls="patients">
@@ -36,7 +36,7 @@
             Buscar paciente<span class="sr-only">(current)</span>
         </a>
     </li>
-    {{--@canany(['Administrator', 'Mp: user creator'])
+    {{--@canany(['Administrator', 'Mp: perfil administrador'])
     <li class="nav-item">
         <a class="nav-link {{ active('patient.create') }}" href="{{ route('patient.create') }}">
     <span data-feather="plus-circle"></span>
