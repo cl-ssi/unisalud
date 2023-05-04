@@ -8,7 +8,7 @@
 
     @if($suspectcases)
         @foreach($suspectcases as $suspectcase)
-            <div>Nombre del paciente encontrado: {{ $suspectcase->patient->given }}</div>
+            <div>Nombre del paciente encontrado: {{ $suspectcase->patient->officialFullName??'' }}</div>
             <input type="hidden" name="mother_id" value="{{ $suspectcase->patient->id }}">
         @endforeach
     @endif

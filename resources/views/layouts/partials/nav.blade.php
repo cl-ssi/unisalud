@@ -378,7 +378,7 @@
 <!-- Epi -->
 @can('Epi: Create')
 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-1 mb-1 text-muted">
-    <span>Epidemiología</span>
+    <span>Chagas</span>
     <a class="d-flex align-items-center text-muted" data-toggle="collapse" aria-expanded="false" aria-label="Epidemiología" href="#epidemiology" aria-controls="epidemiology">
         <span id="icon_epidemiology" data-feather="plus-circle"></span>
     </a>
@@ -413,12 +413,12 @@
         </a>
     </li>
 
-    <!-- <li class="nav-item">
-        <a class="nav-link"  href="{{ route('epi.chagas.tutorials') }}">
+    <li class="nav-item">
+        <a class="nav-link"  href="/epi/tutorials">
             <span data-feather="chevrons-right"></span>
             Tutoriales<span class="sr-only"></span>
         </a>
-    </li> -->
+    </li> 
 </ul>
 @endcan
 

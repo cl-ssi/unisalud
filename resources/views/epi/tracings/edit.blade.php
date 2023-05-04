@@ -77,8 +77,8 @@
                 <label for="for_index">Policlínico</label>
                 <select name="polyclinic_sic" id="for_index" class="form-control" required>
                     <option value=""></option>
-                    <option value="Policlínico de Infectología" {{ ($tracing->polyclinic_sic == 'Policlínico de Infectología' ) ? 'selected' : '' }}>Policlínico de Infectología</option>
-                    <option value="Policlínico de ARO" {{ ($tracing->polyclinic_sic == 'Policlínico de ARO' ) ? 'selected' : '' }}>Policlínico de ARO</option>
+                    <option value="Policlínico de Infectología+Policlínico de ARO" {{ ($tracing->polyclinic_sic == 'Policlínico de Infectología+Policlínico de ARO' ) ? 'selected' : '' }}>Policlínico de Infectología+Policlínico de ARO</option>                    
+                    <option value="Policlínico de Pediatría" {{ ($tracing->polyclinic_sic == 'Policlínico de Pediatría' ) ? 'selected' : '' }}>Policlínico de Pediatría</option>
                 </select>
             </fieldset>
         </div>
@@ -98,14 +98,14 @@
             </fieldset>
 
             <fieldset class="form-group col-8 col-sm-5 col-md-6 col-lg-2">
-                <label for="for_cie10name_notification">Código CIE-10</label>
-                <select name="cie10name_notification" id="for_cie10name_notification" class="form-control selectpicker" data-actions-box="true" data-size="10" title="Seleccione..." data-live-search="true">
-                    <option value="">Seleccionar</option>
-                    @foreach($cie10s as $cie10)
-                    <option value="{{$cie10->name}} " {{ ($tracing->cie10name_notification == $cie10->name) ? 'selected' : '' }}>{{$cie10->name}}</option>
-                    @endforeach
-                </select>
-            </fieldset>
+    <label for="for_cie10name_notification">Código CIE-10</label>
+    <select name="cie10name_notification" id="for_cie10name_notification" class="form-control selectpicker" data-actions-box="true" data-size="10" title="Seleccione..." data-live-search="true">
+        <option value="">Seleccionar</option>
+        @foreach($cie10s as $cie10)
+            <option value="{{$cie10->code}}-{{$cie10->name}}" @if($cie10->code.'-'.$cie10->name == $tracing->cie10name_notification) selected @endif>{{$cie10->code}}-{{$cie10->name}}</option>
+        @endforeach
+    </select>
+</fieldset>
 
         </div>
 
