@@ -22,26 +22,23 @@ class SuspectCaseController extends Controller
      */
     public function index($tray)
     {
+        $query = SuspectCase::orderBy('id', 'desc');
+    
         if ($tray == 'Mi Organización') {
-            $suspectcases = SuspectCase::where('organization_id', Auth::user()->practitioners->last()->organization->id)->paginate(100);
+            $query->where('organization_id', Auth::user()->practitioners->last()->organization->id);
+        } elseif ($tray === 'Pendientes de Recepción') {
+            $query->whereNull('reception_at');
+        } elseif ($tray === 'Pendientes de Resultado') {
+            $query->whereNull('chagas_result_screening')->whereNotNull('reception_at');
+        } elseif ($tray === 'Finalizadas') {
+            $query->whereNotNull('chagas_result_screening')->whereNotNull('reception_at');
         }
-        if ($tray === 'Pendientes de Recepción') {
-            $suspectcases = SuspectCase::whereNull('reception_at')->orderBy('id', 'desc')->paginate(100);
-        }
-
-        if ($tray === 'Pendientes de Resultado') {
-            $suspectcases = SuspectCase::whereNull('chagas_result_screening_at')->orderBy('id', 'desc')->whereNotNull('reception_at')->paginate(100);
-        }
-
-        if ($tray === 'Finalizadas') {
-            $suspectcases = SuspectCase::whereNotNull('chagas_result_screening_at')->whereNotNull('reception_at')->paginate(100);
-        }
-
-        if ($tray === 'Todas las Solicitudes') {
-            $suspectcases = SuspectCase::paginate(100);
-        }
+    
+        $suspectcases = $query->paginate(100);
+    
         return view('epi.chagas.index', compact('suspectcases', 'tray'));
     }
+    
 
     /**
      * Show the form for creating a new resource.
