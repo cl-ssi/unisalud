@@ -692,6 +692,7 @@ Route::prefix('epi')->name('epi.')->group(function () {
         Route::get('/{user}/create', [SuspectCaseController::class, 'create'])->name('create');
         Route::post('/', [SuspectCaseController::class, 'store'])->name('store');
         Route::post('reception/{suspectcase}', [SuspectCaseController::class, 'reception'])->name('reception');
+        Route::post('/mass-reception', [SuspectCaseController::class, 'massReception'])->name('massReception');
 
 
 
