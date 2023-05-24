@@ -51,7 +51,7 @@ class LoginController extends Controller
         $credentials['run'] = str_replace('-','',$credentials['run']);
         $credentials['run'] = substr($credentials['run'], 0, -1);
 
-        $user = User::getUserByRun($credentials['run']);
+        $user = User::getUserByRun($credentials['run']);        
 
         if($user AND $user->can('Migrar a Neo'))
             {

@@ -77,6 +77,8 @@
             </table>
         </div>
         <p class="text-muted mt-4">Bienvenido al portal para la comunidad del Servicio de Salud de Iquique.</p>
+        @include('layouts.partials.errors')
+        @include('layouts.partials.flash_message')
 
     </div>
 
