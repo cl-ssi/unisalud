@@ -24,7 +24,7 @@
     @method('PUT')
     <div class="form-group">
         <label for="for_epi_email">Nuevo correo electrónico</label>
-        <input type="email" class="form-control" id="epi_mail" name="epi_mail" autocomplete="off" required>
+        <input type="text" class="form-control" id="epi_mail" name="epi_mail" autocomplete="off" required>
     </div>
 
     <button type="submit" class="btn btn-primary">Actualizar</button>
