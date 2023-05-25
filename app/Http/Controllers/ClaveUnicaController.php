@@ -75,7 +75,7 @@ class ClaveUnicaController extends Controller
 		{
 			$redirect = str_ireplace('uni.', $route.'.', parse_url(env('APP_URL'), PHP_URL_HOST));
 			//Log::channel('slack')->info('Logeo por CU desde unisalud a iOnline');
-            dd($response);
+            
 			return redirect('https://'.$redirect.'/claveunica/login/'.json_decode($response)->access_token);
 		}
 		else
