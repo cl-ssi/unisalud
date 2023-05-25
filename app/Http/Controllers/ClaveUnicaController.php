@@ -76,13 +76,17 @@ class ClaveUnicaController extends Controller
         $responseData = json_decode($response);
 
         if ($responseData === null || !property_exists($responseData, 'access_token')) {
-            return redirect()->route('welcome')->with('flash_message', 'No se pudo iniciar Sesión con Clave Única');
+            session()->flash(
+                'info',
+                'No se pudo iniciar Sesión con Clave Única'
+            );
+            return redirect()->route('welcome');
         }
-        
+
         if (isset($route)) {
             $redirect = str_ireplace('uni.', $route . '.', parse_url(env('APP_URL'), PHP_URL_HOST));
             //Log::channel('slack')->info('Logeo por CU desde unisalud a iOnline');
-            
+
             return redirect('https://' . $redirect . '/claveunica/login/' . $responseData->access_token);
         } else {
             return $this->getUserInfo($responseData->access_token);
