@@ -82,10 +82,9 @@ class ClaveUnicaController extends Controller
             if ($responseData === null || !property_exists($responseData, 'access_token')) {
                 return redirect()->route('welcome')->with('flash_message', 'No se pudo iniciar Sesión con Clave Única');
             }
-
-
-
-            return redirect('https://' . $redirect . '/claveunica/login/' . json_decode($response)->access_token);
+            
+            return redirect('https://' . $redirect . '/claveunica/login/' . $responseData->access_token);
+            
         } else {
             return $this->getUserInfo(json_decode($response)->access_token);
         }
