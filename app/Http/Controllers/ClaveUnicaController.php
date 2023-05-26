@@ -147,6 +147,14 @@ class ClaveUnicaController extends Controller
             }
         }
 
+        if($user_local AND $user_local->can('Migrar a Neo'))
+            {
+                session()->flash('info', 
+                    'Estimado usuario.<br> Deberá ingresar a la nueva plataforma NeoSalud a través de la siguiente dirección: 
+                    <b>https://neo.saludtarapaca.gob.cl/</b> <br>Muchas gracias.');
+                return redirect()->route('welcome');
+            }
+
         Auth::login($user_local, true);
 
         return redirect()->route('home');
