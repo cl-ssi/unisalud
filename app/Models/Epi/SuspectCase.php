@@ -58,7 +58,11 @@ class SuspectCase extends Model
         //datos tercera PCR
         'pcr_third_at',
         'pcr_third_result',
-        'pcr_third_file'
+        'pcr_third_file',
+
+        //datos del creador
+        'creator_id',
+
 
 
 
@@ -85,6 +89,10 @@ class SuspectCase extends Model
     }
 
     public function mother() {
+        return $this->belongsTo('App\Models\User');
+    }
+
+    public function creator() {
         return $this->belongsTo('App\Models\User');
     }
 
