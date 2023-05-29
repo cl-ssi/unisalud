@@ -14,11 +14,4 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'soap/*'
     ];
-
-    public function handle($request, \Closure $next)
-    {
-        $response = $next($request);
-        $response->header('X-Frame-Options', 'sameorigin');
-        return $response;
-    }
 }
