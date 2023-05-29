@@ -76,7 +76,7 @@
                 </tr>
             </table>
         </div>
-        <p class="text-muted mt-4">Bienvenido al portal para la comunidad del Servicio de Salud de Iquique.</p>
+        <p class="text-muted mt-4">Bienvenido al portal para la comunidad del Servicio de Salud de Tarapacá.</p>
         @include('layouts.partials.errors')
         @include('layouts.partials.flash_message')
 
@@ -213,7 +213,7 @@
 		<footer class="pt-4 my-md-5 pt-md-5 border-top">
 			<div class="row">
 				<div class="col-3 col-md-3">
-					<img class="mb-2" src="{{ asset('images/logo_ssi_100px.png') }}" alt="Logo Servicio de Salud Iquique">
+					<img class="mb-2" src="{{ asset('images/logo_ssi_100px.png') }}" alt="Logo Servicio de Salud Tarapacá">
 				</div>
 				<div class="col-1 col-md-6">
 
@@ -221,8 +221,8 @@
 				<div class="col-7 col-md-3">
 					<h5>Desarrollado por</h5>
 					<ul class="list-unstyled text-small">
-						<li>Departamento TIC del SSI</li>
-						<li><a class="text-muted" href="mailto:sistemas.ssi@redsalud.gobc.">sistemas.ssi@redsalud.gob.cl</a></li>
+						<li>Departamento TIC del Servicio de Salud de Tarapacá</li>
+						<li><a class="text-muted" href="mailto:sistemas.ssi@redsalud.gob.cl">sistemas.ssi@redsalud.gob.cl</a></li>
 						<small class="d-block mb-3 text-muted">2021</small>
 					</ul>
 				</div>
