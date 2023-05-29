@@ -186,10 +186,10 @@
 
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item">
-						<a href="https://i.saludtarapaca.cl" class="btn btn-outline-info btn-block">iOnline</a>
+						<a href="https://i.saludtarapaca.gob.cl" class="btn btn-outline-info btn-block">iOnline</a>
 					</li>
 					<li class="list-group-item">
-						<a href="https://i.saludtarapaca.cl/login/external" class="btn btn-outline-info btn-block">Externos</a>
+						<a href="https://i.saludtarapaca.gob.cl/login/external" class="btn btn-outline-info btn-block">Externos</a>
 					</li>
 					<li class="list-group-item">
 						<a href="https://neo.saludtarapaca.gob.cl" class="btn btn-outline-info btn-block">NeoSalud</a>
