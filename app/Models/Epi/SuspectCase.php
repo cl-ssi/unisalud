@@ -60,14 +60,21 @@ class SuspectCase extends Model
         'pcr_third_result',
         'pcr_third_file',
 
-        //datos del creador
+        //datos del solicitante
         'creator_id',
+        'requester_id',
+        'request_id',
+        'request_at',
 
 
+        //datos del tomador de muestra
+        'sample_id',
+        'sampler_id',
+        'sample_at',
 
-
-
-        
+        //datos del receptor
+        'reception_at', 
+        'receptor_id',
     ];
 
     protected $dates = [
@@ -77,6 +84,7 @@ class SuspectCase extends Model
         'pcr_first_at',
         'pcr_second_at',
         'pcr_third_at',
+        'request_at',
     ];
 
 

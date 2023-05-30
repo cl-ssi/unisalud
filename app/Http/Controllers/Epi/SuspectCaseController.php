@@ -109,7 +109,8 @@ class SuspectCaseController extends Controller
         ]);
 
         $sc = new SuspectCase($request->All());
-        $sc->creator_id = Auth::user()->id;
+        $sc->requester_id = Auth::id();
+        $sc->request_at =  date('Y-m-d H:i:s');
         $sc->save();
         session()->flash('success', 'Se creo caso sospecha exitosamente');
 
