@@ -221,8 +221,8 @@
                 <div class="col-7 col-md-3">
                     <h5>Desarrollado por</h5>
                     <ul class="list-unstyled text-small">
-                        <li>Departamento TIC del Servicio de Salud de Tarapacá</li>
-                        <li><a class="text-muted" href="mailto:sistemas.ssi@redsalud.gob.cl">sistemas.ssi@redsalud.gob.cl</a></li>
+                        <li>Departamento TIC del SST</li>
+                        <li><a class="text-muted" href="mailto:sistemas.sst@redsalud.gob.cl">sistemas.sst@redsalud.gob.cl</a></li>
                         <small class="d-block mb-3 text-muted">2021</small>
                     </ul>
                 </div>
