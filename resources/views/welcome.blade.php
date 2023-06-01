@@ -62,7 +62,7 @@
     <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm container bg-nav-gobierno">
         <h5 class="my-0 mr-md-auto font-weight-normal"> <img src="{{ asset('images/gob-header.svg') }}" alt="Logo del gobierno de chile"> </h5>
         <nav class="my-2 my-md-0 mr-md-3">
-            <a class="p-2 text-dark" href="http://www.saludiquique.cl">Web Servicio de Salud</a>
+            <a class="p-2 text-dark" href="http://www.saludtarapaca.gob.cl">Web Servicio de Salud</a>
         </nav>
     </div>
 
@@ -186,22 +186,28 @@
 
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">
-                        <a href="https://i.saludtarapaca.gob.cl" class="btn btn-outline-info btn-block">iOnline</a>
+                        <a href="https://i.saludtarapaca.gob.cl" 
+                            class="btn btn-outline-info btn-block">iOnline</a>
                     </li>
                     <li class="list-group-item">
-                        <a href="https://i.saludtarapaca.gob.cl/login/external" class="btn btn-outline-info btn-block">Externos</a>
+                        <a href="https://i.saludtarapaca.gob.cl/login/external" 
+                            class="btn btn-outline-info btn-block">Externos</a>
                     </li>
                     <li class="list-group-item">
-                        <a href="https://neo.saludtarapaca.gob.cl" class="btn btn-outline-info btn-block">NeoSalud</a>
+                        <a href="https://neo.saludtarapaca.gob.cl" 
+                            class="btn btn-outline-info btn-block">NeoSalud</a>
                     </li>
                     <li class="list-group-item">
-                        <a href="https://uni.saludtarapaca.gob.cl" class="btn btn-info btn-block disabled">UniSalud</a>
+                        <a href="https://uni.saludtarapaca.gob.cl" 
+                            class="btn btn-info btn-block disabled">UniSalud</a>
                     </li>
                     <li class="list-group-item">
-                        <a href="https://esmeralda.saludtarapaca.gob.cl" class="btn btn-outline-info btn-block">Esmeralda</a>
+                        <a href="https://esmeralda.saludtarapaca.gob.cl" 
+                            class="btn btn-outline-info btn-block">Esmeralda</a>
                     </li>
                     <li class="list-group-item">
-                        <a href="https://i.saludtarapaca.gob.cl/claveunica?redirect=L3NpcmVteC9sb2dpbmN1" class="btn btn-outline-info btn-block">Siremx</a>
+                        <a href="https://siremx.saludtarapaca.gob.cl" 
+                            class="btn btn-outline-info btn-block">Siremx</a>
                     </li>
 
                 </ul>
@@ -223,7 +229,7 @@
                     <ul class="list-unstyled text-small">
                         <li>Departamento TIC del SST</li>
                         <li><a class="text-muted" href="mailto:sistemas.sst@redsalud.gob.cl">sistemas.sst@redsalud.gob.cl</a></li>
-                        <small class="d-block mb-3 text-muted">2021</small>
+                        <small class="d-block mb-3 text-muted">{{ now()->year }}</small>
                     </ul>
                 </div>
             </div>
