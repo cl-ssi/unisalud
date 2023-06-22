@@ -75,7 +75,7 @@ class ClaveUnicaController extends Controller
 
         $responseData = json_decode($response);
 
-        logger()->info(print_r($responseData));
+        logger()->info($response);
 
         if ($responseData === null || !property_exists($responseData, 'access_token')) {
             session()->flash(
