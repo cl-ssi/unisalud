@@ -49,6 +49,8 @@ class ClaveUnicaController extends Controller
         //     return redirect()->route('welcome');
         // }
 
+        logger()->info(request()->all());
+
         /* Recepcionamos los siguientes parametros desde CU */
         $code           = $request->input('code');
         $state          = $request->input('state');
@@ -163,32 +165,32 @@ class ClaveUnicaController extends Controller
 
 
         /* CU Entrega los datos del usuario en este formato
-		[RolUnico] => stdClass Object
-			(
-				[DV] => 4
-				[numero] => 44444444
-				[tipo] => RUN
-			)
+        [RolUnico] => stdClass Object
+            (
+                [DV] => 4
+                [numero] => 44444444
+                [tipo] => RUN
+            )
 
-		[sub] => 2594
-		[name] => stdClass Object
-			(
-				[apellidos] => Array
-					(
-						[0] => Del rio
-						[1] => Gonzalez
-					)
+        [sub] => 2594
+        [name] => stdClass Object
+            (
+                [apellidos] => Array
+                    (
+                        [0] => Del rio
+                        [1] => Gonzalez
+                    )
 
-				[nombres] => Array
-					(
-						[0] => Maria
-						[1] => Carmen
-						[2] => De los angeles
-					)
+                [nombres] => Array
+                    (
+                        [0] => Maria
+                        [1] => Carmen
+                        [2] => De los angeles
+                    )
 
-			)
-		[email] => mcdla@mail.com
-		*/
+            )
+        [email] => mcdla@mail.com
+        */
     }
 
     public function logout()
