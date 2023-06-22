@@ -471,6 +471,7 @@ Route::prefix('medical_programmer')->name('medical_programmer.')->middleware('au
 Route::prefix('test')->name('test.')->group(function () {
     Route::view('/livesearch', 'test.livesearch')->name('livesearch');
     Route::view('/fonasa', 'test.fonasa');
+    Route::get('cu-test', [TestController::class,'cuTest']);
 });
 
 Route::prefix('medical-licence')->name('medical_licence.')->group(function () {

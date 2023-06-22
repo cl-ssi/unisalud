@@ -71,13 +71,12 @@ class ClaveUnicaController extends Controller
             'state'         => $state,
         ]);
 
+        logger()->info($response);
 
         /** iOnline dejar solo el ultimo return */
         $route          = $request->input('route');
 
         $responseData = json_decode($response);
-
-        logger()->info($response);
 
         if ($responseData === null || !property_exists($responseData, 'access_token')) {
             session()->flash(
