@@ -45,7 +45,7 @@ class TestController extends Controller
         ]);
 
         echo $response->status();
-        echo $response->statusText();
+        echo $response->getContent();
         dd($response);
     }
 }
