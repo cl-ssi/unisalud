@@ -44,6 +44,8 @@ class TestController extends Controller
             'state'         => $state,
         ]);
 
-        dd($response);    
+        echo $response->status();
+        echo $response->statusText();
+        dd($response);
     }
 }
