@@ -46,8 +46,9 @@ class TestController extends Controller
 
         $responseData = json_decode($response);
 
-        logger()->info($response->successful());
-        logger()->info($response->failed());
+        // logger()->info($response->successful());
+        // logger()->info($response->failed());
+        logger()->info($responseData);
         dd($response);
     }
 }
