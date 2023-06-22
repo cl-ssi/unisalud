@@ -28,7 +28,7 @@ class ClaveUnicaController extends Controller
         $redirect_uri   = urlencode(env('APP_URL') . "/claveunica/callback?route=$route");
         // $redirect_uri   = urlencode(env('APP_URL')."/claveunica/callback");
 
-        $state             = csrf_token();
+        $state          = csrf_token();
         $scope          = 'openid run name';
 
         $params         = '?client_id=' . $client_id .
@@ -45,9 +45,9 @@ class ClaveUnicaController extends Controller
         /* Segundo paso, el usuario ya se autentificó correctamente en CU y retornó a nuestro sistema */
 
         /* Nos aseguramos que vengan los parámetros desde CU */
-        //		if ($request->missing(['code','name'])) {
-        //			return redirect()->route('welcome');
-        //		}
+        // if ($request->missing(['code','name'])) {
+        //     return redirect()->route('welcome');
+        // }
 
         /* Recepcionamos los siguientes parametros desde CU */
         $code           = $request->input('code');
@@ -74,6 +74,8 @@ class ClaveUnicaController extends Controller
         $route          = $request->input('route');
 
         $responseData = json_decode($response);
+
+        logger()->info($responseData);
 
         if ($responseData === null || !property_exists($responseData, 'access_token')) {
             session()->flash(
