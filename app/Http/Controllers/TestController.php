@@ -44,8 +44,9 @@ class TestController extends Controller
             'state'         => $state,
         ]);
 
-        echo $response->status();
-        echo $response->getContent();
+        $responseData = json_decode($response);
+
+        logger()->info($responseData->status);
         dd($response);
     }
 }
