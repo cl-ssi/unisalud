@@ -48,7 +48,6 @@ class TestController extends Controller
 
         logger()->info($response->successful());
         logger()->info($response->failed());
-        logger()->info($responseData['status']);
         dd($response);
     }
 }
