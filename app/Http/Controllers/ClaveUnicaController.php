@@ -49,7 +49,7 @@ class ClaveUnicaController extends Controller
         //     return redirect()->route('welcome');
         // }
 
-        logger()->info(request()->all());
+        // logger()->info(request()->all());
 
         /* Recepcionamos los siguientes parametros desde CU */
         $code           = $request->input('code');
@@ -71,7 +71,6 @@ class ClaveUnicaController extends Controller
             'state'         => $state,
         ]);
 
-        logger()->info($response);
 
         /** iOnline dejar solo el ultimo return */
         $route          = $request->input('route');
@@ -79,6 +78,7 @@ class ClaveUnicaController extends Controller
         $responseData = json_decode($response);
 
         if ($responseData === null || !property_exists($responseData, 'access_token')) {
+            logger()->info($response);
             session()->flash(
                 'danger',
                 'No se pudo iniciar Sesión con Clave Única'
