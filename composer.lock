@@ -4,8 +4,70 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "07808a92e60db329d52d578fa5021399",
+    "content-hash": "0a75eb1a0d233a62b0008c466f083cf9",
     "packages": [
+        {
+            "name": "actived/microsoft-teams-notifier",
+            "version": "V1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/actived/microsoft-teams-notifier.git",
+                "reference": "346d223cf30e8fe81b24db39d49a29d5d329f87e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/actived/microsoft-teams-notifier/zipball/346d223cf30e8fe81b24db39d49a29d5d329f87e",
+                "reference": "346d223cf30e8fe81b24db39d49a29d5d329f87e",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "monolog/monolog": "^1.22|^2.0",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^0.12.87",
+                "phpunit/phpunit": "^9.5"
+            },
+            "suggest": {
+                "symfony/monolog-bundle": "The MonologBundle provides integration of the Monolog library into the Symfony framework."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Actived\\MicrosoftTeamsNotifier\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Actived",
+                    "homepage": "https://actived.fr/"
+                },
+                {
+                    "name": "Kamil KUBICKI"
+                }
+            ],
+            "description": "Monolog handler sending Microsoft Teams notifications with an Incoming Webhook",
+            "homepage": "https://github.com/actived/microsoft-teams-notifier",
+            "keywords": [
+                "Teams",
+                "log",
+                "microsoft",
+                "monolog",
+                "notifier",
+                "webhook"
+            ],
+            "support": {
+                "issues": "https://github.com/actived/microsoft-teams-notifier/issues",
+                "source": "https://github.com/actived/microsoft-teams-notifier/tree/V1.2.0"
+            },
+            "time": "2022-01-12T06:41:40+00:00"
+        },
         {
             "name": "aquaro/laravel-maintenance-mode",
             "version": "v0.1.1",
