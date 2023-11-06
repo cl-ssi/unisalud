@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use Laravel\Passport\Passport;
+// use Laravel\Passport\Passport;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -27,10 +27,10 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         //TODO: esto se está ocupando? en laravel 9 da error routes()
-		//Rutas para oauth2 passport test
+        //Rutas para oauth2 passport test
         // if (! $this->app->routesAreCached()) {
         //     Passport::routes();
         // }
-        Passport::tokensExpireIn(now()->addMinutes(30));
+        // Passport::tokensExpireIn(now()->addMinutes(30));
     }
 }

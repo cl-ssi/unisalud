@@ -20,7 +20,6 @@
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^9.0",
-        "laravel/passport": "^11.2",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.2",
         "league/commonmark": "^2.2",
