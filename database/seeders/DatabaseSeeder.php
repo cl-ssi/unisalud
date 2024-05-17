@@ -2,48 +2,21 @@
 
 namespace Database\Seeders;
 
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
-        $this->call([
-            PermissionSeeder::class,
-            CodConIdentifiersTypesSeeder::class,
-            CountrySeeder::class,
-            RegionSeeder::class,
-            CodConMaritalSeeder::class,
-            CommuneSeeder::class,
-            CongregationSeeder::class,
-            UserSeeder::class,
-            CodConObservationCategorySeeder::class,
-            CodConAppointmentTypesSeeder::class,
-            SicStatusesSeeder::class,
-            SexSeeder::class,
-            GenderSeeder::class,
+        // \App\Models\User::factory(10)->create();
 
-            //Organización
-            OrganizationTypeSeeder::class,
-            OrganizationDependencySeeder::class,
-            OrganizationServiceSeeder::class,
-            OrganizationSeeder::class,
-
-            //necesita Organization por eso se debe ejecutar después
-            LocationSeeder::class,
-
-            /* SAMU */
-            SamuMobileTypeSeeder::class,
-            SamuMobileSeeder::class,
-            SamuJobTypeSeeder::class,
-            SamuKeySeeder::class,
-            SamuReceptionPlaceSeeder::class,
-            SamuEstablishmentSeeder::class,
-        ]);
+        // \App\Models\User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
     }
 }

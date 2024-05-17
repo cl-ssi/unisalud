@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DRIVER', 'gcs'),
+    'default' => env('FILESYSTEM_DISK', 'local'),
 
     /*
     |--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ return [
     |
     | Here you may configure as many filesystem "disks" as you wish, and you
     | may even configure multiple disks of the same driver. Defaults have
-    | been setup for each driver as an example of the required options.
+    | been set up for each driver as an example of the required values.
     |
     | Supported Drivers: "local", "ftp", "sftp", "s3"
     |
@@ -33,6 +33,7 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app'),
+            'throw' => false,
         ],
 
         'public' => [
@@ -40,6 +41,7 @@ return [
             'root' => storage_path('app/public'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
+            'throw' => false,
         ],
 
         's3' => [
@@ -50,36 +52,9 @@ return [
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'throw' => false,
         ],
-
-        'gcs' => [
-            'driver' => 'gcs',
-            'key_file_path' => env('GOOGLE_CLOUD_KEY_FILE', env('GOOGLE_CLOUD_SERVICE_ACCOUNT',null)), // optional: /path/to/service-account.json
-            'key_file' => [], // optional: Array of data that substitutes the .json file (see below)
-            'project_id' => env('GOOGLE_CLOUD_PROJECT_ID', env('GOOGLE_CLOUD_PROJECT_ID')), // optional: is included in key file
-            'bucket' => env('GOOGLE_CLOUD_STORAGE_BUCKET', env('GOOGLE_CLOUD_STORAGE_BUCKET')),
-            'path_prefix' => env('GOOGLE_CLOUD_STORAGE_PATH_PREFIX', ''), // optional: /default/path/to/apply/in/bucket
-            'storage_api_uri' => env('GOOGLE_CLOUD_STORAGE_API_URI', null), // see: Public URLs below
-            'apiEndpoint' => env('GOOGLE_CLOUD_STORAGE_API_ENDPOINT', null), // set storageClient apiEndpoint
-            'visibility' => 'public', // optional: public|private
-            'metadata' => ['cacheControl'=> 'public,max-age=86400'], // optional: default metadata
-            'throw' => true,
-        ],
-
-
-        
-        // 'gcs' => [
-        //     'driver' => 'gcs',
-        //     'project_id' => env('GOOGLE_CLOUD_PROJECT_ID', 'saludiquique'),
-        //     'key_file_path' => env('GOOGLE_CLOUD_KEY_FILE', null), // optional: /path/to/service-account.json
-        //     'key_file' => base_path().env('GOOGLE_CLOUD_SERVICE_ACCOUNT', null), // optional: /path/to/service-account.json
-        //     'bucket' => env('GOOGLE_CLOUD_STORAGE_BUCKET', 'saludiquique-storage'),
-        //     //'path_prefix' => env('GOOGLE_CLOUD_STORAGE_PATH_PREFIX', null), // optional: /default/path/to/apply/in/bucket
-        //     'storage_api_uri' => env('GOOGLE_CLOUD_STORAGE_API_URI', null), // see: Public URLs below
-        //     'visibility' => 'public', // optional: public|private
-        //     // muestra los errores
-        //     'throw' => true,
-        // ],
 
     ],
 
