@@ -22,7 +22,7 @@ class CreateUsersTable extends Migration
             $table->date('birthday')->nullable();
             $table->datetime('deceased_datetime')->nullable();
             $table->foreignId('cod_con_marital_id')->nullable(); /** marriage  */
-            $table->Integer('multiple_birth')->nullable();
+            $table->integer('multiple_birth')->nullable();
             $table->foreignId('nationality_id')->nullable();
             $table->string('team')->nullable();
 
