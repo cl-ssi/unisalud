@@ -7,7 +7,7 @@ Installation:
 - ```git clone https://github.com/cl-ssi/unisalud```
 - ```cd unisalud```
 - ```composer install```
-- ```cp .env-example .env```
+- ```cp .env.example .env```
 - ```php artisan key:generate```
 - Edit file .env and set FHIR_URL_BASE variable with server fhir base path.
 - ```php artisan serve```
