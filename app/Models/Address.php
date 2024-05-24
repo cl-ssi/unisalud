@@ -47,9 +47,8 @@ class Address extends Model
         return $this->belongsTo(Commune::class);
     }
 
-    /*
-    public function region(){
+    public function region(): BelongsTo
+    {
         return $this->belongsTo(Region::class);
     }
-    */
 }

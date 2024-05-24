@@ -42,8 +42,11 @@ class AddressRelationManager extends RelationManager
                     ),
                 Forms\Components\TextInput::make('postal_code')
                     ->maxLength(255),
-                Forms\Components\TextInput::make('region_id')
-                    ->numeric(),
+                Forms\Components\Select::make('region_id')
+                    ->relationship(
+                        name: 'region',
+                        titleAttribute: 'name'
+                    ),
                 Forms\Components\Toggle::make('actually')
                     ->required(),
                 Forms\Components\TextInput::make('organization_id')
@@ -70,10 +73,9 @@ class AddressRelationManager extends RelationManager
                     ->searchable(),
                 Tables\Columns\TextColumn::make('city')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('country_id')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('commune.name')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('region.name')
                     ->sortable(),
             ])
             ->filters([

@@ -50,8 +50,11 @@ class AddressResource extends Resource
                     ),
                 Forms\Components\TextInput::make('postal_code')
                     ->maxLength(255),
-                Forms\Components\TextInput::make('region_id')
-                    ->numeric(),
+                Forms\Components\Select::make('region_id')
+                    ->relationship(
+                        name: 'region',
+                        titleAttribute: 'name'
+                    ),
                 Forms\Components\Toggle::make('actually')
                     ->required(),
                 Forms\Components\TextInput::make('organization_id')
@@ -89,12 +92,12 @@ class AddressResource extends Resource
                 Tables\Columns\TextColumn::make('country_id')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('commune_id')
+                Tables\Columns\TextColumn::make('commune.name')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('postal_code')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('region_id')
+                Tables\Columns\TextColumn::make('region.name')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('actually')
