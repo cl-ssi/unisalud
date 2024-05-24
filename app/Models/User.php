@@ -96,4 +96,10 @@ class User extends Authenticatable implements HasName
     {
         return $this->belongsTo(Country::class, 'nationality_id');
     }
+
+    // address
+    public function address(): HasMany
+    {
+        return $this->hasMany(Address::class);
+    }
 }

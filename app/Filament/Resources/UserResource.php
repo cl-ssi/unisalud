@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use App\Enums\Gender;
-use App\Enums\Sex;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
@@ -26,48 +24,35 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('user_id')
-                    ->numeric()
-                    ->default(null),
+                    ->numeric(),
                 Forms\Components\Toggle::make('active')
                     ->required(),
                 Forms\Components\TextInput::make('text')
-                    ->maxLength(255)
-                    ->default(null),
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('given')
-                    ->maxLength(255)
-                    ->default(null),
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('fathers_family')
-                    ->maxLength(255)
-                    ->default(null),
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('mothers_family')
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\Select::make('sex')
-                    ->options(Sex::class),
-                Forms\Components\Select::make('gender')
-                    ->options(Gender::class),
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('sex'),
+                Forms\Components\TextInput::make('gender'),
                 Forms\Components\DatePicker::make('birthday'),
                 Forms\Components\DateTimePicker::make('deceased_datetime'),
                 Forms\Components\TextInput::make('cod_con_marital_id')
-                    ->numeric()
-                    ->default(null),
+                    ->numeric(),
                 Forms\Components\TextInput::make('multiple_birth')
-                    ->numeric()
-                    ->default(null),
+                    ->numeric(),
                 Forms\Components\Select::make('nationality_id')
-                    ->relationship('nationality', 'name')
-                    ->default(null),
+                    ->relationship('nationality', 'name'),
                 Forms\Components\TextInput::make('team')
-                    ->maxLength(255)
-                    ->default(null),
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('password')
                     ->password()
-                    ->maxLength(255)
-                    ->default(null),
+                    ->maxLength(255),
                 Forms\Components\Toggle::make('claveunica'),
                 Forms\Components\TextInput::make('fhir_id')
-                    ->maxLength(255)
-                    ->default(null),
+                    ->maxLength(255),
                 Forms\Components\DateTimePicker::make('email_verified_at'),
             ]);
     }
@@ -144,8 +129,10 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\IdentifiersRelationManager::class
+            RelationManagers\IdentifiersRelationManager::class,
+            RelationManagers\AddressRelationManager::class
         ];
+
     }
 
     public static function getPages(): array
