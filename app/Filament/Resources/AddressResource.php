@@ -43,8 +43,11 @@ class AddressResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('country_id')
                     ->numeric(),
-                Forms\Components\TextInput::make('commune_id')
-                    ->numeric(),
+                Forms\Components\Select::make('commune_id')
+                    ->relationship(
+                        name: 'commune',
+                        titleAttribute: 'name'
+                    ),
                 Forms\Components\TextInput::make('postal_code')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('region_id')
