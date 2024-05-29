@@ -15,6 +15,9 @@ use App\Enums\Sex;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+use App\Enums\Gender;
+use App\Enums\Sex;
+
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
@@ -37,21 +40,29 @@ class UserResource extends Resource
                 Forms\Components\Toggle::make('active')
                     ->required(),
                 Forms\Components\TextInput::make('text')
+                    ->label('Nombre Completo')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('given')
+                    ->label('Nombre')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('fathers_family')
+                    ->label('Apellido Paterno')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('mothers_family')
+                    ->label('Apellido Materno')
                     ->maxLength(255),
                 Forms\Components\Select::make('sex')
+                    ->label('Sexo')
                     ->options(Sex::class),
                 Forms\Components\Select::make('gender')
+                    ->label('Género')
                     ->options(Gender::class),
-                Forms\Components\DatePicker::make('birthday'),
-                Forms\Components\DateTimePicker::make('deceased_datetime'),
-                Forms\Components\TextInput::make('cod_con_marital_id')
-                    ->numeric(),
+                Forms\Components\DatePicker::make('birthday')
+                    ->label('Fecha Nacimiento'),
+                Forms\Components\DateTimePicker::make('deceased_datetime')
+                    ->label('Fecha Deceso'),
+                Forms\Components\Select::make('cod_con_marital_id')
+                    ->relationship('codConMarital', 'text'),
                 Forms\Components\TextInput::make('multiple_birth')
                     ->numeric(),
                 Forms\Components\Select::make('nationality_id')

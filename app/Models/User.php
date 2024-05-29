@@ -91,15 +91,18 @@ class User extends Authenticatable implements HasName
         return "{$this->given} {$this->fathers_family}";
     }
 
-    // relation to country
     public function nationality(): BelongsTo
     {
         return $this->belongsTo(Country::class, 'nationality_id');
     }
 
-    // address
     public function address(): HasMany
     {
         return $this->hasMany(Address::class);
+    }
+
+    public function codConMarital(): BelongsTo
+    {
+        return $this->belongsTo(CodConMarital::class);
     }
 }
