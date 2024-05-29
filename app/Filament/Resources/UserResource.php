@@ -15,9 +15,6 @@ use App\Enums\Sex;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-use App\Enums\Gender;
-use App\Enums\Sex;
-
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
