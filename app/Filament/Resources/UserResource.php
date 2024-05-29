@@ -10,6 +10,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Enums\Gender;
+use App\Enums\Sex;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -42,8 +44,10 @@ class UserResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('mothers_family')
                     ->maxLength(255),
-                Forms\Components\TextInput::make('sex'),
-                Forms\Components\TextInput::make('gender'),
+                Forms\Components\Select::make('sex')
+                    ->options(Sex::class),
+                Forms\Components\Select::make('gender')
+                    ->options(Gender::class),
                 Forms\Components\DatePicker::make('birthday'),
                 Forms\Components\DateTimePicker::make('deceased_datetime'),
                 Forms\Components\TextInput::make('cod_con_marital_id')
