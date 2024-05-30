@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Services\GeocodingService;
 
 class AddressResource extends Resource
 {
@@ -35,7 +36,21 @@ class AddressResource extends Resource
                     ->options(self::$uses),
                 Forms\Components\TextInput::make('type'),
                 Forms\Components\TextInput::make('text')
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $geocodingService = app(GeocodingService::class);
+                        $coordinates = $geocodingService->getCoordinates($state);
+
+                        if ($coordinates) {
+                            $set('latitude', $coordinates['lat']);
+                            $set('longitude', $coordinates['lng']);
+                        }
+                    }),
+                Forms\Components\TextInput::make('latitude')
+                    ->required(),
+                Forms\Components\TextInput::make('longitude')
+                    ->required(),
                 Forms\Components\TextInput::make('line')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('apartment')

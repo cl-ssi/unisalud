@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Enums\AddressUse;
 use App\Enums\AddressType;
 
+use App\Services\GeocodingService;
+use App\Models\Commune;
+
 class AddressRelationManager extends RelationManager
 {
     protected static string $relationship = 'address';
@@ -28,11 +31,31 @@ class AddressRelationManager extends RelationManager
                     ->label('Tipo')
                     ->options(AddressType::class),
                 Forms\Components\TextInput::make('text')
-                    ->label('Calle')
-                    ->maxLength(255),
+                    ->label('Calle')->reactive()
+                    ->reactive()
+                    ->debounce(2000)
+                    /*
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $geocodingService = app(GeocodingService::class);
+                        $coordinates = $geocodingService->getCoordinates($state);
+
+                        if ($coordinates) {
+                            $set('latitude', $coordinates['lat']);
+                            $set('longitude', $coordinates['lng']);
+                        }
+                    })
+                    */
+                    ->afterStateUpdated(fn ($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
+                Forms\Components\TextInput::make('latitude')
+                    ->required(),
+                Forms\Components\TextInput::make('longitude')
+                    ->required(),
                 Forms\Components\TextInput::make('line')
                     ->label('Número')
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->reactive()
+                    ->debounce(2000)
+                    ->afterStateUpdated(fn ($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
                 Forms\Components\TextInput::make('apartment')
                     ->label('Tipo')
                     ->maxLength(255),
@@ -50,10 +73,15 @@ class AddressRelationManager extends RelationManager
                     ),
                 Forms\Components\Select::make('commune_id')
                     ->label('Comuna')
+                    ->debounce(2000)
+                    ->reactive()
+                    ->relationship('commune','name')
+                    /*
                     ->relationship(
                         name: 'commune',
                         titleAttribute: 'name'
-                    ),
+                    )*/
+                    ->afterStateUpdated(fn ($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
                 Forms\Components\TextInput::make('postal_code')
                     ->label('Código Postal')
                     ->maxLength(255),
@@ -70,6 +98,28 @@ class AddressRelationManager extends RelationManager
                 Forms\Components\TextInput::make('practitioner_id')
                     ->numeric(),
             ]);
+    }
+
+    public static function calculateCoordinates(callable $get, callable $set)
+    {
+        $address    = $get('text');
+        $number     = $get('line');
+        $commune_id = $get('commune_id');
+
+        if ($address && $number && $commune_id) {
+            $commune = Commune::find($commune_id)->name;
+
+            $geocodingService = app(GeocodingService::class);
+            $coordinates = $geocodingService->getCoordinates($address, $number, $commune);
+
+            if ($coordinates) {
+                $set('latitude', $coordinates['lat']);
+                $set('longitude', $coordinates['lng']);
+            } else {
+                $set('latitude', null);
+                $set('longitude', null);
+            }
+        }
     }
 
     public function table(Table $table): Table
