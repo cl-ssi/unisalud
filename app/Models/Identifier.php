@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Enums\IdentifierUse;
 
 class Identifier extends Model
 {
@@ -22,6 +23,10 @@ class Identifier extends Model
         'dv',
         'period_id',
         'organization',
+    ];
+
+    protected $casts = [
+        'use'   => IdentifierUse::class
     ];
 
     public function user(): BelongsTo

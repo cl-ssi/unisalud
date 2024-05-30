@@ -31,7 +31,8 @@ class AddressResource extends Resource
                     ->numeric(),
                 Forms\Components\TextInput::make('period_id')
                     ->numeric(),
-                Forms\Components\TextInput::make('use'),
+                Forms\Components\Select::make('use')
+                    ->options(self::$uses),
                 Forms\Components\TextInput::make('type'),
                 Forms\Components\TextInput::make('text')
                     ->maxLength(255),
@@ -79,7 +80,7 @@ class AddressResource extends Resource
                 Tables\Columns\TextColumn::make('period_id')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('use'),
+                Tables\Columns\Select::make('use'),
                 Tables\Columns\TextColumn::make('type'),
                 Tables\Columns\TextColumn::make('text')
                     ->searchable(),

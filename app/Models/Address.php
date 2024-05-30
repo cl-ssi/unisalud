@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Enums\AddressUse;
+use App\Enums\AddressType;
 
 class Address extends Model
 {
@@ -37,6 +39,11 @@ class Address extends Model
         'practitioner_id'
     ];
 
+    protected $casts = [
+        'use'   => AddressUse::class,
+        'type'  => AddressType::class
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -50,5 +57,10 @@ class Address extends Model
     public function region(): BelongsTo
     {
         return $this->belongsTo(Region::class);
+    }
+
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class);
     }
 }

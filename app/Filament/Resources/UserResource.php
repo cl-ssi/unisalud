@@ -59,10 +59,10 @@ class UserResource extends Resource
                 Forms\Components\DateTimePicker::make('deceased_datetime')
                     ->label('Fecha Deceso'),
                 Forms\Components\Select::make('cod_con_marital_id')
+                    ->label('Estado Civil')
                     ->relationship('codConMarital', 'text'),
-                Forms\Components\TextInput::make('multiple_birth')
-                    ->numeric(),
                 Forms\Components\Select::make('nationality_id')
+                    ->label('Nacionalidad')
                     ->relationship('nationality', 'name'),
                 Forms\Components\TextInput::make('team')
                     ->maxLength(255),
@@ -72,7 +72,8 @@ class UserResource extends Resource
                 Forms\Components\Toggle::make('claveunica'),
                 Forms\Components\TextInput::make('fhir_id')
                     ->maxLength(255),
-                Forms\Components\DateTimePicker::make('email_verified_at'),
+                Forms\Components\DateTimePicker::make('email_verified_at')
+                    ->label('Fecha de Verificación Email'),
             ]);
     }
 
@@ -84,39 +85,46 @@ class UserResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('active')
+                    ->label('Estado')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('text')
+                    ->label('Nombre Completo')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('given')
+                    ->label('Nombre')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('fathers_family')
+                    ->label('Apellido Paterno')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('mothers_family')
+                    ->label('Apellido Materno')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('sex'),
-                Tables\Columns\TextColumn::make('gender'),
+                Tables\Columns\TextColumn::make('sex')
+                    ->label('Sexo'),
+                Tables\Columns\TextColumn::make('gender')
+                    ->label('Genero'),
                 Tables\Columns\TextColumn::make('birthday')
+                    ->label('Fecha Nacimiento')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('deceased_datetime')
+                    ->label('Fecha Deceso')
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('cod_con_marital_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('multiple_birth')
+                    ->label('Estado Civil')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('nationality.name')
+                    ->label('Nacionalidad')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('team')
-                    ->searchable(),
                 Tables\Columns\IconColumn::make('claveunica')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('fhir_id')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email_verified_at')
+                    ->label('Fecha de Verificación Email')
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')

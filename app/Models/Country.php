@@ -18,10 +18,10 @@ class Country extends Model
      */
     protected $fillable = [
         'id',
-        'iso_cod',
+        'id_minsal',
+        'code_deis',
         'name'
     ];
-
 
     /**
      * The attributes that should be mutated to dates.

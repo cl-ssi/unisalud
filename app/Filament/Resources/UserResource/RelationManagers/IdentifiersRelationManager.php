@@ -9,6 +9,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Enums\IdentifierUse;
 
 class IdentifiersRelationManager extends RelationManager
 {
@@ -18,17 +19,19 @@ class IdentifiersRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('use'),
+                Forms\Components\Select::make('use')
+                    ->label('Uso')
+                    ->options(IdentifierUse::class),
                 Forms\Components\Select::make('cod_con_identifier_type_id')
+                    ->label('Tipo')
                     ->relationship('codConIdentifierType', 'text')
                     ->default(null),
-                Forms\Components\TextInput::make('system')
-                    ->maxLength(255)
-                    ->default(null),
                 Forms\Components\TextInput::make('value')
+                    ->label('RUN / DNI')
                     ->maxLength(255)
                     ->default(null),
                 Forms\Components\TextInput::make('dv')
+                    ->label('DV')
                     ->maxLength(255)
                     ->default(null),
                 // Forms\Components\TextInput::make('period_id')
@@ -51,14 +54,16 @@ class IdentifiersRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('use')
             ->columns([
-                Tables\Columns\TextColumn::make('use'),
+                Tables\Columns\TextColumn::make('use')
+                    ->label('Uso'),
                 Tables\Columns\TextColumn::make('codConIdentifierType.text')
+                    ->label('Tipo')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('system')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('value')
+                    ->label('RUN / DNI')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('dv')
+                    ->label('DV')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('period_id')
                     ->numeric()
