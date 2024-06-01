@@ -32,7 +32,6 @@ class Commune extends Model
 
     protected $dates = ['deleted_at'];
     
-    /*
     public function agreements() 
     {
         return $this->hasMany('App\Agreement\Agreement');
@@ -43,5 +42,4 @@ class Commune extends Model
     {
         return $this->belongsTo('App\Models\Samu\Commune','id', 'commune_id');
     }
-    */
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\UserResource\RelationManagers;
 
+use App\Models\Address;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -15,6 +16,11 @@ use App\Enums\AddressType;
 
 use App\Services\GeocodingService;
 use App\Models\Commune;
+
+use Filament\Pages\Actions\CreateAction;
+use Filament\Tables\Actions\EditAction;
+use Illuminate\Database\Eloquent\Model;
+
 
 class AddressRelationManager extends RelationManager
 {
@@ -34,22 +40,7 @@ class AddressRelationManager extends RelationManager
                     ->label('Calle')->reactive()
                     ->reactive()
                     ->debounce(2000)
-                    /*
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        $geocodingService = app(GeocodingService::class);
-                        $coordinates = $geocodingService->getCoordinates($state);
-
-                        if ($coordinates) {
-                            $set('latitude', $coordinates['lat']);
-                            $set('longitude', $coordinates['lng']);
-                        }
-                    })
-                    */
                     ->afterStateUpdated(fn ($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
-                Forms\Components\TextInput::make('latitude')
-                    ->required(),
-                Forms\Components\TextInput::make('longitude')
-                    ->required(),
                 Forms\Components\TextInput::make('line')
                     ->label('Número')
                     ->maxLength(255)
@@ -67,30 +58,26 @@ class AddressRelationManager extends RelationManager
                     ->maxLength(255),
                 Forms\Components\Select::make('country_id')
                     ->label('País')
-                    ->relationship(
-                        name: 'country',
-                        titleAttribute: 'name'
-                    ),
+                    ->relationship('country','name'),
                 Forms\Components\Select::make('commune_id')
                     ->label('Comuna')
                     ->debounce(2000)
                     ->reactive()
                     ->relationship('commune','name')
-                    /*
-                    ->relationship(
-                        name: 'commune',
-                        titleAttribute: 'name'
-                    )*/
                     ->afterStateUpdated(fn ($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
                 Forms\Components\TextInput::make('postal_code')
                     ->label('Código Postal')
                     ->maxLength(255),
                 Forms\Components\Select::make('region_id')
                     ->label('Región')
-                    ->relationship(
-                        name: 'region',
-                        titleAttribute: 'name'
-                    ),
+                    ->relationship('region','name'),
+                Forms\Components\TextInput::make('latitude')
+                    ->label('Latitud')
+                    // ->relationship('location','latitude')
+                    ->required(),
+                Forms\Components\TextInput::make('longitude')
+                    ->label('Longitud')
+                    ->required(),
                 Forms\Components\Toggle::make('actually')
                     ->required(),
                 Forms\Components\TextInput::make('organization_id')
@@ -157,10 +144,84 @@ class AddressRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->using(function (array $data): Model {
+                        $address                    = new Address();
+                        $address->user_id           = $this->ownerRecord->id;
+                        $address->use               = $data['use'];
+                        $address->type              = $data['type'];
+                        $address->text              = $data['text'];
+                        $address->line              = $data['line'];
+                        $address->apartment         = $data['apartment'];
+                        $address->suburb            = $data['suburb'];
+                        $address->city              = $data['city'];
+                        $address->country_id        = $data['country_id'];
+                        $address->commune_id        = $data['commune_id'];
+                        $address->postal_code       = $data['postal_code'];
+                        $address->region_id         = $data['region_id'];
+                        $address->actually          = $data['actually'];
+                        $address->organization_id   = $data['organization_id'];
+                        $address->practitioner_id   = $data['practitioner_id'];
+
+                        $address->save();
+
+                        $address->location()->updateOrCreate(
+                            [
+                                'latitude'      => $data['latitude'],
+                                'longitude'     => $data['longitude'],
+                                'address_id'    => $address->id
+                            ]
+                            
+                        );
+
+                        return $address;
+
+                    })
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->using(function (Model $record, array $data): Model {
+                        $record->updateOrCreate(
+                            [
+                                'id' => $record->id ?? null
+                            ]
+                            ,
+                            [
+                                'use'               => $data['use'],
+                                'type'              => $data['type'],
+                                'text'              => $data['text'],
+                                'line'              => $data['line'],
+                                'apartment'         => $data['apartment'],
+                                'suburb'            => $data['suburb'],
+                                'city'              => $data['city'],
+                                'country_id'        => $data['country_id'],
+                                'commune_id'        => $data['commune_id'],
+                                'postal_code'       => $data['postal_code'],
+                                'region_id'         => $data['region_id'],
+                                
+                                //'latitude'      => $data['latitude'],
+                                //'longitude'     => $data['longitude'],
+                                
+                                'actually'          => $data['actually'],
+                                'organization_id'   => $data['organization_id'],
+                                'practitioner_id'   => $data['practitioner_id']
+                            ]
+                        );
+
+                        $record->location()->updateOrCreate(
+                            [
+                                'id' => $record->location->id ?? null
+                            ],
+                            [
+                                'latitude'      => $data['latitude'],
+                                'longitude'     => $data['longitude'],
+                                'address_id'    => $record->id
+                            ]
+                            
+                        );
+                
+                        return $record;
+                    }),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

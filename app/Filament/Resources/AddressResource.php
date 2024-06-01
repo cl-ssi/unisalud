@@ -14,6 +14,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Services\GeocodingService;
 
+use App\Enums\AddressUse;
+use App\Enums\AddressType;
+
+use App\Models\Commune;
+
 class AddressResource extends Resource
 {
     protected static ?string $model = Address::class;
@@ -26,53 +31,53 @@ class AddressResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('address_id')
-                    ->numeric(),
-                Forms\Components\TextInput::make('user_id')
-                    ->numeric(),
-                Forms\Components\TextInput::make('period_id')
-                    ->numeric(),
                 Forms\Components\Select::make('use')
-                    ->options(self::$uses),
-                Forms\Components\TextInput::make('type'),
+                    ->label('Uso')
+                    ->options(AddressUse::class),
+                Forms\Components\Select::make('type')
+                    ->label('Tipo')
+                    ->options(AddressType::class),
                 Forms\Components\TextInput::make('text')
+                    ->label('Calle')->reactive()
+                    ->reactive()
+                    ->debounce(2000)
+                    ->afterStateUpdated(fn ($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
+                Forms\Components\TextInput::make('line')
+                    ->label('Número')
                     ->maxLength(255)
                     ->reactive()
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        $geocodingService = app(GeocodingService::class);
-                        $coordinates = $geocodingService->getCoordinates($state);
-
-                        if ($coordinates) {
-                            $set('latitude', $coordinates['lat']);
-                            $set('longitude', $coordinates['lng']);
-                        }
-                    }),
-                Forms\Components\TextInput::make('latitude')
-                    ->required(),
-                Forms\Components\TextInput::make('longitude')
-                    ->required(),
-                Forms\Components\TextInput::make('line')
-                    ->maxLength(255),
+                    ->debounce(2000)
+                    ->afterStateUpdated(fn ($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
                 Forms\Components\TextInput::make('apartment')
+                    ->label('Tipo')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('suburb')
+                    ->label('Villa / Población')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('city')
+                    ->label('Ciudad')
                     ->maxLength(255),
-                Forms\Components\TextInput::make('country_id')
-                    ->numeric(),
+                Forms\Components\Select::make('country_id')
+                    ->label('País')
+                    ->relationship('country','name'),
                 Forms\Components\Select::make('commune_id')
-                    ->relationship(
-                        name: 'commune',
-                        titleAttribute: 'name'
-                    ),
+                    ->label('Comuna')
+                    ->debounce(2000)
+                    ->reactive()
+                    ->relationship('commune','name')
+                    ->afterStateUpdated(fn ($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
                 Forms\Components\TextInput::make('postal_code')
+                    ->label('Código Postal')
                     ->maxLength(255),
                 Forms\Components\Select::make('region_id')
-                    ->relationship(
-                        name: 'region',
-                        titleAttribute: 'name'
-                    ),
+                    ->label('Región')
+                    ->relationship('region','name'),
+                Forms\Components\TextInput::make('latitude')
+                    ->label('Latitud')
+                    ->required(),
+                Forms\Components\TextInput::make('longitude')
+                    ->label('Longitud')
+                    ->required(),
                 Forms\Components\Toggle::make('actually')
                     ->required(),
                 Forms\Components\TextInput::make('organization_id')
@@ -80,6 +85,28 @@ class AddressResource extends Resource
                 Forms\Components\TextInput::make('practitioner_id')
                     ->numeric(),
             ]);
+    }
+
+    public static function calculateCoordinates(callable $get, callable $set)
+    {
+        $address    = $get('text');
+        $number     = $get('line');
+        $commune_id = $get('commune_id');
+
+        if ($address && $number && $commune_id) {
+            $commune = Commune::find($commune_id)->name;
+
+            $geocodingService = app(GeocodingService::class);
+            $coordinates = $geocodingService->getCoordinates($address, $number, $commune);
+
+            if ($coordinates) {
+                $set('latitude', $coordinates['lat']);
+                $set('longitude', $coordinates['lng']);
+            } else {
+                $set('latitude', null);
+                $set('longitude', null);
+            }
+        }
     }
 
     public static function table(Table $table): Table
@@ -95,7 +122,7 @@ class AddressResource extends Resource
                 Tables\Columns\TextColumn::make('period_id')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\Select::make('use'),
+                Tables\Columns\TextColumn::make('use'),
                 Tables\Columns\TextColumn::make('type'),
                 Tables\Columns\TextColumn::make('text')
                     ->searchable(),
