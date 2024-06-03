@@ -25,14 +25,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Filament::serving(function () {
-            Filament::registerNavigationGroups([
-                NavigationGroup::make()
-                     ->label('Usuarios')
-                     ->icon('heroicon-o-user-circle')
-            ]);
-        });
-
         /** Para que los Policies tengan la misma estructura de los modelos */
         Gate::guessPolicyNamesUsing(function ($modelClass) {
             // Reemplaza 'App\Models' por 'App\Policies' y añade 'Policy' al final del nombre de la clase

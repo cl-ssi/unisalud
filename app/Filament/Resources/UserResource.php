@@ -19,7 +19,7 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-circle';
 
     protected static ?string $navigationGroup = 'Usuarios';
 
@@ -157,7 +157,8 @@ class UserResource extends Resource
     {
         return [
             RelationManagers\IdentifiersRelationManager::class,
-            RelationManagers\AddressRelationManager::class
+            RelationManagers\AddressRelationManager::class,
+            RelationManagers\RolesRelationManager::class,
         ];
 
     }

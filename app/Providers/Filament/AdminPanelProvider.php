@@ -2,7 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
 use App\Filament\Auth\Login;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -33,7 +32,6 @@ class AdminPanelProvider extends PanelProvider
                 'panels::auth.login.form.after',
                 fn () => view('auth.socialite.claveunica')
             )
-            ->plugin(FilamentSpatieRolesPermissionsPlugin::make())
             ->colors([
                 'primary' => Color::Amber,
             ])
