@@ -41,9 +41,7 @@ class SocialiteController extends Controller
 
     public function logoutRedirect(string $provider)
     {
-        # logout_uri = https://xxx.saludtarapaca.gob.cl/logout/claveunica/callback
-        $logout_uri = env('APP_URL').'/logout/'.$provider.'/callback';
-        return redirect()->away('https://accounts.claveunica.gob.cl/api/v1/accounts/app/logout?redirect='.$logout_uri);
+        return redirect()->away('https://accounts.claveunica.gob.cl/api/v1/accounts/app/logout?redirect='.env('CLAVEUNICA_LOGOUT_URI'));
     }
     
     public function logoutCallback(string $provider)
