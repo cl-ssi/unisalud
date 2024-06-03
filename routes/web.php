@@ -18,7 +18,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Rutas para login y logout con clave única y local
+/** 
+ * Rutas para login y logout con clave única y local
+ **/
+// env('APP_URL').'/auth/claveunica/redirect'
+// env('APP_URL').'/auth/claveunica/callback'   // ClaveÚnica: redirect_uri
+// env('APP_URL').'/logout/claveunica/redirect' // ClaveÚnica: logout_uri
+// env('APP_URL').'/logout/claveunica/callback'
+// env('APP_URL').'/logout/local'
 Route::get('/auth/{provider}/redirect', [SocialiteController::class, 'authRedirect'])->name('socialite.auth.redirect');
 Route::get('/auth/{provider}/callback', [SocialiteController::class, 'authCallback'])->name('socialite.auth.callback');
 Route::get('/logout/{provider}/redirect', [SocialiteController::class, 'logoutRedirect'])->name('socialite.logout.redirect');
