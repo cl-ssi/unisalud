@@ -8,6 +8,7 @@ use App\Enums\Sex;
 use App\Models\Identifier;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -69,6 +70,19 @@ class User extends Authenticatable implements HasName
         'sex'               => Sex::class,
         'gender'            => Gender::class,
     ];
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // TODO: usar propiedad "active" cuando se implementen los usarios activos
+        return true;
+        // return str_ends_with($this->email, '@redsalud.gob.cl');
+    }
+
+    public function canBeImpersonated()
+    {
+        // Let's prevent impersonating other users
+        return auth()->user()->can('be god');
+    }
 
     // protected function casts(): array
     // {

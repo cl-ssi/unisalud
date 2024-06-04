@@ -146,8 +146,7 @@ class UserResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 \STS\FilamentImpersonate\Tables\Actions\Impersonate::make()
-                    ->redirectTo(route('filament.admin.pages.dashboard'))
-                    ->visible(fn () => auth()->user()->can('be god')),
+                    ->redirectTo(route('filament.admin.pages.dashboard')),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
