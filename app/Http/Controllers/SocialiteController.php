@@ -39,8 +39,9 @@ class SocialiteController extends Controller
             return redirect()->route('filament.admin.auth.login')
                 ->withErrors(['msg' => 'State inválido: ' . $e->getMessage()]);
         } catch (\Exception $e) {
-            session()->invalidate();
-            session()->regenerateToken();
+            dd(csrf_token(),$e->getMessage());
+            // session()->invalidate();
+            // session()->regenerateToken();
             return redirect()->route('filament.admin.auth.login')
                 ->withErrors(['msg' => csrf_token(). ' Excepción general: ' . $e->getMessage()]);
         }
