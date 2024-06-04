@@ -15,8 +15,6 @@ class SocialiteController extends Controller
 
     public function authCallback(string $provider)
     {
-        // $response = Socialite::driver($provider)->user();
-        // dd($response->getId());
         try {
             $response = Socialite::driver($provider)->user();
             dd($response);

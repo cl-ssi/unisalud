@@ -21,8 +21,6 @@ class User extends Authenticatable implements FilamentUser, HasName
 {
     use HasFactory, Notifiable, HasRoles, SoftDeletes;
 
-    // use \OwenIt\Auditing\Auditable;
-
     protected $primaryKey = 'id';
 
     /**
@@ -82,22 +80,10 @@ class User extends Authenticatable implements FilamentUser, HasName
         // Let's prevent impersonating other users
         return auth()->user()->can('be god');
     }
-
-    // protected function casts(): array
-    // {
-    //     return [
-    //         'email_verified_at' => 'datetime',
-    //         'password'          => 'hashed',
-    //         'sex'               => Sex::class,
-    //         'gender'            => Gender::class,
-    //     ];
-    // }
-
     public function identifiers(): HasMany
     {
         return $this->hasMany(Identifier::class);
     }
-
 
 
     public function getFilamentName(): string
