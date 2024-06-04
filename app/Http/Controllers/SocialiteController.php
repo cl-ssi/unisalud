@@ -17,16 +17,22 @@ class SocialiteController extends Controller
     {
         try {
             $response = Socialite::driver($provider)->user();
-            dd($response);
+            // dd($response);
+
+            // find user with relation identifier and value of response->getId()
+            $user = User::whereHas('identifiers', function ($query) use ($response) {
+                $query->where('value', $response->getId());
+            })->first();
+
             // $user = User::firstWhere(['id' => $response->getId()]);
 
-            // if ( $user ) {
-            //     auth()->login($user);
-            //     return redirect()->intended(route('filament.admin.pages.dashboard'));
-            // } else {
-            //     session(['userNotFound' => true ]);
-            //     return redirect()->route('socialite.logout.redirect', ['provider' => $provider]);
-            // }
+            if ( $user ) {
+                auth()->login($user);
+                return redirect()->intended(route('filament.admin.pages.dashboard'));
+            } else {
+                session(['userNotFound' => true ]);
+                return redirect()->route('socialite.logout.redirect', ['provider' => $provider]);
+            }
         } catch (\Laravel\Socialite\Two\InvalidStateException $e) {
             session()->invalidate();
             session()->regenerateToken();
