@@ -17,14 +17,9 @@ class SocialiteController extends Controller
     {
         try {
             $response = Socialite::driver($provider)->user();
-            // dd($response);
-
-            // find user with relation identifier and value of response->getId()
             $user = User::whereHas('identifiers', function ($query) use ($response) {
                 $query->where('value', $response->getId());
             })->first();
-
-            // $user = User::firstWhere(['id' => $response->getId()]);
 
             if ( $user ) {
                 auth()->login($user);
@@ -39,11 +34,10 @@ class SocialiteController extends Controller
             return redirect()->route('filament.admin.auth.login')
                 ->withErrors(['msg' => 'State inválido: ' . $e->getMessage()]);
         } catch (\Exception $e) {
-            dd(csrf_token(),$e->getMessage());
-            // session()->invalidate();
-            // session()->regenerateToken();
+            session()->invalidate();
+            session()->regenerateToken();
             return redirect()->route('filament.admin.auth.login')
-                ->withErrors(['msg' => csrf_token(). ' Excepción general: ' . $e->getMessage()]);
+                ->withErrors(['msg' => 'Excepción general:: ' . $e->getMessage()]);
         }
     }
 
