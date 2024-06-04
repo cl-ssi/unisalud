@@ -15,6 +15,8 @@ class SocialiteController extends Controller
 
     public function authCallback(string $provider)
     {
+        $response = Socialite::driver($provider);
+        dd($response);
         try {
             $response = Socialite::driver($provider)->user();
             $user = User::firstWhere(['id' => $response->getId()]);
