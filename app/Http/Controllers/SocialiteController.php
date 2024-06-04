@@ -38,7 +38,7 @@ class SocialiteController extends Controller
             session()->regenerateToken();
 
             return redirect()->route('filament.admin.auth.login')
-                ->withErrors(['msg' => $_GET . ' Excepción general:: ' . $e->getMessage()]);
+                ->withErrors(['msg' => $_GET['code'] . ' state '. $_GET['state'] . ' Excepción general:: ' . $e->getMessage()]);
         }
     }
 

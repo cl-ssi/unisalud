@@ -36,11 +36,13 @@ RUN docker-php-ext-enable intl
 
 RUN docker-php-ext-install opcache
 
-COPY docker/php.ini /usr/local/etc/php/conf.d/docker-php.ini
+RUN docker-php-ext-install pcntl
 
 RUN mkdir -p /run/nginx
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
+
+COPY docker/php.ini /usr/local/etc/php/conf.d/docker-php.ini
 
 RUN mkdir -p /app
 COPY . /app
