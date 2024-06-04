@@ -1,4 +1,4 @@
-FROM php:8.1-fpm-alpine
+FROM php:8.2-fpm-alpine
 
 RUN apk add --no-cache nginx wget
 
@@ -26,6 +26,14 @@ RUN docker-php-ext-install soap
 RUN docker-php-ext-install zip
 
 RUN docker-php-ext-install bcmath
+
+RUN docker-php-ext-configure intl
+
+RUN docker-php-ext-install intl
+
+RUN docker-php-ext-enable intl
+
+RUN docker-php-ext-install opcache
 
 RUN cd /usr/local/etc/php/conf.d/ && \
   echo 'memory_limit = 256M' >> docker-php-memlimit.ini
