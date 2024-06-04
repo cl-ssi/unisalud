@@ -15,6 +15,7 @@ class SocialiteController extends Controller
 
     public function authCallback(string $provider)
     {
+        dd();
         try {
             $response = Socialite::driver($provider)->user();
             $user = User::whereHas('identifiers', function ($query) use ($response) {
