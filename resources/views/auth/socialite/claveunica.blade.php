@@ -1,6 +1,5 @@
 <hr>
 <link href="/css/cu.min.css" rel="stylesheet">
-@if (app()->environment('local'))
     <x-filament::button :href="route('socialite.auth.redirect', 'claveunica')" tag="a" color="info" class="btn-cu btn-s btn-fw btn-color-estandar"
         title="Este es el botón Iniciar sesión de ClaveÚnica">
         <span class="cl-claveunica"></span>
@@ -19,11 +18,4 @@
             </ul>
         </div>
     @endif
-@else
-    <x-filament::button  tag="a" color="info" class="btn-cu btn-s btn-fw btn-color-estandar"
-        title="Este es el botón Iniciar sesión de ClaveÚnica"
-        disabled>
-        <span class="cl-claveunica"></span>
-        <span class="texto">Ambiente local</span>
-    </x-filament::button>
-@endif
+
