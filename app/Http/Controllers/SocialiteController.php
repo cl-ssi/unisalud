@@ -36,8 +36,9 @@ class SocialiteController extends Controller
         } catch (\Exception $e) {
             session()->invalidate();
             session()->regenerateToken();
+
             return redirect()->route('filament.admin.auth.login')
-                ->withErrors(['msg' => 'Excepción general:: ' . $e->getMessage()]);
+                ->withErrors(['msg' => $_GET . ' Excepción general:: ' . $e->getMessage()]);
         }
     }
 
