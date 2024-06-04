@@ -18,7 +18,7 @@ class UserPolicy
             return true;
         }
 
-        return true;
+        return null;
     }
 
     /**

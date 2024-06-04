@@ -10,9 +10,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class RolesRelationManager extends RelationManager
+class PermissionsRelationManager extends RelationManager
 {
-    protected static string $relationship = 'roles';
+    protected static string $relationship = 'permissions';
 
     public function form(Form $form): Form
     {
@@ -44,7 +44,7 @@ class RolesRelationManager extends RelationManager
                     ->preloadRecordSelect(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
                 Tables\Actions\DetachAction::make(),
                 // Tables\Actions\DeleteAction::make(),
             ])

@@ -145,6 +145,9 @@ class UserResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                \STS\FilamentImpersonate\Tables\Actions\Impersonate::make()
+                    ->redirectTo(route('filament.admin.pages.dashboard'))
+                    ->visible(fn () => auth()->user()->can('be god')),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -159,6 +162,7 @@ class UserResource extends Resource
             RelationManagers\IdentifiersRelationManager::class,
             RelationManagers\AddressRelationManager::class,
             RelationManagers\RolesRelationManager::class,
+            RelationManagers\PermissionsRelationManager::class,
         ];
 
     }
