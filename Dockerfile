@@ -36,9 +36,8 @@ RUN docker-php-ext-enable intl
 
 RUN docker-php-ext-install opcache
 
-RUN cd /usr/local/etc/php/conf.d/ && \
-  echo 'memory_limit = 256M' >> docker-php-memlimit.ini
-  
+COPY docker/php.ini /usr/local/etc/php/conf.d/docker-php.ini
+
 RUN mkdir -p /run/nginx
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
