@@ -15,19 +15,20 @@ class SocialiteController extends Controller
 
     public function authCallback(string $provider)
     {
-        $response = Socialite::driver($provider);
-        dd($response);
+        // $response = Socialite::driver($provider)->user();
+        // dd($response->getId());
         try {
             $response = Socialite::driver($provider)->user();
-            $user = User::firstWhere(['id' => $response->getId()]);
+            dd($response);
+            // $user = User::firstWhere(['id' => $response->getId()]);
 
-            if ( $user ) {
-                auth()->login($user);
-                return redirect()->intended(route('filament.admin.pages.dashboard'));
-            } else {
-                session(['userNotFound' => true ]);
-                return redirect()->route('socialite.logout.redirect', ['provider' => $provider]);
-            }
+            // if ( $user ) {
+            //     auth()->login($user);
+            //     return redirect()->intended(route('filament.admin.pages.dashboard'));
+            // } else {
+            //     session(['userNotFound' => true ]);
+            //     return redirect()->route('socialite.logout.redirect', ['provider' => $provider]);
+            // }
         } catch (\Laravel\Socialite\Two\InvalidStateException $e) {
             session()->invalidate();
             session()->regenerateToken();
@@ -37,7 +38,7 @@ class SocialiteController extends Controller
             session()->invalidate();
             session()->regenerateToken();
             return redirect()->route('filament.admin.auth.login')
-                ->withErrors(['msg' => 'Excepción general:: ' . $e->getMessage()]);
+                ->withErrors(['msg' => csrf_token(). ' Excepción general: ' . $e->getMessage()]);
         }
     }
 

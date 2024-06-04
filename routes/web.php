@@ -31,3 +31,8 @@ Route::get('/auth/{provider}/callback', [SocialiteController::class, 'authCallba
 Route::get('/logout/{provider}/redirect', [SocialiteController::class, 'logoutRedirect'])->name('socialite.logout.redirect');
 Route::get('/logout/{provider}/callback', [SocialiteController::class, 'logoutCallback']);
 Route::get('/logout/local', [SocialiteController::class, 'logoutLocal'])->name('socialite.logout.local');
+
+Route::get('test', function () {
+    // print crsf
+    echo csrf_token();
+});
