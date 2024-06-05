@@ -16,6 +16,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Enums\AppointmentStatus;
 use App\Enums\AppointmentType;
 
+use App\Filament\Imports\AppointmentImporter;
+use Filament\Tables\Actions\ImportAction;
+
 class AppointmentResource extends Resource
 {
     protected static ?string $model = Appointment::class;
@@ -117,6 +120,10 @@ class AppointmentResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ])
+            ->headerActions([
+                ImportAction::make()
+                    ->importer(AppointmentImporter::class)
             ]);
     }
 
@@ -134,5 +141,15 @@ class AppointmentResource extends Resource
             'create' => Pages\CreateAppointment::route('/create'),
             'edit' => Pages\EditAppointment::route('/{record}/edit'),
         ];
+    }
+
+    public static function getLabel(): string
+    {
+        return 'Cita';
+    }
+
+    public static function getPluralLabel(): string
+    {
+        return 'Citas';
     }
 }
