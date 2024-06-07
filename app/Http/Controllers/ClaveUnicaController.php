@@ -25,7 +25,7 @@ class ClaveUnicaController extends Controller
         $client_id      = env("CLAVEUNICA_CLIENT_ID");
 
         /** iOnline, descomentar y borrar la otra linea */
-        $redirect_uri   = urlencode(env('APP_URL') . "/claveunica/callback?route=$route");
+        $redirect_uri   = urlencode(env('APP_URL') . "/auth/claveunica/callback?route=$route");
         // $redirect_uri   = urlencode(env('APP_URL')."/claveunica/callback");
 
         $state          = csrf_token();
@@ -58,7 +58,7 @@ class ClaveUnicaController extends Controller
         $url_base       = "https://accounts.claveunica.gob.cl/openid/token/";
         $client_id      = env("CLAVEUNICA_CLIENT_ID");
         $client_secret  = env("CLAVEUNICA_SECRET_ID");
-        $redirect_uri   = urlencode(env('APP_URL') . "/claveunica/callback");
+        $redirect_uri   = urlencode(env('APP_URL') . "/auth/claveunica/callback");
 
         $scope = 'openid+run+name';
 
