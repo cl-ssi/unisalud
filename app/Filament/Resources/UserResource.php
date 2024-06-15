@@ -14,6 +14,8 @@ use App\Enums\Gender;
 use App\Enums\Sex;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Imports\ConditionImporter;
+use Filament\Tables\Actions\ImportAction;
 
 class UserResource extends Resource
 {
@@ -80,6 +82,16 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->headerActions([
+                /*
+                ImportAction::make()
+                    ->importer(userImporter::class)
+                    ->label('Importar Usuarios'),
+                */
+                ImportAction::make()
+                    ->importer(ConditionImporter::class)
+                    ->label('Importar Condición de Usuarios')
+            ])
             ->columns([
                 Tables\Columns\TextColumn::make('user_id')
                     ->numeric()
@@ -162,6 +174,7 @@ class UserResource extends Resource
             RelationManagers\AddressRelationManager::class,
             RelationManagers\RolesRelationManager::class,
             RelationManagers\PermissionsRelationManager::class,
+            RelationManagers\ConditionsRelationManager::class,
         ];
 
     }

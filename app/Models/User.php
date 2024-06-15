@@ -119,4 +119,14 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->belongsTo(CodConMarital::class);
     }
+
+    public function conditions(): HasMany
+    {
+        return $this->hasMany(Condition::class);
+    }
+
+    public function humanNames(): HasMany
+    {
+        return $this->hasMany(HumanName::class, 'user_id')->orderBy('created_at');
+    }
 }

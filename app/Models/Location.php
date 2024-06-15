@@ -16,15 +16,16 @@ class Location extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'id', 
-        'status', 
-        'name', 
-        'alias', 
+        'id',
+        'status',
+        'name',
+        'alias',
         'description',
         'address_id',
         'longitude',
         'latitude',
-        'organization_id'
+        'organization_id',
+        'location',
     ];
 
     public function appointments()
@@ -38,7 +39,7 @@ class Location extends Model
 
     public function address(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'address_id');
     }
 
     protected $table = 'locations';

@@ -67,6 +67,6 @@ class Address extends Model
 
     public function location(): HasOne
     {
-        return $this->hasOne(Location::class);
+        return $this->HasOne(Location::class, 'address_id');
     }
 }

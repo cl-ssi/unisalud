@@ -21,13 +21,18 @@ use Filament\Pages\Actions\CreateAction;
 use Filament\Tables\Actions\EditAction;
 use Illuminate\Database\Eloquent\Model;
 
+// use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 
 class AddressRelationManager extends RelationManager
 {
     protected static string $relationship = 'address';
 
+    public $setLatitude = null;
+
     public function form(Form $form): Form
     {
+        // dd($form->getModel());
+
         return $form
             ->schema([
                 Forms\Components\Select::make('use')
@@ -73,8 +78,9 @@ class AddressRelationManager extends RelationManager
                     ->relationship('region','name'),
                 Forms\Components\TextInput::make('latitude')
                     ->label('Latitud')
-                    // ->relationship('location','latitude')
-                    ->required(),
+                    ->default($this->setLatitude),
+                    // ->relationship('address.location.latitude')
+                    // ->readonly(),
                 Forms\Components\TextInput::make('longitude')
                     ->label('Longitud')
                     ->required(),
@@ -84,6 +90,10 @@ class AddressRelationManager extends RelationManager
                     ->numeric(),
                 Forms\Components\TextInput::make('practitioner_id')
                     ->numeric(),
+                /*
+                Map::make('location')
+                ->defaultLocation([39.526610, -107.727261]) // default for new forms,
+                */
             ]);
     }
 
@@ -221,6 +231,16 @@ class AddressRelationManager extends RelationManager
                         );
                 
                         return $record;
+                    })
+                    /*
+                    ->action(function (Model $record, array $data) {
+                        $this->fill(['latitude' => $record->location->latitude]);
+                    }),
+                    */
+                    ->beforeFormFilled(function (Model $record, array $data) {
+                        if($record->location){
+                            $this->setLatitude = $record->location->latitude;
+                        }
                     }),
                 Tables\Actions\DeleteAction::make(),
             ])
