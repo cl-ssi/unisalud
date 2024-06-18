@@ -23,7 +23,8 @@ class HumanName extends Model
         'prefix',
         'suffix',
         'period_start',
-        'period_end'
+        'period_end',
+        'user_id'
     ];
 
     /**

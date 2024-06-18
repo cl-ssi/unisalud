@@ -4,7 +4,7 @@ namespace App\Enums;
 
 use Filament\Support\Contracts\HasLabel;
  
-enum AddressUse: string implements HasLabel
+enum AddressUseValue: string implements HasLabel
 {   
     // use column
     case Home       = 'home';

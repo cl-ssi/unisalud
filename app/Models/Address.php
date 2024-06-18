@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use App\Enums\AddressUse;
+use App\Enums\AddressUseValue;
 use App\Enums\AddressType;
 
 class Address extends Model
@@ -41,7 +41,7 @@ class Address extends Model
     ];
 
     protected $casts = [
-        'use'   => AddressUse::class,
+        'use'   => AddressUseValue::class,
         'type'  => AddressType::class
     ];
 

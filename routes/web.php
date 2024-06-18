@@ -33,4 +33,4 @@ Route::get('/logout/{provider}/redirect', [SocialiteController::class, 'logoutRe
 Route::get('/logout/{provider}/callback', [SocialiteController::class, 'logoutCallback']);
 Route::get('/logout/local', [SocialiteController::class, 'logoutLocal'])->name('socialite.logout.local');
 
-Route::get('/filament/pages/mapa-dependientes', [MapaDependientes::class, 'render'])->name('filament.pages.mapa-dependientes');
+// Route::get('/filament/pages/mapa-dependientes', [MapaDependientes::class, 'render'])->name('filament.pages.mapa-dependientes');

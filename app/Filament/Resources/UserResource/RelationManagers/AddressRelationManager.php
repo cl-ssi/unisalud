@@ -11,7 +11,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-use App\Enums\AddressUse;
+use App\Enums\AddressUseValue;
 use App\Enums\AddressType;
 
 use App\Services\GeocodingService;
@@ -37,7 +37,7 @@ class AddressRelationManager extends RelationManager
             ->schema([
                 Forms\Components\Select::make('use')
                     ->label('Uso')
-                    ->options(AddressUse::class),
+                    ->options(AddressUseValue::class),
                 Forms\Components\Select::make('type')
                     ->label('Tipo')
                     ->options(AddressType::class),

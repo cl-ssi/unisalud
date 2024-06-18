@@ -10,6 +10,10 @@ use Filament\Actions\Imports\Models\Import;
 use App\Models\User;
 use App\Models\Identifier;
 use App\Models\HumanName;
+use App\Models\Address;
+use App\Services\GeocodingService;
+use App\Models\Commune;
+use App\Models\Location;
 
 class ConditionImporter extends Importer
 {
@@ -47,9 +51,26 @@ class ConditionImporter extends Importer
     protected function beforeSave(): void
     {
         /*
-        $hn = $this->originalData['nombre'].' '.$this->originalData['apellido_paterno'].' '.$this->originalData['apellido_materno'];
-        dd($hn, $this->record);
-        */
+        dd($userCreatedOrUpdated->address)
+        foreach($userCreatedOrUpdated->address as $address){
+            if($address->use->value == 'home'){
+                $addressExist = $address;
+            }    
+        }
+
+        /*
+        $user = User::whereHas('identifiers', function ($query) {
+            $query->where('value', $this->originalData['run'])
+                ->Where('cod_con_identifier_type_id', 1);
+            })
+            ->first();
+        
+        foreach($user->address as $userAddress){
+            dd($userAddress->use->value);
+        }
+            */
+
+        // $userCreatedOrUpdated->address->where('use', 'home')
     }
 
     protected function afterSave(): void
@@ -60,9 +81,7 @@ class ConditionImporter extends Importer
                         ->Where('cod_con_identifier_type_id', 1);
                     })
                     ->first();
-        
-        $hn = $this->originalData['nombre'].' '.$this->originalData['apellido_paterno'].' '.$this->originalData['apellido_materno'];
-
+ 
         $userCreatedOrUpdated = User::updateOrCreate(
             [
                 'id'    => $user ? $user->id : null
@@ -70,7 +89,7 @@ class ConditionImporter extends Importer
             ,
             [
                 'active'                => 1,
-                'text'                  => $hn,
+                'text'                  => $this->originalData['nombre'].' '.$this->originalData['apellido_paterno'].' '.$this->originalData['apellido_materno'],
                 'given'                 => $this->originalData['nombre'],
                 'fathers_family'        => $this->originalData['apellido_paterno'],
                 'mothers_family'        => $this->originalData['apellido_materno'],
@@ -78,7 +97,7 @@ class ConditionImporter extends Importer
                 'gender'                => $this->originalData['genero'],
                 'birthday'              => $this->originalData['fecha_nacimiento'],
                 'cod_con_marital_id'    => $this->originalData['estado_civil'],
-                'nacionality_id'        => $this->originalData['nacionalidad'],
+                'nationality_id'        => $this->originalData['nacionalidad'],
             ]
         );
 
@@ -95,7 +114,7 @@ class ConditionImporter extends Importer
             );
 
             //SE CREA HUMAN NAME
-            $identifierCreate = HumanName::create(
+            $humanName = HumanName::create(
                 [
                     'use'               => 'official',
                     'given'             => $this->originalData['nombre'],
@@ -105,10 +124,106 @@ class ConditionImporter extends Importer
                     'user_id'           => $userCreatedOrUpdated->id
                 ]
             );
-
         }
 
-        //ADDRESS con Location
+        //ADDRESS
+        $addressExist = new Address();
+        foreach($userCreatedOrUpdated->address as $address){
+            if($address->use->value == 'home'){
+                $addressExist = $address;
+            }    
+        }
+
+        $newAddress = Address::updateOrCreate(
+            [
+                'id'    => $addressExist ? $addressExist->id : null
+            ]
+            ,
+            [
+
+                'user_id'       => $userCreatedOrUpdated->id,
+                'use'           => 'home',
+                'type'          => 'physical',
+                'text'          => $this->originalData['calle'],
+                'line'          => $this->originalData['numero'],
+                'apartment'     => $this->originalData['departamento'],
+                'suburb'        => null,
+                'city'          => null,
+                'commune_id'    => $this->originalData['comuna'],
+                'postal_code'   => null,
+                'region_id'     => null,
+            ]
+        );
+
+        //LOCATION
+        $locationExist = new Location();
+        $locationExist = $newAddress->location ? $newAddress->location : null;
+        
+        dd($newAddress, $newAddress->location, $locationExist);
+
+        //LOCATION
+        $address    = $this->originalData['calle'];
+        $number     = $this->originalData['numero'];
+        $commune_id = $this->originalData['comuna'];
+
+        if ($address && $number && $commune_id) {
+            $commune = Commune::find($commune_id)->name;
+
+            $geocodingService = app(GeocodingService::class);
+            $coordinates = $geocodingService->getCoordinates($address, $number, $commune);
+
+            if ($coordinates) {
+                /*
+                $set('latitude', $coordinates['lat']);
+                $set('longitude', $coordinates['lng']);
+                */
+                dd($coordinates['lat'], $coordinates['lng']);
+            } else {
+                /*
+                $set('latitude', null);
+                $set('longitude', null);
+                */
+
+                dd('No hay');
+            }
+        }
+
+        $newAddress = Address::updateOrCreate(
+            [
+                'id'    => $newAddress->location ? $newAddress->location->id : null
+            ]
+            ,
+            [
+                'address_id'       => $userCreatedOrUpdated->id,
+                'use'           => 'home',
+                'type'          => 'physical',
+                'text'          => $this->originalData['calle'],
+                'line'          => $this->originalData['numero'],
+                'apartment'     => $this->originalData['departamento'],
+                'suburb'        => null,
+                'city'          => null,
+                'commune_id'    => $this->originalData['comuna'],
+                'postal_code'   => null,
+                'region_id'     => null,
+
+                'id',
+                'status',
+                'name',
+                'alias',
+                'description',
+                'address_id',
+                'longitude',
+                'latitude',
+                'organization_id',
+                'location'
+
+            ]
+        );
+
+        /*
+
+        
+        */
 
         
 
