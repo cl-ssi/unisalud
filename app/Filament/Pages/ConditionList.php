@@ -3,13 +3,19 @@
 namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
+// use Filament\Forms;
+
 use Filament\Forms;
+use Filament\Forms\Form;
+
 use Filament\Tables;
 use App\Models\Condition;
 use App\Models\Coding;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
+
+use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 
 class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Contracts\HasTable
 {
@@ -36,16 +42,9 @@ class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Con
         ]);
     }
 
+    /*
     protected function getFormSchema(): array
     {
-        /*
-        return [
-            Forms\Components\Select::make('condition_id')
-                ->label('Tipo de Condición')
-                ->options($this->conditionTypes)
-        ];
-        */
-
         return [
             Forms\Components\Select::make('condition_id')
                 ->label('Tipo de Condición')
@@ -55,17 +54,25 @@ class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Con
                 ->afterStateUpdated(fn ($state) => $this->updatedConditionId($state)), // Llamar a un método cuando se actualice
         ];
     }
+        */
+
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\Select::make('condition_id')
+                    ->label('Tipo de Condición')
+                    ->options($this->conditionTypes)
+                    ->required()
+                    ->reactive() // Hacer que el select sea reactivo
+                    ->afterStateUpdated(fn ($state) => $this->updatedConditionId($state)), // Llamar a un método cuando se actualice
+            ]);
+    }
 
     public function updatedConditionId($conditionId)
     {
         $this->condition_id = $conditionId;
         $this->table->query($this->getTableQuery());
-    }
-
-    protected function fillTable()
-    {
-        // Forzar la recarga de la tabla
-        $this->emit('refreshTable');
     }
 
     protected function getTableQuery(): Builder

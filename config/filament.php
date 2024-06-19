@@ -83,7 +83,4 @@ return [
     | Livewire's standard 200ms delay.
     |
     */
-
-    'livewire_loading_delay' => 'default',
-
 ];
