@@ -9,9 +9,8 @@
         {{ $this->table }}
     </div>
 
-    
     <!-- Contenedor del mapa de Google -->
-    <div id="map" style="height: 500px; width: 100%;" class="mt-8 map-rounded"></div>
+    <div id="map" style="height: 500px; width: 100%;" class="mt-8 map-rounded" wire:ignore></div>
 
     <!-- Script de Google Maps -->
     <script src="https://maps.googleapis.com/maps/api/js?key={{ config('google.api_key') }}&callback=initMap" async defer></script>
