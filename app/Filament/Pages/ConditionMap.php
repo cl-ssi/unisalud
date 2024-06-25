@@ -40,7 +40,7 @@ class ConditionMap extends Page
         }
     
         return User::whereHas('conditions', function ($query) {
-                $query->where('conditions.id', $this->selectedCondition);
+                $query->where('cod_con_code_id', $this->selectedCondition);
             })
             ->with(['address.location']) // Cargamos las relaciones
             ->get()

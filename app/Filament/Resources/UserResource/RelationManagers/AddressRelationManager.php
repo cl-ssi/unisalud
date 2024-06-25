@@ -57,7 +57,8 @@ class AddressRelationManager extends RelationManager
                     ->maxLength(255),
                 Forms\Components\TextInput::make('suburb')
                     ->label('Villa / Población')
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->afterStateUpdated(fn ($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
                 Forms\Components\TextInput::make('city')
                     ->label('Ciudad')
                     ->maxLength(255),
@@ -99,7 +100,7 @@ class AddressRelationManager extends RelationManager
 
     public static function calculateCoordinates(callable $get, callable $set)
     {
-        $address    = $get('text');
+        $address    = $get('text').' '.$get('suburb');
         $number     = $get('line');
         $commune_id = $get('commune_id');
 
