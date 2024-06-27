@@ -9,6 +9,8 @@
         {{ $this->table }}
     </div>
 
+    {{--
+
     <!-- Contenedor del mapa de Google -->
     <div id="map" style="height: 500px; width: 100%;" class="mt-8 map-rounded" wire:ignore></div>
 
@@ -21,6 +23,7 @@
                 zoom: 12,
                 center: iquique
             });
+            
             /*
             var marker = new google.maps.Marker({
                 position: iquique,
@@ -39,5 +42,7 @@
             overflow: hidden; /* Asegura que el contenido no se desborde de las esquinas redondeadas */
         }
     </style>
+
+    --}}
 
 </x-filament-panels::page>

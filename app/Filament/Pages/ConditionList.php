@@ -25,11 +25,11 @@ class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Con
     protected static string $view = 'filament.pages.condition-list';
 
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
-    protected static ?string $navigationLabel = 'Pacientes con Codición';
+    protected static ?string $navigationLabel = 'Listado Pacientes con Condición';
     protected static ?string $navigationGroup = 'Usuarios';
     protected static ?string $slug = 'condition-patients';
     
-    protected static ?string $title = 'Pacientes con Condición';
+    protected static ?string $title = 'Listado de Pacientes con Condición';
 
     public $conditionTypes = [];
     public $condition_id;

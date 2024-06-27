@@ -83,8 +83,7 @@ class AddressRelationManager extends RelationManager
                     // ->relationship('address.location.latitude')
                     // ->readonly(),
                 Forms\Components\TextInput::make('longitude')
-                    ->label('Longitud')
-                    ->required(),
+                    ->label('Longitud'),
                 Forms\Components\Toggle::make('actually')
                     ->required(),
                 Forms\Components\TextInput::make('organization_id')
@@ -100,7 +99,7 @@ class AddressRelationManager extends RelationManager
 
     public static function calculateCoordinates(callable $get, callable $set)
     {
-        $address    = $get('text').' '.$get('suburb');
+        $address    = $get('text');
         $number     = $get('line');
         $commune_id = $get('commune_id');
 
@@ -108,7 +107,7 @@ class AddressRelationManager extends RelationManager
             $commune = Commune::find($commune_id)->name;
 
             $geocodingService = app(GeocodingService::class);
-            $coordinates = $geocodingService->getCoordinates($address, $number, $commune);
+            $coordinates = $geocodingService->getCoordinates($address.' '.$commune, $number, $commune);
 
             if ($coordinates) {
                 $set('latitude', $coordinates['lat']);

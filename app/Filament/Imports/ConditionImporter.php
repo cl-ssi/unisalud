@@ -128,7 +128,7 @@ class ConditionImporter extends Importer
 
         //ADDRESS
         $addressExist = new Address();
-        foreach($userCreatedOrUpdated->address as $address){
+        foreach($userCreatedOrUpdated->addresses as $address){
             if($address->use->value == 'home'){
                 $addressExist = $address;
             }    
@@ -158,8 +158,6 @@ class ConditionImporter extends Importer
         //LOCATION
         $locationExist = new Location();
         $locationExist = $newAddress->location ? $newAddress->location : null;
-        
-        dd($newAddress, $newAddress->location, $locationExist);
 
         //LOCATION
         $address    = $this->originalData['calle'];
@@ -170,68 +168,42 @@ class ConditionImporter extends Importer
             $commune = Commune::find($commune_id)->name;
 
             $geocodingService = app(GeocodingService::class);
-            $coordinates = $geocodingService->getCoordinates($address, $number, $commune);
+            $coordinates = $geocodingService->getCoordinates($address.', '.$commune, $number, $commune);
 
             if ($coordinates) {
-                /*
-                $set('latitude', $coordinates['lat']);
-                $set('longitude', $coordinates['lng']);
-                */
-                dd($coordinates['lat'], $coordinates['lng']);
+                $latitude   = $coordinates['lat'];
+                $longitude  = $coordinates['lng'];
             } else {
-                /*
-                $set('latitude', null);
-                $set('longitude', null);
-                */
-
-                dd('No hay');
+                $latitude   = null;
+                $longitude  = null;
             }
         }
 
-        $newAddress = Address::updateOrCreate(
+        $newLocation = Location::updateOrCreate(
             [
                 'id'    => $newAddress->location ? $newAddress->location->id : null
             ]
             ,
             [
-                'address_id'       => $userCreatedOrUpdated->id,
-                'use'           => 'home',
-                'type'          => 'physical',
-                'text'          => $this->originalData['calle'],
-                'line'          => $this->originalData['numero'],
-                'apartment'     => $this->originalData['departamento'],
-                'suburb'        => null,
-                'city'          => null,
-                'commune_id'    => $this->originalData['comuna'],
-                'postal_code'   => null,
-                'region_id'     => null,
-
-                'id',
-                'status',
-                'name',
-                'alias',
-                'description',
-                'address_id',
-                'longitude',
-                'latitude',
-                'organization_id',
-                'location'
-
+                'address_id'        => $newAddress->id,
+                'longitude'         => $longitude,
+                'latitude'          => $latitude
             ]
         );
-
-        /*
-
-        
-        */
-
-        
 
         // SE AGREGA EL 'user_id' A $this->record, que corresponde al user recien creado o ya creado.
 
         $this->record->user_id                      = $userCreatedOrUpdated->id;
         $this->record->cod_con_clinical_status      = 'active';
         $this->record->cod_con_verification_status  = 'confirmed';
+    
+        //JSON PARA GUARDAR INFO EXTRA
+        $extra_info_json = [
+            'fecha_ingreso' => $this->originalData['fecha_ingreso'],
+            'diagnostico'   => $this->originalData['diagnostico'],
+        ];
+        $this->record->extra_info                   = json_encode($extra_info_json);
+        //
         $this->record->save();
     }
 
