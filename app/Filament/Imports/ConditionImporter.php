@@ -168,7 +168,7 @@ class ConditionImporter extends Importer
             $commune = Commune::find($commune_id)->name;
 
             $geocodingService = app(GeocodingService::class);
-            $coordinates = $geocodingService->getCoordinates($address.', '.$commune, $number, $commune);
+            $coordinates = $geocodingService->getCoordinates($address.'+'.$number.'+'.$commune);
 
             if ($coordinates) {
                 $latitude   = $coordinates['lat'];
