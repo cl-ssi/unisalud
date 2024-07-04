@@ -14,63 +14,26 @@ use App\Models\Address;
 use App\Services\GeocodingService;
 use App\Models\Commune;
 use App\Models\Location;
+use App\Models\Coding;
 
 class ConditionImporter extends Importer
 {
     protected static ?string $model = Condition::class;
 
+    public $condition = null;
+
     public static function getColumns(): array
     {
         return [
-            /*
-            ImportColumn::make('identifier')
-                ->rules(['max:255']),
-            ImportColumn::make('cod_con_clinical_status'),
-            ImportColumn::make('cod_con_verification_status'),
-            */
-            ImportColumn::make('cod_con_code_id')
+            ImportColumn::make('coding')
                 ->label('condicion')
-                ->numeric()
-            /*
-            ImportColumn::make('user')
-                ->relationship(),
-            */
+                ->relationship(resolveUsing: ['display'])
         ];
     }
 
     public function resolveRecord(): ?Condition
     {
-        // return Condition::firstOrNew([
-        //     // Update existing records, matching them by `$this->data['column_name']`
-        //     'email' => $this->data['email'],
-        // ]);
-
         return new Condition();
-    }
-
-    protected function beforeSave(): void
-    {
-        /*
-        dd($userCreatedOrUpdated->address)
-        foreach($userCreatedOrUpdated->address as $address){
-            if($address->use->value == 'home'){
-                $addressExist = $address;
-            }    
-        }
-
-        /*
-        $user = User::whereHas('identifiers', function ($query) {
-            $query->where('value', $this->originalData['run'])
-                ->Where('cod_con_identifier_type_id', 1);
-            })
-            ->first();
-        
-        foreach($user->address as $userAddress){
-            dd($userAddress->use->value);
-        }
-            */
-
-        // $userCreatedOrUpdated->address->where('use', 'home')
     }
 
     protected function afterSave(): void
