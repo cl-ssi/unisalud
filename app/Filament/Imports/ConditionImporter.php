@@ -16,6 +16,9 @@ use App\Models\Commune;
 use App\Models\Location;
 use App\Models\Coding;
 
+use App\Models\Sex as ClassSex;
+use App\Models\Gender as ClassGender;
+
 class ConditionImporter extends Importer
 {
     protected static ?string $model = Condition::class;
@@ -44,6 +47,9 @@ class ConditionImporter extends Importer
                         ->Where('cod_con_identifier_type_id', 1);
                     })
                     ->first();
+        
+        $sexValue = ClassSex::where('text', $this->originalData['sexo'])->first()->value;
+        $sexGender = ClassGender::where('text', $this->originalData['genero'])->first()->value;
  
         $userCreatedOrUpdated = User::updateOrCreate(
             [
@@ -56,8 +62,8 @@ class ConditionImporter extends Importer
                 'given'                 => $this->originalData['nombre'],
                 'fathers_family'        => $this->originalData['apellido_paterno'],
                 'mothers_family'        => $this->originalData['apellido_materno'],
-                'sex'                   => $this->originalData['sexo'],
-                'gender'                => $this->originalData['genero'],
+                'sex'                   => $sexValue,
+                'gender'                => $sexGender,
                 'birthday'              => $this->originalData['fecha_nacimiento'],
                 'cod_con_marital_id'    => $this->originalData['estado_civil'],
                 'nationality_id'        => $this->originalData['nacionalidad'],

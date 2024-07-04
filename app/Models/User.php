@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -136,4 +137,22 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->hasMany(HumanName::class, 'user_id')->orderBy('created_at');
     }
+
+    /*
+    public function sexes(): belongsToMany
+    {
+        // return $this->belongsToMany(Sex::class)
+        return $this->belongsToMany(Sex::class)
+            ->withPivot('valid_from', 'valid_to')
+            ->withTimestamps();
+    }
+
+    public function genders(): belongsToMany
+    {
+        // return $this->belongsToMany(Gender::class)
+        return $this->belongsToMany(Gender::class)
+            ->withPivot('valid_from', 'valid_to')
+            ->withTimestamps();
+    }
+    */
 }

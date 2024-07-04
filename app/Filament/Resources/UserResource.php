@@ -175,6 +175,7 @@ class UserResource extends Resource
             RelationManagers\RolesRelationManager::class,
             RelationManagers\PermissionsRelationManager::class,
             RelationManagers\ConditionsRelationManager::class,
+            // RelationManagers\SexesRelationManager::class,
         ];
 
     }
