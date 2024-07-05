@@ -18,6 +18,7 @@ use App\Models\Coding;
 
 use App\Models\Sex as ClassSex;
 use App\Models\Gender as ClassGender;
+use App\Models\Country;
 
 class ConditionImporter extends Importer
 {
@@ -50,6 +51,7 @@ class ConditionImporter extends Importer
         
         $sexValue = ClassSex::where('text', $this->originalData['sexo'])->first()->value;
         $sexGender = ClassGender::where('text', $this->originalData['genero'])->first()->value;
+        $nationality = Country::where('name', $this->originalData['nacionalidad'])->first()->id;
  
         $userCreatedOrUpdated = User::updateOrCreate(
             [
@@ -65,8 +67,8 @@ class ConditionImporter extends Importer
                 'sex'                   => $sexValue,
                 'gender'                => $sexGender,
                 'birthday'              => $this->originalData['fecha_nacimiento'],
-                'cod_con_marital_id'    => $this->originalData['estado_civil'],
-                'nationality_id'        => $this->originalData['nacionalidad'],
+                // 'cod_con_marital_id'    => $this->originalData['estado_civil'],
+                'nationality_id'        => $nationality,
             ]
         );
 
@@ -103,6 +105,8 @@ class ConditionImporter extends Importer
             }    
         }
 
+        $commune = Commune::where('name', $this->originalData['comuna'])->first()->id;
+        
         $newAddress = Address::updateOrCreate(
             [
                 'id'    => $addressExist ? $addressExist->id : null
@@ -118,7 +122,7 @@ class ConditionImporter extends Importer
                 'apartment'     => $this->originalData['departamento'],
                 'suburb'        => null,
                 'city'          => null,
-                'commune_id'    => $this->originalData['comuna'],
+                'commune_id'    => $commune,
                 'postal_code'   => null,
                 'region_id'     => null,
             ]
@@ -131,10 +135,9 @@ class ConditionImporter extends Importer
         //LOCATION
         $address    = $this->originalData['calle'];
         $number     = $this->originalData['numero'];
-        $commune_id = $this->originalData['comuna'];
+        $commune    = $this->originalData['comuna'];
 
-        if ($address && $number && $commune_id) {
-            $commune = Commune::find($commune_id)->name;
+        if ($address && $number && $commune ) {
 
             $geocodingService = app(GeocodingService::class);
             $coordinates = $geocodingService->getCoordinates($address.'+'.$number.'+'.$commune);

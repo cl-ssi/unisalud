@@ -114,7 +114,7 @@ class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Con
             Tables\Columns\TextColumn::make('address.line')
                 ->label('N°'),
             Tables\Columns\TextColumn::make('address.commune.name')
-                ->label('N°'),
+                ->label('Comuna'),
             Tables\Columns\TextColumn::make('address.location.longitude')
                 ->label('Longitud'),
             Tables\Columns\TextColumn::make('address.location.latitude')
