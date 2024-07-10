@@ -30,7 +30,7 @@ class TestController extends Controller
 
         $url_base       = "https://accounts.claveunica.gob.cl/openid/token/";
         $client_id      = env("CLAVEUNICA_CLIENT_ID");
-        $client_secret  = env("CLAVEUNICA_SECRET_ID");
+        $client_secret  = env("CLAVEUNICA_CLIENT_SECRET");
         $redirect_uri   = urlencode(env('APP_URL') . "/claveunica/callback");
 
         $scope = 'openid+run+name';

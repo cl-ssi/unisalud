@@ -45,12 +45,12 @@ env_variables:
 
   # Clave unica Producción
   CLAVEUNICA_CLIENT_ID:
-  CLAVEUNICA_SECRET_ID:
+  CLAVEUNICA_CLIENT_SECRET:
   CLAVEUNICA_CALLBACK: "https://www.saludiquique.app/claveunica/callback"
 
   # Clave unica Testing
   #CLAVEUNICA_CLIENT_ID:
-  #CLAVEUNICA_SECRET_ID:
+  #CLAVEUNICA_CLIENT_SECRET:
   #CLAVEUNICA_CALLBACK: "https://www.saludiquique.app/claveunica/callback-testing"
 
   # URL BASE DE FHIR
