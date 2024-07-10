@@ -39,8 +39,12 @@ class ClaveUnicaController extends Controller
         return redirect()->to($url_base . $params)->send();
     }
 
-    public function callback($code, $state, $route)
+    public function callback(Request $request)
     {
+        $code = request()->input('code');
+        $state = request()->input('state');
+        $route = request()->input('route');
+
         /* Segundo paso, el usuario ya se autentificó correctamente en CU y retornó a nuestro sistema */
 
         /* Nos aseguramos que vengan los parámetros desde CU */
@@ -56,7 +60,7 @@ class ClaveUnicaController extends Controller
         $url_base       = "https://accounts.claveunica.gob.cl/openid/token/";
         $client_id      = env("CLAVEUNICA_CLIENT_ID");
         $client_secret  = env("CLAVEUNICA_CLIENT_SECRET");
-        $redirect_uri   = urlencode(env('APP_URL') . "/auth/claveunica/callback");
+        $redirect_uri   = env("CLAVEUNICA_REDIRECT_URI");
 
         $scope = 'openid+run+name';
 
@@ -74,12 +78,8 @@ class ClaveUnicaController extends Controller
         $responseData = json_decode($response);
 
         if ($responseData === null || !property_exists($responseData, 'access_token')) {
-            logger()->info($response);
-            session()->flash(
-                'danger',
-                'No se pudo iniciar Sesión con Clave Única'
-            );
-            return redirect()->route('welcome');
+            return redirect()->route('filament.admin.auth.login')
+                ->withErrors(['msg' => 'No se pudo iniciar Sesión con Clave Única']);
         }
 
         if (isset($route)) {
@@ -88,11 +88,8 @@ class ClaveUnicaController extends Controller
 
             return redirect('https://' . $redirect . '/claveunica/login/' . $responseData->access_token);
         } else {
-            session()->flash(
-                'danger',
-                'No existe ruta para redireccionar'
-            );
-            return redirect()->route('welcome');
+            return redirect()->route('filament.admin.auth.login')
+                ->withErrors(['msg' => 'No existe ruta para redireccionar']);
         }
     }
 
