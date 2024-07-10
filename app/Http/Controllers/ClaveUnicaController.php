@@ -2,13 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ContactPoint;
-use App\Models\HumanName;
-use App\Models\Identifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class ClaveUnicaController extends Controller
 {
@@ -76,6 +71,8 @@ class ClaveUnicaController extends Controller
 
         /** iOnline dejar solo el ultimo return */
         $responseData = json_decode($response);
+
+        dd($url_base, $client_id, $client_secret, $redirect_uri, $scope, $response, $responseData);
 
         if ($responseData === null || !property_exists($responseData, 'access_token')) {
             return redirect()->route('filament.admin.auth.login')
