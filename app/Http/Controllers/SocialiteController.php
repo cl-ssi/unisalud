@@ -19,8 +19,7 @@ class SocialiteController extends Controller
          * Login legacy solo para SIREMX, eliminar cuando ya no se use
          */
         if( request()->input('route') ) {
-            $response = Socialite::driver($provider)->user();
-            dd($response);
+            return redirect()->route('callback',request());
 
             // Obtén el token de acceso
             // $token = $user->token;

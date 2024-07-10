@@ -27,6 +27,6 @@ Route::get('/logout/local', [SocialiteController::class, 'logoutLocal'])->name('
  * Estas rutas son legacy para el siremex, cuando el siremex desaparezca ya no se usa
  * igual que el ClaveUnicaController
  */
-// Route::get('/auth/claveunica/callback', [ClaveUnicaController::class, 'callback']);
+Route::get('/claveunica/callback', [ClaveUnicaController::class, 'callback']);
 // Route::get('/claveunica/logout', [ClaveUnicaController::class, 'logout'])->name('claveunica.logout');
 Route::get('/claveunica/{route?}', [ClaveUnicaController::class, 'autenticar'])->name('claveunica.login');
