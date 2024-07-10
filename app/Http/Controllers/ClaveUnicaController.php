@@ -39,7 +39,7 @@ class ClaveUnicaController extends Controller
         return redirect()->to($url_base . $params)->send();
     }
 
-    public function callback(Request $request)
+    public function callback($code, $state, $route)
     {
         /* Segundo paso, el usuario ya se autentificó correctamente en CU y retornó a nuestro sistema */
 
@@ -51,8 +51,7 @@ class ClaveUnicaController extends Controller
         // logger()->info(request()->all());
 
         /* Recepcionamos los siguientes parametros desde CU */
-        $code           = $request->input('code');
-        $state          = $request->input('state');
+
 
         $url_base       = "https://accounts.claveunica.gob.cl/openid/token/";
         $client_id      = env("CLAVEUNICA_CLIENT_ID");
@@ -72,8 +71,6 @@ class ClaveUnicaController extends Controller
 
 
         /** iOnline dejar solo el ultimo return */
-        $route          = $request->input('route');
-
         $responseData = json_decode($response);
 
         if ($responseData === null || !property_exists($responseData, 'access_token')) {
