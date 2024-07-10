@@ -135,6 +135,11 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->hasMany(Condition::class);
     }
 
+    public function contactPoints(): HasMany
+    {
+        return $this->hasMany(ContactPoint::class);
+    }
+
     /*
     public function sexes(): belongsToMany
     {
