@@ -9,6 +9,7 @@ use App\Models\Identifier;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,7 +19,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use App\Observers\UserObserver;
 
+#[ObservedBy([UserObserver::class])]
 class User extends Authenticatable implements FilamentUser, HasName
 {
     use HasFactory, Notifiable, SoftDeletes, HasRoles;
@@ -75,9 +78,7 @@ class User extends Authenticatable implements FilamentUser, HasName
 
     public function canAccessPanel(Panel $panel): bool
     {
-        // TODO: usar propiedad "active" cuando se implementen los usarios activos
         return true;
-        // return str_ends_with($this->email, '@redsalud.gob.cl');
     }
 
     public function canBeImpersonated()
@@ -86,26 +87,25 @@ class User extends Authenticatable implements FilamentUser, HasName
         return auth()->user()->can('be god');
     }
 
-    // protected function casts(): array
-    // {
-    //     return [
-    //         'email_verified_at' => 'datetime',
-    //         'password'          => 'hashed',
-    //         'sex'               => Sex::class,
-    //         'gender'            => Gender::class,
-    //     ];
-    // }
+    public function getFilamentName(): string
+    {
+        return "{$this->given} {$this->fathers_family}";
+    }
 
     public function identifiers(): HasMany
     {
         return $this->hasMany(Identifier::class);
     }
 
-
-
-    public function getFilamentName(): string
+    public function OficialHumanName(): HasOne
     {
-        return "{$this->given} {$this->fathers_family}";
+        // FIXME: where al oficial o actual
+        return $this->hasOne(HumanName::class, 'user_id')->orderBy('created_at');
+    }
+
+    public function humanNames(): HasMany
+    {
+        return $this->hasMany(HumanName::class, 'user_id')->orderBy('created_at');
     }
 
     public function nationality(): BelongsTo
@@ -117,9 +117,11 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->hasMany(Address::class);
     }
-
+    
     public function address(): HasOne
     {
+        // FIXME: OfficialAddress
+        // FIXME: where de cual es la por defecto o en uso actual
         return $this->hasOne(Address::class);
     }
 
@@ -131,11 +133,6 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function conditions(): HasMany
     {
         return $this->hasMany(Condition::class);
-    }
-
-    public function humanNames(): HasMany
-    {
-        return $this->hasMany(HumanName::class, 'user_id')->orderBy('created_at');
     }
 
     /*
