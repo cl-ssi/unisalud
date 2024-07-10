@@ -23,6 +23,14 @@ class UserObserver
     }
 
     /**
+     * Handle the User "saving" event.
+     */
+    public function saving(User $user): void
+    {
+        // $user->sex = "male";
+    }
+
+    /**
      * Handle the User "deleted" event.
      */
     public function deleted(User $user): void
