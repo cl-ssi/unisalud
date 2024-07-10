@@ -19,12 +19,13 @@ class SocialiteController extends Controller
          * Login legacy solo para SIREMX, eliminar cuando ya no se use
          */
         if( request()->input('route') ) {
-            $user = Socialite::driver($provider)->user();
+            $response = Socialite::driver($provider)->user();
+            dd($response);
 
             // Obtén el token de acceso
-            $token = $user->token;
-            $redirect = str_ireplace('uni.', request()->input('route') . '.', parse_url(env('APP_URL'), PHP_URL_HOST));
-            return redirect("https://$redirect/claveunica/login/$token");
+            // $token = $user->token;
+            // $redirect = str_ireplace('uni.', request()->input('route') . '.', parse_url(env('APP_URL'), PHP_URL_HOST));
+            // return redirect("https://$redirect/claveunica/login/$token");
         }
 
         try {
