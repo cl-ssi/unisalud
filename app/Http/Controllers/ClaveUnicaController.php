@@ -72,9 +72,14 @@ class ClaveUnicaController extends Controller
         /** iOnline dejar solo el ultimo return */
         $responseData = json_decode($response);
 
-        dd($url_base, $client_id, $client_secret, $redirect_uri, $scope, $response, $responseData);
+        dd($code, $state, $route, $redirect_uri, $scope, $response, $responseData, $response->body());
 
         if ($responseData === null || !property_exists($responseData, 'access_token')) {
+            // $responseData = json_decode($response->body());
+            // {
+            //     "error": "invalid_grant"
+            //     "error_description": "The provided authorization grant or refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client"
+            // }
             return redirect()->route('filament.admin.auth.login')
                 ->withErrors(['msg' => 'No se pudo iniciar Sesión con Clave Única']);
         }
