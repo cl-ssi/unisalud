@@ -3,30 +3,19 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Enums\Gender;
-use App\Enums\Sex;
 use App\Models\Identifier;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
-use App\Observers\UserObserver;
 
-#[ObservedBy([UserObserver::class])]
 class User extends Authenticatable implements FilamentUser, HasName
 {
-    use HasFactory, Notifiable, SoftDeletes, HasRoles;
-
-    // use \OwenIt\Auditing\Auditable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     protected $primaryKey = 'id';
 
@@ -72,24 +61,16 @@ class User extends Authenticatable implements FilamentUser, HasName
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password'          => 'hashed',
-        'sex'               => Sex::class,
-        'gender'            => Gender::class,
     ];
-
-    public function canAccessPanel(Panel $panel): bool
-    {
-        return true;
-    }
-
-    public function canBeImpersonated()
-    {
-        // Let's prevent impersonating other users
-        return auth()->user()->can('be god');
-    }
 
     public function getFilamentName(): string
     {
         return "{$this->given} {$this->fathers_family}";
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return true;
     }
 
     public function identifiers(): HasMany
@@ -97,64 +78,4 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->hasMany(Identifier::class);
     }
 
-    public function OficialHumanName(): HasOne
-    {
-        // FIXME: where al oficial o actual
-        return $this->hasOne(HumanName::class, 'user_id')->orderBy('created_at');
-    }
-
-    public function humanNames(): HasMany
-    {
-        return $this->hasMany(HumanName::class, 'user_id')->orderBy('created_at');
-    }
-
-    public function nationality(): BelongsTo
-    {
-        return $this->belongsTo(Country::class, 'nationality_id');
-    }
-
-    public function addresses(): HasMany
-    {
-        return $this->hasMany(Address::class);
-    }
-    
-    public function address(): HasOne
-    {
-        // FIXME: OfficialAddress
-        // FIXME: where de cual es la por defecto o en uso actual
-        return $this->hasOne(Address::class);
-    }
-
-    public function codConMarital(): BelongsTo
-    {
-        return $this->belongsTo(CodConMarital::class);
-    }
-
-    public function conditions(): HasMany
-    {
-        return $this->hasMany(Condition::class);
-    }
-
-    public function contactPoints(): HasMany
-    {
-        return $this->hasMany(ContactPoint::class);
-    }
-
-    /*
-    public function sexes(): belongsToMany
-    {
-        // return $this->belongsToMany(Sex::class)
-        return $this->belongsToMany(Sex::class)
-            ->withPivot('valid_from', 'valid_to')
-            ->withTimestamps();
-    }
-
-    public function genders(): belongsToMany
-    {
-        // return $this->belongsToMany(Gender::class)
-        return $this->belongsToMany(Gender::class)
-            ->withPivot('valid_from', 'valid_to')
-            ->withTimestamps();
-    }
-    */
 }

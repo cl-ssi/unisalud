@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Identifier;
 use Filament\Facades\Filament;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -17,7 +17,7 @@ class SocialiteController extends Controller
     {
         try {
             $response = Socialite::driver($provider)->user();
-            $user = User::firstWhere(['id' => $response->getId()]);
+            $user = Identifier::firstWhere(['value' => $response->getId()])?->user;
 
             if ( $user ) {
                 auth()->login($user);
@@ -41,7 +41,9 @@ class SocialiteController extends Controller
 
     public function logoutRedirect(string $provider)
     {
-        return redirect()->away('https://accounts.claveunica.gob.cl/api/v1/accounts/app/logout?redirect='.env('CLAVEUNICA_LOGOUT_URI'));
+        # logout_uri = https://xxx.saludtarapaca.gob.cl/logout/claveunica/callback
+        $logout_uri = env('APP_URL').'/logout/'.$provider.'/callback';
+        return redirect()->away('https://accounts.claveunica.gob.cl/api/v1/accounts/app/logout?redirect='.$logout_uri);
     }
     
     public function logoutCallback(string $provider)

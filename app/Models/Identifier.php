@@ -25,17 +25,9 @@ class Identifier extends Model
         'organization',
     ];
 
-    protected $casts = [
-        'use'   => IdentifierUse::class
-    ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function codConIdentifierType(): BelongsTo
-    {
-        return $this->belongsTo(CodConIdentifierType::class);
     }
 }
