@@ -18,6 +18,7 @@ class SocialiteController extends Controller
     {
         /**
          * Login legacy solo para SIREMX, eliminar cuando ya no se use
+         * Eliminar el ClaveUnicaController y las entradas de ese controlador en el web.php
          */
         if( request()->input('route') ) {
             $response = Http::asForm()->post("https://accounts.claveunica.gob.cl/openid/token/", [
@@ -29,9 +30,18 @@ class SocialiteController extends Controller
                 'state'         => request()->input('state'),
             ]);
 
-            $data = json_decode($response);
-            dd($data, json_decode($response->body()), request()->input('route'), request()->input('code'), request()->input('state') );
+            $responseData = json_decode($response->body());
+
+            if( $responseData->access_token AND isset($route) ) {
+                $redirect = str_ireplace('uni.', $route . '.', parse_url(env('APP_URL'), PHP_URL_HOST));
+                return redirect("https://$redirect/claveunica/login/{$responseData->access_token}");
+            }
+            elseif( $responseData->error ) {
+                return redirect()->route('filament.admin.auth.login')
+                    ->withErrors(['msg' => $responseData->error_description]);
+            }
         }
+
 
         try {
             $response = Socialite::driver($provider)->user();
