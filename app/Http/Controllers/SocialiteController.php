@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Identifier;
 use Filament\Facades\Filament;
+use Http;
 use Laravel\Socialite\Facades\Socialite;
 
 class SocialiteController extends Controller
@@ -19,12 +20,17 @@ class SocialiteController extends Controller
          * Login legacy solo para SIREMX, eliminar cuando ya no se use
          */
         if( request()->input('route') ) {
-            return redirect()->route('claveunica.callback');
+            $response = Http::asForm()->post("https://accounts.claveunica.gob.cl/openid/token/", [
+                'client_id'     => env("CLAVEUNICA_CLIENT_ID"),
+                'client_secret' => env("CLAVEUNICA_CLIENT_SECRET"),
+                'redirect_uri'  => env("CLAVEUNICA_REDIRECT_URI"),
+                'grant_type'    => 'authorization_code',
+                'code'          => request()->input('code'),
+                'state'         => request()->input('state'),
+            ]);
 
-            // Obtén el token de acceso
-            // $token = $user->token;
-            // $redirect = str_ireplace('uni.', request()->input('route') . '.', parse_url(env('APP_URL'), PHP_URL_HOST));
-            // return redirect("https://$redirect/claveunica/login/$token");
+            $data = json_decode($response);
+            dd($data, json_decode($response->body()), request()->input('route'), request()->input('code'), request()->input('state') );
         }
 
         try {
