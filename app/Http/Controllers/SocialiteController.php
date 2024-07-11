@@ -32,15 +32,18 @@ class SocialiteController extends Controller
 
             $responseData = json_decode($response->body(),true);
 
-            if( array_key_exists('access_token',$responseData) AND isset($route) ) {
-                $redirect = str_ireplace('uni.', $route . '.', parse_url(env('APP_URL'), PHP_URL_HOST));
+            if( array_key_exists('access_token',$responseData) AND request()->input('route') ) {
+                $redirect = str_ireplace('uni.', request()->input('route') . '.', parse_url(env('APP_URL'), PHP_URL_HOST));
                 return redirect("https://$redirect/claveunica/login/{$responseData['access_token']}");
             }
             elseif( array_key_exists('error',$responseData) ) {
                 return redirect()->route('filament.admin.auth.login')
                     ->withErrors(['msg' => $responseData['error_description'] ]);
             }
-            dd($responseData);
+            else {
+                return redirect()->route('filament.admin.auth.login')
+                    ->withErrors(['msg' => 'Error desconocido informe a depto TIC.' ]);
+            }
         }
         /**
          * Fin de login legacy de SIREMX
