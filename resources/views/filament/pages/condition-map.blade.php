@@ -6,7 +6,7 @@
 
     <!-- Contenedor del mapa de Google -->
     <gmp-map center="-20.2633,-70.1223" zoom="12" map-id="DEMO_MAP_ID" class="map-rounded">
-        @foreach ($users as $user)            
+        @foreach ($users as $user)
             <gmp-advanced-marker position="{{ $user['latitude'] }}, {{ $user['longitude'] }}"
                 title="{{ $user['name'] }} - {{ $user['diagnostico'] }}"></gmp-advanced-marker>
         @endforeach
@@ -19,7 +19,7 @@
     <!-- Estilo CSS para esquinas redondeadas -->
     <style>
         .map-rounded {
-            height: 500px;
+            height: 700px;
             border-radius: 15px;
             overflow: hidden;
         }
