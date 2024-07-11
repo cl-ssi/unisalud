@@ -93,7 +93,7 @@ class UserResource extends Resource
                     ->label('Importar Condición de Usuarios')
             ])
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
+                Tables\Columns\TextColumn::make('id')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('active')
@@ -102,43 +102,45 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('text')
                     ->label('Nombre Completo')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('given')
-                    ->label('Nombre')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('fathers_family')
-                    ->label('Apellido Paterno')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('mothers_family')
-                    ->label('Apellido Materno')
-                    ->searchable(),
+                // Tables\Columns\TextColumn::make('given')
+                //     ->label('Nombre')
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('fathers_family')
+                //     ->label('Apellido Paterno')
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('mothers_family')
+                //     ->label('Apellido Materno')
+                //     ->searchable(),
                 Tables\Columns\TextColumn::make('sex')
-                    ->label('Sexo'),
-                Tables\Columns\TextColumn::make('gender')
-                    ->label('Genero'),
+                    ->label('Sexo')
+                    ->toggleable(),
+                // Tables\Columns\TextColumn::make('gender')
+                //     ->label('Genero'),
                 Tables\Columns\TextColumn::make('birthday')
                     ->label('Fecha Nacimiento')
                     ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('deceased_datetime')
-                    ->label('Fecha Deceso')
-                    ->dateTime()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('cod_con_marital_id')
-                    ->label('Estado Civil')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('nationality.name')
-                    ->label('Nacionalidad')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('claveunica')
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('fhir_id')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('email_verified_at')
-                    ->label('Fecha de Verificación Email')
-                    ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
+                // Tables\Columns\TextColumn::make('deceased_datetime')
+                //     ->label('Fecha Deceso')
+                //     ->dateTime()
+                //     ->sortable(),
+                // Tables\Columns\TextColumn::make('cod_con_marital_id')
+                //     ->label('Estado Civil')
+                //     ->numeric()
+                //     ->sortable(),
+                // Tables\Columns\TextColumn::make('nationality.name')
+                //     ->label('Nacionalidad')
+                //     ->numeric()
+                //     ->sortable(),
+                // Tables\Columns\IconColumn::make('claveunica')
+                //     ->boolean(),
+                // Tables\Columns\TextColumn::make('fhir_id')
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('email_verified_at')
+                //     ->label('Fecha de Verificación Email')
+                //     ->dateTime()
+                //     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
