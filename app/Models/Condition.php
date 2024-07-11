@@ -28,7 +28,7 @@ class Condition extends Model
         'cod_con_verification_status',
         'cod_con_code_id',
         'user_id',
-        'note'
+        'extra_info',
     ];
 
     protected $casts = [

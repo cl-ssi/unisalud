@@ -19,9 +19,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use App\Observers\UserObserver;
+// use App\Observers\UserObserver;
 
-#[ObservedBy([UserObserver::class])]
+// #[ObservedBy([UserObserver::class])]
 class User extends Authenticatable implements FilamentUser, HasName
 {
     use HasFactory, Notifiable, SoftDeletes, HasRoles;
