@@ -30,17 +30,20 @@ class SocialiteController extends Controller
                 'state'         => request()->input('state'),
             ]);
 
-            $responseData = json_decode($response->body());
+            $responseData = json_decode($response->body(),true);
 
-            if( $responseData->access_token AND isset($route) ) {
+            if( array_key_exists('access_token',$responseData) AND isset($route) ) {
                 $redirect = str_ireplace('uni.', $route . '.', parse_url(env('APP_URL'), PHP_URL_HOST));
-                return redirect("https://$redirect/claveunica/login/{$responseData->access_token}");
+                return redirect("https://$redirect/claveunica/login/{$responseData['access_token']}");
             }
-            elseif( $responseData->error ) {
+            elseif( array_key_exists('error',$responseData) ) {
                 return redirect()->route('filament.admin.auth.login')
-                    ->withErrors(['msg' => $responseData->error_description]);
+                    ->withErrors(['msg' => $responseData['error_description'] ]);
             }
         }
+        /**
+         * Fin de login legacy de SIREMX
+         */
 
 
         try {
@@ -93,5 +96,52 @@ class SocialiteController extends Controller
         return redirect()->route('filament.admin.auth.login')
             ->withErrors($userNotFound ? ['msg' => 'El usuario no existe'] : []);
     }
+
+    /**
+     * CU Entrega los datos del usuario en este formato
+     */
+    /* 
+    [RolUnico] => stdClass Object
+        (
+            [DV] => 4
+            [numero] => 44444444
+            [tipo] => RUN
+        )
+    [sub] => 2594
+    [name] => stdClass Object
+        (
+            [apellidos] => Array
+                (
+                    [0] => Del rio
+                    [1] => Gonzalez
+                )
+
+            [nombres] => Array
+                (
+                    [0] => Maria
+                    [1] => Carmen
+                    [2] => De los angeles
+                )
+        )
+    [email] => mcdla@mail.com
+    */
+
+    /**
+     * Responses
+     */
+    // SUCCESS
+    //   [
+    //     "access_token"=> "...",
+    //     "refresh_token"=> "...",
+    //     "token_type"=> "bearer",
+    //     "expires_in"=> 3600,
+    //     "id_token"=> "....."
+    //   ];
+
+    // ERROR
+    //   [
+    //     "error"=> "invalid_grant",
+    //     "error_description"=> "The provided authorization grant is invalid...."
+    //   ];
 
 }
