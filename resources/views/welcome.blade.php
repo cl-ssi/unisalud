@@ -12,19 +12,23 @@
     <!-- Styles -->
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
-        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+        crossorigin="anonymous">
     <link href="{{ asset('css/cu.min.css') }}" rel="stylesheet">
 
     <!-- Favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/icon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icon/favicon-16x16.png">
-    <link rel="manifest" href="/icon/site.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
     @production
-        <link rel="icon" type="image/vnd.microsoft.icon" href="/icon/favicon.ico">
+    <link rel="icon" type="image/vnd.microsoft.icon" href="favicon.ico">
     @else
-        <link rel="icon" type="image/vnd.microsoft.icon" href="/icon/favicon-local.ico">
+    <link rel="icon" type="image/vnd.microsoft.icon" href="favicon-local.ico">
     @endproduction
+
+
+    <meta name="theme-color" content="#563d7c">
 
     <style>
         h1 {
@@ -52,19 +56,13 @@
             @endswitch
         }
     </style>
-
-    <meta name="theme-color" content="#563d7c">
-
-
 </head>
 
 <body>
-    <div
-        class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm container bg-nav-gobierno">
-        <h5 class="my-0 mr-md-auto font-weight-normal"> <img src="{{ asset('images/gob-header.svg') }}"
-                alt="Logo del gobierno de chile"> </h5>
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm container bg-nav-gobierno">
+        <h5 class="my-0 mr-md-auto font-weight-normal"> <img src="{{ asset('images/gob-header.svg') }}" alt="Logo del gobierno de chile"> </h5>
         <nav class="my-2 my-md-0 mr-md-3">
-            <a class="p-2 text-dark" href="http://www.saludtarapaca.gob.cl">Web Servicio de Salud</a>
+            <a class="p-2 text-dark" href="https://{{ env('APP_SS_WEBSITE') }}">Web Servicio de Salud</a>
         </nav>
     </div>
 
@@ -95,8 +93,7 @@
 
                     <div class="row justify-content-center">
                         <!-- Código para visualizar botón oficial iniciar sesión con ClaveÚnica-->
-                        <a class="btn-cu btn-m btn-color-estandar text-center"
-                            href="{{ route('socialite.auth.redirect', 'claveunica') }}"
+                        <a class="btn-cu btn-m btn-color-estandar text-center" href="{{ route('socialite.auth.redirect','claveunica') }}"
                             title="Este es el botón Iniciar sesión de ClaveÚnica">
                             <span class="cl-claveunica"></span>
                             <span class="texto">Iniciar sesión</span>
@@ -106,25 +103,28 @@
 
                     <hr>
 
+                    <h6 class="mb-3 text-center">Utilizando tu cuenta del sistema</h6>
+
                     <div class="row justify-content-center">
-                        <a class="btn-cu btn-m btn-secondary text-center"
-                            href="{{ route('filament.admin.auth.login') }}"
+                        <!-- Código para visualizar botón oficial iniciar sesión con ClaveÚnica-->
+                        <a class="btn-cu btn-m btn-secondary text-center" href="{{ route('filament.admin.auth.login') }}"
                             title="Este es el botón Iniciar sesión de ClaveÚnica">
-                            <span class="">Login local</span>
+                            <span class="texto">Iniciar sesión</span>
                         </a>
+                        <!--./ fin botón-->
                     </div>
 
                 </div>
             </div>
-
+            
             <div class="card shadow-sm text-center">
                 <div class="card-header">
                     <h4 class="my-0 font-weight-normal">Ciudadanía</h4>
                 </div>
                 <div class="card-body">
-                    <p>Bienvenido al portal de Salud de la Región de Tarapacá. Acá encontrarás la información
-                        que esté disponible para ti y la podrás consultar en línea utilizando tu clave única del estado,
-                        haciendo click en el botón al lado izquierdo.</p>
+                <p>Bienvenido al portal de Salud de la Región de Tarapacá. Acá encontrarás la información 
+                que esté disponible para ti y la podrás consultar en línea utilizando tu clave única del estado, 
+                haciendo click en el botón al lado izquierdo.</p>
                 </div>
             </div>
 
@@ -133,31 +133,34 @@
             <div class="card shadow-md">
                 <div class="card-header">
                     <h4 class="my-0 font-weight-normal">
-                        <a href="https://portal.saludtarapaca.gob.cl" class="btn btn-secondary btn-block">Portal de
-                            sistemas</a>
+                        <a href="https://portal.saludtarapaca.gob.cl" class="btn btn-secondary btn-block">Portal de sistemas</a>
                     </h4>
                 </div>
 
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">
-                        <a href="https://i.saludtarapaca.gob.cl" class="btn btn-outline-info btn-block">iOnline</a>
+                        <a href="https://i.saludtarapaca.gob.cl" 
+                            class="btn btn-outline-info btn-block">iOnline</a>
                     </li>
                     <li class="list-group-item">
-                        <a href="https://i.saludtarapaca.gob.cl/login/external"
+                        <a href="https://i.saludtarapaca.gob.cl/login/external" 
                             class="btn btn-outline-info btn-block">Externos</a>
                     </li>
                     <li class="list-group-item">
-                        <a href="https://neo.saludtarapaca.gob.cl" class="btn btn-outline-info btn-block">NeoSalud</a>
+                        <a href="https://neo.saludtarapaca.gob.cl" 
+                            class="btn btn-outline-info btn-block">NeoSalud</a>
                     </li>
                     <li class="list-group-item">
-                        <a href="https://uni.saludtarapaca.gob.cl" class="btn btn-info btn-block disabled">UniSalud</a>
+                        <a href="https://uni.saludtarapaca.gob.cl" 
+                            class="btn btn-info btn-block disabled">UniSalud</a>
                     </li>
                     <li class="list-group-item">
-                        <a href="https://esmeralda.saludtarapaca.gob.cl"
+                        <a href="https://esmeralda.saludtarapaca.gob.cl" 
                             class="btn btn-outline-info btn-block">Esmeralda</a>
                     </li>
                     <li class="list-group-item">
-                        <a href="https://siremx.saludtarapaca.gob.cl" class="btn btn-outline-info btn-block">Siremx</a>
+                        <a href="https://siremx.saludtarapaca.gob.cl" 
+                            class="btn btn-outline-info btn-block">Siremx</a>
                     </li>
 
                 </ul>
@@ -169,8 +172,7 @@
         <footer class="pt-4 my-md-5 pt-md-5 border-top">
             <div class="row">
                 <div class="col-3 col-md-3">
-                    <img class="mb-2" src="{{ asset('images/logo_sst_100px.png') }}"
-                        alt="Logo Servicio de Salud Tarapacá">
+                    <img class="mb-2" src="{{ asset('images/logo_sst_100px.png') }}" alt="Logo Servicio de Salud Tarapacá">
                 </div>
                 <div class="col-1 col-md-6">
 
@@ -179,8 +181,7 @@
                     <h5>Desarrollado por</h5>
                     <ul class="list-unstyled text-small">
                         <li>Departamento TIC del SST</li>
-                        <li><a class="text-muted"
-                                href="mailto:sistemas.sst@redsalud.gob.cl">sistemas.sst@redsalud.gob.cl</a></li>
+                        <li><a class="text-muted" href="mailto:sistemas.sst@redsalud.gob.cl">sistemas.sst@redsalud.gob.cl</a></li>
                         <small class="d-block mb-3 text-muted">{{ now()->year }}</small>
                     </ul>
                 </div>
