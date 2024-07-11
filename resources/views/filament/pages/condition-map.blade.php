@@ -5,7 +5,7 @@
     </div>
 
     <!-- Contenedor del mapa de Google -->
-    <gmp-map center="-20.2633,-70.1223" zoom="12" map-id="DEMO_MAP_ID" class="map-rounded">
+    <gmp-map center="-20.2503,-70.1223" zoom="13" map-id="DEMO_MAP_ID" class="map-rounded">
         @foreach ($users as $user)
             <gmp-advanced-marker position="{{ $user['latitude'] }}, {{ $user['longitude'] }}"
                 title="{{ $user['name'] }} - {{ $user['diagnostico'] }}"></gmp-advanced-marker>
