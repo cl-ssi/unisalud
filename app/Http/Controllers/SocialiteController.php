@@ -40,6 +40,7 @@ class SocialiteController extends Controller
                 return redirect()->route('filament.admin.auth.login')
                     ->withErrors(['msg' => $responseData['error_description'] ]);
             }
+            dd($responseData);
         }
         /**
          * Fin de login legacy de SIREMX
