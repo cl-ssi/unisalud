@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\PatientHistoryResource\Widgets;
+namespace App\Filament\Resources\ExamResource\Widgets;
 
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -9,16 +9,14 @@ use Filament\Forms\Concerns\InteractsWithForms;
 
 use Filament\Widgets\Widget;
 
-use app\Filament\Resources\PatientHistoryResource;
-
 use App\Models\Establishment;
 use App\Models\Commune;
 
-class ListPatientHistoryWidget extends Widget implements HasForms
+class SearchExamWidget extends Widget implements HasForms
 {
     use InteractsWithForms;
 
-    protected static string $view = 'filament.resources.patient-history-resource.widgets.list-patient-history-widget';
+    protected static string $view = 'filament.resources.exam-resource.widgets.list-search-exam-widget';
 
     protected int | string | array $columnSpan = 'full';
 
@@ -83,8 +81,6 @@ class ListPatientHistoryWidget extends Widget implements HasForms
                                 $code_deis_request = str($get('original_establishment'))?'':str($get('original_establishment'));
                                 $code_deis = str($get('exam_establishment'))?'':str($get('exam_establishment'));
                                 $commune = str($get('commune'))?'':str($get('commune'));
-                                PatientHistoryResource::searchPatientHistory($run);
-                                // PatientHistory::searchPatientHistory($run);
                             }
                         ),
                     Forms\Components\Actions\Action::make('Limpiar')
