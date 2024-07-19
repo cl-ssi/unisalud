@@ -28,27 +28,11 @@ class ExamResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    /*
-    public static function getEloquentQuery(): Builder
-    {
-        // return static::getModel()::query()->where('patients.run', '');
-        // return parent::getEloquentQuery()->where('patients.run', '');
+    protected static ?string $navigationLabel = 'Historial Paciente';
 
-        dd(static::getModel()::query());
-        return static::getModel()::query()->where('servicio_salud', '');
-    }
+    // protected static ?string $navigationParentItem = 'Reportes'; // TODO: Clusters Reportes
 
-
-    public array $filters = [];
-
-    #[On('updateTableQuery')]
-    public function updateQuery(array $filters): void
-    {
-        dd($filters);
-        $this->filters = $filters;
-        $this->resetTable();
-    }
-    */
+    protected static ?string $navigationGroup = 'Examenes Mamarios';
 
     public static function form(Form $form): Form
     {

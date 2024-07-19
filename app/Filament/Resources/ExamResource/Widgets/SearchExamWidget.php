@@ -38,6 +38,7 @@ class SearchExamWidget extends Widget implements HasForms
                     ->required()
                     ->hint('Utilizar formato: 13650969-1'),
                 Forms\Components\Select::make('commune')
+                    ->id('commune')
                     ->label('Comuna')
                     ->placeholder('Seleccione')
                     ->options(
@@ -47,6 +48,7 @@ class SearchExamWidget extends Widget implements HasForms
                         ->pluck('name', 'id')
                     ),
                 Forms\Components\Select::make('original_establishment')
+                    ->id('original_establishment')
                     ->label('Establecimiento Origen')
                     ->placeholder('Seleccione')
                     ->options(
@@ -57,9 +59,10 @@ class SearchExamWidget extends Widget implements HasForms
                         ->Wherein('commune_id',['5', '6','7', '8','9', '10', '11'])
                         ->orderBy('new_code_deis')
                         ->get()
-                        ->pluck('name', 'id')
+                        ->pluck('name', 'new_code_deis')
                     ),
                 Forms\Components\Select::make('exam_establishment')
+                    ->id('exam_establishment')
                     ->label('Establecimiento Toma de Exámen')
                     ->placeholder('Seleccione')
                     ->options(
@@ -70,7 +73,7 @@ class SearchExamWidget extends Widget implements HasForms
                         ->Wherein('commune_id',['5', '6','7', '8','9', '10', '11'])
                         ->orderBy('new_code_deis')
                         ->get()
-                        ->pluck('name', 'id')
+                        ->pluck('name', 'new_code_deis')
                     ),
                 Forms\Components\Actions::make([
                     Forms\Components\Actions\Action::make('Buscar')
@@ -78,16 +81,15 @@ class SearchExamWidget extends Widget implements HasForms
                             function (Forms\Get $get, Forms\Set $set) {
                                 $run = str($get('rut'));
                                 list($run,$dv) = array_pad(explode('-',str_replace(".", "", $run)),2,null);
-                                $code_deis_request = str($get('original_establishment'))?'':str($get('original_establishment'));
-                                $code_deis = str($get('exam_establishment'))?'':str($get('exam_establishment'));
-                                $commune = str($get('commune'))?'':str($get('commune'));
+                                $code_deis_request = $get('original_establishment')?$get('original_establishment'):'';
+                                $code_deis = $get('exam_establishment')?$get('exam_establishment'):'';
+                                $commune = $get('commune')?$get('commune'):'';
                                 $search['run'] = $run;
                                 $search['dv'] = $dv;
                                 $search['code_deis_request'] = $code_deis_request;
                                 $search['code_deis'] = $code_deis;
-                                // dd($filters);
+                                $search['commune'] = $commune;
                                 $this->dispatch('updateTableQuery', $search);
-                                // return parent::getModel()::query()->where('servicio_salud', '');
                             }
                         ),
                     Forms\Components\Actions\Action::make('Limpiar')

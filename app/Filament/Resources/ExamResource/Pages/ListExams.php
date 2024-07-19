@@ -22,9 +22,7 @@ class ListExams extends ListRecords
     #[On('updateTableQuery')]
     public function updateTableQuery(array $search): void
     {
-        // dd($search);
         $this->filters = $search;
-        // dd($this->filters);
         $this->resetTable();
     }
 
@@ -61,20 +59,26 @@ class ListExams extends ListRecords
         $query = $query->leftjoin('mx_patients', 'mx_exams.patient_id', 'mx_patients.id');
         $query = $query->leftjoin('communes', 'mx_exams.comuna', 'communes.code_deis');
         $query = $query->leftjoin('mx_establishments', 'mx_exams.cesfam', 'mx_establishments.new_code_deis');
-        // ->where('mx_exams.establecimiento_realiza_examen', '=', $code_deis)
-        // ->where('mx_exams.cesfam', '=', $code_deis_request)
-        // ->where('mx_exams.comuna', '=', $commune)
 
-        if (!empty($this->filters['run'])) {
-            $query = $query->where('mx_patients.run', '=', $this->filters['run']);
+        if($this->filters)
+        {
+            if (!empty($this->filters['run'])) {
+                $query = $query->where('mx_patients.run', '=', $this->filters['run']);
+            }
+            if (!empty($this->filters['code_deis'])) {
+                $query = $query->where('mx_exams.establecimiento_realiza_examen', '=', $this->filters['code_deis']);
+            }
+            if (!empty($this->filters['code_deis_request'])) {
+                $query = $query->where('mx_exams.cesfam', '=', $this->filters['code_deis_request']);
+            }
+            if (!empty($this->filters['commune'])) {
+                $query = $query->where('mx_exams.comuna', '=', $this->filters['commune']);
+            }
         }
-
         else
         {
             $query->whereNull('mx_exams.id');
         }
-        // dd($this->filters);
-        // $this->filters = [];
         return $query;
     }
 
