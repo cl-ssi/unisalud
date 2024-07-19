@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Patient;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -15,7 +17,8 @@ class Exam extends Model
 
     public function patients(): BelongsTo
     {
-        return $this->belongsTo('\App\Models\Patient', 'patient_id', 'id');
+        // return $this->belongsTo('\App\Models\Patient', 'patient_id', 'id');
+        return $this->belongsTo(Patient::class, 'patient_id');
     }
 
     public function establishmentOrigin(): HasOne

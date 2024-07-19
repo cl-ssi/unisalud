@@ -81,6 +81,13 @@ class SearchExamWidget extends Widget implements HasForms
                                 $code_deis_request = str($get('original_establishment'))?'':str($get('original_establishment'));
                                 $code_deis = str($get('exam_establishment'))?'':str($get('exam_establishment'));
                                 $commune = str($get('commune'))?'':str($get('commune'));
+                                $search['run'] = $run;
+                                $search['dv'] = $dv;
+                                $search['code_deis_request'] = $code_deis_request;
+                                $search['code_deis'] = $code_deis;
+                                // dd($filters);
+                                $this->dispatch('updateTableQuery', $search);
+                                // return parent::getModel()::query()->where('servicio_salud', '');
                             }
                         ),
                     Forms\Components\Actions\Action::make('Limpiar')
