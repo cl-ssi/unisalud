@@ -2,7 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\Commune;
+use App\Models\Exam;
+
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Patient extends Model
 {
@@ -21,17 +25,19 @@ class Patient extends Model
         'birthday'  => 'date:Y-m-d'
     ];
 
-    public function communes() {
-        return $this->hasMany('\App\Models\Commune');
+    public function communes():HasMany
+    {
+        return $this->hasMany(Commune::class);
     }
 
-    public function exams() {
+    public function exams():HasMany
+    {
         return $this->hasMany('\App\Models\Exam', 'patient_id', 'id');
     }
 
     protected $appends = ["fullname","age"];
 
-    public function getRun()
+    public function getRun(): String
     {
         return "{$this->run}-{$this->dv}";
     }
@@ -46,7 +52,7 @@ class Patient extends Model
         }
     }
 
-    public function getFullNameAttribute()
+    public function getFullNameAttribute(): String
     {
         return "{$this->name} {$this->fathers_family} {$this->mothers_family}";
     }
