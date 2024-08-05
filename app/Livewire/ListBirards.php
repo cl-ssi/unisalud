@@ -42,13 +42,50 @@ class ListBirards extends Component implements HasForms, HasTable
 
 
                 $query = Patient::query()
-                ->select('mx_patients.id, mx_exams.birards_mamografia, count(mx_exams.id) total')
                 ->leftjoin('mx_exams', 'mx_patients.id', 'mx_exams.patient_id')
-                ->whereNotNull('mx_exams.birards_mamografia')
-                ->where('mx_exams.birards_mamografia', '<>' , "''")
-                ->where('mx_exams.birards_mamografia', '>=' , 0)
-                ->groupBy('mx_exams.birards_mamografia, mx_patients.id')
+                ->select(
+                    'mx_patients.id',
+                    'mx_patients.run',
+                    'mx_patients.dv',
+                    'mx_patients.name',
+                    'mx_patients.fathers_family',
+                    'mx_patients.mothers_family',
+                    'mx_patients.gender',
+                    'mx_patients.telephone',
+                    'mx_patients.birthday',
+                    'mx_patients.address',
+                    'mx_exams.birards_mamografia',
+                    DB::raw('count(mx_exams.id) total'),
+                    // DB::raw('SUM(case when YEAR(CURDATE())-YEAR(birthday) < 35 then 1 else 0 end) range1')
+                    )
+                // ->select('mx_patients.id, mx_exams.birards_mamografia, count(mx_exams.id) total')
+                // ->whereNotNull('mx_exams.birards_mamografia')
+                ->where('mx_exams.birards_mamografia', '<>' , "")
+                // ->where('mx_exams.birards_mamografia', '>=' , 0)
+                ->groupBy(
+                    'mx_exams.birards_mamografia',
+                    'mx_patients.id',
+                    'mx_patients.run',
+                    'mx_patients.dv',
+                    'mx_patients.name',
+                    'mx_patients.fathers_family',
+                    'mx_patients.mothers_family',
+                    'mx_patients.gender',
+                    'mx_patients.telephone',
+                    'mx_patients.birthday',
+                    'mx_patients.address',
+                );
+                // dd($query->first());
+                // $query->dd();
+                return $query;
+            })
 
+            ->modifyQueryUsing(function ($query) {
+                return $query;
+                    // ->select(
+                    //     DB::raw('SUM(case when YEAR(CURDATE())-YEAR(birthday) < 35 then 1 else 0 end) as range1')
+                    // );
+                    // ->leftjoin('mx_patients as p', 'mx_exams.patient_id', 'p.id');
                 // ->select(
                 //     'mx_patients.id',
                 //     'mx_patients.run',
@@ -60,32 +97,21 @@ class ListBirards extends Component implements HasForms, HasTable
                 //     'mx_patients.telephone',
                 //     'mx_patients.birthday',
                 //     'mx_patients.address',
-                // )
-
-
-                ;
-                // dd($query->first());
-                // $query->dd();
-                return $query;
+                //     'mx_exams.birards_mamografia',
+                // );
             })
-            /*
-            ->modifyQueryUsing(function ($query) {
-                return $query
-                    ->leftjoin('mx_exams', 'mx_patients.id', 'mx_exams.patient_id')
-                    ->where('mx_exams.birards_mamografia', '>=' , 0);
-            }) */
             ->columns([
-                // Tables\Columns\TextColumn::make('exams_count')->counts('exams')
                 // Tables\Columns\TextColumn::make('id'),
-                // Tables\Columns\TextColumn::make('fullname'),
                 // Tables\Columns\TextColumn::make('exams.exam_type'),
                 // Tables\Columns\TextColumn::make('exams.birards_mamografia'),
 
                 Tables\Columns\TextColumn::make('id'),
+                Tables\Columns\TextColumn::make('fullname'),
                 Tables\Columns\TextColumn::make('birards_mamografia'),
                 Tables\Columns\TextColumn::make('total'),
+                // Tables\Columns\TextColumn::make('range1'),
 
-                // Tables\Columns\TextColumn::make('range1')
+
                 /*
                 Tables\Columns\TextColumn::make('exams_count')
                     ->counts([

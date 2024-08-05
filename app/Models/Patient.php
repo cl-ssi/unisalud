@@ -58,8 +58,9 @@ class Patient extends Model
         }
     }
 
-    public function getRange1Attribute(){
-        return $this->exams->where($this->age, '<', 35);
+    public function getBirards(){
+        // return $this->exams->where($this->age, '<', 35);
+        return $this->exams->birards_mamografia;
     }
 
     public function getFullNameAttribute(): String
