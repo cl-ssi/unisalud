@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Commune;
 use App\Models\Exam;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -25,6 +26,12 @@ class Patient extends Model
         'birthday'  => 'date:Y-m-d'
     ];
 
+    protected $appends = [
+        'fullname',
+        'age',
+        'range1'
+    ];
+
     public function communes():HasMany
     {
         return $this->hasMany(Commune::class);
@@ -35,7 +42,6 @@ class Patient extends Model
         return $this->hasMany('\App\Models\Exam', 'patient_id', 'id');
     }
 
-    protected $appends = ["fullname","age"];
 
     public function getRun(): String
     {
@@ -52,9 +58,15 @@ class Patient extends Model
         }
     }
 
+    public function getRange1Attribute(){
+        return $this->exams->where($this->age, '<', 35);
+    }
+
     public function getFullNameAttribute(): String
     {
         return "{$this->name} {$this->fathers_family} {$this->mothers_family}";
     }
+
+
 
 }

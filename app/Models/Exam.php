@@ -5,8 +5,9 @@ namespace App\Models;
 use App\Models\Patient;
 use App\Models\Establishment;
 use App\Models\Commune;
-
+use Doctrine\DBAL\Query;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -40,4 +41,10 @@ class Exam extends Model
         //->Where('id','LIKE','%'.$idRole.'%')
         return $this->HasOne(Establishment::class, 'new_code_deis', 'establecimiento_realiza_examen');
     }
+
+    public function biradsMam(): Builder
+    {
+        return $this->where('birards_mamografia', '>=' , 0);
+    }
+
 }
