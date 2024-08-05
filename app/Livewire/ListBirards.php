@@ -26,107 +26,67 @@ class ListBirards extends Component implements HasForms, HasTable
     use InteractsWithTable;
     use InteractsWithForms;
 
-    // protected static ?string $model = Exam::class;
-
-    // protected static string $relationship = Exam::class;
-
-    // we need to define the inverse relationship name otherwise it will look for plural
-    // protected static ?string $inverseRelationship = Patient::class;
-
     public $birards = [];
 
     public function table(Table $table): Table
     {
         return $table
             ->query(function (Builder $query) {
-
-
                 $query = Patient::query()
                 ->leftjoin('mx_exams', 'mx_patients.id', 'mx_exams.patient_id')
                 ->select(
                     'mx_patients.id',
-                    'mx_patients.run',
-                    'mx_patients.dv',
-                    'mx_patients.name',
-                    'mx_patients.fathers_family',
-                    'mx_patients.mothers_family',
-                    'mx_patients.gender',
-                    'mx_patients.telephone',
-                    'mx_patients.birthday',
-                    'mx_patients.address',
                     'mx_exams.birards_mamografia',
-                    DB::raw('count(mx_exams.id) total'),
-                    // DB::raw('SUM(case when YEAR(CURDATE())-YEAR(birthday) < 35 then 1 else 0 end) range1')
+                    DB::raw('SUM(case when YEAR(CURDATE())-YEAR(birthday) < 35 then 1 else 0 end) range1'),
+                    DB::raw('SUM(case when YEAR(CURDATE())-YEAR(mx_patients.birthday) >= 35 and YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 49 then 1 else 0 end) range2'),
+                    DB::raw('SUM(case when YEAR(CURDATE())-YEAR(mx_patients.birthday) > 49 and YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 54 then 1 else 0 end) range3'),
+                    DB::raw('SUM(case when YEAR(CURDATE())-YEAR(mx_patients.birthday) > 54 and YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 59 then 1 else 0 end) range4'),
+                    DB::raw('SUM(case when YEAR(CURDATE())-YEAR(mx_patients.birthday) > 59 and YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 64 then 1 else 0 end) range5'),
+                    DB::raw('SUM(case when YEAR(CURDATE())-YEAR(mx_patients.birthday) > 64 and YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 69 then 1 else 0 end) range6'),
+                    DB::raw('SUM(case when YEAR(CURDATE())-YEAR(mx_patients.birthday) > 69 and YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 74 then 1 else 0 end) range7'),
+                    DB::raw('SUM(case when YEAR(CURDATE())-YEAR(mx_patients.birthday) > 74 and YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 79 then 1 else 0 end) range8'),
+                    DB::raw('SUM(case when YEAR(CURDATE())-YEAR(mx_patients.birthday) > 79  then 1 else 0 end) range9'),
+                    DB::raw('COUNT(YEAR(CURDATE())-YEAR(mx_patients.birthday)) total'),
                     )
-                // ->select('mx_patients.id, mx_exams.birards_mamografia, count(mx_exams.id) total')
                 // ->whereNotNull('mx_exams.birards_mamografia')
                 ->where('mx_exams.birards_mamografia', '<>' , "")
-                // ->where('mx_exams.birards_mamografia', '>=' , 0)
+                ->where('mx_exams.birards_mamografia', '>=' , 0)
                 ->groupBy(
                     'mx_exams.birards_mamografia',
-                    'mx_patients.id',
-                    'mx_patients.run',
-                    'mx_patients.dv',
-                    'mx_patients.name',
-                    'mx_patients.fathers_family',
-                    'mx_patients.mothers_family',
-                    'mx_patients.gender',
-                    'mx_patients.telephone',
-                    'mx_patients.birthday',
-                    'mx_patients.address',
+                    'mx_patients.id'
                 );
-                // dd($query->first());
-                // $query->dd();
                 return $query;
-            })
-
-            ->modifyQueryUsing(function ($query) {
-                return $query;
-                    // ->select(
-                    //     DB::raw('SUM(case when YEAR(CURDATE())-YEAR(birthday) < 35 then 1 else 0 end) as range1')
-                    // );
-                    // ->leftjoin('mx_patients as p', 'mx_exams.patient_id', 'p.id');
-                // ->select(
-                //     'mx_patients.id',
-                //     'mx_patients.run',
-                //     'mx_patients.dv',
-                //     'mx_patients.name',
-                //     'mx_patients.fathers_family',
-                //     'mx_patients.mothers_family',
-                //     'mx_patients.gender',
-                //     'mx_patients.telephone',
-                //     'mx_patients.birthday',
-                //     'mx_patients.address',
-                //     'mx_exams.birards_mamografia',
-                // );
             })
             ->columns([
-                // Tables\Columns\TextColumn::make('id'),
-                // Tables\Columns\TextColumn::make('exams.exam_type'),
-                // Tables\Columns\TextColumn::make('exams.birards_mamografia'),
-
-                Tables\Columns\TextColumn::make('id'),
-                Tables\Columns\TextColumn::make('fullname'),
                 Tables\Columns\TextColumn::make('birards_mamografia'),
-                Tables\Columns\TextColumn::make('total'),
-                // Tables\Columns\TextColumn::make('range1'),
-
-
-                /*
-                Tables\Columns\TextColumn::make('exams_count')
-                    ->counts([
-                        'exams' => fn (Builder $query) => $query->where('patients->age', '<', 35)->where('mx_exams.birards_mamografia', '<>' , '""'),
-                    ])
-                */
-                    // ->formatStateUsing(fn($state, Patient $patient)=>),
-                    // ->label(function ( $row ) {})
-                    // ->query(fn (Builder $query) => $query->select(DB::raw('count(*) as range1'))->where('patients.age','<',35))
-
+                Tables\Columns\TextColumn::make('range1')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                Tables\Columns\TextColumn::make('range2')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                Tables\Columns\TextColumn::make('range3')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                Tables\Columns\TextColumn::make('range4')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                Tables\Columns\TextColumn::make('range5')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                Tables\Columns\TextColumn::make('range6')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                Tables\Columns\TextColumn::make('range7')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                Tables\Columns\TextColumn::make('range8')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                Tables\Columns\TextColumn::make('range9')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                Tables\Columns\TextColumn::make('total')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
             ])
             ->groups([
-                // Tables\Grouping\Group::make('birards_mamografia')
-
+                Tables\Grouping\Group::make('birards_mamografia')
+                    ->collapsible(),
             ])
+            ->defaultGroup('birards_mamografia')
+            ->groupsOnly()
+            ->groupingSettingsHidden()
             ->filters([
                 // ...
             ])
