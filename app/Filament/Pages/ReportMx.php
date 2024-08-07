@@ -29,6 +29,8 @@ class ReportMx extends Page implements HasTable
 
     protected static ?string $slug = 'reportMX';
 
+    public $filters = [];
+
     public static function table(Table $table): Table
     {
         return $table

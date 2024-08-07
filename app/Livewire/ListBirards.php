@@ -26,7 +26,28 @@ class ListBirards extends Component implements HasForms, HasTable
     use InteractsWithTable;
     use InteractsWithForms;
 
-    public $birards = [];
+
+    public $name = "";
+    public $attr = "";
+    public $tittle = "";
+    public $type;
+    public $filters;
+
+    public function mount(): void
+    {
+        if($this->type == 'mam')
+        {
+            $this->name = 'mx_exams.birards_mamografia';
+            $this->attr = 'birards_mamografia';
+            $this->tittle = 'BIRARDS POR RANGO DE EDAD MAMOGRAFÍA';
+        }
+        else if ($this->type == 'eco')
+        {
+            $this->name = 'mx_exams.birards_ecografia';
+            $this->attr = 'birards_ecografia';
+            $this->tittle = 'BIRARDS POR RANGO DE EDAD ECOGRAFÍA';
+        }
+    }
 
     public function table(Table $table): Table
     {
@@ -36,7 +57,7 @@ class ListBirards extends Component implements HasForms, HasTable
                 ->leftjoin('mx_exams', 'mx_patients.id', 'mx_exams.patient_id')
                 ->select(
                     'mx_patients.id',
-                    'mx_exams.birards_mamografia',
+                    $this->name,
                     DB::raw('SUM(case when YEAR(CURDATE())-YEAR(birthday) < 35 then 1 else 0 end) range1'),
                     DB::raw('SUM(case when YEAR(CURDATE())-YEAR(mx_patients.birthday) >= 35 and YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 49 then 1 else 0 end) range2'),
                     DB::raw('SUM(case when YEAR(CURDATE())-YEAR(mx_patients.birthday) > 49 and YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 54 then 1 else 0 end) range3'),
@@ -48,45 +69,77 @@ class ListBirards extends Component implements HasForms, HasTable
                     DB::raw('SUM(case when YEAR(CURDATE())-YEAR(mx_patients.birthday) > 79  then 1 else 0 end) range9'),
                     DB::raw('COUNT(YEAR(CURDATE())-YEAR(mx_patients.birthday)) total'),
                     )
-                // ->whereNotNull('mx_exams.birards_mamografia')
-                ->where('mx_exams.birards_mamografia', '<>' , "")
-                ->where('mx_exams.birards_mamografia', '>=' , 0)
+                ->whereNotNull($this->name)
+                ->where($this->name, '<>' , "")
+                ->where($this->name, '>=' , 0)
+                ->where($this->name, '<=' , 6)
                 ->groupBy(
-                    'mx_exams.birards_mamografia',
+                    $this->name,
                     'mx_patients.id'
                 );
                 return $query;
             })
             ->columns([
-                Tables\Columns\TextColumn::make('birards_mamografia'),
+                Tables\Columns\TextColumn::make($this->attr)
+                    ->label('BIRARDS'),
                 Tables\Columns\TextColumn::make('range1')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                    ->label('< 35')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()
+                    ->label('')
+                ),
                 Tables\Columns\TextColumn::make('range2')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                    ->label('35 a 49')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()
+                    ->label('')),
                 Tables\Columns\TextColumn::make('range3')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                    ->label('50 a 54')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()
+                        ->label('')
+                    ),
                 Tables\Columns\TextColumn::make('range4')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                    ->label('55 a 59')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()
+                        ->label('')
+                    ),
                 Tables\Columns\TextColumn::make('range5')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                    ->label('60 a 64')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()
+                        ->label('')
+                    ),
                 Tables\Columns\TextColumn::make('range6')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                    ->label('65 a 69')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()
+                        ->label('')
+                    ),
                 Tables\Columns\TextColumn::make('range7')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                    ->label('70 a 74')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()
+                        ->label('')
+                    ),
                 Tables\Columns\TextColumn::make('range8')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                    ->label('75 a 79')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()
+                        ->label('')
+                    ),
                 Tables\Columns\TextColumn::make('range9')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                    ->label('80 y más')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()
+                        ->label('')
+                    ),
                 Tables\Columns\TextColumn::make('total')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('')),
+                    ->label('total')
+                    ->summarize(Tables\Columns\Summarizers\Sum::make()
+                        ->label('')
+                    ),
             ])
             ->groups([
-                Tables\Grouping\Group::make('birards_mamografia')
+                Tables\Grouping\Group::make($this->attr)
                     ->collapsible(),
             ])
-            ->defaultGroup('birards_mamografia')
+            ->defaultGroup($this->attr)
             ->groupsOnly()
             ->groupingSettingsHidden()
+            ->heading($this->tittle)
             ->filters([
                 // ...
             ])
