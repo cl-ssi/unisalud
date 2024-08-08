@@ -29,9 +29,9 @@ class ReportMx extends Page implements HasTable
 
     protected static ?string $slug = 'reportMX';
 
-    public $filters = [];
+    public $filters;
 
-    public static function table(Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
             ->query(function (Builder $query) {
@@ -69,6 +69,16 @@ class ReportMx extends Page implements HasTable
                     'mx_establishments.new_code_deis',
                     'mx_establishments.alias'
                 );
+                return $query;
+            })
+            ->modifyQueryUsing(function (Builder $query) {
+                if($this->filters)
+                {
+                }
+                else
+                {
+                    $query->whereNull('mx_exams.id');
+                }
                 return $query;
             })
             ->columns([
@@ -127,6 +137,7 @@ class ReportMx extends Page implements HasTable
                 Tables\Columns\TextColumn::make('medico')
                     ->label('MEDICO')
                     ->placeholder('-'),
-            ]);
+            ])
+            ->heading('LISTADO DE PACIENTES');
     }
 }

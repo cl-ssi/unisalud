@@ -69,14 +69,22 @@ class ListBirards extends Component implements HasForms, HasTable
                     DB::raw('SUM(case when YEAR(CURDATE())-YEAR(mx_patients.birthday) > 79  then 1 else 0 end) range9'),
                     DB::raw('COUNT(YEAR(CURDATE())-YEAR(mx_patients.birthday)) total'),
                     )
-                ->whereNotNull($this->name)
                 ->where($this->name, '<>' , "")
-                ->where($this->name, '>=' , 0)
-                ->where($this->name, '<=' , 6)
+                ->whereIn($this->name, ['0', '1', '2', '3', '4', '5', '6', '7'])
                 ->groupBy(
                     $this->name,
                     'mx_patients.id'
                 );
+                return $query;
+            })
+            ->modifyQueryUsing(function (Builder $query) {
+                if($this->filters)
+                {
+                }
+                else
+                {
+                    $query->whereNull('mx_exams.id');
+                }
                 return $query;
             })
             ->columns([
