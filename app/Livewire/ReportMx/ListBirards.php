@@ -87,11 +87,22 @@ class ListBirards extends Component implements HasForms, HasTable
             ->modifyQueryUsing(function (Builder $query) {
                 if($this->filters)
                 {
-                    if($this->filters['inicio']){
+                    if(!empty($this->filters['inicio'])){
                         $query->where('mx_exams.date_exam', '>=', $this->filters['inicio']);
                     }
-                    if($this->filters['final']){
+                    if(!empty($this->filters['final'])){
                         $query->where('mx_exams.date_exam', '<=', $this->filters['final']);
+                    }
+                    if (!empty($this->filters['commune'])) {
+                        $query->where('mx_exams.comuna', '=', $this->filters['commune']);
+                    }
+                    if (!empty($this->filters['code_deis'])) {
+                        //TODO: Auth::user()->establishment_id
+                        $query->where('mx_exams.establecimiento_realiza_examen', '=', $this->filters['code_deis']);
+                    }
+                    if (!empty($this->filters['code_deis_request'])) {
+                        //TODO: Auth::user()->establishment_id
+                        $query->where('mx_exams.cesfam', '=', $this->filters['code_deis_request']);
                     }
                 }
                 else

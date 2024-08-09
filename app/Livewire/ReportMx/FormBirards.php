@@ -47,12 +47,11 @@ class FormBirards extends Component implements HasForms
                 Forms\Components\DatePicker::make('inicio')
                     ->label('Inicio')
                     ->id('inicio')
-                    ->required()
-                    ->hint('*Considera fecha de toma de exámen'),
+                    ->hint('Considera fecha de toma de exámen'),
                 Forms\Components\DatePicker::make('final')
                     ->label('Fin')
                     ->id('final')
-                    ->hint('*Considera fecha de toma de exámen'),
+                    ->hint('Considera fecha de toma de exámen'),
                 Forms\Components\Select::make('commune')
                     ->id('commune')
                     ->label('Comuna')
@@ -109,7 +108,6 @@ class FormBirards extends Component implements HasForms
                                 $search['commune'] = $commune;
                                 $this->dispatch('updateFilters', $search);
                             }
-
                         ),
                     Forms\Components\Actions\Action::make('Limpiar')
                         ->action(function () {
