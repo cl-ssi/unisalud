@@ -29,7 +29,19 @@ class ReportMx extends Page implements HasTable
 
     protected static ?string $slug = 'reportMX';
 
+    protected $listeners = [
+        'updateFilters' => 'setFilters'
+    ];
+
     public $filters;
+
+    public function setFilters($filters)
+    {
+        $this->filters = $filters;
+
+        $this->dispatch('form-submited', $this->filters);
+        // dd($this->filters);
+    }
 
     public function table(Table $table): Table
     {
@@ -72,13 +84,18 @@ class ReportMx extends Page implements HasTable
                 return $query;
             })
             ->modifyQueryUsing(function (Builder $query) {
-                if($this->filters)
-                {
+                if($this->filters){
+                    if($this->filters['inicio']){
+                        $query->where('mx_exams.date_exam', '>=', $this->filters['inicio']);
+                    }
+                    if($this->filters['final']){
+                        $query->where('mx_exams.date_exam', '<=', $this->filters['final']);
+                    }
                 }
-                else
-                {
+                else {
                     $query->whereNull('mx_exams.id');
                 }
+                // $query->whereNull('mx_exams.id');
                 return $query;
             })
             ->columns([

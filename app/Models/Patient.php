@@ -28,8 +28,7 @@ class Patient extends Model
 
     protected $appends = [
         'fullname',
-        'age',
-        'range1'
+        'age'
     ];
 
     public function communes():HasMany

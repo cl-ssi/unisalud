@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\ReportMx;
 
 use App\Models\Exam;
 use App\Models\Patient;
@@ -19,6 +19,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class ListBirards extends Component implements HasForms, HasTable
@@ -26,11 +27,16 @@ class ListBirards extends Component implements HasForms, HasTable
     use InteractsWithTable;
     use InteractsWithForms;
 
+    protected $listeners = ['updateTable' => '$refresh'];
 
     public $name = "";
+
     public $attr = "";
+
     public $tittle = "";
+
     public $type;
+
     public $filters;
 
     public function mount(): void
@@ -47,6 +53,7 @@ class ListBirards extends Component implements HasForms, HasTable
             $this->attr = 'birards_ecografia';
             $this->tittle = 'BIRARDS POR RANGO DE EDAD ECOGRAFÍA';
         }
+        // dd($this->filters);
     }
 
     public function table(Table $table): Table
@@ -80,6 +87,12 @@ class ListBirards extends Component implements HasForms, HasTable
             ->modifyQueryUsing(function (Builder $query) {
                 if($this->filters)
                 {
+                    if($this->filters['inicio']){
+                        $query->where('mx_exams.date_exam', '>=', $this->filters['inicio']);
+                    }
+                    if($this->filters['final']){
+                        $query->where('mx_exams.date_exam', '<=', $this->filters['final']);
+                    }
                 }
                 else
                 {
@@ -135,7 +148,7 @@ class ListBirards extends Component implements HasForms, HasTable
                         ->label('')
                     ),
                 Tables\Columns\TextColumn::make('total')
-                    ->label('total')
+                    ->label('Total')
                     ->summarize(Tables\Columns\Summarizers\Sum::make()
                         ->label('')
                     ),
@@ -159,8 +172,15 @@ class ListBirards extends Component implements HasForms, HasTable
             ]);
     }
 
+    #[On('form-submited')]
+    public function test($filters){
+        $this->filters = $filters;
+        // dd($this->filters);
+    }
+
+
     public function render(): View
     {
-        return view('livewire.list-birards');
+        return view('livewire.report-mx.list-birards');
     }
 }

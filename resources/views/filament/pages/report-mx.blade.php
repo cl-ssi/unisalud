@@ -1,9 +1,12 @@
 <x-filament-panels::page>
         <div>
-            @livewire('list-birards', ['type' => 'mam', 'filters' => $this->filters])
+            @livewire('report-mx.form-birards')
         </div>
         <div>
-            @livewire('list-birards', ['type' => 'eco', 'filters' => $this->filters])
+            @livewire('report-mx.list-birards', ['type' => 'mam', 'filters' => $this->filters], key('mam'))
+        </div>
+        <div>
+            @livewire('report-mx.list-birards', ['type' => 'eco', 'filters' => $this->filters], key('eco'))
         </div>
         <div>
         {{ $this->table }}

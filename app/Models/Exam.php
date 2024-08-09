@@ -42,9 +42,4 @@ class Exam extends Model
         return $this->HasOne(Establishment::class, 'new_code_deis', 'establecimiento_realiza_examen');
     }
 
-    public function biradsMam(): Builder
-    {
-        return $this->where('birards_mamografia', '>=' , 0);
-    }
-
 }
