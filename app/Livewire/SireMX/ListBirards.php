@@ -22,6 +22,11 @@ use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
+use pxlrbt\FilamentExcel\Actions\Pages\ExportAction;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use pxlrbt\FilamentExcel;
+
 class ListBirards extends Component implements HasForms, HasTable
 {
     use InteractsWithTable;
@@ -187,6 +192,43 @@ class ListBirards extends Component implements HasForms, HasTable
     public function test($filters){
         $this->filters = $filters;
         // dd($this->filters);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        date_default_timezone_set('America/Santiago');
+        return [
+
+            ExportAction::make()->exports([
+
+                // Excel Export with custom format
+                ExcelExport::make('Descargar en Excel')->fromTable()->withColumns([
+                    FilamentExcel\Columns\Column::make($this->attr)
+                        ->heading('BIRARDS'),
+                    FilamentExcel\Columns\Column::make('range1')
+                        ->heading('< 35'),
+                    FilamentExcel\Columns\Column::make('range2')
+                        ->heading('35 a 49'),
+                    FilamentExcel\Columns\Column::make('range3')
+                        ->heading('50 a 54'),
+                    FilamentExcel\Columns\Column::make('range4')
+                        ->heading('55 a 59'),
+                    FilamentExcel\Columns\Column::make('range5')
+                        ->heading('60 a 64'),
+                    FilamentExcel\Columns\Column::make('range6')
+                        ->heading('65 a 69'),
+                    FilamentExcel\Columns\Column::make('range7')
+                        ->heading('70 a 74'),
+                    FilamentExcel\Columns\Column::make('range8')
+                        ->heading('75 as 79'),
+                    FilamentExcel\Columns\Column::make('range9')
+                        ->heading('80 y mas'),
+                    FilamentExcel\Columns\Column::make('total')
+                        ->heading('Total'),
+                ])
+                ->withFilename('Reporte_' . $this->attr . '-' . date('dmY_Hs'))
+            ])
+        ];
     }
 
 

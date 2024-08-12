@@ -172,6 +172,7 @@ class ReportMx extends Page implements HasTable
             ])
             ->heading('LISTADO DE PACIENTES');
     }
+
     protected function getHeaderActions(): array
     {
         date_default_timezone_set('America/Santiago');
