@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\ReportMx;
+namespace App\Livewire\SireMx;
 
 use App\Models\Exam;
 use App\Models\Patient;
@@ -192,6 +192,6 @@ class ListBirards extends Component implements HasForms, HasTable
 
     public function render(): View
     {
-        return view('livewire.report-mx.list-birards');
+        return view('livewire.sire-mx.list-birards');
     }
 }

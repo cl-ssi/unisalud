@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Pages;
+namespace App\Filament\Pages\SireMx;
 
 use App\Models\Exam;
 
@@ -11,23 +11,32 @@ use Filament\Pages\Page;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 
+use pxlrbt\FilamentExcel\Actions\Pages\ExportAction;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use pxlrbt\FilamentExcel;
+
 use Illuminate\Database\Eloquent\Builder;
 
-class ReportMx extends Page implements HasTable
+class ReportMxBirards extends Page implements HasTable
 {
     use InteractsWithTable;
 
     protected static ?string $model = Exam::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-document-chart-bar';
 
-    protected static string $view = 'filament.pages.report-mx';
+    protected static string $view = 'filament.pages.sire-mx.report-mx-birards';
 
-    protected static ?string $navigationLabel = 'Reporte MX';
+    protected static ?string $navigationGroup = 'Exámenes Mamarios';
 
-    protected static ?string $navigationGroup = 'Examenes Mamarios';
+    protected static ?string $navigationLabel = 'Reporte por Bidards';
 
-    protected static ?string $slug = 'reportMX';
+    protected static ?string $title = 'Reporte MX por Bidards';
+
+    protected static ?string $slug = 'reportMxBidards';
+
+    protected static ?int $navigationSort = 4;
 
     protected $listeners = ['updateFilters' => 'setFilters'];
 
@@ -80,12 +89,20 @@ class ReportMx extends Page implements HasTable
                 return $query;
             })
             ->modifyQueryUsing(function (Builder $query) {
-                if($this->filters){
+                if(empty($this->filters) || $this->filters['selectedBirards'] == '99'){
+                    $query->whereNull('mx_exams.id');
+                }
+                else {
+                    // dd($this->filters['birards']);
                     if(!empty($this->filters['inicio'])){
                         $query->where('mx_exams.date_exam', '>=', $this->filters['inicio']);
                     }
                     if(!empty($this->filters['final'])){
                         $query->where('mx_exams.date_exam', '<=', $this->filters['final']);
+                    }
+                    if (!empty($this->filters['selectedBirards'])) {
+                        //TODO: falta seleccion multiple con where IN ()
+                        $query->where('mx_exams.birards_mamografia', '=', $this->filters['selectedBirards']);
                     }
                     if (!empty($this->filters['commune'])) {
                         $query->where('mx_exams.comuna', '=', $this->filters['commune']);
@@ -98,9 +115,6 @@ class ReportMx extends Page implements HasTable
                         //TODO: Auth::user()->establishment_id
                         $query->where('mx_exams.cesfam', '=', $this->filters['code_deis_request']);
                     }
-                }
-                else {
-                    $query->whereNull('mx_exams.id');
                 }
                 return $query;
             })
@@ -162,5 +176,62 @@ class ReportMx extends Page implements HasTable
                     ->placeholder('-'),
             ])
             ->heading('LISTADO DE PACIENTES');
+    }
+    protected function getHeaderActions(): array
+    {
+        date_default_timezone_set('America/Santiago');
+        return [
+
+            ExportAction::make()->exports([
+
+                // Excel Export with custom format
+                ExcelExport::make('Descargar en Excel')->fromTable()->withColumns([
+                    FilamentExcel\Columns\Column::make('servicio_salud')
+                        ->heading('S. SALUD'),
+                    FilamentExcel\Columns\Column::make('establishmentOrigin.alias')
+                        ->heading('CESFAM'),
+                    FilamentExcel\Columns\Column::make('profesional_solicita')
+                        ->heading('PROFESIONA SOL.'),
+                    FilamentExcel\Columns\Column::make('patients.run')
+                        ->heading('RUN'),
+                        // TODO: Mostrar run,guion y dv
+                        // ->formatStateUsing(fn($state, Exam $exam)=>$exam->patients->run . '-' . $exam->patients->dv),
+                    FilamentExcel\Columns\Column::make('patients.name')
+                        ->heading('NOMBRE'),
+                        // TODO: Mostrar Nombre y ambos Apellidos
+                        //->formatStateUsing(fn($state, Exam $exam)=>$exam->patients->name . ' ' . $exam->patients->fathers_family . ' ' . $exam->patients->mothers_family),
+                    FilamentExcel\Columns\Column::make('patients.gender')
+                        ->heading('GENERO')
+                        ->formatStateUsing(fn($state)=>($state=='female'?'Femenino':'Masculino')),
+                    FilamentExcel\Columns\Column::make('patients.birthday')
+                        // TODO: Mostrar solo fecha en formato dmY
+                        // ->format(NumberFormat::FORMAT_DATE_DDMMYYYY)
+                        // ->formatStateUsing(fn($state)=>($state==\PhpOffice\PhpSpreadsheet\Shared\Date::PHPToExcel(date("d/m/Y", strtotime($state)))))
+                        ->heading('F. NAC'),
+                    FilamentExcel\Columns\Column::make('patients.age')
+                        ->heading('EDAD')
+                        ->formatStateUsing(fn($state)=>intval($state)),
+                    FilamentExcel\Columns\Column::make('patients.address')
+                        ->heading('DIRECCION'),
+                    FilamentExcel\Columns\Column::make('establishmentExam.alias')
+                        ->heading('EST. EXAMEN'),
+                    FilamentExcel\Columns\Column::make('date_exam_order')
+                        ->heading('F. ORDEN'),
+                    FilamentExcel\Columns\Column::make('date_exam')
+                        ->heading('F. EXAMEN'),
+                    FilamentExcel\Columns\Column::make('date_exam_reception')
+                        ->heading('F. RESULTADO'),
+                    FilamentExcel\Columns\Column::make('birards_mamografia')
+                        ->heading('MAMOGRAFIA'),
+                    FilamentExcel\Columns\Column::make('birards_ecografia')
+                        ->heading('ECOGRAFIA'),
+                    FilamentExcel\Columns\Column::make('birards_proyeccion')
+                        ->heading('PROYECCION'),
+                    FilamentExcel\Columns\Column::make('medico')
+                        ->heading('MEDICO'),
+                ])
+                ->withFilename('ReportBirards-' . date('dmY_Hs'))
+            ])
+        ];
     }
 }

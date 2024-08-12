@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\ReportMx;
+namespace App\Livewire\SireMx;
 
 use App\Models\Establishment;
 use App\Models\Commune;
@@ -40,6 +40,8 @@ class FormBirards extends Component implements HasForms
 
     public $exam_type;
 
+    public $birards = false;
+
     public function form(Form $form): Form
     {
         return $form
@@ -52,6 +54,26 @@ class FormBirards extends Component implements HasForms
                     ->label('Fin')
                     ->id('final')
                     ->hint('Considera fecha de toma de exámen'),
+                Forms\Components\Select::make('birards')
+                    ->label('Birards')
+                    ->id('birards')
+                    ->hidden(!$this->birards)
+                    // ->placeholder('Seleccione')
+                    // ->multiple() //FIXME: No funciona bien sin modelo.
+
+                    ->options([
+                        '99' => 'Seleccione',
+                        '0' => '0',
+                        '1' => 'I',
+                        '2' => 'II',
+                        '3' => 'III',
+                        '4' => 'IV',
+                        '5' => 'V',
+                        '6' => 'VI',
+                        '7' => 'VII'
+                    ])
+                    ->default('99')
+                    ->selectablePlaceholder(false),
                 Forms\Components\Select::make('commune')
                     ->id('commune')
                     ->label('Comuna')
@@ -98,14 +120,17 @@ class FormBirards extends Component implements HasForms
                                 $set('inicio', $inicio);
                                 $final = $get('final')?$get('final'):date("Y-m-d");
                                 $set('final', $final);
+                                $selected_birards = $get('birards');
                                 $code_deis_request = $get('original_establishment')?$get('original_establishment'):'';
                                 $code_deis = $get('exam_establishment')?$get('exam_establishment'):'';
                                 $commune = $get('commune')?$get('commune'):'';
                                 $search['inicio'] = $inicio;
                                 $search['final'] = $final;
+                                $search['selectedBirards'] = $selected_birards;
                                 $search['code_deis_request'] = $code_deis_request;
                                 $search['code_deis'] = $code_deis;
                                 $search['commune'] = $commune;
+                                // dd($search);
                                 $this->dispatch('updateFilters', $search);
                             }
                         ),
@@ -121,6 +146,6 @@ class FormBirards extends Component implements HasForms
 
     public function render(): View
     {
-        return view('livewire.report-mx.form-birards');
+        return view('livewire.sire-mx.form-birards');
     }
 }

@@ -1,60 +1,53 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Pages\SireMx;
 
-use App\Filament\Resources\ExamResource\Pages;
-
-use Filament\Resources\Resource;
+use Filament\Pages\Page;
 
 use App\Models\Exam;
-use App\Models\Patient;
-use App\Models\Commune;
-use App\Models\Establishment;
-
-use Livewire\Attributes\On;
+use Illuminate\Database\Eloquent\Builder;
 
 use Filament\Forms;
 use Filament\Forms\Form;
 
-
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
 
 use Filament\Tables\Filters;
-use Filament\Tables\Filters\QueryBuilder;
 use Filament\Tables\Enums\FiltersLayout;
 
+use pxlrbt\FilamentExcel\Actions\Pages\ExportAction;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use pxlrbt\FilamentExcel;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-
-class ExamResource extends Resource
+class PatientHistory extends Page implements HasTable
 {
-    protected static ?string $model = Exam::class;
+    use InteractsWithTable;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-document-chart-bar';
+
+    protected static string $view = 'filament.pages.sire-mx.patient-history';
+
+    protected static ?string $navigationGroup = 'Exámenes Mamarios';
 
     protected static ?string $navigationLabel = 'Historial Paciente';
 
-    protected static ?string $navigationGroup = 'Examenes Mamarios';
+    protected static ?string $title = 'Historial Paciente';
 
     protected static ?string $slug = 'patientHistory';
 
-    // protected static ?string $navigationParentItem = 'Reportes'; // TODO: Clusters Reportes
+    protected static ?int $navigationSort = 2;
 
-    public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                //
-            ]);
-    }
+    // protected static ?string $navigationParentItem = 'Reportes'; // TODO: Clusters Reportes
 
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function ($query) {
+            ->query(function (Builder $query) {
+                $query = Exam::query();
                 $query->leftjoin('mx_patients', 'mx_exams.patient_id', 'mx_patients.id');
                 $query->leftjoin('communes', 'mx_exams.comuna', 'communes.code_deis');
                 $query->leftjoin('mx_establishments', 'mx_exams.cesfam', 'mx_establishments.new_code_deis');
@@ -88,6 +81,7 @@ class ExamResource extends Resource
                     'mx_establishments.new_code_deis',
                     'mx_establishments.alias'
                 );
+                return $query;
             })
             ->columns([
                 Tables\Columns\TextColumn::make('servicio_salud')
@@ -150,13 +144,13 @@ class ExamResource extends Resource
                 Filters\Filter::make('RUT')
                     ->form([
                         Forms\Components\TextInput::make('rut')
-                            ->length(10)
-                            ->reactive()
-                            ->mask('99999999-*')
+                            ->minLength(9)
+                            ->tel()
+                            ->telRegex('^[1-9]\d*\-(\d|k|K)$')
                             ->hint('Utilizar formato: 13650969-1'),
                     ])
                     ->modifyQueryUsing(function ($query, array $data) {
-                        if($data['rut']){
+                        if(strlen($data['rut']) >= 9 ){
                             list($run,$dv) = array_pad(explode('-',str_replace(".", "", $data['rut'])),2,null);
                             $query->where('mx_patients.run', '=', $run);
                         } else {
@@ -182,16 +176,62 @@ class ExamResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
+    protected function getHeaderActions(): array
     {
+        date_default_timezone_set('America/Santiago');
         return [
-        ];
-    }
 
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListExams::route('/'),
+            ExportAction::make()->exports([
+
+                // Excel Export with custom format
+                ExcelExport::make('Descargar en Excel')->fromTable()->withColumns([
+                    FilamentExcel\Columns\Column::make('servicio_salud')
+                        ->heading('S. SALUD'),
+                    FilamentExcel\Columns\Column::make('establishmentOrigin.alias')
+                        ->heading('CESFAM'),
+                    FilamentExcel\Columns\Column::make('profesional_solicita')
+                        ->heading('PROFESIONA SOL.'),
+                    FilamentExcel\Columns\Column::make('patients.run')
+                        ->heading('RUN'),
+                        // TODO: Mostrar run,guion y dv
+                        // ->formatStateUsing(fn($state, Exam $exam)=>$exam->patients->run . '-' . $exam->patients->dv),
+                    FilamentExcel\Columns\Column::make('patients.name')
+                        ->heading('NOMBRE'),
+                        // TODO: Mostrar Nombre y ambos Apellidos
+                        //->formatStateUsing(fn($state, Exam $exam)=>$exam->patients->name . ' ' . $exam->patients->fathers_family . ' ' . $exam->patients->mothers_family),
+                    FilamentExcel\Columns\Column::make('patients.gender')
+                        ->heading('GENERO')
+                        ->formatStateUsing(fn($state)=>($state=='female'?'Femenino':'Masculino')),
+                    FilamentExcel\Columns\Column::make('patients.birthday')
+                        // TODO: Mostrar solo fecha en formato dmY
+                        // ->format(NumberFormat::FORMAT_DATE_DDMMYYYY)
+                        // ->formatStateUsing(fn($state)=>($state==\PhpOffice\PhpSpreadsheet\Shared\Date::PHPToExcel(date("d/m/Y", strtotime($state)))))
+                        ->heading('F. NAC'),
+                    FilamentExcel\Columns\Column::make('patients.age')
+                        ->heading('EDAD')
+                        ->formatStateUsing(fn($state)=>intval($state)),
+                    FilamentExcel\Columns\Column::make('patients.address')
+                        ->heading('DIRECCION'),
+                    FilamentExcel\Columns\Column::make('establishmentExam.alias')
+                        ->heading('EST. EXAMEN'),
+                    FilamentExcel\Columns\Column::make('date_exam_order')
+                        ->heading('F. ORDEN'),
+                    FilamentExcel\Columns\Column::make('date_exam')
+                        ->heading('F. EXAMEN'),
+                    FilamentExcel\Columns\Column::make('date_exam_reception')
+                        ->heading('F. RESULTADO'),
+                    FilamentExcel\Columns\Column::make('birards_mamografia')
+                        ->heading('MAMOGRAFIA'),
+                    FilamentExcel\Columns\Column::make('birards_ecografia')
+                        ->heading('ECOGRAFIA'),
+                    FilamentExcel\Columns\Column::make('birards_proyeccion')
+                        ->heading('PROYECCION'),
+                    FilamentExcel\Columns\Column::make('medico')
+                        ->heading('MEDICO'),
+                ])
+                ->withFilename('Patient_History-' . date('dmY_Hs'))
+            ])
+
         ];
     }
 }
