@@ -33,7 +33,7 @@ class ReportBirardsAge extends Page implements HasTable
 
     protected static ?string $slug = 'reportBirardsAge';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 7;
 
     protected $listeners = ['updateFilters' => 'setFilters'];
 
