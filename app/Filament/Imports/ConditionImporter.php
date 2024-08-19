@@ -2,6 +2,8 @@
 
 namespace App\Filament\Imports;
 
+use DateTime;
+
 use App\Models\Condition;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
@@ -29,9 +31,9 @@ class ConditionImporter extends Importer
     public static function getColumns(): array
     {
         return [
-            ImportColumn::make('coding')
+            ImportColumn::make('user_condition')
                 ->label('condicion')
-                ->relationship(resolveUsing: ['display'])
+                // ->relationship(resolveUsing: ['display'])
         ];
     }
 
@@ -48,11 +50,11 @@ class ConditionImporter extends Importer
                         ->Where('cod_con_identifier_type_id', 1);
                     })
                     ->first();
-        
+
         $sexValue = ClassSex::where('text', $this->originalData['sexo'])->first()->value;
         $sexGender = ClassGender::where('text', $this->originalData['genero'])->first()->value;
         $nationality = Country::where('name', $this->originalData['nacionalidad'])->first()->id;
- 
+
         $userCreatedOrUpdated = User::updateOrCreate(
             [
                 'id'    => $user ? $user->id : null
@@ -66,7 +68,7 @@ class ConditionImporter extends Importer
                 'mothers_family'        => $this->originalData['apellido_materno'],
                 'sex'                   => $sexValue,
                 'gender'                => $sexGender,
-                'birthday'              => $this->originalData['fecha_nacimiento'],
+                'birthday'              => date("Y-m-d", strtotime($this->originalData['fecha_nacimiento'])),
                 // 'cod_con_marital_id'    => $this->originalData['estado_civil'],
                 'nationality_id'        => $nationality,
             ]
@@ -102,11 +104,11 @@ class ConditionImporter extends Importer
         foreach($userCreatedOrUpdated->addresses as $address){
             if($address->use->value == 'home'){
                 $addressExist = $address;
-            }    
+            }
         }
 
         $commune = Commune::where('name', $this->originalData['comuna'])->first()->id;
-        
+
         $newAddress = Address::updateOrCreate(
             [
                 'id'    => $addressExist ? $addressExist->id : null
@@ -168,14 +170,37 @@ class ConditionImporter extends Importer
         $this->record->user_id                      = $userCreatedOrUpdated->id;
         $this->record->cod_con_clinical_status      = 'active';
         $this->record->cod_con_verification_status  = 'confirmed';
-    
+
         //JSON PARA GUARDAR INFO EXTRA
+        /*
         $extra_info_json = [
             'fecha_ingreso' => $this->originalData['fecha_ingreso'],
             'diagnostico'   => $this->originalData['diagnostico'],
         ];
         $this->record->extra_info                   = json_encode($extra_info_json);
-        //
+        */
+
+
+        $this->record->diagnosis = $this->originalData['diagnostico'];
+        $this->record->check_in_date = $this->formatDate($this->originalData['fecha_ingreso']);
+        $this->record->check_out_date = $this->formatDate($this->originalData['fecha_egreso']);
+        $this->record->integral_visits = $this->originalData['visitas_integrales'];
+        $this->record->treatment_visits = $this->originalData['visitas_tratamiento'];
+        $this->record->last_integral_visit = $this->formatDate($this->originalData['fecha_visita_integral']);
+        $this->record->last_treatment_visit =  $this->formatDate($this->originalData['fecha_visita_tratamiento']);
+        $this->record->barthel = $this->originalData['barthel'];
+        $this->record->empam = $this->originalData['emp_empam'];
+        $this->record->eleam = $this->originalData['eleam'];
+        $this->record->upp = $this->originalData['upp'];
+        $this->record->elaborated_plan = $this->originalData['plan_elaborado'];
+        $this->record->evaluated_plan = $this->originalData['plan_evaluado'];
+        $this->record->pneumonia = $this->originalData['neumo'];
+        $this->record->influenza = $this->originalData['influenza'];
+        $this->record->covid_19 = $this->originalData['covid_19'];
+        $this->record->extra_info = $this->originalData['extra_info'];
+        $this->record->tech_aid = $this->originalData['ayuda_tecnica'];
+        $this->record->nutrition_assistance = $this->originalData['entrega_alimentacion'];
+        $this->record->flood_zone = $this->originalData['zona_inundabilidad'];
         $this->record->save();
     }
 
@@ -188,5 +213,15 @@ class ConditionImporter extends Importer
         }
 
         return $body;
+    }
+
+    public function formatDate($text)
+    {
+
+        if($text == null || $text == 0){
+            return null;
+        } else {
+            return DateTime::createFromFormat('d/m/Y', $text)->format('Y-m-d');
+        }
     }
 }
