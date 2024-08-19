@@ -61,13 +61,13 @@ return new class extends Migration
 
             $table->string('empam')->nullable();
 
-            $table->string('eleam')->nullable();
+            $table->boolean('eleam')->nullable();
 
-            $table->string('upp')->nullable();
+            $table->boolean('upp')->nullable();
 
-            $table->string('elaborated_plan')->nullable();
+            $table->boolean('elaborated_plan')->nullable();
 
-            $table->string('evaluated_plan')->nullable();
+            $table->boolean('evaluated_plan')->nullable();
 
             $table->string('pneumonia')->nullable();
 
@@ -77,11 +77,15 @@ return new class extends Migration
 
             $table->text('extra_info')->nullable();
 
-            $table->string('tech_aid')->nullable();
+            $table->boolean('tech_aid')->nullable();
 
-            $table->string('nutrition_assistance')->nullable();
+            $table->date('tech_aid_date')->nullable();
 
-            $table->string('flood_zone')->nullable();
+            $table->boolean('nutrition_assistance')->nullable();
+
+            $table->date('nutrition_assistance_date')->nullable();
+
+            $table->boolean('flood_zone')->nullable();
 
             $table->timestamps();
 
