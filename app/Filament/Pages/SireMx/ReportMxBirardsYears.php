@@ -60,7 +60,7 @@ class ReportMxBirardsYears extends Page implements HasTable
                     'p.patient_id',
                     DB::raw('MAX(date_exam) as ultimo_examen')
                 );
-                $sub->groupBy('p.patient_id, ultimo_examen')
+                $sub->groupBy('p.patient_id, ultimo_examen');
 
                 // $query = Exam::query();
                 // $query->leftjoin('mx_patients', 'mx_exams.patient_id', 'mx_patients.id');
