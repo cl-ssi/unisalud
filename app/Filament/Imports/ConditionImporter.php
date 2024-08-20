@@ -215,6 +215,28 @@ class ConditionImporter extends Importer
         return $body;
     }
 
+    public function validateBool($text)
+    {
+        $out = null;
+        $text = strtolower(trim($text));
+        if($text == 'si'){
+            $out = true;
+        } else if($text == 'no'){
+            $out = false;
+        }
+        return $out;
+    }
+
+    public function validateDate($text)
+    {
+        $timestamp = strtotime($text);
+        $out = null;
+        if($timestamp !== false){
+            $out = date('Y-m-d', $timestamp);
+        }
+        return $out;
+    }
+
     public function formatDate($text)
     {
 

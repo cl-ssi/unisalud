@@ -51,9 +51,9 @@ return new class extends Migration
 
             $table->integer('integral_visits')->nullable();
 
-            $table->integer('treatment_visits')->nullable();
-
             $table->date('last_integral_visit')->nullable();
+
+            $table->integer('treatment_visits')->nullable();
 
             $table->date('last_treatment_visit')->nullable();
 
@@ -74,6 +74,8 @@ return new class extends Migration
             $table->string('influenza')->nullable();
 
             $table->string('covid_19')->nullable();
+
+            $table->date('covid_19_date')->nullable();
 
             $table->text('extra_info')->nullable();
 

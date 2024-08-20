@@ -28,7 +28,7 @@ class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Con
     protected static ?string $navigationLabel = 'Listado Pacientes con Condición';
     protected static ?string $navigationGroup = 'Usuarios';
     protected static ?string $slug = 'condition-patients';
-    
+
     protected static ?string $title = 'Listado de Pacientes con Condición';
 
     public $conditionTypes = [];
@@ -36,6 +36,7 @@ class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Con
 
     public function mount()
     {
+        // $this->conditionTypes = Coding::pluck('display', 'id')->toArray();
         $this->conditionTypes = Coding::pluck('display', 'id')->toArray();
         $this->form->fill([
             'condition_id' => null,
@@ -119,6 +120,59 @@ class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Con
                 ->label('Longitud'),
             Tables\Columns\TextColumn::make('address.location.latitude')
                 ->label('Latitud'),
+            Tables\Columns\TextColumn::make('conditions.diagnosis')
+                ->label('Diagnostico'),
+            Tables\Columns\TextColumn::make('conditions.check_in_date')
+                ->label('Fecha de Ingreso')
+                ->date(),
+            Tables\Columns\TextColumn::make('conditions.check_out_date')
+                ->label('Fecha de Egreso')
+                ->date(),
+            Tables\Columns\TextColumn::make('conditions.integral_visits')
+                ->label('Vistas Integrales'),
+            Tables\Columns\TextColumn::make('conditions.last_integral_visit')
+                ->label('Última Visita Integral')
+                ->date(),
+            Tables\Columns\TextColumn::make('conditions.treatment_visits')
+                ->label('Visitas de Tratamiento'),
+            Tables\Columns\TextColumn::make('conditions.last_treatment_visit')
+                ->label('Última Visita de Tratamiento')
+                ->date(),
+            Tables\Columns\TextColumn::make('conditions.barthel')
+                ->label('Barthel'),
+            Tables\Columns\TextColumn::make('conditions.empam')
+                ->label('Emp / Empam'),
+            Tables\Columns\TextColumn::make('conditions.eleam')
+                ->label('Eleam'),
+            Tables\Columns\TextColumn::make('conditions.upp')
+                ->label('UPP'),
+            Tables\Columns\TextColumn::make('conditions.elaborated_plan')
+                ->label('Plan Elaborado'),
+            Tables\Columns\TextColumn::make('conditions.evaluated_plan')
+                ->label('Plan Evaluado'),
+            Tables\Columns\TextColumn::make('conditions.pneumonia')
+                ->label('Neumonia'),
+            Tables\Columns\TextColumn::make('conditions.influenza')
+                ->label('Influenza'),
+            Tables\Columns\TextColumn::make('conditions.covid_19')
+                ->label('Covid-19'),
+            Tables\Columns\TextColumn::make('conditions.covid_19_date')
+                ->label('Fecha de Covid-19')
+                ->date(),
+            Tables\Columns\TextColumn::make('conditions.extra_info')
+                ->label('Otros'),
+            Tables\Columns\TextColumn::make('conditions.tech_aid')
+                ->label('Ayuda Técnica'),
+            Tables\Columns\TextColumn::make('conditions.tech_aid_date')
+                ->label('Fecha Ayuda Técnica')
+                ->date(),
+            Tables\Columns\TextColumn::make('conditions.nutrition_assistance')
+                ->label('Entrega de Alimentación'),
+            Tables\Columns\TextColumn::make('conditions.nutrition_assistance_date')
+                ->label('Fecha Entrega de Alimentación')
+                ->date(),
+            Tables\Columns\TextColumn::make('conditions.flood_zone')
+                ->label('Zona de Inundabilidad'),
             // Agrega más columnas según tus necesidades
         ];
     }
