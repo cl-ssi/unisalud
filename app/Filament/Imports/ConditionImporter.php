@@ -39,7 +39,12 @@ class ConditionImporter extends Importer
 
     public function resolveRecord(): ?Condition
     {
-        return new Condition();
+        $user = User::whereHas('identifiers', function ($query) {
+            $query->where('value', $this->originalData['run'])
+                ->Where('cod_con_identifier_type_id', 1);
+            })
+            ->first();
+        return Condition::firstOrCreate(['user_id' => $user->id ]);
     }
 
     protected function afterSave(): void
@@ -178,6 +183,7 @@ class ConditionImporter extends Importer
         // ];
         // $this->record->extra_info                   = json_encode($extra_info_json);
 
+        // $this->record->identifier = $userCreatedOrUpdated->identifiers->latest()->value('id');
         $this->record->diagnosis = $this->originalData['diagnostico'];
         $this->record->check_in_date = $this->validateDate($this->originalData['fecha_ingreso']);
         $this->record->check_out_date = $this->validateDate($this->originalData['fecha_egreso']);
@@ -219,9 +225,9 @@ class ConditionImporter extends Importer
     {
         $out = null;
         $text = strtolower(trim($text));
-        if($text == 'si'){
+        if($text == 'si' || $text == 'ok'){
             $out = true;
-        } else if($text == 'no'){
+        } else if($text == 'no' || $text == 'p'){
             $out = false;
         }
         return $out;
@@ -229,21 +235,13 @@ class ConditionImporter extends Importer
 
     public function validateDate($text)
     {
-        $timestamp = strtotime($text);
         $out = null;
-        if($timestamp !== false){
-            $out = date('Y-m-d', $timestamp);
+        if($text != ''){
+            $date_str = DateTime::createFromFormat('d/m/Y', $text);
+            if($date_str != false){
+                $out = $date_str->format('Y-m-d');
+            }
         }
         return $out;
-    }
-
-    public function formatDate($text)
-    {
-
-        if($text == null || $text == 0){
-            return null;
-        } else {
-            return DateTime::createFromFormat('d/m/Y', $text)->format('Y-m-d');
-        }
     }
 }

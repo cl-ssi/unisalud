@@ -143,13 +143,17 @@ class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Con
             Tables\Columns\TextColumn::make('conditions.empam')
                 ->label('Emp / Empam'),
             Tables\Columns\TextColumn::make('conditions.eleam')
-                ->label('Eleam'),
+                ->label('Eleam')
+                ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
             Tables\Columns\TextColumn::make('conditions.upp')
-                ->label('UPP'),
+                ->label('UPP')
+                ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
             Tables\Columns\TextColumn::make('conditions.elaborated_plan')
-                ->label('Plan Elaborado'),
+                ->label('Plan Elaborado')
+                ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
             Tables\Columns\TextColumn::make('conditions.evaluated_plan')
-                ->label('Plan Evaluado'),
+                ->label('Plan Evaluado')
+                ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
             Tables\Columns\TextColumn::make('conditions.pneumonia')
                 ->label('Neumonia'),
             Tables\Columns\TextColumn::make('conditions.influenza')
@@ -162,17 +166,22 @@ class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Con
             Tables\Columns\TextColumn::make('conditions.extra_info')
                 ->label('Otros'),
             Tables\Columns\TextColumn::make('conditions.tech_aid')
-                ->label('Ayuda Técnica'),
+                ->label('Ayuda Técnica')
+                ->placeholder('No Aplica')
+                ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
             Tables\Columns\TextColumn::make('conditions.tech_aid_date')
                 ->label('Fecha Ayuda Técnica')
                 ->date(),
             Tables\Columns\TextColumn::make('conditions.nutrition_assistance')
-                ->label('Entrega de Alimentación'),
+                ->label('Entrega de Alimentación')
+                ->placeholder('No Aplica')
+                ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
             Tables\Columns\TextColumn::make('conditions.nutrition_assistance_date')
                 ->label('Fecha Entrega de Alimentación')
                 ->date(),
             Tables\Columns\TextColumn::make('conditions.flood_zone')
-                ->label('Zona de Inundabilidad'),
+                ->label('Zona de Inundabilidad')
+                ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
             // Agrega más columnas según tus necesidades
         ];
     }
