@@ -172,35 +172,35 @@ class ConditionImporter extends Importer
         $this->record->cod_con_verification_status  = 'confirmed';
 
         //JSON PARA GUARDAR INFO EXTRA
-        /*
-        $extra_info_json = [
-            'fecha_ingreso' => $this->originalData['fecha_ingreso'],
-            'diagnostico'   => $this->originalData['diagnostico'],
-        ];
-        $this->record->extra_info                   = json_encode($extra_info_json);
-        */
-
+        // $extra_info_json = [
+        //     'fecha_ingreso' => $this->originalData['fecha_ingreso'],
+        //     'diagnostico'   => $this->originalData['diagnostico'],
+        // ];
+        // $this->record->extra_info                   = json_encode($extra_info_json);
 
         $this->record->diagnosis = $this->originalData['diagnostico'];
-        $this->record->check_in_date = $this->formatDate($this->originalData['fecha_ingreso']);
-        $this->record->check_out_date = $this->formatDate($this->originalData['fecha_egreso']);
+        $this->record->check_in_date = $this->validateDate($this->originalData['fecha_ingreso']);
+        $this->record->check_out_date = $this->validateDate($this->originalData['fecha_egreso']);
         $this->record->integral_visits = $this->originalData['visitas_integrales'];
         $this->record->treatment_visits = $this->originalData['visitas_tratamiento'];
-        $this->record->last_integral_visit = $this->formatDate($this->originalData['fecha_visita_integral']);
-        $this->record->last_treatment_visit =  $this->formatDate($this->originalData['fecha_visita_tratamiento']);
+        $this->record->last_integral_visit = $this->validateDate($this->originalData['fecha_visita_integral']);
+        $this->record->last_treatment_visit =  $this->validateDate($this->originalData['fecha_visita_tratamiento']);
         $this->record->barthel = $this->originalData['barthel'];
         $this->record->empam = $this->originalData['emp_empam'];
-        $this->record->eleam = $this->originalData['eleam'];
-        $this->record->upp = $this->originalData['upp'];
-        $this->record->elaborated_plan = $this->originalData['plan_elaborado'];
-        $this->record->evaluated_plan = $this->originalData['plan_evaluado'];
+        $this->record->eleam = $this->validateBool($this->originalData['eleam']);
+        $this->record->upp = $this->validateBool($this->originalData['upp']);
+        $this->record->elaborated_plan = $this->validateBool($this->originalData['plan_elaborado']);
+        $this->record->evaluated_plan = $this->validateBool($this->originalData['plan_evaluado']);
         $this->record->pneumonia = $this->originalData['neumo'];
         $this->record->influenza = $this->originalData['influenza'];
         $this->record->covid_19 = $this->originalData['covid_19'];
+        $this->record->covid_19_date = $this->validateDate($this->originalData['covid_19_fecha']);
         $this->record->extra_info = $this->originalData['extra_info'];
-        $this->record->tech_aid = $this->originalData['ayuda_tecnica'];
-        $this->record->nutrition_assistance = $this->originalData['entrega_alimentacion'];
-        $this->record->flood_zone = $this->originalData['zona_inundabilidad'];
+        $this->record->tech_aid = $this->validateBool($this->originalData['ayuda_tecnica']);
+        $this->record->tech_aid_date = $this->validateDate($this->originalData['ayuda_tecnica_fecha']);
+        $this->record->nutrition_assistance = $this->validateBool($this->originalData['entrega_alimentacion']);
+        $this->record->nutrition_assistance_date = $this->validateDate($this->originalData['entrega_alimentacion_fecha']);
+        $this->record->flood_zone = $this->validateBool($this->originalData['zona_inundabilidad']);
         $this->record->save();
     }
 
