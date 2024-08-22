@@ -9,7 +9,7 @@ use App\Models\Condition;
 use App\Models\User;
 
 class ConditionMap extends Page
-{   
+{
     protected static ?string $navigationLabel = 'Mapa Pacientes con Condición';
     protected static ?string $navigationIcon = 'heroicon-o-map';
     protected static string $view = 'filament.pages.condition-map';
@@ -41,9 +41,12 @@ class ConditionMap extends Page
         if (!$this->selectedCondition) {
             return [];
         }
-    
+
         return User::whereHas('conditions', function ($query) {
-                $query->where('cod_con_code_id', $this->selectedCondition);
+                $query->where('user_condition', '<>', '');
+
+                // [x] En caso de usar FIRH con las condiciones habria que trabajar con cod_con_code_id y tabla Coding
+                // $query->where('cod_con_code_id', $this->selectedCondition);
             })
             ->with(['address.location']) // Cargamos las relaciones
             ->get()

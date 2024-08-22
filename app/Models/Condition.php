@@ -45,9 +45,12 @@ class Condition extends Model
         'pneumonia',
         'influenza',
         'covid_19',
+        'covid_19_date',
         'extra_info',
         'tech_aid',
+        'tech_aid_date',
         'nutrition_assistance',
+        'nutrition_assistance_date',
         'flood_zone',
     ];
 

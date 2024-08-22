@@ -91,6 +91,9 @@ class UserResource extends Resource
                 ImportAction::make()
                     ->importer(ConditionImporter::class)
                     ->label('Importar Condición de Usuarios')
+                    ->modalHeading('Importar Condición de Usuarios')
+                    // ->modalDescription('Subir archivo CSV')
+                    ->modalSubmitActionLabel('Importar')
             ])
             ->columns([
                 Tables\Columns\TextColumn::make('id')

@@ -45,9 +45,9 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->navigationGroups([
                 NavigationGroup::make()
-                     ->label('Exámenes Mamarios'),
+                    ->label('Usuarios'),
                 NavigationGroup::make()
-                    ->label('Usuarios')
+                    ->label('Exámenes Mamarios')
                     ->collapsed(),
                 NavigationGroup::make()
                     ->label('Parámetros')
