@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('conditions', function (Blueprint $table) {
+        Schema::create('dependent_user', function (Blueprint $table) {
             $table->id();
 
             $table->string('identifier')->nullable();
@@ -40,8 +40,6 @@ return new class extends Migration
             $table->foreignId('cod_con_code_id')->nullable()->constrained('codings');
 
             $table->foreignId('user_id')->nullable()->constrained('users');
-
-            $table->string('user_condition')->nullable();
 
             $table->text('diagnosis')->nullable();
 
@@ -100,6 +98,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('conditions');
+        Schema::dropIfExists('dependent_user');
     }
 };

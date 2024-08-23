@@ -94,6 +94,8 @@ class UserResource extends Resource
                     ->modalHeading('Importar Condición de Usuarios')
                     // ->modalDescription('Subir archivo CSV')
                     ->modalSubmitActionLabel('Importar')
+                    // ->options([])
+
             ])
             ->columns([
                 Tables\Columns\TextColumn::make('id')

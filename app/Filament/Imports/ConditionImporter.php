@@ -4,10 +4,14 @@ namespace App\Filament\Imports;
 
 use DateTime;
 
-use App\Models\Condition;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
+
+// use App\Models\Condition;
+use App\Models\DependentUser;
+use App\Models\DependentConditions;
+use App\Models\Condition;
 
 use App\Models\User;
 use App\Models\Identifier;
@@ -16,7 +20,8 @@ use App\Models\Address;
 use App\Services\GeocodingService;
 use App\Models\Commune;
 use App\Models\Location;
-use App\Models\Coding;
+
+// use App\Models\Coding;
 
 use App\Models\Sex as ClassSex;
 use App\Models\Gender as ClassGender;
@@ -24,27 +29,33 @@ use App\Models\Country;
 
 class ConditionImporter extends Importer
 {
-    protected static ?string $model = Condition::class;
+    // protected static ?string $model = Condition::class;
+    protected static ?string $model = DependentUser::class;
 
-    public $condition = null;
+    // public $condition = null;
+    public $dependent_user = null;
 
     public static function getColumns(): array
     {
+        /*
         return [
             ImportColumn::make('user_condition')
                 ->label('condicion')
                 // ->relationship(resolveUsing: ['display'])
         ];
+        */
+        return [];
     }
 
-    public function resolveRecord(): ?Condition
+    public function resolveRecord(): ?DependentUser
     {
         $user = User::whereHas('identifiers', function ($query) {
             $query->where('value', $this->originalData['run'])
                 ->Where('cod_con_identifier_type_id', 1);
             })
             ->first();
-        return Condition::firstOrCreate(['user_id' => $user->id ]);
+
+        return DependentUser::firstOrCreate(['user_id' => $user->id ]);
     }
 
     protected function afterSave(): void
@@ -170,20 +181,17 @@ class ConditionImporter extends Importer
             ]
         );
 
-        // SE AGREGA EL 'user_id' A $this->record, que corresponde al user recien creado o ya creado.
+        // Se busca la Condition mediante el nombre de la condicion
+        $condition = Condition::where('name', '=', $this->originalData['condicion'])->firstOrFail();
 
+        // Se crea la relacion en la tabla pivote DependentConditions
+        DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => $condition->id]);
+
+
+        // SE AGREGA EL 'user_id' A $this->record, que corresponde al user recien creado o ya creado.
         $this->record->user_id                      = $userCreatedOrUpdated->id;
         $this->record->cod_con_clinical_status      = 'active';
         $this->record->cod_con_verification_status  = 'confirmed';
-
-        //JSON PARA GUARDAR INFO EXTRA
-        // $extra_info_json = [
-        //     'fecha_ingreso' => $this->originalData['fecha_ingreso'],
-        //     'diagnostico'   => $this->originalData['diagnostico'],
-        // ];
-        // $this->record->extra_info                   = json_encode($extra_info_json);
-
-        // $this->record->identifier = $userCreatedOrUpdated->identifiers->latest()->value('id');
         $this->record->diagnosis = $this->originalData['diagnostico'];
         $this->record->check_in_date = $this->validateDate($this->originalData['fecha_ingreso']);
         $this->record->check_out_date = $this->validateDate($this->originalData['fecha_egreso']);
