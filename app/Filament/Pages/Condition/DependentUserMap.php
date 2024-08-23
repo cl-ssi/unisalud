@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Pages;
+namespace App\Filament\Pages\Condition;
 
 use Filament\Pages\Page;
 use Filament\Forms\Components\Select;
@@ -12,12 +12,13 @@ use App\Models\Condition;
 
 // use Illuminate\Database\Eloquent\Builder;
 
-class ConditionMap extends Page
+class DependentUserMap extends Page
 {
     protected static ?string $navigationLabel = 'Mapa Pacientes con Condición';
     protected static ?string $navigationIcon = 'heroicon-o-map';
-    protected static string $view = 'filament.pages.condition-map';
+    protected static string $view = 'filament.pages.condition.dependent-user-map';
     protected static ?string $navigationGroup = 'Usuarios';
+    // protected static ?string $slug = 'condition-map';
 
     protected static ?string $title = 'Mapa de Pacientes con Condición';
 
@@ -25,15 +26,17 @@ class ConditionMap extends Page
     public $users = [];
     public $conditionTypes = [];
     public $condition_id = null;
+    public $user_id = null;
 
 
-    public function mount()
+    public function mount(): void
     {
+        $this->condition_id = $this->condition_id??request('condition_id');
+        $this->user_id = $this->user_id??request('user_id');
         $this->conditionTypes = Condition::pluck('name', 'id')->toArray();
         $this->form->fill([
-            'condition_id' => null,
+            'condition_id' => $this->condition_id,
         ]);
-
         $this->users = $this->getUsersForCondition();
     }
 
@@ -80,7 +83,11 @@ class ConditionMap extends Page
                 ];
             })
             ->filter(function ($user) {
-                return $user['latitude'] !== null && $user['longitude'] !== null;
+                if($this->user_id != null){
+                    return $user['latitude'] !== null && $user['longitude'] !== null && $user['id'] == $this->user_id;
+                } else {
+                    return $user['latitude'] !== null && $user['longitude'] !== null;
+                }
             })
             ->values()
             ->toArray();

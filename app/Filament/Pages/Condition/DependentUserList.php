@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Filament\Pages;
+namespace App\Filament\Pages\Condition;
 
 use Filament\Pages\Page;
 use Filament\Tables;
+use Filament\Tables\Actions;
 use Filament\Forms;
 use Filament\Forms\Form;
 
@@ -12,24 +13,22 @@ use App\Models\DependentUser;
 use App\Models\DependentConditions;
 use App\Models\Condition;
 
-// use App\Models\Coding;
-
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 
-class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Contracts\HasTable
+class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables\Contracts\HasTable
 {
     use Forms\Concerns\InteractsWithForms;
     use Tables\Concerns\InteractsWithTable;
 
-    protected static string $view = 'filament.pages.condition-list';
+    protected static string $view = 'filament.pages.condition.dependent-user-list';
 
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
     protected static ?string $navigationLabel = 'Listado Pacientes con Condición';
     protected static ?string $navigationGroup = 'Usuarios';
-    protected static ?string $slug = 'condition-patients';
+    // protected static ?string $slug = 'condition-patients';
 
     protected static ?string $title = 'Listado de Pacientes con Condición';
 
@@ -108,7 +107,7 @@ class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Con
             Tables\Columns\TextColumn::make('birthday')
                 ->label('Fecha Nacimiento')
                 ->date(),
-            Tables\Columns\TextColumn::make('conditions.created_at')
+            Tables\Columns\TextColumn::make('dependentUser.created_at')
                 ->label('ingresado')
                 ->date(),
             Tables\Columns\TextColumn::make('address.use')
@@ -186,6 +185,20 @@ class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Con
                 ->label('Zona de Inundabilidad')
                 ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
             // Agrega más columnas según tus necesidades
+        ];
+    }
+
+    protected function getTableActions(): array
+    {
+        return [
+            Actions\Action::make('edit')
+                ->label('')
+                ->icon('heroicon-c-pencil-square')
+                ->url(fn (User $record): string => route('filament.admin.pages.dependent-user-edit', ['user_id' => $record->id])),
+            Actions\Action::make('map')
+                ->label('')
+                ->icon('heroicon-s-map')
+                ->url(fn (User $record): string => route('filament.admin.pages.dependent-user-map', ['condition_id' => $this->condition_id, 'user_id' => $record->id]))
         ];
     }
 }
