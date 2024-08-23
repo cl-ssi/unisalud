@@ -3,15 +3,17 @@
 namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
-// use Filament\Forms;
-
+use Filament\Tables;
 use Filament\Forms;
 use Filament\Forms\Form;
 
-use Filament\Tables;
-use App\Models\Condition;
-use App\Models\Coding;
 use App\Models\User;
+use App\Models\DependentUser;
+use App\Models\DependentConditions;
+use App\Models\Condition;
+
+// use App\Models\Coding;
+
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 
@@ -36,8 +38,7 @@ class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Con
 
     public function mount()
     {
-        // $this->conditionTypes = Coding::pluck('display', 'id')->toArray();
-        $this->conditionTypes = Coding::pluck('display', 'id')->toArray();
+        $this->conditionTypes = Condition::pluck('name', 'id')->toArray();
         $this->form->fill([
             'condition_id' => null,
         ]);
@@ -79,8 +80,10 @@ class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Con
     protected function getTableQuery(): Builder
     {
         // Aquí puedes personalizar la consulta según tus necesidades
-        $usersWithConditions = User::whereHas('conditions', function (Builder $query) {
-                $query->where('cod_con_code_id', $this->condition_id);
+        $usersWithConditions = User::whereHas('dependentUser', function (Builder $query) {
+                $query->whereHas('dependentConditions', function (Builder $query) {
+                    $query->where('condition_id', '=', $this->condition_id);
+                });
             });
         return $usersWithConditions;
     }
@@ -120,66 +123,66 @@ class ConditionList extends Page implements Forms\Contracts\HasForms, Tables\Con
                 ->label('Longitud'),
             Tables\Columns\TextColumn::make('address.location.latitude')
                 ->label('Latitud'),
-            Tables\Columns\TextColumn::make('conditions.diagnosis')
+            Tables\Columns\TextColumn::make('dependentUser.diagnosis')
                 ->label('Diagnostico'),
-            Tables\Columns\TextColumn::make('conditions.check_in_date')
+            Tables\Columns\TextColumn::make('dependentUser.check_in_date')
                 ->label('Fecha de Ingreso')
                 ->date(),
-            Tables\Columns\TextColumn::make('conditions.check_out_date')
+            Tables\Columns\TextColumn::make('dependentUser.check_out_date')
                 ->label('Fecha de Egreso')
                 ->date(),
-            Tables\Columns\TextColumn::make('conditions.integral_visits')
+            Tables\Columns\TextColumn::make('dependentUser.integral_visits')
                 ->label('Vistas Integrales'),
-            Tables\Columns\TextColumn::make('conditions.last_integral_visit')
+            Tables\Columns\TextColumn::make('dependentUser.last_integral_visit')
                 ->label('Última Visita Integral')
                 ->date(),
-            Tables\Columns\TextColumn::make('conditions.treatment_visits')
+            Tables\Columns\TextColumn::make('dependentUser.treatment_visits')
                 ->label('Visitas de Tratamiento'),
-            Tables\Columns\TextColumn::make('conditions.last_treatment_visit')
+            Tables\Columns\TextColumn::make('dependentUser.last_treatment_visit')
                 ->label('Última Visita de Tratamiento')
                 ->date(),
-            Tables\Columns\TextColumn::make('conditions.barthel')
+            Tables\Columns\TextColumn::make('dependentUser.barthel')
                 ->label('Barthel'),
-            Tables\Columns\TextColumn::make('conditions.empam')
+            Tables\Columns\TextColumn::make('dependentUser.empam')
                 ->label('Emp / Empam'),
-            Tables\Columns\TextColumn::make('conditions.eleam')
+            Tables\Columns\TextColumn::make('dependentUser.eleam')
                 ->label('Eleam')
                 ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-            Tables\Columns\TextColumn::make('conditions.upp')
+            Tables\Columns\TextColumn::make('dependentUser.upp')
                 ->label('UPP')
                 ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-            Tables\Columns\TextColumn::make('conditions.elaborated_plan')
+            Tables\Columns\TextColumn::make('dependentUser.elaborated_plan')
                 ->label('Plan Elaborado')
                 ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-            Tables\Columns\TextColumn::make('conditions.evaluated_plan')
+            Tables\Columns\TextColumn::make('dependentUser.evaluated_plan')
                 ->label('Plan Evaluado')
                 ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-            Tables\Columns\TextColumn::make('conditions.pneumonia')
+            Tables\Columns\TextColumn::make('dependentUser.pneumonia')
                 ->label('Neumonia'),
-            Tables\Columns\TextColumn::make('conditions.influenza')
+            Tables\Columns\TextColumn::make('dependentUser.influenza')
                 ->label('Influenza'),
-            Tables\Columns\TextColumn::make('conditions.covid_19')
+            Tables\Columns\TextColumn::make('dependentUser.covid_19')
                 ->label('Covid-19'),
-            Tables\Columns\TextColumn::make('conditions.covid_19_date')
+            Tables\Columns\TextColumn::make('dependentUser.covid_19_date')
                 ->label('Fecha de Covid-19')
                 ->date(),
-            Tables\Columns\TextColumn::make('conditions.extra_info')
+            Tables\Columns\TextColumn::make('dependentUser.extra_info')
                 ->label('Otros'),
-            Tables\Columns\TextColumn::make('conditions.tech_aid')
+            Tables\Columns\TextColumn::make('dependentUser.tech_aid')
                 ->label('Ayuda Técnica')
                 ->placeholder('No Aplica')
                 ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-            Tables\Columns\TextColumn::make('conditions.tech_aid_date')
+            Tables\Columns\TextColumn::make('dependentUser.tech_aid_date')
                 ->label('Fecha Ayuda Técnica')
                 ->date(),
-            Tables\Columns\TextColumn::make('conditions.nutrition_assistance')
+            Tables\Columns\TextColumn::make('dependentUser.nutrition_assistance')
                 ->label('Entrega de Alimentación')
                 ->placeholder('No Aplica')
                 ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-            Tables\Columns\TextColumn::make('conditions.nutrition_assistance_date')
+            Tables\Columns\TextColumn::make('dependentUser.nutrition_assistance_date')
                 ->label('Fecha Entrega de Alimentación')
                 ->date(),
-            Tables\Columns\TextColumn::make('conditions.flood_zone')
+            Tables\Columns\TextColumn::make('dependentUser.flood_zone')
                 ->label('Zona de Inundabilidad')
                 ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
             // Agrega más columnas según tus necesidades

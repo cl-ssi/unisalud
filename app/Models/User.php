@@ -6,6 +6,7 @@ namespace App\Models;
 use App\Enums\Gender;
 use App\Enums\Sex;
 use App\Models\Identifier;
+use App\Models\DependentUser;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
@@ -119,7 +120,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->hasMany(Address::class);
     }
-    
+
     public function address(): HasOne
     {
         // FIXME: OfficialAddress
@@ -132,9 +133,9 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->belongsTo(CodConMarital::class);
     }
 
-    public function conditions(): HasMany
+    public function dependentUser(): HasOne
     {
-        return $this->hasMany(Condition::class);
+        return $this->HasOne(DependentUser::class);
     }
 
     public function contactPoints(): HasMany
