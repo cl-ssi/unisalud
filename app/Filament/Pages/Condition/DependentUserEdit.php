@@ -30,10 +30,7 @@ class DependentUserEdit extends Page implements Forms\Contracts\HasForms
     public function mount(): void
     {
         $this->user_id = $this->user_id??request('user_id');
-        // dd($this->prefixArrayKeys(User::find($this->user_id)->dependentUser->attributesToArray(), 'dependentUser.'));
-        // dd(User::find($this->user_id)->dependentUser->attributesToArray());
-        $this->form->fill($this->prefixArrayKeys(User::find($this->user_id)->dependentUser->attributesToArray(), 'dependentUser.'));
-        $this->form->fill(User::find($this->user_id)->dependentUser->attributesToArray());
+        $this->form->fill(DependentUser::where('user_id', '=', $this->user_id)->firstOrFail()->attributesToArray());
         // dd($this->data);
     }
 
@@ -41,53 +38,59 @@ class DependentUserEdit extends Page implements Forms\Contracts\HasForms
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('dependentUser.diagnosis')
-                    ->id('diagnosis')
-                    ->label('Diagnostico'),
-                Forms\Components\DatePicker::make('dependentUser.check_in_date')
-                    ->label('Fecha de Ingreso'),
-                Forms\Components\DatePicker::make('dependentUser.check_out_date')
-                    ->label('Fecha de Egreso'),
-                Forms\Components\Toggle::make('dependentUser.integral_visits')
-                    ->label('Vistas Integrales'),
-                Forms\Components\DatePicker::make('dependentUser.last_integral_visits')
-                    ->label('Última Visita Integral'),
-                Forms\Components\Toggle::make('dependentUser.treatment_visits')
-                    ->label('Vistas de Tratamiento'),
-                Forms\Components\DatePicker::make('dependentUser.last_treatment_visits')
-                    ->label('Última Visita de Tratamiento'),
-                Forms\Components\TextInput::make('dependentUser.barthel')
-                    ->label('Barthel'),
-                Forms\Components\TextInput::make('dependentUser.empam')
-                    ->label('Emp/Empam'),
-                Forms\Components\Toggle::make('dependentUser.eleam')
-                    ->label('Eleam'),
-                Forms\Components\Toggle::make('dependentUser.upp')
-                    ->label('UPP'),
-                Forms\Components\Toggle::make('dependentUser.elaborated_plan')
-                    ->label('Plan Elaborado'),
-                Forms\Components\Toggle::make('dependentUser.evaluated_plan')
-                    ->label('Plan Evaluado'),
-                Forms\Components\TextInput::make('dependentUser.pneumonia')
-                    ->label('Neumonia'),
-                Forms\Components\TextInput::make('dependentUser.influenza')
-                    ->label('Influenza'),
-                Forms\Components\TextInput::make('dependentUser.covid_19')
-                    ->label('Covid-19'),
-                Forms\Components\DatePicker::make('dependentUser.covid_19_date')
-                    ->label('Fecha de Covid-19'),
-                Forms\Components\TextInput::make('dependentUser.extra_info')
-                    ->label('Otros'),
-                Forms\Components\TextInput::make('dependentUser.tech_aid')
-                    ->label('Ayuda Técnica'),
-                Forms\Components\DatePicker::make('dependentUser.tech_aid_date')
-                    ->label('Fecha Ayuda Técnica'),
-                Forms\Components\TextInput::make('dependentUser.nutrition_assistance')
-                    ->label('Entrega de Alimentación'),
-                Forms\Components\DatePicker::make('dependentUser.nutrition_assistance_date')
-                    ->label('Fecha Entrega de Alimentación'),
-                Forms\Components\Toggle::make('dependentUser.flood_zone')
-                    ->label('Zona de Inundabilidad'),
+                Forms\Components\Grid::make(3)
+                ->schema([
+                    Forms\Components\TextInput::make('diagnosis')
+                        ->label('Diagnostico'),
+                    Forms\Components\DatePicker::make('check_in_date')
+                        ->label('Fecha de Ingreso'),
+                    Forms\Components\DatePicker::make('check_out_date')
+                        ->label('Fecha de Egreso'),
+
+                ]),
+                Forms\Components\Grid::make(2)
+                ->schema([
+                    Forms\Components\TextInput::make('integral_visits')
+                        ->label('Vistas Integrales'),
+                    Forms\Components\DatePicker::make('last_integral_visit')
+                        ->label('Última Visita Integral'),
+                    Forms\Components\TextInput::make('treatment_visits')
+                        ->label('Vistas de Tratamiento'),
+                    Forms\Components\DatePicker::make('last_treatment_visit')
+                        ->label('Última Visita de Tratamiento'),
+                    Forms\Components\TextInput::make('barthel')
+                        ->label('Barthel'),
+                    Forms\Components\TextInput::make('empam')
+                        ->label('Emp/Empam'),
+                    Forms\Components\Toggle::make('eleam')
+                        ->label('Eleam'),
+                    Forms\Components\Toggle::make('upp')
+                        ->label('UPP'),
+                    Forms\Components\Toggle::make('elaborated_plan')
+                        ->label('Plan Elaborado'),
+                    Forms\Components\Toggle::make('evaluated_plan')
+                        ->label('Plan Evaluado'),
+                    Forms\Components\TextInput::make('pneumonia')
+                        ->label('Neumonia'),
+                    Forms\Components\TextInput::make('influenza')
+                        ->label('Influenza'),
+                    Forms\Components\TextInput::make('covid_19')
+                        ->label('Covid-19'),
+                    Forms\Components\DatePicker::make('covid_19_date')
+                        ->label('Fecha de Covid-19'),
+                    Forms\Components\TextInput::make('extra_info')
+                        ->label('Otros'),
+                    Forms\Components\TextInput::make('tech_aid')
+                        ->label('Ayuda Técnica'),
+                    Forms\Components\DatePicker::make('tech_aid_date')
+                        ->label('Fecha Ayuda Técnica'),
+                    Forms\Components\TextInput::make('nutrition_assistance')
+                        ->label('Entrega de Alimentación'),
+                    Forms\Components\DatePicker::make('nutrition_assistance_date')
+                        ->label('Fecha Entrega de Alimentación'),
+                    Forms\Components\Toggle::make('flood_zone')
+                        ->label('Zona de Inundabilidad'),
+                ])
             ])
             ->statePath('data');
     }
