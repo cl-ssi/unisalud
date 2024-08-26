@@ -36,8 +36,6 @@ class ReportMxBirardsYears extends Page implements HasTable
 
     protected static ?string $title = 'Reporte MX por Birads Antiguedad';
 
-    protected static ?string $slug = 'report-mx-birards-years';
-
     protected static ?int $navigationSort = 5;
 
     protected $listeners = ['updateFilters' => 'setFilters'];

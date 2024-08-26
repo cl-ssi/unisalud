@@ -34,7 +34,6 @@ class ReportMxBirards extends Page implements HasTable
 
     protected static ?string $title = 'Reporte MX por Bidards';
 
-    protected static ?string $slug = 'reportMxBidards';
 
     protected static ?int $navigationSort = 4;
 

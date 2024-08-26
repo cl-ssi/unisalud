@@ -37,8 +37,6 @@ class PatientHistoryClinical extends Page implements HasTable
 
     protected static ?string $navigationLabel = 'Cartola Paciente';
 
-    protected static ?string $slug = 'patientHistoryClinical';
-
     protected static ?string $title = 'Cartola Paciente';
 
     protected static ?int $navigationSort = 1;
@@ -177,7 +175,6 @@ class PatientHistoryClinical extends Page implements HasTable
 
     protected function getHeaderActions(): array
     {
-        date_default_timezone_set('America/Santiago');
         return [
 
             ExportAction::make()->exports([

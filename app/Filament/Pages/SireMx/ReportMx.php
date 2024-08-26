@@ -34,8 +34,6 @@ class ReportMx extends Page implements HasTable
 
     protected static ?string $title = 'Reporte MX';
 
-    protected static ?string $slug = 'reportMX';
-
     protected static ?int $navigationSort = 3;
 
     protected $listeners = ['updateFilters' => 'setFilters'];

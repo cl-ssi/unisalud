@@ -37,8 +37,6 @@ class PatientHistory extends Page implements HasTable
 
     protected static ?string $title = 'Historial Paciente';
 
-    protected static ?string $slug = 'patientHistory';
-
     protected static ?int $navigationSort = 2;
 
     // protected static ?string $navigationParentItem = 'Reportes'; // TODO: Clusters Reportes
@@ -151,6 +149,7 @@ class PatientHistory extends Page implements HasTable
                     ])
                     ->modifyQueryUsing(function ($query, array $data) {
                         if(strlen($data['rut']) >= 9 ){
+                            //TODO: When dv is in run
                             list($run,$dv) = array_pad(explode('-',str_replace(".", "", $data['rut'])),2,null);
                             $query->where('mx_patients.run', '=', $run);
                         } else {
