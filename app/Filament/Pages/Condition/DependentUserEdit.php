@@ -21,6 +21,8 @@ class DependentUserEdit extends Page implements Forms\Contracts\HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string $view = 'filament.pages.condition.dependent-user-edit';
 
     public ?array $data = [];
@@ -62,14 +64,25 @@ class DependentUserEdit extends Page implements Forms\Contracts\HasForms
                         ->label('Barthel'),
                     Forms\Components\TextInput::make('empam')
                         ->label('Emp/Empam'),
+                ]),
+                Forms\Components\Grid::make(3)
+                ->schema([
+                    Forms\Components\Toggle::make('flood_zone')
+                        ->label('Zona de Inundabilidad'),
                     Forms\Components\Toggle::make('eleam')
                         ->label('Eleam'),
                     Forms\Components\Toggle::make('upp')
                         ->label('UPP'),
+                    ]),
+                Forms\Components\Grid::make(2)
+                ->schema([
                     Forms\Components\Toggle::make('elaborated_plan')
                         ->label('Plan Elaborado'),
                     Forms\Components\Toggle::make('evaluated_plan')
                         ->label('Plan Evaluado'),
+                ]),
+                Forms\Components\Grid::make(2)
+                ->schema([
                     Forms\Components\TextInput::make('pneumonia')
                         ->label('Neumonia'),
                     Forms\Components\TextInput::make('influenza')
@@ -88,28 +101,8 @@ class DependentUserEdit extends Page implements Forms\Contracts\HasForms
                         ->label('Entrega de Alimentación'),
                     Forms\Components\DatePicker::make('nutrition_assistance_date')
                         ->label('Fecha Entrega de Alimentación'),
-                    Forms\Components\Toggle::make('flood_zone')
-                        ->label('Zona de Inundabilidad'),
                 ])
             ])
             ->statePath('data');
-    }
-
-    // protected function getTableQuery()
-    // {
-    //     // Aquí puedes personalizar la consulta según tus necesidades
-    //     $user = User::whereHas('dependentUser', function (Builder $query) {
-    //         $query->where('user_id', '=', $this->user_id);
-    //     })
-    //     ->with(['dependentUser']);
-    //     return $user;
-    // }
-
-    public function prefixArrayKeys($array, $prefix): array
-    {
-        return array_combine(
-            array_map(fn($k) => $prefix . $k, array_keys($array)),
-            $array
-        );
     }
 }
