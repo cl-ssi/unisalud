@@ -177,7 +177,6 @@ class PatientHistory extends Page implements HasTable
 
     protected function getHeaderActions(): array
     {
-        date_default_timezone_set('America/Santiago');
         return [
 
             ExportAction::make()->exports([

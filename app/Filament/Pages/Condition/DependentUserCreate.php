@@ -29,8 +29,7 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
 
     public function mount(): void
     {
-        $this->user_id = $this->user_id??request('user_id');
-        $this->form->fill(DependentUser::where('user_id', '=', $this->user_id)->firstOrFail()->attributesToArray());
+        $this->form->fill();
         // dd($this->data);
     }
 
@@ -46,6 +45,7 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                                 ->label('Nombre de Usuario')
                                 ->placeholder('Seleccione')
                                 ->searchable()
+                                ->optionsLimit(10)
                                 ->options(
                                     User::get()
                                     ->pluck('text', 'id')

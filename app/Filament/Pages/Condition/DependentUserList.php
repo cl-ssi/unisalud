@@ -4,9 +4,9 @@ namespace App\Filament\Pages\Condition;
 
 use Filament\Pages\Page;
 use Filament\Tables;
-use Filament\Tables\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Actions;
+
 
 use App\Models\User;
 use App\Models\DependentUser;
@@ -57,7 +57,7 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
     }
         */
 
-    public function form(Form $form): Form
+    public function form(Forms\Form $form): Forms\Form
     {
         return $form
             ->schema([
@@ -191,14 +191,23 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
     protected function getTableActions(): array
     {
         return [
-            Actions\Action::make('edit')
+            Tables\Actions\Action::make('edit')
                 ->label('')
                 ->icon('heroicon-c-pencil-square')
                 ->url(fn (User $record): string => route('filament.admin.pages.dependent-user-edit', ['user_id' => $record->id])),
-            Actions\Action::make('map')
+            Tables\Actions\Action::make('map')
                 ->label('')
                 ->icon('heroicon-s-map')
                 ->url(fn (User $record): string => route('filament.admin.pages.dependent-user-map', ['condition_id' => $this->condition_id, 'user_id' => $record->id]))
+        ];
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\Action::make('create')
+                ->label('Crear')
+                ->url(fn (): string => route('filament.admin.pages.dependent-user-create'))
         ];
     }
 }
