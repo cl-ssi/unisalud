@@ -142,7 +142,7 @@ class PatientHistory extends Page implements HasTable
                 Filters\Filter::make('RUT')
                     ->form([
                         Forms\Components\TextInput::make('rut')
-                            ->minLength(9)
+                            ->maxLength(10)
                             ->tel()
                             ->telRegex('^[1-9]\d*\-(\d|k|K)$')
                             ->hint('Utilizar formato: 13650969-1'),

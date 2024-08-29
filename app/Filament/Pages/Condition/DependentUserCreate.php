@@ -11,6 +11,10 @@ use Filament\Forms\Form;
 use App\Filament\Resources\UserResource;
 
 use App\Models\User;
+use App\Models\Sex;
+use App\Models\Gender;
+use App\Models\Country;
+use App\Models\CodConMarital;
 use App\Models\DependentUser;
 use App\Models\DependentConditions;
 use App\Models\Condition;
@@ -48,15 +52,17 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                         // })
                         ->schema([
                             Forms\Components\Select::make('TipoAsignacion')
-                                ->placeholder('Seleccione')
+                                ->selectablePlaceholder(false)
                                 ->label('Tipo de Asignación')
                                 ->id('assign_type') //doesnt change statePath, for the Get & Set
                                 ->statePath('assign_type')
                                 ->required()
                                 ->live()
+                                ->default(0)
                                 ->options([
-                                    0 => 'Nuevo',
-                                    1 => 'Buscar Existente'
+                                    0 => 'Seleccione',
+                                    1 => 'Nuevo',
+                                    2 => 'Buscar Existente'
                                 ]),
                             Forms\Components\Select::make('Nombre')
                                 ->placeholder('Seleccione')
@@ -64,12 +70,50 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                                 ->id('find_user')
                                 ->statePath('find_user')
                                 ->searchable()
-                                ->visible(fn (Forms\Get $get):bool => $get('assign_type') == 1)
+                                ->hidden(fn (Forms\Get $get):bool => $get('assign_type') != 2)
                                 ->optionsLimit(10)
-                                ->options(
-                                    User::get()
-                                    ->pluck('text', 'id')
-                                ),
+                                ->options(User::pluck('text', 'id')
+                            ),
+                            Forms\Components\Section::make('Ingresar nuevo usuario')
+                                ->hidden(fn (Forms\Get $get):bool => $get('assign_type') != 1)
+                                ->schema([
+                                    Forms\Components\TextInput::make('rut')
+                                        // ->maxLength(255)
+                                        ->maxLength(10)
+                                        ->tel()
+                                        ->telRegex('^[1-9]\d*\-(\d|k|K)$')
+                                        ->hint('Utilizar formato: 13650969-1')
+                                        ->default(null),
+                                    Forms\Components\TextInput::make('given')
+                                        ->label('Nombre')
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('fathers_family')
+                                        ->label('Apellido Paterno')
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('mothers_family')
+                                        ->label('Apellido Materno')
+                                        ->maxLength(255),
+                                    Forms\Components\Select::make('sex')
+                                        ->label('Sexo')
+                                        ->placeholder('Seleccione')
+                                        ->options(Sex::pluck('text', 'id')),
+                                    Forms\Components\Select::make('gender')
+                                        ->label('Género')
+                                        ->placeholder('Seleccione')
+                                        ->options(Gender::pluck('text', 'id')),
+                                    Forms\Components\DatePicker::make('birthday')
+                                        ->label('Fecha Nacimiento'),
+                                    // Forms\Components\DatePicker::make('deceased_datetime')
+                                    //     ->label('Fecha Deceso'),
+                                    Forms\Components\Select::make('cod_con_marital_id')
+                                        ->label('Estado Civil')
+                                        ->placeholder('Seleccione')
+                                        ->options(CodConMarital::pluck('text', 'id')),
+                                    Forms\Components\Select::make('nationality_id')
+                                        ->label('Nacionalidad')
+                                        ->placeholder('Seleccione')
+                                        ->options(Country::pluck('name', 'id')),
+                                ]),
                         ]),
                     Forms\Components\Wizard\Step::make('Dependencia')
                         ->schema([
@@ -141,3 +185,4 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
             ->statePath('data');
     }
 }
+
