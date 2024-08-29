@@ -8,6 +8,8 @@ use Filament\Tables\Actions;
 use Filament\Forms;
 use Filament\Forms\Form;
 
+use App\Filament\Resources\UserResource;
+
 use App\Models\User;
 use App\Models\DependentUser;
 use App\Models\DependentConditions;
@@ -39,12 +41,30 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
             ->schema([
                 Forms\Components\Wizard::make([
                     Forms\Components\Wizard\Step::make('Usuario')
+                        // ->beforeValidation(function (Forms\Get $get) {
+                        //     if($get('assign_type') == 0){
+                        //         redirect(UserResource::getUrl('create'));
+                        //     }
+                        // })
                         ->schema([
-                            Forms\Components\Select::make('Nombre')
-                                ->id('user')
-                                ->label('Nombre de Usuario')
+                            Forms\Components\Select::make('TipoAsignacion')
                                 ->placeholder('Seleccione')
+                                ->label('Tipo de Asignación')
+                                ->id('assign_type') //doesnt change statePath, for the Get & Set
+                                ->statePath('assign_type')
+                                ->required()
+                                ->live()
+                                ->options([
+                                    0 => 'Nuevo',
+                                    1 => 'Buscar Existente'
+                                ]),
+                            Forms\Components\Select::make('Nombre')
+                                ->placeholder('Seleccione')
+                                ->label('Nombre de Usuario')
+                                ->id('find_user')
+                                ->statePath('find_user')
                                 ->searchable()
+                                ->visible(fn (Forms\Get $get):bool => $get('assign_type') == 1)
                                 ->optionsLimit(10)
                                 ->options(
                                     User::get()
