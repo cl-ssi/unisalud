@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages\Condition;
 
+use app\Livewire\Condition\InfoUser;
+
 use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Actions;
@@ -45,24 +47,25 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
             ->schema([
                 Forms\Components\Wizard::make([
                     Forms\Components\Wizard\Step::make('Usuario')
-                        // ->beforeValidation(function (Forms\Get $get) {
-                        //     if($get('assign_type') == 0){
-                        //         redirect(UserResource::getUrl('create'));
-                        //     }
-                        // })
+                        ->beforeValidation(function (Forms\Get $get) {
+                            if($get('assign_type') == 1){
+                                $this->user_id = $get('find_user');
+                            }
+                            $this->dispatch('updateUserId', $this->user_id);
+                        })
                         ->schema([
                             Forms\Components\Select::make('TipoAsignacion')
                                 ->selectablePlaceholder(false)
                                 ->label('Tipo de Asignación')
                                 ->id('assign_type') //doesnt change statePath, for the Get & Set
                                 ->statePath('assign_type')
-                                ->required()
+                                // ->required(fn (Forms\Get $get):bool => $get('assign_type') == 2)
                                 ->live()
                                 ->default(0)
                                 ->options([
                                     0 => 'Seleccione',
-                                    1 => 'Nuevo',
-                                    2 => 'Buscar Existente'
+                                    1 => 'Buscar Existente',
+                                    2 => 'Nuevo',
                                 ]),
                             Forms\Components\Select::make('Nombre')
                                 ->placeholder('Seleccione')
@@ -70,12 +73,12 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                                 ->id('find_user')
                                 ->statePath('find_user')
                                 ->searchable()
-                                ->hidden(fn (Forms\Get $get):bool => $get('assign_type') != 2)
+                                ->hidden(fn (Forms\Get $get):bool => $get('assign_type') != 1)
                                 ->optionsLimit(10)
                                 ->options(User::pluck('text', 'id')
                             ),
                             Forms\Components\Section::make('Ingresar nuevo usuario')
-                                ->hidden(fn (Forms\Get $get):bool => $get('assign_type') != 1)
+                                ->hidden(fn (Forms\Get $get):bool => $get('assign_type') != 2)
                                 ->schema([
                                     Forms\Components\TextInput::make('rut')
                                         // ->maxLength(255)
@@ -117,6 +120,7 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                         ]),
                     Forms\Components\Wizard\Step::make('Dependencia')
                         ->schema([
+                            Forms\Components\Livewire::make('condition.info-user'),
                             Forms\Components\Grid::make(3)
                             ->schema([
                                 Forms\Components\TextInput::make('diagnosis')
@@ -181,8 +185,7 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                             ])
                         ]),
                 ])
-            ])
-            ->statePath('data');
+            ])->statePath('data');
     }
 }
 

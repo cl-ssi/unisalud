@@ -104,9 +104,6 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
                 ->getStateUsing(function ($record) {
                     return Carbon::parse($record->birthday)->age;
                 }),
-            Tables\Columns\TextColumn::make('birthday')
-                ->label('Fecha Nacimiento')
-                ->date(),
             Tables\Columns\TextColumn::make('dependentUser.created_at')
                 ->label('ingresado')
                 ->date(),

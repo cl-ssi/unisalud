@@ -1,4 +1,8 @@
 <x-filament::page>
+    <div>
+        @livewire('condition.info-user', ['user_id' => $user_id])
+    </div>
+
     <!-- Formulario de Filament -->
     <div class="space-y-4">
         {{ $this->form }}
