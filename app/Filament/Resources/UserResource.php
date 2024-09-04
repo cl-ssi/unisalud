@@ -181,7 +181,7 @@ class UserResource extends Resource
             RelationManagers\AddressRelationManager::class,
             RelationManagers\RolesRelationManager::class,
             RelationManagers\PermissionsRelationManager::class,
-            RelationManagers\ConditionsRelationManager::class,
+            // RelationManagers\ConditionsRelationManager::class,
             // RelationManagers\SexesRelationManager::class,
         ];
 

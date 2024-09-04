@@ -120,7 +120,7 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                         ]),
                     Forms\Components\Wizard\Step::make('Dependencia')
                         ->schema([
-                            Forms\Components\Livewire::make('condition.info-user'),
+                            Forms\Components\Livewire::make('condition.info-user', fn()=>['user_id' => $this->user_id]),
                             Forms\Components\Grid::make(3)
                             ->schema([
                                 Forms\Components\TextInput::make('diagnosis')
