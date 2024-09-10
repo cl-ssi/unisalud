@@ -6,11 +6,13 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
 
 use App\Models\User;
 use App\Models\DependentUser;
 use App\Models\DependentConditions;
 use App\Models\Condition;
+
 
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Pages\Page;
@@ -104,5 +106,25 @@ class DependentUserEdit extends Page implements Forms\Contracts\HasForms
                 ])
             ])
             ->statePath('data');
+    }
+
+
+    public function save()
+    {
+        $this->form->disabled(true);
+        $formData = $this->form->getState();
+        $dependentUser = DependentUser::where('user_id', '=', $this->user_id)->firstOrFail();
+        $dependentUserData = array_intersect_key($dependentUser->attributesToArray(), $formData);
+        if($formData == $dependentUserData){
+            Notification::make()->title('No han habido cambios.')->warning()->send();
+            return redirect()
+            ->to(route('filament.admin.pages.dependent-user-list'));
+        } else {
+            $dependentUser->update($formData);
+            $dependentUser->save();
+            Notification::make()->title('Cambios guardados satisfactoriamente.')->success()->send();
+            return redirect()
+            ->to(route('filament.admin.pages.dependent-user-list'));
+        }
     }
 }

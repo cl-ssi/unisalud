@@ -33,6 +33,7 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
     protected static ?string $title = 'Listado de Pacientes con Condición';
 
     public $conditionTypes = [];
+
     public $condition_id;
 
     public function mount()
@@ -66,7 +67,11 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
                     ->options($this->conditionTypes)
                     ->required()
                     ->reactive() // Hacer que el select sea reactivo
-                    ->afterStateUpdated(fn ($state) => $this->updatedConditionId($state)), // Llamar a un método cuando se actualice
+                    ->afterStateUpdated(function ($state){
+                        // $this->dispatch('open-modal', id: 'loading-data');
+                        // $this->updatedConditionId($state);
+                        // $this->dispatch('close-modal', id: 'loading-data');
+                    }),
             ]);
     }
 
@@ -79,6 +84,7 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
     protected function getTableQuery(): Builder
     {
         // Aquí puedes personalizar la consulta según tus necesidades
+
         $usersWithConditions = User::whereHas('dependentUser', function (Builder $query) {
                 $query->whereHas('dependentConditions', function (Builder $query) {
                     $query->where('condition_id', '=', $this->condition_id);

@@ -14,8 +14,19 @@ class Patient extends Model
     protected $table = 'mx_patients';
 
     protected $fillable = [
-        'id', 'run', 'dv', 'other_identification', 'name', 'fathers_family',
-        'mothers_family', 'gender', 'birthday','address','telephone', 'status', 'deceased_at'
+        'id',
+        'run',
+        'dv',
+        'other_identification',
+        'name',
+        'fathers_family',
+        'mothers_family',
+        'gender',
+        'birthday',
+        'address',
+        'telephone',
+        'status',
+        'deceased_at'
     ];
 
     protected $hidden = [
@@ -38,9 +49,8 @@ class Patient extends Model
 
     public function exams():HasMany
     {
-        return $this->hasMany('\App\Models\Exam', 'patient_id', 'id');
+        return $this->hasMany(Exam::class, 'patient_id', 'id');
     }
-
 
     public function getRun(): String
     {

@@ -38,9 +38,9 @@ class FormMXBirardsYears extends Component implements HasForms
                 Forms\Components\Select::make('year')
                     ->label('Años de Antiguedad')
                     ->id('year')
-                    ->placeholder('Seleccione')
+                    ->selectablePlaceholder(false)
+                    ->default(1)
                     ->options([
-                        '0' => '0',
                         '1' => '1',
                         '2' => '2',
                         '3' => '3',

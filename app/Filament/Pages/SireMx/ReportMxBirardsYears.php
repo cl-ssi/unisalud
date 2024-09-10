@@ -3,6 +3,7 @@
 namespace App\Filament\Pages\sireMx;
 
 use App\Models\Exam;
+use App\Models\Patient;
 
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -52,132 +53,107 @@ class ReportMxBirardsYears extends Page implements HasTable
     {
         return $table
             ->query(function (Builder $query) {
-                $sub =Exam::query();
-
-                $sub->select(
-                    'p.patient_id',
-                    DB::raw('MAX(date_exam) as ultimo_examen')
-                );
-                $sub->groupBy('p.patient_id, ultimo_examen');
-
-                // $query = Exam::query();
-                // $query->leftjoin('mx_patients', 'mx_exams.patient_id', 'mx_patients.id');
+                // return Patient::with('exams')->query();
+                // return Patient::query()->with('exams');
+                // return Patient::has('exams');
+                $query = Patient::query();
+                $query->leftjoin('mx_exams', 'mx_patients.id', 'mx_exams.patient_id');
                 // $query->leftjoin('communes', 'mx_exams.comuna', 'communes.code_deis');
-                // $query->leftjoin('mx_establishments', 'mx_exams.cesfam', 'mx_establishments.new_code_deis');
-                // $query->select(
-                //     'mx_exams.id',
-                //     'mx_exams.patient_id',
-                //     'mx_exams.cesfam',
-                //     'mx_exams.date_exam_order',
-                //     'mx_exams.date_exam',
-                //     'mx_exams.date_exam_reception',
-                //     'mx_exams.birards_mamografia',
-                //     'mx_exams.birards_ecografia',
-                //     'mx_exams.birards_proyeccion',
-                //     'mx_exams.diagnostico',
-                //     'mx_exams.profesional_solicita',
-                //     'mx_exams.medico',
-                //     'mx_exams.servicio_salud',
-                //     'mx_exams.comuna',
-                //     DB::raw('MAX(date_exam) as ultimo_examen, p.patient_id GROUP By p.patient_id FROM exams'),
-                //     'mx_patients.id',
-                //     'mx_patients.run',
-                //     'mx_patients.dv',
-                //     'mx_patients.name',
-                //     'mx_patients.fathers_family',
-                //     'mx_patients.mothers_family',
-                //     'mx_patients.gender',
-                //     'mx_patients.telephone',
-                //     'mx_patients.birthday',
-                //     'mx_patients.address',
-                //     'communes.name',
-                //     'communes.code_deis',
-                //     'mx_establishments.new_code_deis',
-                //     'mx_establishments.alias'
-                // );
+                $query->select(
+                    'mx_patients.id',
+                    'mx_patients.run',
+                    'mx_patients.dv',
+                    'mx_patients.name',
+                    'mx_patients.fathers_family',
+                    'mx_patients.mothers_family',
+                    'mx_patients.gender',
+                    'mx_patients.telephone',
+                    'mx_patients.birthday',
+                    'mx_patients.address',
+                    // 'mx_exams.date_exam',
+                    DB::raw('MAX(mx_exams.birards_mamografia) mam'),
+                    DB::raw('MAX(mx_exams.birards_ecografia) eco'),
+                    DB::raw('MAX(mx_exams.birards_proyeccion) proy'),
+                    DB::raw('MAX(mx_exams.date_exam) last_exam'),
+                    // 'communes.name',
+                    // 'communes.code_deis',
+                );
+                $query->groupBy(
+                    'mx_patients.id',
+                    // 'mx_exams.birards_mamografia',
+                    // 'mx_exams.birards_ecografia',
+                    // 'mx_exams.birards_proyeccion',
+                );
                 return $query;
             })
             ->modifyQueryUsing(function (Builder $query) {
-                if(empty($this->filters)){
-                    $query->whereNull('mx_exams.id');
+                if (!empty($this->filters['birard']) && !empty($this->filters['year'])) {
+                    $query->whereRaw('TIMESTAMPDIFF(Month, last_exam, NOW()) >= ?', $this->filters['year']);
+                    if(empty($this->filters['exam'])){
+                        $query->where('mx_exams.birards_mamografia', '=', $this->filters['birard'])
+                        ->orWhere('mx_exams.birards_ecografia', '=', $this->filters['birard'])
+                        ->orWhere('mx_exams.birards_proyeccion', '=', $this->filters['birard']);
+                    } else if($this->filters['exam'] == 'mam'){
+                        $query->where('mx_exams.birards_mamografia', '=', $this->filters['birard']);
+                    } else if($this->filters['exam'] == 'eco'){
+                        $query->where('mx_exams.birards_ecografia', '=', $this->filters['birard']);
+                    } else if($this->filters['exam'] == 'proy'){
+                        $query->where('mx_exams.birards_proyeccion', '=', $this->filters['birard']);
+                    }
                 }
                 else {
-                    if(!empty($this->filters['year'])){
-                        //FIXME: Unknown column 'ultimo_examen'
-                        // $query->dd();
-                        $query->where('ultimo_examen', '>=', $this->filters['year']);
-                    }
-                    if(!empty($this->filters['exams'])){
-                        $query->where('mx_exams.exam_type', '=', $this->filters['exams']);
-                    }
-                    if (!empty($this->filters['birard'])) {
-                        $query->where('mx_exams.birards_mamografia', '=', $this->filters['birard']);
-                    }
+                    $query->whereNull('mx_patients.id');
                 }
+
                 return $query;
             })
             ->columns([
-                Tables\Columns\TextColumn::make('servicio_salud')
-                    ->label('S. SALUD')
-                    ->placeholder('-'),
-                Tables\Columns\TextColumn::make('establishmentOrigin.alias')
-                    ->label('CESFAM')
-                    ->placeholder('-'),
-                Tables\Columns\TextColumn::make('profesional_solicita')
-                    ->label('PROFESIONA SOL.')
-                    ->placeholder('-'),
-                Tables\Columns\TextColumn::make('patients.run')
+                Tables\Columns\TextColumn::make('run')
                     ->label('RUN')
                     ->placeholder('-')
-                    ->formatStateUsing(fn($state, Exam $exam)=>$exam->patients->run . '-' . $exam->patients->dv),
-                Tables\Columns\TextColumn::make('patients.name')
+                    ->formatStateUsing(fn(Patient $record)=>$record->run . '-' . $record->dv),
+                Tables\Columns\TextColumn::make('name')
                     ->label('NOMBRE')
                     ->placeholder('-')
-                    ->formatStateUsing(fn($state, Exam $exam)=>$exam->patients->name . ' ' . $exam->patients->fathers_family . ' ' . $exam->patients->mothers_family),
-                Tables\Columns\TextColumn::make('patients.gender')
+                    ->formatStateUsing(fn(Patient $record)=>$record->name . ' ' . $record->fathers_family . ' ' . $record->mothers_family),
+                Tables\Columns\TextColumn::make('gender')
                     ->label('GENERO')
                     ->placeholder('-')
                     ->formatStateUsing(fn($state)=>($state=='female'?'Femenino':'Masculino')),
-                Tables\Columns\TextColumn::make('patients.birthday')
+                Tables\Columns\TextColumn::make('birthday')
                     ->label('F. NAC')
                     ->date("d/m/Y")
                     ->placeholder('-'),
-                Tables\Columns\TextColumn::make('patients.age')
+                Tables\Columns\TextColumn::make('age')
                     ->label('EDAD')
                     ->placeholder('-')
                     ->formatStateUsing(fn($state)=>intval($state)),
-                Tables\Columns\TextColumn::make('patients.address')
+                Tables\Columns\TextColumn::make('address')
                     ->label('DIRECCION'),
-                Tables\Columns\TextColumn::make('establishmentExam.alias')
-                    ->label('EST. EXAMEN')
-                    ->placeholder('-'),
-                Tables\Columns\TextColumn::make('date_exam_order')
-                    ->label('F. ORDEN')
-                    ->placeholder('-'),
-                Tables\Columns\TextColumn::make('date_exam')
+                // Tables\Columns\TextColumn::make('communes.name')
+                //     ->label('COMUNA'),
+                Tables\Columns\TextColumn::make('telephone')
+                    ->label('TELEFONO'),
+                Tables\Columns\TextColumn::make('last_exam')
                     ->label('F. EXAMEN')
                     ->placeholder('-'),
-                Tables\Columns\TextColumn::make('date_exam_reception')
-                    ->label('F. RESULTADO')
-                    ->placeholder('-'),
-                Tables\Columns\TextColumn::make('birards_mamografia')
+                Tables\Columns\TextColumn::make('mam')
+                    // ->formatStateUsing(fn(Patient $record)=>$record->exams->first()->birards_mamografia)
                     ->label('MAMOGRAFIA')
-                    ->placeholder('0'),
-                Tables\Columns\TextColumn::make('birards_ecografia')
+                    ->placeholder('-'),
+                Tables\Columns\TextColumn::make('eco')
+                    // ->formatStateUsing(fn(Patient $record)=>)
                     ->label('ECOGRAFIA')
-                    ->placeholder('0'),
-                Tables\Columns\TextColumn::make('birards_proyeccion')
+                    ->placeholder('-'),
+                Tables\Columns\TextColumn::make('proy')
+                    // ->formatStateUsing(fn(Patient $record)=>$record->exams->first()->birards_proyeccion)
                     ->label('PROYECCION')
-                    ->placeholder('0'),
-                Tables\Columns\TextColumn::make('medico')
-                    ->label('MEDICO')
                     ->placeholder('-'),
             ])
             ->heading('LISTADO DE PACIENTES');
     }
     protected function getHeaderActions(): array
     {
-        date_default_timezone_set('America/Santiago');
         return [
 
             ExportAction::make()->exports([
