@@ -70,7 +70,7 @@ class DependentUserMap extends Page
                     $query->where('condition_id', '=', $this->condition_id);
                 });
             })
-            ->with(['address.location', 'dependentUser']) // Cargamos las relaciones
+            ->with(['address', 'address.location', 'address.commune', 'dependentUser']) // Cargamos las relaciones
             ->get()
             ->map(function ($user) {
                 return [
@@ -80,6 +80,10 @@ class DependentUserMap extends Page
                     'latitude'      => $user->address->location->latitude ?? null,
                     'longitude'     => $user->address->location->longitude ?? null,
                     'diagnostico'   => $user->dependentUser->diagnosis,
+                    'calle'         => $user->address->text ?? null,
+                    'numero'        => $user->address->line ?? null,
+                    'departamento'  => $user->address->apartament ?? null,
+                    'comuna'        => $user->address->commune->name ?? null,
                 ];
             })
             ->filter(function ($user) {

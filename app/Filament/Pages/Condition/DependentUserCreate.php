@@ -16,9 +16,12 @@ use App\Services\GeocodingService;
 
 use App\Filament\Resources\UserResource;
 
+use App\Enums\Sex;
+use App\Enums\Gender;
+
 use App\Models\User;
-use App\Models\Sex;
-use App\Models\Gender;
+// use App\Models\Sex;
+// use App\Models\Gender;
 use App\Models\Country;
 use App\Models\Commune;
 use App\Models\Address;
@@ -60,7 +63,10 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                             if($get('assign_type') == 1){
                                 $this->user_id = $get('find_user');
                             } else if ($get('assign_type') == 2){
-                                list($run,$dv) = array_pad(explode('-',str_replace(".", "", $get(['rut']))),2,null);
+                                list($run,$dv) = array_pad(explode('-',str_replace(".", "", $get('rut'))),2,null);
+                                // $sex = Sex::find($get('sex'))->text;
+                                // $gender = Gender::find($get('gender'))->text;
+
                                 $user = User::whereHas('identifiers', function ($query) use($run) {
                                     $query->where('value', $run)
                                         ->Where('cod_con_identifier_type_id', 1);
@@ -105,10 +111,7 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                                             'user_id'           => $userCreatedOrUpdated->id
                                         ]
                                     );
-                                    $calle = $get('calle');
-                                    $numero = $get('numero');
                                     $commune = Commune::where('id', $get('commune'))->first();
-                                    $comuna = $commune->text;
 
                                     $addressCreated = Address::create(
                                         [
@@ -126,8 +129,15 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                                         ]
                                     );
 
+                                    $latitude   = null;
+                                    $longitude  = null;
+
                                     $locationExist = new Location();
                                     $locationExist = $addressCreated->location ? $addressCreated->location : null;
+
+                                    $calle = $get('calle');
+                                    $numero = $get('numero');
+                                    $comuna = $commune->name;
 
                                     if ($calle && $numero && $comuna ) {
 
@@ -137,9 +147,6 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                                         if ($coordinates) {
                                             $latitude   = $coordinates['lat'];
                                             $longitude  = $coordinates['lng'];
-                                        } else {
-                                            $latitude   = null;
-                                            $longitude  = null;
                                         }
                                     }
 
@@ -192,8 +199,8 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                                         ->label('RUT')
                                         ->statePath('rut')
                                         ->maxLength(10)
-                                        ->tel()
-                                        ->telRegex('^[1-9]\d*\-(\d|k|K)$')
+                                        // ->tel()
+                                        // ->telRegex('^[1-9]\d*\-(\d|k|K)$')
                                         ->hint('Utilizar formato: 13650969-1')
                                         ->default(null),
                                     Forms\Components\TextInput::make('given')
@@ -212,12 +219,12 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                                         ->label('Sexo')
                                         ->statePath('sex')
                                         ->placeholder('Seleccione')
-                                        ->options(Sex::pluck('text', 'id')),
+                                        ->options(Sex::class),
                                     Forms\Components\Select::make('gender')
                                         ->label('Género')
                                         ->statePath('gender')
                                         ->placeholder('Seleccione')
-                                        ->options(Gender::pluck('text', 'id')),
+                                        ->options(Gender::class),
                                     Forms\Components\DatePicker::make('birthday')
                                         ->label('Fecha Nacimiento')
                                         ->statePath('birthday'),

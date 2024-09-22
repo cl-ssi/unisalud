@@ -51,11 +51,11 @@ class ConditionImporter extends Importer
     {
         $user = User::whereHas('identifiers', function ($query) {
             $query->where('value', $this->originalData['run'])
-                ->Where('cod_con_identifier_type_id', 1);
+                ->where('cod_con_identifier_type_id', 1);
             })
             ->first();
-
-        return DependentUser::firstOrCreate(['user_id' => $user->id ]);
+        $user_id = $user->id??null;
+        return DependentUser::firstOrCreate(['user_id' => $user_id ]);
     }
 
     protected function afterSave(): void
