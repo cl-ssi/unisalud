@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Pages\sireMx;
+namespace App\Filament\Pages\SireMx;
 
 use App\Models\Exam;
 use App\Models\Patient;

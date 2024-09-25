@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\SireMx;
+namespace App\Livewire\SireMX;
 
 use App\Models\Establishment;
 use App\Models\Commune;

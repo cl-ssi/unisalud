@@ -18,7 +18,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 
-class FormMXBirardsYears extends Component implements HasForms
+class FormMxBirardsYears extends Component implements HasForms
 {
     // use InteractsWithTable;
     use InteractsWithForms;
