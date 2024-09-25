@@ -84,15 +84,15 @@ return [
         ],
 
         'teams' => [
-            'driver' => 'custom',//#1
-            'via'    => LogMonolog::class,//#2
-            'webhookDsn' => env('LOG_TEAMS_WEBHOOK_URL'),//#3
-            'level'  => 'debug',//#6
-            'title'  => 'Log UniSalud',//#4
-            'subject' => 'Message Subject',//#5 
-            'emoji'  => '&#x1F3C1',//#7
-            'color'  => '#fd0404',//#8
-            'format' => '[%datetime%] %channel%.%level_name%: %message%'//#9
+            'driver' => 'custom',
+            'via' => LogMonolog::class,
+            'webhookDsn' => env('LOG_TEAMS_WEBHOOK_URL'),
+            'level'  => env('LOG_LEVEL', 'debug'), // or simply 'debug'
+            'title'  => 'Log UniSalud', // can be NULL
+            'subject'  => 'Message Subject', // can be NULL
+            'emoji'  => '&#x1F3C1', // can be NULL
+            'color'  => '#fd0404', // can be NULL
+            'format' => '[%datetime%] %channel%.%level_name%: %message%' // can be NULL
         ],
 
         'papertrail' => [
