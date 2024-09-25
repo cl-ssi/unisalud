@@ -81,7 +81,8 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         // Solo pueden acceder si tienen el permiso "be god"
         // TODO: Cuando esté listo para poducción, cambiar a return true;
-        return $this->can('be god');
+        // return $this->can('be god');
+        return true;
     }
 
     public function canBeImpersonated()
