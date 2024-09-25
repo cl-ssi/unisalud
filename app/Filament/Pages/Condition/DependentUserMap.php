@@ -60,6 +60,23 @@ class DependentUserMap extends Page
 
     public function getUsersForCondition(): array
     {
+
+        // $query = User::query();
+        // if($this->condition_id != null){
+        //     $query->whereHas('dependentUser', function ($query) {
+        //         $query->whereHas('dependentConditions', function ($query) {
+        //             $query->where('condition_id', '=', $this->condition_id);
+        //         });
+        //     });
+        //     if($this->user_id != null){
+        //         $query->where('id', '=', '');
+
+        //     } 
+        // } else{
+        //     $query->where('id', '=', $this->id);
+        // }
+        // $query->with(['address', 'address.location', 'address.commune', 'dependentUser']);
+        // $users = $query->all()->limit(500);
         if (!$this->condition_id) {
             return [];
         }
