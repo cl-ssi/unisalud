@@ -33,6 +33,8 @@ use App\Models\CodConMarital;
 use App\Models\DependentUser;
 use App\Models\DependentConditions;
 
+use Illuminate\Database\Eloquent\Builder;
+
 class DependentUserCreate extends Page implements Forms\Contracts\HasForms
 {
     use Forms\Concerns\InteractsWithForms;
@@ -185,13 +187,27 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                             Forms\Components\Select::make('Nombre')
                                 ->placeholder('Seleccione')
                                 ->label('Nombre de Usuario')
-                                ->id('find_user')
                                 ->statePath('find_user')
                                 ->searchable()
-                                ->hidden(fn (Forms\Get $get):bool => $get('assign_type') != 1)
+                                ->searchDebounce(500)
+                                ->preload()
                                 ->optionsLimit(10)
-                                ->options(User::pluck('text', 'id')
-                            ),
+                                ->hidden(fn (Forms\Get $get):bool => $get('assign_type') != 1)
+                                ->getSearchResultsUsing(
+                                    function ($search){
+                                        $terms = explode(' ', $search);
+                                        $query = null;
+                                        foreach ($terms as $term) {
+                                            if (is_null($query)) {
+                                                $query = User::whereRaw("UPPER(text) LIKE '%" . trim(strtoupper($term)) . "%'");
+                                            } else {
+                                                $query->whereRaw("UPPER(text) LIKE '%" . trim(strtoupper($term)) . "%'");
+                                            }
+                                        }
+                                        $query->limit(10);
+                                        return $query->pluck('text', 'id');
+                                    }
+                                ),
                             Forms\Components\Section::make('Ingresar nuevo usuario')
                                 ->hidden(fn (Forms\Get $get):bool => $get('assign_type') != 2)
                                 ->schema([
@@ -340,13 +356,16 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                                 Forms\Components\TextInput::make('extra_info')
                                     ->statePath('extra_info')
                                     ->label('Otros'),
-                                Forms\Components\TextInput::make('tech_aid')
+                            ]),
+                            Forms\Components\Grid::make(4)
+                            ->schema([
+                                Forms\Components\Toggle::make('tech_aid')
                                     ->statePath('tech_aid')
                                     ->label('Ayuda Técnica'),
                                 Forms\Components\DatePicker::make('tech_aid_date')
                                     ->statePath('tech_aid_date')
                                     ->label('Fecha Ayuda Técnica'),
-                                Forms\Components\TextInput::make('nutrition_assistance')
+                                Forms\Components\Toggle::make('nutrition_assistance')
                                     ->statePath('nutrition_assistance')
                                     ->label('Entrega de Alimentación'),
                                 Forms\Components\DatePicker::make('nutrition_assistance_date')

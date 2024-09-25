@@ -24,7 +24,7 @@ class InfoUser extends Component implements Forms\Contracts\HasForms, Infolists\
     public function mount(?string $user_id = null): void
     {
         $this->user_id = $this->user_id??$user_id;
-        $this->user = User::find($this->user_id);
+        $this->user = User::with(['identifiers', 'address', 'address.commune'])->find($this->user_id);
     }
 
     public function userInfolist(Infolists\Infolist $infolist): Infolists\Infolist

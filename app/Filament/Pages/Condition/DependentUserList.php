@@ -388,7 +388,7 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
                         ->heading('Fecha Nacimiento'),
                     FilamentExcel\Columns\Column::make('age')
                         ->heading('Edad')
-                        ->getStateUsing(function ($record) {
+                        ->getStateUsing(function ($record) { 
                             return Carbon::parse($record->birthday)->age;
                         }),
                     FilamentExcel\Columns\Column::make('dependentUser.created_at')
