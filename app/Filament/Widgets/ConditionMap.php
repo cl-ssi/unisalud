@@ -38,7 +38,7 @@ class ConditionMap extends MapWidget
                 });
             });
             if($this->user_id != null){
-                $query->where('id', '=', $this->user_id);
+                $query->where('id', '=', '');
 
             } 
         } else{
