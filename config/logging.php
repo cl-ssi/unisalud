@@ -1,5 +1,6 @@
 <?php
 
+use Actived\MicrosoftTeamsNotifier\LogMonolog;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -80,6 +81,18 @@ return [
             'emoji' => env('LOG_SLACK_EMOJI', ':boom:'),
             'level' => env('LOG_LEVEL', 'critical'),
             'replace_placeholders' => true,
+        ],
+
+        'teams' => [
+            'driver' => 'custom',//#1
+            'via'    => LogMonolog::class,//#2
+            'webhookDsn' => env('LOG_TEAMS_WEBHOOK_URL'),//#3
+            'level'  => 'debug',//#6
+            'title'  => 'Log UniSalud',//#4
+            'subject' => 'Message Subject',//#5 
+            'emoji'  => '&#x1F3C1',//#7
+            'color'  => '#fd0404',//#8
+            'format' => '[%datetime%] %channel%.%level_name%: %message%'//#9
         ],
 
         'papertrail' => [
