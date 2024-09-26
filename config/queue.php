@@ -72,6 +72,19 @@ return [
             'after_commit' => false,
         ],
 
+        'cloudtasks' => [
+            'driver' => 'cloudtasks',
+            'project' => env('GOOGLE_PROJECT_ID', ''),
+            'location' => env('CLOUD_TASKS_LOCATION', ''),
+            'queue' => env('CLOUD_TASKS_QUEUE', 'default'),
+            'handler' => env('CLOUD_TASKS_HANDLER', ''),
+            'service_account_email' => env('CLOUD_TASKS_SERVICE_EMAIL', ''),
+            'backoff' => 0,
+            // Optional: The deadline in seconds for requests sent to the worker. If the worker
+            // does not respond by this deadline then the request is cancelled and the attempt
+            // is marked as a DEADLINE_EXCEEDED failure.
+            // 'dispatch_deadline' => null,
+        ],
     ],
 
     /*

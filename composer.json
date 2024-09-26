@@ -18,6 +18,7 @@
         "pxlrbt/filament-excel": "^2.3",
         "socialiteproviders/claveunica": "^4.2",
         "spatie/laravel-permission": "^6.9",
+        "stackkit/laravel-google-cloud-tasks-queue": "^4.2",
         "stechstudio/filament-impersonate": "^3.11"
     },
     "require-dev": {
