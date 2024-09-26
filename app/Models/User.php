@@ -51,6 +51,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'nationality_id',
         'claveunica',
         'fhir_id',
+        'email',
         'password',
         'claveunica'
     ];
