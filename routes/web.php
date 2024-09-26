@@ -31,8 +31,9 @@ Route::get('/logout/local', [SocialiteController::class, 'logoutLocal'])->name('
 Route::get('/claveunica/{route?}', [ClaveUnicaController::class, 'autenticar'])->name('claveunica.login');
 
 
-Route::get('/test/queue', function () {
+Route::get('/test/queue', function (): string {
     // Despachar un trabajo a la cola
     Queue::push(new TestQueueJob());
+
     return 'Trabajo de cola despachado correctamente.';
 });
