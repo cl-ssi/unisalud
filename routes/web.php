@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClaveUnicaController;
 use App\Http\Controllers\SocialiteController;
+use App\Jobs\TestQueueJob;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -28,3 +29,10 @@ Route::get('/logout/local', [SocialiteController::class, 'logoutLocal'])->name('
  * igual que el ClaveUnicaController y el fragmento de codigo dentro del SocialiteController
  */
 Route::get('/claveunica/{route?}', [ClaveUnicaController::class, 'autenticar'])->name('claveunica.login');
+
+
+Route::get('/test/queue', function () {
+    // Despachar un trabajo a la cola
+    Queue::push(new TestQueueJob());
+    return 'Trabajo de cola despachado correctamente.';
+});
