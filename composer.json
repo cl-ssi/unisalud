@@ -7,6 +7,7 @@
     "require": {
         "php": "^8.2",
         "actived/microsoft-teams-notifier": "^1.3",
+        "awcodes/filament-gravatar": "^2.0",
         "calebporzio/sushi": "^2.4",
         "cheesegrits/filament-google-maps": "^3.0",
         "filament/filament": "^3.2",
