@@ -462,7 +462,7 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
 
                 ])
             ]),
-            Tables\Actions\ImportAction::make()
+            Actions\ImportAction::make()
                 ->importer(ConditionImporter::class)
                 ->label('Importar Condición de Usuarios')
                 ->modalHeading('Importar Condición de Usuarios')
