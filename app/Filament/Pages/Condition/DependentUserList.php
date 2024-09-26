@@ -20,6 +20,7 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use pxlrbt\FilamentExcel;
 
+use App\Filament\Imports\ConditionImporter;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 
 class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables\Contracts\HasTable
@@ -460,7 +461,15 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
                         ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
 
                 ])
-            ])
+            ]),
+            Tables\Actions\ImportAction::make()
+                ->importer(ConditionImporter::class)
+                ->label('Importar Condición de Usuarios')
+                ->modalHeading('Importar Condición de Usuarios')
+                // ->modalDescription('Subir archivo CSV')
+                ->modalSubmitActionLabel('Importar')
+                // ->options([])
+
         ];
     }
 }
