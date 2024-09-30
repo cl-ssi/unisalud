@@ -11,7 +11,7 @@ use App\Models\DependentUser;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class DependentCareGiver extends Model
+class DependentCaregiver extends Model
 {
     use HasFactory;
     use SoftDeletes;

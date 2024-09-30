@@ -7,6 +7,7 @@ use App\Enums\Gender;
 use App\Enums\Sex;
 use App\Models\Identifier;
 use App\Models\DependentUser;
+use App\Models\DependentCareGiver;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
@@ -138,6 +139,11 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function dependentUser(): HasOne
     {
         return $this->HasOne(DependentUser::class);
+    }
+
+    public function dependentCaregiver(): HasOne
+    {
+        return $this->HasOne(DependentCareGiver::class);
     }
 
     public function contactPoints(): HasMany

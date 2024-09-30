@@ -25,11 +25,16 @@ class Location extends Model
         'longitude',
         'latitude',
         'organization_id',
-    //   'location',
+        'location',
     ];
 
     protected $appends = [
         'location',
+    ];
+
+
+    protected $casts = [
+        'processed' => 'bool',
     ];
 
     public function appointments()
@@ -80,9 +85,12 @@ class Location extends Model
     {
         if (is_array($location))
         {
-            $this->attributes['latitude'] = $location['lat'];
-            $this->attributes['longitude'] = $location['lng'];
-            unset($this->attributes['location']);
+            // $this->attributes['latitude'] = $location['lat'];
+            // $this->attributes['longitude'] = $location['lng'];
+            $this->latitude = $location['lat'];
+            $this->longitude = $location['lng'];
+            // unset($this->attributes['location']);
+            $this->location = null;
         }
     }
 

@@ -301,12 +301,14 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                             ->schema([
                                 Forms\Components\TextInput::make('integral_visits')
                                     ->statePath('integral_visits')
+                                    ->numeric()
                                     ->label('Vistas Integrales'),
                                 Forms\Components\DatePicker::make('last_integral_visit')
                                     ->statePath('last_integral_visit')
                                     ->label('Última Visita Integral'),
                                 Forms\Components\TextInput::make('treatment_visits')
                                     ->statePath('treatment_visits')
+                                    ->numeric()
                                     ->label('Vistas de Tratamiento'),
                                 Forms\Components\DatePicker::make('last_treatment_visit')
                                     ->statePath('last_treatment_visit')
@@ -347,7 +349,7 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                                 Forms\Components\TextInput::make('influenza')
                                     ->statePath('influenza')
                                     ->label('Influenza'),
-                                Forms\Components\TextInput::make('covid_19')
+                                Forms\Components\Toggle::make('covid_19')
                                     ->statePath('covid_19')
                                     ->label('Covid-19'),
                                 Forms\Components\DatePicker::make('covid_19_date')

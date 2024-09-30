@@ -5,9 +5,11 @@ namespace App\Filament\Pages\Condition;
 use App\Models\User;
 use App\Models\DependentUser;
 use App\Models\DependentConditions;
+use App\Models\DependentCareGiver;
 use App\Models\Condition;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 use Carbon\Carbon;
 
 use Filament\Pages\Page;
@@ -19,6 +21,7 @@ use pxlrbt\FilamentExcel\Actions\Pages\ExportAction;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use pxlrbt\FilamentExcel;
+
 
 use App\Filament\Imports\ConditionImporter;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
@@ -49,37 +52,6 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
         // ]);
     }
 
-    /*
-    protected function getFormSchema(): array
-    {
-        return [
-            Forms\Components\Select::make('condition_id')
-                ->label('Tipo de Condición')
-                ->options($this->conditionTypes)
-                ->required()
-                ->reactive() // Hacer que el select sea reactivo
-                ->afterStateUpdated(fn ($state) => $this->updatedConditionId($state)), // Llamar a un método cuando se actualice
-        ];
-    }
-        */
-
-    // public function form(Forms\Form $form): Forms\Form
-    // {
-    //     return $form
-    //         ->schema([
-    //             Forms\Components\Select::make('condition_id')
-    //                 ->label('Tipo de Condición')
-    //                 ->options($this->conditionTypes)
-    //                 ->required()
-    //                 ->reactive() // Hacer que el select sea reactivo
-    //                 ->afterStateUpdated(function ($state){
-    //                     // $this->dispatch('open-modal', id: 'loading-data');
-    //                     // $this->updatedConditionId($state);
-    //                     // $this->dispatch('close-modal', id: 'loading-data');
-    //                 }),
-    //         ]);
-    // }
-
     public function table(Tables\Table $table): Tables\Table
     {
         return $table
@@ -95,7 +67,7 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
                 // });
 
                 // $query = User::has('dependentUser');
-                $query = User::query();
+                $query = User::query()->with(['dependentUser', 'dependentUser.dependentConditions', 'dependentCaregiver', 'dependentCaregiver.user', 'address']);
                 return $query;
             })
             ->columns([
@@ -165,6 +137,9 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
                 Tables\Columns\TextColumn::make('dependentUser.evaluated_plan')
                     ->label('Plan Evaluado')
                     ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
+                Tables\Columns\TextColumn::make('dependentUser.flood_zone')
+                    ->label('Zona de Inundabilidad')
+                    ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
                 Tables\Columns\TextColumn::make('dependentUser.pneumonia')
                     ->label('Neumonia'),
                 Tables\Columns\TextColumn::make('dependentUser.influenza')
@@ -190,10 +165,32 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
                 Tables\Columns\TextColumn::make('dependentUser.nutrition_assistance_date')
                     ->label('Fecha Entrega de Alimentación')
                     ->date(),
-                Tables\Columns\TextColumn::make('dependentUser.flood_zone')
-                    ->label('Zona de Inundabilidad')
+                Tables\Columns\TextColumn::make('dependentCaregiver.relative')
+                    ->label(new HtmlString('Parentesco <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
+                    // ->label(''),
+                Tables\Columns\TextColumn::make('dependentCaregiver.user.text')
+                    ->label(new HtmlString('Nombre <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
+                Tables\Columns\TextColumn::make('dependentCaregiver.user.age')
+                    ->label(new HtmlString('Edad  <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
+                Tables\Columns\TextColumn::make('dependentCaregiver.user.empam')
+                    ->label(new HtmlString('Empam <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
+                Tables\Columns\TextColumn::make('dependentCaregiver.zarit')
+                    ->label(new HtmlString('Zarit <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
+                Tables\Columns\TextColumn::make('dependentCaregiver.immunizations')
+                    ->label(new HtmlString('Imunizacion <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
+                Tables\Columns\TextColumn::make('dependentUser.elaborated_plan')
+                    ->label(new HtmlString('Plan Elaborado <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-                // Agrega más columnas según tus necesidades
+                Tables\Columns\TextColumn::make('dependentUser.evaluated_plan')
+                    ->label(new HtmlString('Plan Evaluado <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
+                    ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
+                Tables\Columns\TextColumn::make('dependentUser.elaborated_plan')
+                    ->label(new HtmlString('Capacitado <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
+                    ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
+                Tables\Columns\TextColumn::make('dependentUser.evaluated_plan')
+                    ->label(new HtmlString('Estipendio <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
+                    ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
+
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('condition')
@@ -221,11 +218,6 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
                         );
                     })
             ], layout: Tables\Enums\FiltersLayout::AboveContent)
-            ->headerActions([
-                // Actions\Action::make('create')
-                //     ->label('Crear')
-                //     ->url(fn (): string => route('filament.admin.pages.dependent-user-create'))
-            ])
             ->actions([
                 Tables\Actions\Action::make('edit')
                     ->label('')
@@ -240,136 +232,6 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
             // ->recordAction(Tables\Actions\ViewAction::class)
             ->recordUrl(null);
     }
-
-    // public function updatedConditionId($conditionId)
-    // {
-    //     $this->condition_id = $conditionId;
-    //     $this->table->query($this->getTableQuery());
-    // }
-
-    // protected function getTableQuery(): Builder
-    // {
-    //     // Aquí puedes personalizar la consulta según tus necesidades
-
-    //     $usersWithConditions = User::whereHas('dependentUser', function (Builder $query) {
-    //             $query->whereHas('dependentConditions', function (Builder $query) {
-    //                 $query->where('condition_id', '=', $this->condition_id);
-    //             });
-    //         });
-    //     return $usersWithConditions;
-    // }
-
-    // protected function getTableColumns(): array
-    // {
-    //     return [
-    //         Tables\Columns\TextColumn::make('text')
-    //             ->label('Nombre Completo'),
-    //         Tables\Columns\TextColumn::make('sex')
-    //             ->label('Sexo'),
-    //         Tables\Columns\TextColumn::make('gender')
-    //             ->label('Genero'),
-    //         Tables\Columns\TextColumn::make('birthday')
-    //             ->label('Fecha Nacimiento')
-    //             ->date(),
-    //         Tables\Columns\TextColumn::make('age')
-    //             ->label('Edad')
-    //             ->getStateUsing(function ($record) {
-    //                 return Carbon::parse($record->birthday)->age;
-    //             }),
-    //         Tables\Columns\TextColumn::make('dependentUser.created_at')
-    //             ->label('ingresado')
-    //             ->date(),
-    //         Tables\Columns\TextColumn::make('address.use')
-    //             ->label('Tipo Dirección'),
-    //         Tables\Columns\TextColumn::make('address.text')
-    //             ->label('Calle'),
-    //         Tables\Columns\TextColumn::make('address.line')
-    //             ->label('N°'),
-    //         Tables\Columns\TextColumn::make('address.commune.name')
-    //             ->label('Comuna'),
-    //         Tables\Columns\TextColumn::make('address.location.longitude')
-    //             ->label('Longitud'),
-    //         Tables\Columns\TextColumn::make('address.location.latitude')
-    //             ->label('Latitud'),
-    //         Tables\Columns\TextColumn::make('dependentUser.diagnosis')
-    //             ->label('Diagnostico'),
-    //         Tables\Columns\TextColumn::make('dependentUser.check_in_date')
-    //             ->label('Fecha de Ingreso')
-    //             ->date(),
-    //         Tables\Columns\TextColumn::make('dependentUser.check_out_date')
-    //             ->label('Fecha de Egreso')
-    //             ->date(),
-    //         Tables\Columns\TextColumn::make('dependentUser.integral_visits')
-    //             ->label('Vistas Integrales'),
-    //         Tables\Columns\TextColumn::make('dependentUser.last_integral_visit')
-    //             ->label('Última Visita Integral')
-    //             ->date(),
-    //         Tables\Columns\TextColumn::make('dependentUser.treatment_visits')
-    //             ->label('Visitas de Tratamiento'),
-    //         Tables\Columns\TextColumn::make('dependentUser.last_treatment_visit')
-    //             ->label('Última Visita de Tratamiento')
-    //             ->date(),
-    //         Tables\Columns\TextColumn::make('dependentUser.barthel')
-    //             ->label('Barthel'),
-    //         Tables\Columns\TextColumn::make('dependentUser.empam')
-    //             ->label('Emp / Empam'),
-    //         Tables\Columns\TextColumn::make('dependentUser.eleam')
-    //             ->label('Eleam')
-    //             ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-    //         Tables\Columns\TextColumn::make('dependentUser.upp')
-    //             ->label('UPP')
-    //             ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-    //         Tables\Columns\TextColumn::make('dependentUser.elaborated_plan')
-    //             ->label('Plan Elaborado')
-    //             ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-    //         Tables\Columns\TextColumn::make('dependentUser.evaluated_plan')
-    //             ->label('Plan Evaluado')
-    //             ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-    //         Tables\Columns\TextColumn::make('dependentUser.pneumonia')
-    //             ->label('Neumonia'),
-    //         Tables\Columns\TextColumn::make('dependentUser.influenza')
-    //             ->label('Influenza'),
-    //         Tables\Columns\TextColumn::make('dependentUser.covid_19')
-    //             ->label('Covid-19'),
-    //         Tables\Columns\TextColumn::make('dependentUser.covid_19_date')
-    //             ->label('Fecha de Covid-19')
-    //             ->date(),
-    //         Tables\Columns\TextColumn::make('dependentUser.extra_info')
-    //             ->label('Otros'),
-    //         Tables\Columns\TextColumn::make('dependentUser.tech_aid')
-    //             ->label('Ayuda Técnica')
-    //             ->placeholder('No Aplica')
-    //             ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-    //         Tables\Columns\TextColumn::make('dependentUser.tech_aid_date')
-    //             ->label('Fecha Ayuda Técnica')
-    //             ->date(),
-    //         Tables\Columns\TextColumn::make('dependentUser.nutrition_assistance')
-    //             ->label('Entrega de Alimentación')
-    //             ->placeholder('No Aplica')
-    //             ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-    //         Tables\Columns\TextColumn::make('dependentUser.nutrition_assistance_date')
-    //             ->label('Fecha Entrega de Alimentación')
-    //             ->date(),
-    //         Tables\Columns\TextColumn::make('dependentUser.flood_zone')
-    //             ->label('Zona de Inundabilidad')
-    //             ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-    //         // Agrega más columnas según tus necesidades
-    //     ];
-    // }
-
-    // protected function getTableActions(): array
-    // {
-    //     return [
-    //         Tables\Actions\Action::make('edit')
-    //             ->label('')
-    //             ->icon('heroicon-c-pencil-square')
-    //             ->url(fn (User $record): string => route('filament.admin.pages.dependent-user-edit', ['user_id' => $record->id])),
-    //         Tables\Actions\Action::make('map')
-    //             ->label('')
-    //             ->icon('heroicon-s-map')
-    //             ->url(fn (User $record): string => route('filament.admin.pages.dependent-user-map', ['condition_id' => $this->condition_id, 'user_id' => $record->id]))
-    //     ];
-    // }
 
     protected function getHeaderActions(): array
     {

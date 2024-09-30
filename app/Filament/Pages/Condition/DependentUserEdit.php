@@ -55,10 +55,12 @@ class DependentUserEdit extends Page implements Forms\Contracts\HasForms
                 Forms\Components\Grid::make(2)
                 ->schema([
                     Forms\Components\TextInput::make('integral_visits')
+                        ->numeric()
                         ->label('Vistas Integrales'),
                     Forms\Components\DatePicker::make('last_integral_visit')
                         ->label('Última Visita Integral'),
                     Forms\Components\TextInput::make('treatment_visits')
+                        ->numeric()
                         ->label('Vistas de Tratamiento'),
                     Forms\Components\DatePicker::make('last_treatment_visit')
                         ->label('Última Visita de Tratamiento'),
@@ -89,17 +91,17 @@ class DependentUserEdit extends Page implements Forms\Contracts\HasForms
                         ->label('Neumonia'),
                     Forms\Components\TextInput::make('influenza')
                         ->label('Influenza'),
-                    Forms\Components\TextInput::make('covid_19')
+                    Forms\Components\Toggle::make('covid_19')
                         ->label('Covid-19'),
                     Forms\Components\DatePicker::make('covid_19_date')
                         ->label('Fecha de Covid-19'),
                     Forms\Components\TextInput::make('extra_info')
                         ->label('Otros'),
-                    Forms\Components\TextInput::make('tech_aid')
+                    Forms\Components\Toggle::make('tech_aid')
                         ->label('Ayuda Técnica'),
                     Forms\Components\DatePicker::make('tech_aid_date')
                         ->label('Fecha Ayuda Técnica'),
-                    Forms\Components\TextInput::make('nutrition_assistance')
+                    Forms\Components\Toggle::make('nutrition_assistance')
                         ->label('Entrega de Alimentación'),
                     Forms\Components\DatePicker::make('nutrition_assistance_date')
                         ->label('Fecha Entrega de Alimentación'),
