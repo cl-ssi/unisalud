@@ -10,6 +10,7 @@ use App\Models\Condition;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 use Filament\Pages\Page;
@@ -333,5 +334,12 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
                 // ->options([])
 
         ];
+    }
+
+    public function updated($name, $value): void
+    {
+        if(Str::of($name)->contains('condition')){
+            $this->condition_id = $value;
+        }
     }
 }
