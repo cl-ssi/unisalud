@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Some\Appointment;
+use App\Models\Appointment;
 use Carbon\Traits\Timestamp;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

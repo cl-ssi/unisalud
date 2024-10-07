@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
+use App\Filament\Widgets;
 use Awcodes\FilamentGravatar\GravatarPlugin;
 use Awcodes\FilamentGravatar\GravatarProvider;
 use Filament\Http\Middleware\Authenticate;
@@ -12,7 +13,8 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Widgets;
+// use Filament\Widgets;
+
 
 use Filament\Support\Colors\Color;
 use Filament\Navigation\NavigationGroup;
@@ -58,9 +60,13 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Pages\Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            // ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+
             ->widgets([
-                // Widgets\AccountWidget::class,
+                Widgets\AccountWidget::class,
+                Widgets\LogoServicioWidget::class,
+                Widgets\WelcomeWidget::class,
+                // Widgets\Condition\DependentUserMapWidget::class,
                 // Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([

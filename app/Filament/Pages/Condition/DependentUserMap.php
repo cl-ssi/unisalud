@@ -37,7 +37,6 @@ class DependentUserMap extends Page
         $this->form->fill([
             'condition_id' => $this->condition_id,
         ]);
-        $this->users = $this->getUsersForCondition();
     }
 
     protected function getFormSchema(): array
@@ -48,69 +47,8 @@ class DependentUserMap extends Page
                 ->options($this->conditionTypes)
                 ->required()
                 ->reactive() // Hacer que el select sea reactivo
-                ->afterStateUpdated(fn ($state) => $this->updatedConditionId($state)), // Llamar a un método cuando se actualice
+                ->afterStateUpdated(fn ($state) => $this->condition_id =$state), // Llamar a un método cuando se actualice
         ];
     }
-
-    public function updatedConditionId($conditionId): void
-    {
-        $this->condition_id = $conditionId;
-        $this->users = $this->getUsersForCondition();
-    }
-
-    public function getUsersForCondition(): array
-    {
-
-        // $query = User::query();
-        // if($this->condition_id != null){
-        //     $query->whereHas('dependentUser', function ($query) {
-        //         $query->whereHas('dependentConditions', function ($query) {
-        //             $query->where('condition_id', '=', $this->condition_id);
-        //         });
-        //     });
-        //     if($this->user_id != null){
-        //         $query->where('id', '=', '');
-
-        //     } 
-        // } else{
-        //     $query->where('id', '=', $this->id);
-        // }
-        // $query->with(['address', 'address.location', 'address.commune', 'dependentUser']);
-        // $users = $query->all()->limit(500);
-        if (!$this->condition_id) {
-            return [];
-        }
-
-
-        return User::whereHas('dependentUser', function ($query) {
-                $query->whereHas('dependentConditions', function ($query) {
-                    $query->where('condition_id', '=', $this->condition_id);
-                });
-            })
-            ->with(['address', 'address.location', 'address.commune', 'dependentUser']) // Cargamos las relaciones
-            ->get()
-            ->map(function ($user) {
-                return [
-                    'id'            => $user->id,
-                    'name'          => $user->text,
-                    'sex'           => $user->sex,
-                    'latitude'      => $user->address->location->latitude ?? null,
-                    'longitude'     => $user->address->location->longitude ?? null,
-                    'diagnostico'   => $user->dependentUser->diagnosis,
-                    'calle'         => $user->address->text ?? null,
-                    'numero'        => $user->address->line ?? null,
-                    'departamento'  => $user->address->apartament ?? null,
-                    'comuna'        => $user->address->commune->name ?? null,
-                ];
-            })
-            ->filter(function ($user) {
-                if($this->user_id != null){
-                    return $user['latitude'] !== null && $user['longitude'] !== null && $user['id'] == $this->user_id;
-                } else {
-                    return $user['latitude'] !== null && $user['longitude'] !== null;
-                }
-            })
-            ->values()
-            ->toArray();
-    }
+    
 }
