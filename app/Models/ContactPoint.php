@@ -12,7 +12,15 @@ class ContactPoint extends Model
     // FIXME: agregar todos los attributos
     protected $fillable = [
         'system',
+        'contact_point_id',
+        'user_id',
+        'location_id',
+        'emergency_contact_id',
         'value',
+        'organization_id',
+        'use',
+        'rank',
+        'actually'
     ];
 
     // TODO: Hacer las relaciones

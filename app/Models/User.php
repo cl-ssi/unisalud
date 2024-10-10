@@ -8,6 +8,7 @@ use App\Enums\Sex;
 use App\Models\Identifier;
 use App\Models\DependentUser;
 use App\Models\DependentCareGiver;
+use App\Models\Waitlist;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
@@ -103,6 +104,11 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->hasMany(Identifier::class);
     }
 
+    public function officialIdentifier(): HasOne
+    {
+        return $this->hasOne(Identifier::class, 'user_id')->orderBy('created_at');
+    }
+
     public function OficialHumanName(): HasOne
     {
         // FIXME: where al oficial o actual
@@ -149,6 +155,21 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function contactPoints(): HasMany
     {
         return $this->hasMany(ContactPoint::class);
+    }
+
+    public function homeContactPoint(): HasOne
+    {
+        return $this->hasOne(ContactPoint::class)->where('use', 'home')->orderBy('created_at');
+    }
+
+    public function mobileContactPoint(): HasOne
+    {
+        return $this->hasOne(ContactPoint::class)->where('use', 'mobile')->orderBy('created_at');
+    }
+
+    public function waitlists(): HasMany
+    {
+        return $this->hasMany(Waitlist::class);
     }
 
     /*

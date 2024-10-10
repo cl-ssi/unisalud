@@ -15,7 +15,10 @@ use App\Enums\Sex;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Imports\ConditionImporter;
+use App\Filament\Imports\WaitlistImporter;
 use Filament\Tables\Actions\ImportAction;
+
+
 
 class UserResource extends Resource
 {
@@ -93,9 +96,15 @@ class UserResource extends Resource
                     ->label('Importar Condición de Usuarios')
                     ->modalHeading('Importar Condición de Usuarios')
                     // ->modalDescription('Subir archivo CSV')
+                    ->modalSubmitActionLabel('Importar'),
+                    // ->options([])
+                ImportAction::make()
+                    ->importer(WaitlistImporter::class)
+                    ->label('Importar Lista de Espera')
+                    ->modalHeading('Importar Lista de Espera')
+                    // ->modalDescription('Subir archivo CSV')
                     ->modalSubmitActionLabel('Importar')
                     // ->options([])
-
             ])
             ->columns([
                 Tables\Columns\TextColumn::make('id')
