@@ -15,10 +15,36 @@ class Exam extends Model
 {
     protected $table = 'mx_exams';
     protected $fillable = [
-        'path'
+        'servicio_salud',
+        'comuna',
+        'profesional_solicita',
+        'diagnostico',
+        'cesfam',
+        'establecimiento_realiza_examen',
+        'establecimiento_deriva_examen',
+        'medico',
+        'fonasa',
+        'date_exam_order',
+        'date_exam',
+        'date_exam_reception',
+        'date_exam_informs',
+        'derivation_reason',
+        'exam_type',
+        'birards_mamografia',
+        'birards_ecografia',
+        'birards_proyeccion',
+        'observations',
+        'path',
+        'filename',
+        'ref_order_number',
+        'load_source',
+        'load_id',
+        'user_id',
+        'patient_id',
+        'sigte_id',
     ];
 
-    public function patients(): BelongsTo
+    public function patient(): BelongsTo
     {
         // return $this->belongsTo('\App\Models\Patient', 'patient_id', 'id');
         return $this->belongsTo(Patient::class, 'patient_id');
