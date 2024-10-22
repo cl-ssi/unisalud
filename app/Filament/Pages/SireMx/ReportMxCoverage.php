@@ -3,7 +3,7 @@
 namespace App\Filament\Pages\SireMx;
 
 use App\Models\Exam;
-use App\Models\Patient; // TODO: Replace with use App\Models\User once we have SireMx Exam Form;
+use App\Models\Patient; // TODO: Replace with App\Models\User once we have SireMx Exam Form;
 use App\Models\Commune;
 use App\Models\Establishment;
 
@@ -50,6 +50,7 @@ class ReportMxCoverage extends Page implements Forms\Contracts\HasForms, Tables\
     {
         return $table
             ->query(function (Builder $query) {
+                // TODO: Replace Patient with App\Models\User once we have SireMx Exam Form;
                 $query = Patient::select(
                     'mx_patients.id',
                     DB::raw("(case when (YEAR(CURDATE())-YEAR(mx_patients.birthday) < 15) then '0 > 15'
@@ -62,44 +63,19 @@ class ReportMxCoverage extends Page implements Forms\Contracts\HasForms, Tables\
                         when (YEAR(CURDATE())-YEAR(mx_patients.birthday) >= 45 AND YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 49) then '45 > 49'
                         when (YEAR(CURDATE())-YEAR(mx_patients.birthday) >= 50 AND YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 54) then '50 > 54'
                         when (YEAR(CURDATE())-YEAR(mx_patients.birthday) >= 55 AND YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 59) then '55 > 59'
-                        when (YEAR(CURDATE())-YEAR(mx_patients.birthday) >= 60 AND YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 64) then '50 > 54'
-                        when (YEAR(CURDATE())-YEAR(mx_patients.birthday) >= 65 AND YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 69) then '55 > 59'
-                        when (YEAR(CURDATE())-YEAR(mx_patients.birthday) >= 70 AND YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 74) then '50 > 54'
-                        when (YEAR(CURDATE())-YEAR(mx_patients.birthday) >= 75 AND YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 79) then '55 > 59'
+                        when (YEAR(CURDATE())-YEAR(mx_patients.birthday) >= 60 AND YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 64) then '60 > 64'
+                        when (YEAR(CURDATE())-YEAR(mx_patients.birthday) >= 65 AND YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 69) then '65 > 69'
+                        when (YEAR(CURDATE())-YEAR(mx_patients.birthday) >= 70 AND YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 74) then '70 > 74'
+                        when (YEAR(CURDATE())-YEAR(mx_patients.birthday) >= 75 AND YEAR(CURDATE())-YEAR(mx_patients.birthday) <= 79) then '75 > 79'
                         else '80 y Más' end) AS age_range
                     "),
                     DB::raw("SUM(case when mx_exams.birards_mamografia > 0 then 1 else 0 end)  AS mam "),
                     DB::raw("SUM(case when mx_exams.birards_ecografia  > 0 then 1 else 0 end)  AS eco"),
-                    DB::raw("SUM(case when mx_exams.birards_proyeccion > 0 then 1 else 0 end)  AS pro")
+                    DB::raw("SUM(case when mx_exams.birards_proyeccion > 0 then 1 else 0 end)  AS pro")                    
                 )
                 ->leftJoin('mx_exams', 'mx_patients.id', '=', 'mx_exams.patient_id')
                 ->groupBy("mx_patients.id")
-                ->with('exams');
-                return $query;
-            })
-            ->modifyQueryUsing(function (Builder $query) {
-                if($this->filters)
-                {
-                    if(!empty($this->filters['inicio']) && !empty($this->filters['final'])){
-                        $query->where('mx_exams.date_exam', '>=', $this->filters['inicio'])
-                        ->where('mx_exams.date_exam', '<=', $this->filters['final']);
-                    }
-                    if (!empty($this->filters['commune'])) {
-                        $query->where('mx_exams.comuna', '=', $this->filters['commune']);
-                    }
-                    if (!empty($this->filters['code_deis'])) {
-                        //TODO: Auth::user()->establishment_id
-                        $query->where('mx_exams.establecimiento_realiza_examen', '=', $this->filters['code_deis']);
-                    }
-                    if (!empty($this->filters['code_deis_request'])) {
-                        //TODO: Auth::user()->establishment_id
-                        $query->where('mx_exams.cesfam', '=', $this->filters['code_deis_request']);
-                    }
-                }
-                else
-                {
-                    $query->whereNull('mx_patients.id');
-                }
+                ->with('exams', 'exams.commune');
                 return $query;
             })
             ->columns([
@@ -124,6 +100,84 @@ class ReportMxCoverage extends Page implements Forms\Contracts\HasForms, Tables\
             ])
             ->defaultGroup('age_range')
             ->groupsOnly()
-            ->groupingSettingsHidden();
+            ->groupingSettingsHidden()
+            ->filters([                
+                Tables\Filters\Filter::make('mx_exams.date_exam')
+                    ->form([
+                        Forms\Components\DatePicker::make('since')
+                            ->label('Inicio')
+                            ->statePath('since'),
+                        Forms\Components\DatePicker::make('to')
+                            ->label('Fin')
+                            ->statePath('to'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                        ->when(
+                            $data['since'] && $data['to'],
+                            fn (Builder $query): Builder => $query->where('mx_exams.date_exam', '>=', $data['since'])->where('mx_exams.date_exam', '<=', $data['to']),
+                            fn (Builder $query): Builder => $query->whereNull('mx_patients.id')
+                        );
+                    })
+                    ->columnSpan(2)
+                    ->columns(2),
+                Tables\Filters\SelectFilter::make('Comuna')                    
+                    ->placeholder('Seleccione')
+                    // ->relationship('exams.commune', 'name', fn (Builder $query) => $query->Wherein('region_id',['1']) )
+                    ->options(
+                        Commune::Where('name','LIKE','%%')
+                        ->Wherein('region_id',['1'])
+                        ->get()
+                        ->pluck('name', 'code_deis')
+                    )
+                    ->query(function (Builder $query, $state): Builder {         
+                        return $query
+                        ->when(
+                            $state['value'],
+                            fn (Builder $query): Builder => $query->where('mx_exams.comuna', '=', $state['value'])
+                        );
+                    }),
+                Tables\Filters\SelectFilter::make('Establecimiento Origen')
+                    ->placeholder('Seleccione')
+                    ->options(
+                        Establishment::Where('name','LIKE','%%')
+                        //TODO: ->Where('id','LIKE','%'.$idRole.'%')
+                        ->Where('exam_emits','LIKE','Y')
+                        ->Where('exam_center','LIKE','Y')
+                        ->Wherein('commune_id',['5', '6','7', '8','9', '10', '11'])
+                        ->orderBy('new_code_deis')
+                        ->get()
+                        ->pluck('name', 'new_code_deis')
+                    )
+                    ->query(function (Builder $query, $state): Builder {
+                        return $query
+                        ->when(
+                            $state['value'],
+                            fn (Builder $query, $cesfam): Builder => $query->where('mx_exams.cesfam', '=', $state['value'])
+                        );
+                    }),
+                    
+                Tables\Filters\SelectFilter::make('mx_exams.establecimiento_realiza_examen')
+                    ->label('Establecimiento Toma de Exámen')
+                    ->placeholder('Seleccione')
+                    ->options(
+                        Establishment::Where('name','LIKE','%%')
+                        //TODO: ->Where('id','LIKE','%'.$idRole.'%')
+                        ->Where('exam_emits','LIKE','Y')
+                        ->Where('exam_center','LIKE','Y')
+                        ->Wherein('commune_id',['5', '6','7', '8','9', '10', '11'])
+                        ->orderBy('new_code_deis')
+                        ->get()
+                        ->pluck('name', 'new_code_deis')
+                    )
+                    ->query(function (Builder $query, $state): Builder {
+                        return $query
+                        ->when(
+                            $state['value'],
+                            fn (Builder $query, $exam_est): Builder => $query->where('mx_exams.establecimiento_realiza_examen', '=', $state['value'])
+                        );
+                    }),
+            ], layout: Tables\Enums\FiltersLayout::AboveContent)
+            ->filtersFormColumns(2);
     }
 }
