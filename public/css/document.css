@@ -1,0 +1,185 @@
+/* * Define the margins of your page * */
+/* @page {
+    margin: 100px 25px;
+} */
+
+body,
+table {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    /* font-family: Arial, Helvetica, sans-serif; */
+    /* font-family: "Lucida Console", Monaco, monospace; */
+    font-size: 11px;
+    /* font-size: 0.8rem; */
+}
+
+.content-block,
+p {
+    page-break-inside: avoid;
+}
+
+footer  {
+    position: fixed; 
+    bottom: -40px; 
+    left: 0px; 
+    right: 0px;
+    height: 50px; 
+    text-align: center;
+    clear: both;
+}
+
+main {
+    /* Debería ser 150 para respetar el ancho de la plantilla del gobierno */
+    /* margin-left: 150px; */
+    margin-left: 50px;
+}
+
+.content {
+    /* Margen para firmas y vistos buenos de Doc Digital */
+    padding-bottom: 68px;
+}
+
+.distribution-responsible {
+    padding-bottom: 68px;
+}
+
+.cinco {
+    font-size: 0.5rem;
+}
+
+.seis {
+    font-size: 0.6rem;
+}
+
+.siete {
+    font-size: 0.7rem;
+}
+
+.ocho {
+    font-size: 0.8rem;
+}
+
+.nueve {
+    font-size: 0.9rem;
+}
+
+.diez {
+    font-size: 1.0rem;
+}
+
+.doce {
+    font-size: 1.2rem;
+}
+
+.catorce {
+    font-size: 1.4rem;
+}
+
+.quince {
+    font-size: 15px;
+}
+
+.center {
+    text-align: center;
+}
+
+.left {
+    text-align: left;
+}
+
+.right {
+    text-align: right;
+}
+
+.justify {
+    text-align: justify;
+}
+
+.negrita {
+    font-weight: bold;
+}
+
+.cursiva {
+    font-style: italic;
+}
+
+br {
+    display: block;
+    /* makes it have a width */
+    content: "";
+    /* clears default height */
+    margin-top: 4;
+    /* change this to whatever height you want it */
+}
+
+.raya_rojo {
+    color: #EE3A43;
+    display: inline-block;
+    font-size: 24.0pt;
+}
+
+.raya_azul {
+    color: #0168B3;
+    display: inline-block;
+    font-size: 24.0pt;
+}
+
+.signature-container {
+    clear: both;
+    position: fixed;
+    height: 50px;
+    bottom: 50px; 
+}
+
+/* Este es para dejar las signatures antes del footer */
+.signature-footer {
+    position: absolute;
+    margin-left: 88px;
+    bottom: 50px;
+    height: 50px;
+}
+
+.signature {
+    vertical-align: top;
+    display: inline-block;
+    padding-top: 0px;
+    padding-right: 1px;
+    padding-bottom: 2px;
+    width: 207.3px;
+}
+
+.danger {
+    color: #dc3545!important;
+}
+.success {
+    color: #198754!important;
+}
+.secondary {
+    color: #6c757d!important;
+}
+
+.tabla th, .tabla td {
+    border: 1px solid black;
+    padding: 8px; /* Ajusta el espacio entre el texto y los bordes según tus preferencias */
+}
+
+.tabla {
+    border: 1px solid black;
+    border-collapse: collapse;
+    width: 100%; /* Opcional: Ajusta el ancho de la tabla según tus necesidades */
+}
+
+.monospace {
+    font-family: "Lucida Console", Monaco, monospace;
+}
+
+.especial { 
+    font-family: DejaVu Sans !important;
+}
+
+table {
+    page-break-inside: avoid !important;
+}
+
+.page-break {
+    page-break-before: always;
+}

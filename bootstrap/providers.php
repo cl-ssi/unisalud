@@ -3,5 +3,6 @@
 return [
     App\Providers\AppServiceProvider::class,
     App\Providers\Filament\AdminPanelProvider::class,
-    \SocialiteProviders\Manager\ServiceProvider::class,
+    App\Providers\Filament\ExternalPanelProvider::class,
+    SocialiteProviders\Manager\ServiceProvider::class,
 ];

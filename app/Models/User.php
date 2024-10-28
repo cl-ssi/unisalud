@@ -51,11 +51,11 @@ class User extends Authenticatable implements FilamentUser, HasName
         'deceased_datetime',
         'cod_con_marital_id',
         'nationality_id',
-        'claveunica',
         'fhir_id',
         'email',
         'password',
-        'claveunica'
+        'claveunica',
+        'external', // Añadir el campo 'external'
     ];
 
     /**
@@ -170,6 +170,13 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function waitlists(): HasMany
     {
         return $this->hasMany(Waitlist::class);
+    }
+
+    public function organizations(): BelongsToMany
+    {
+        return $this->belongsToMany(Organization::class, 'organization_user')
+                    ->withPivot('user_id', 'organization_id') // Atributos de la tabla pivote
+                    ->withTimestamps(); // Si tienes timestamps en la tabla pivote
     }
 
     /*

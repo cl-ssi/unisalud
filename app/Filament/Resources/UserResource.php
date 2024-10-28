@@ -75,6 +75,8 @@ class UserResource extends Resource
                     ->password()
                     ->maxLength(255),
                 Forms\Components\Toggle::make('claveunica'),
+                Forms\Components\Toggle::make('external') // Añadir el campo 'external' como switch
+                    ->label('Usuario Externo'),
                 Forms\Components\TextInput::make('fhir_id')
                     ->maxLength(255),
                 Forms\Components\DateTimePicker::make('email_verified_at')
@@ -188,6 +190,7 @@ class UserResource extends Resource
         return [
             RelationManagers\IdentifiersRelationManager::class,
             RelationManagers\AddressRelationManager::class,
+            RelationManagers\OrganizationsRelationManager::class,
             RelationManagers\RolesRelationManager::class,
             RelationManagers\PermissionsRelationManager::class,
             // RelationManagers\ConditionsRelationManager::class,

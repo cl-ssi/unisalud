@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Samu\Establishment;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Organization extends Model
 {
@@ -39,6 +40,13 @@ class Organization extends Model
             ->first(['text', 'line', 'apartment']);
         return "$address->text $address->line $address->apartment";
 
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'organization_user')
+                    ->withPivot('user_id', 'organization_id') // Atributos de la tabla pivote
+                    ->withTimestamps(); // Si tienes timestamps en la tabla pivote
     }
 
     public function scopeGetByAddress($query, $text, $line, $apartment, $country_id, $commune_id, $region_id){

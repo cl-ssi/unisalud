@@ -167,7 +167,7 @@ class WaitlistResource extends Resource
                     ->label('Contactado')
                     ->getStateUsing(function ($record) {
                         // Obtener el último contacto asociado, ordenado por la fecha de contacto
-                        $lastContact = $record->contacts()->latest('contacted_at')->first();
+                        $lastContact = $record->contacts()->latest('id')->first();
                         // Retornar el estado del último contacto, o null si no hay contacto
                         return $lastContact ? $lastContact->status : null;
                     })
@@ -175,7 +175,7 @@ class WaitlistResource extends Resource
                         if (in_array($state, ['si'])) {
                             return 'heroicon-o-check-circle'; // Ícono de check para estos valores
                         }
-                        if (in_array($state, ['no primera', 'no segunda'])) {
+                        if (in_array($state, ['no'])) {
                             return 'heroicon-o-x-circle'; // Ícono de "x" para estos valores
                         }
                         return 'heroicon-o-clock'; // Ícono de reloj si no hay estado o es otro valor
@@ -184,12 +184,27 @@ class WaitlistResource extends Resource
                         if (in_array($state, ['si'])) {
                             return 'success'; // Verde si el estado es "si"
                         }
-                        if (in_array($state, ['no primera', 'no segunda'])) {
+                        if (in_array($state, ['no'])) {
                             return 'danger'; // Rojo si el estado es "no primera" o "no segunda"
                         }
                         return 'gray'; // Gris si no hay contacto
                     })
                     ->default('heroicon-o-clock'), // Asegurar que el ícono del reloj sea el valor predeterminado
+                    Tables\Columns\BadgeColumn::make('status')
+                        ->label('Estado')
+                        ->default('pendiente')
+                        ->colors([
+                            'secondary' => 'pendiente', // Color gris para pendiente
+                            'success'   => 'derivado', // Verde para derivado
+                            'primary'   => 'citado', // Azul para citado
+                            'warning'   => 'inasistente', // Amarillo para inasistente
+                            'danger'    => 'incontactable', // Rojo para incontactable
+                            'success'   => 'egresado', // Gris claro para egresado
+                        ])
+                        ->formatStateUsing(function ($state) {
+                            return ucfirst($state); // Formatear el estado para que se muestre con la primera letra en mayúscula
+                        })
+                        ->sortable(), // Si quieres que sea ordenable
                 Tables\Columns\TextColumn::make('user.officialIdentifier.value')
                     ->label('RUN'),
                 Tables\Columns\TextColumn::make('user.officialIdentifier.dv')
@@ -209,8 +224,6 @@ class WaitlistResource extends Resource
                         $birthday = $record->user->birthday;
                         return $birthday ? \Carbon\Carbon::parse($birthday)->age : '-';
                     }),
-                Tables\Columns\TextColumn::make('status')
-                    ->label('Estado'),
                 
                 Tables\Columns\TextColumn::make('healthCareService.text')
                     ->label('Lista de Espera')
@@ -261,9 +274,7 @@ class WaitlistResource extends Resource
                 ->label('Estado del Último Contacto')
                 ->options([
                     'si' => 'Contactado - Sí',
-                    'no primera' => 'Contactado - No Primera',
-                    'no segunda' => 'Contactado - No Segunda',
-                    'sin contacto' => 'Sin Contacto',
+                    'no' => 'Contactado - No',
                 ])
                 ->default(null)  // No seleccionar nada por defecto, mostrar todos los registros
                 ->placeholder('Todos')  // Opción inicial para seleccionar el filtro
@@ -286,7 +297,7 @@ class WaitlistResource extends Resource
                           ->limit(1);
                     });
                 }),
-                Tables\Filters\SelectFilter::make('healthCareService')
+                Tables\Filters\SelectFilter::make('health_care_service')
                     ->label('Lista de Espera')
                     ->relationship('healthCareService', 'text')
                     ->placeholder('Seleccionar'),
@@ -303,15 +314,27 @@ class WaitlistResource extends Resource
                     ])
                     ->placeholder('Seleccionar'),
             ])
+            ->headerActions([
+                Tables\Actions\Action::make('reporte')
+                    ->label('Reporte')
+                    ->color('primary')
+                    ->icon('heroicon-o-chart-bar')
+                    ->action('exportReport') // Llama al método `exportReport` en la página
+                    ->requiresConfirmation() // Opcional, para mostrar una confirmación
+                    ->modalHeading('Generar Reporte')
+                    ->modalButton('Descargar')
+                    ->modalDescription('¿Estás seguro de que deseas generar este reporte?'),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+
                 // Acción personalizada para ver el UserResource
                 Tables\Actions\Action::make('view_user')
                     ->label('Ver Usuario')
                     ->url(fn($record) => UserResource::getUrl('edit', ['record' => $record->user_id]))
                     ->icon('heroicon-o-user')
                     ->openUrlInNewTab(), // Opcional, abre el recurso en una nueva pestaña
-                
+                /*
                 Tables\Actions\Action::make('estado')
                     ->label('Estado')
                     ->modal('waitlist-status-modal') // Abre el modal especificado
@@ -365,6 +388,7 @@ class WaitlistResource extends Resource
                             'appointment_datetime' => $data['appointment_datetime'],
                         ]);
                     }),
+                */
                 ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -377,6 +401,9 @@ class WaitlistResource extends Resource
     {
         return [
             RelationManagers\ContactsRelationManager::class,
+            RelationManagers\WaitlistEventRelationManager::class,
+            RelationManagers\FileRelationManager::class,
+            RelationManagers\WaitlistMessageRelationManager::class,
         ];
     }
 

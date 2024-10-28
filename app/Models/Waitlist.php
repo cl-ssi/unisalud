@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Waitlist extends Model
 {
@@ -38,12 +39,12 @@ class Waitlist extends Model
 
         // CITA
         'status', // NO DERIVADO - DERIVADO - CITADO - ATENDIDO - INASISTENTE - INCONTACTABLE - EGRESADO
-        'discharge', // ATENCION REALIZADA - RECHAZO - INASISTENCIA - FALLECIMIENTO - CONTACTO NO CORRESPONDE - ATENCION OTORGADA EN EXTRASISTEMA
+        // 'discharge', // ATENCION REALIZADA - RECHAZO - INASISTENCIA - FALLECIMIENTO - CONTACTO NO CORRESPONDE - ATENCION OTORGADA EN EXTRASISTEMA
         'appointment_date', // FECHA_HORA_CITA	
 
         // ESTAB PRESTADOR
         'destiny_organization_id', // ESTAB_PRESTADOR	
-        'appointment_date', // FECHA_HORA_CITA	
+        'attention_date', // FECHA_HORA_ATENCION
         'attended', // ASISTENCIA
     ];
 
@@ -85,6 +86,21 @@ class Waitlist extends Model
     public function contacts(): HasMany
     {
         return $this->hasMany(WaitlistContact::class, 'waitlist_id');
+    }
+
+    public function events(): HasMany
+    {
+        return $this->hasMany(WaitlistEvent::class, 'waitlist_id');
+    }
+
+    public function files(): MorphMany
+    {
+        return $this->morphMany(File::class, 'fileable');
+    }
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(WaitlistEvent::class, 'waitlist_id');
     }
 
     protected $table = 'wait_waitlists';
