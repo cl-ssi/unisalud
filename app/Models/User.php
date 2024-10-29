@@ -54,8 +54,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'fhir_id',
         'email',
         'password',
-        'claveunica',
-        'external', // Añadir el campo 'external'
+        'claveunica', // Añadir el campo 'external'
     ];
 
     /**
