@@ -42,6 +42,5 @@ class WaitlistMessage extends Model
         return $this->belongsTo(User::class, 'to_user_id');
     }
 
-    protected $table = 'wait_waitlist_messages';
-    
+    protected $table = 'wait_messages';
 }

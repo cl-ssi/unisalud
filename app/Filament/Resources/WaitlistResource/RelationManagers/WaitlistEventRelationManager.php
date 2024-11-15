@@ -14,6 +14,8 @@ class WaitlistEventRelationManager extends RelationManager
 {
     protected static string $relationship = 'events';
 
+    protected static ?string $title = 'Historial Paciente';
+
     public function form(Form $form): Form
     {
         return $form
@@ -122,7 +124,7 @@ class WaitlistEventRelationManager extends RelationManager
                         return ucfirst($state); // Formatear el estado para que se muestre con la primera letra en mayúscula
                     })
                     ->sortable(), // Si quieres que sea ordenable
-                Tables\Columns\TextColumn::make('appointment_datetime')
+                Tables\Columns\TextColumn::make('appointment_at')
                     ->label('Fecha/Hora Citación')
                     ->formatStateUsing(function ($state) {
                         return \Carbon\Carbon::parse($state)->format('d-m-Y');

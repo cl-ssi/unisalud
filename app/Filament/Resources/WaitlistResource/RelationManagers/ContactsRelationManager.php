@@ -15,6 +15,8 @@ class ContactsRelationManager extends RelationManager
 {
     protected static string $relationship = 'contacts';
 
+    protected static ?string $title = 'Contactos';
+
     public function form(Form $form): Form
     {
         return $form

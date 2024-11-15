@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('wait_waitlist_messages', function (Blueprint $table) {
+        Schema::create('wait_messages', function (Blueprint $table) {
             $table->id();
             
-            $table->string('discharge')->nullable(); // DEPENDE DE STATUS [EGRESO]
-            $table->string('discharge')->nullable(); // DEPENDE DE STATUS [EGRESO]
-            $table->text('text')->nullable();
+            $table->string('priority')->nullable();
+            $table->string('subject')->nullable();
+            $table->text('message')->nullable();
+            $table->foreignId('waitlist_id')->nullable()->constrained('wait_waitlists');
             $table->foreignId('from_user_id')->nullable()->constrained('users');
             $table->foreignId('to_user_id')->nullable()->constrained('users');
 
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('wait_waitlist_messages');
+        Schema::dropIfExists('wait_messages');
     }
 };

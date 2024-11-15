@@ -190,7 +190,7 @@ class WaitlistResource extends Resource
                         return 'gray'; // Gris si no hay contacto
                     })
                     ->default('heroicon-o-clock'), // Asegurar que el ícono del reloj sea el valor predeterminado
-                    Tables\Columns\BadgeColumn::make('status')
+                Tables\Columns\BadgeColumn::make('status')
                         ->label('Estado')
                         ->default('pendiente')
                         ->colors([
@@ -221,7 +221,7 @@ class WaitlistResource extends Resource
                     ->label('Edad')
                     ->getStateUsing(function ($record) {
                         // Accede a la fecha de nacimiento y calcula la edad
-                        $birthday = $record->user->birthday;
+                        $birthday = ($record->user) ? $record->user->birthday : null;
                         return $birthday ? \Carbon\Carbon::parse($birthday)->age : '-';
                     }),
                 

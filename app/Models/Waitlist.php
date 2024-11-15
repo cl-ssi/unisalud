@@ -83,6 +83,11 @@ class Waitlist extends Model
         return $this->belongsTo(Organization::class, 'organization_id');
     }
 
+    public function destinyOrganization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class, 'destiny_organization_id');
+    }
+
     public function contacts(): HasMany
     {
         return $this->hasMany(WaitlistContact::class, 'waitlist_id');
@@ -100,7 +105,7 @@ class Waitlist extends Model
 
     public function messages(): HasMany
     {
-        return $this->hasMany(WaitlistEvent::class, 'waitlist_id');
+        return $this->hasMany(WaitlistMessage::class, 'waitlist_id');
     }
 
     protected $table = 'wait_waitlists';

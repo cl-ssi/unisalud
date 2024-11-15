@@ -38,17 +38,12 @@ class WaitlistImporter extends Importer
         $text = strtolower(trim($this->originalData['PRESTA_EST']));
         $healthCareService = HealthCareService::firstOrCreate(['text' => $text]);
         
+        // CONSULTO SI EXISTE EL IDENTIFIER ESTA REGISTRADO
         $user = User::whereHas('identifiers', function ($query) {
             $query->where('value', $this->originalData['RUN'])
                 ->Where('cod_con_identifier_type_id', 1);
             })
             ->first();
-        
-        /*
-        $sexValue = ClassSex::where('text', $this->originalData['sexo'])->first()->value;
-        $sexGender = ClassGender::where('text', $this->originalData['genero'])->first()->value;
-        $nationality = Country::where('name', $this->originalData['nacionalidad'])->first()->id;
-        */
 
         $userCreatedOrUpdated = User::updateOrCreate(
             [
@@ -171,10 +166,35 @@ class WaitlistImporter extends Importer
             ]
         );
 
+        //CONTACT POINTS MAIL
+        $contactPointEmail = $userCreatedOrUpdated->emailContactPoint;
+        $contactPointEmail = ContactPoint::updateOrCreate(
+            [
+                'id'    => $contactPointEmail ? $contactPointEmail->id : null
+            ]
+            ,
+            [
+                'system'                => 'email',
+                'contact_point_id'      => null,
+                'user_id'               => $userCreatedOrUpdated->id,
+                'location_id'           => null,
+                'emergency_contact_id'  => null,
+                'value'                 => $this->originalData['EMAIL'], 	
+                'organization_id'       => null,
+                'use'                   => 'work',
+                'rank'                  => null,
+                'actually'              => 0,
+            ]
+        );
+
         // CIE10
         $code = preg_match('/^[A-Z0-9\.]+/', strtoupper($this->originalData['CONFIR_DIAG']), $matches) ? $matches[0] : null;
         if ($code) {
             $cie10 = Cie10::whereRaw('BINARY code = ?', [$code])->first();
+        }
+        else
+        {
+            $cie10 = null;
         }
 
         // TIPO PRESTACION
@@ -185,6 +205,10 @@ class WaitlistImporter extends Importer
         $textSpecialty = strtolower(trim($this->originalData['ESPECIALIDAD']));
         $specialty = WaitlistSpecialty::firstOrCreate(['text' => $textSpecialty]);
 
+        // ORGANIZACION DE DESTINO 
+        $alias = strtolower(trim($this->originalData['ESTAB_PRESTADOR']));
+        $organizationId = Organization::whereRaw("LOWER(alias) = ?", [$alias])->value('id');
+
         $waitlist = $userCreatedOrUpdated->waitlists->where('wait_health_care_service_id', $healthCareService->id)->first();
         $waitlistCreatedOrUpdated = Waitlist::updateOrCreate(
             [
@@ -194,84 +218,51 @@ class WaitlistImporter extends Importer
             [
                 'user_id'                       => $userCreatedOrUpdated->id,
                 'wait_health_care_service_id'   => $healthCareService->id,
-                'cie10_id'                      => $cie10->id,
+                'cie10_id'                      => ($cie10 != null) ? $cie10->id : null,
+                'sigte_id'                      => $this->originalData['SIGTE_ID'],
+                'wait_medical_benefit_id'       => $medicalBenefits->id,
+                'wait_specialty_id'             => $specialty->id,
                 'organization_id'               => $organization,
                 'commune_id'                    => $commune,
-                'sigte_id'                      => $this->originalData['SIGTE_ID'],
-                'wait_medical_benefit_id'       => $medicalBenefits->id, //corregir singularspecialty
-                'wait_specialty_id'             => $specialty->id,
+                'status'                        => strtolower(trim($this->originalData['ESTADO'])),
+                'destiny_organization_id'       => $organizationId,
             ]
         );
 
-        
-    
-        return $waitlistCreatedOrUpdated;
-        /*
-        $user = User::whereHas('identifiers', function ($query) {
-            $query->where('value', $this->originalData['RUN'])
-                ->Where('cod_con_identifier_type_id', 1);
-            })
-            ->firstOrNew();
-
-        // Actualizamos o asignamos campos
-        if (!$user) {
-            // $sexValue = ClassSex::where('text', $this->originalData['sexo'])->first()->value;
-            // $sexGender = ClassGender::where('text', $this->originalData['genero'])->first()->value;
-            // $nationality = Country::where('name', $this->originalData['nacionalidad'])->first()->id;
-
-            $user->active           = 1;
-            $user->text             = $this->originalData['NOMBRES'];
-            $user->given            = $this->originalData['PRIMER_APELLIDO'];
-            $user->fathers_family   = $this->originalData['SEGUNDO_APELLIDO'];
-        } else {
-            // $sexValue = ClassSex::where('text', $this->originalData['sexo'])->first()->value;
-            // $sexGender = ClassGender::where('text', $this->originalData['genero'])->first()->value;
-            // $nationality = Country::where('name', $this->originalData['nacionalidad'])->first()->id;
-            
-            $user->fill([
-                'active'            => 1,
-                'text'              => $this->originalData['NOMBRES'].' '.$this->originalData['PRIMER_APELLIDO'].' '.$this->originalData['SEGUNDO_APELLIDO'],
-                'given'             => $this->originalData['NOMBRES'],
-                'fathers_family'    => $this->originalData['PRIMER_APELLIDO'],
-                'mothers_family'    => $this->originalData['SEGUNDO_APELLIDO'],
-                'sex'               => null, // NO SE ECUENTRA INFO 
-                'gender'            => null, // NO SE ECUENTRA INFO
-                'birthday'          => $this->originalData['FECHA_NAC'],
-                // Otros campos
+        // EVENTOS
+        if($waitlistCreatedOrUpdated->events->count() == 0){
+            $save = $waitlistCreatedOrUpdated->events()->create([
+                'status'            => strtolower(trim($this->originalData['ESTADO'])),
+                'registered_at'     => now(),
+                'text'              => 'Registrado a través de carga masiva',
+                'discharge'         => strtolower(trim($this->originalData['CAUSAL_EGRESO'] ?? '')),
+                'appointment_at'    => !empty($this->originalData['FECHA_ATENCION']) ? date("Y-m-d H:i:s", strtotime($this->originalData['FECHA_ATENCION'])) : null,
+                'register_user_id'  => auth()->user()->id
             ]);
         }
+        
+        // CONTACTOS
+        if($waitlistCreatedOrUpdated->contacts->count() == 0){
+            if(in_array(strtolower(trim($this->originalData['ESTADO'])), ['derivado', 'citado', 'atendido', 'inasistente', 'egresado'])){
+                $statusContact = 'si';
+            }
+            else if(strtolower(trim($this->originalData['ESTADO'])) == 'incontactable'){
+                $statusContact = 'no';
+            }
+            else{
+                $statusContact = null;
+            }
 
-        // Guardar el registro
-        $user->save();
-        // Aquí es donde puedes ejecutar acciones "after save"
-        // $this->afterSave($user);
-
-        // Verificar si el valor PRESTA_EST no existe en la tabla
-        if (!HealthCareService::where('text', $this->originalData['PRESTA_EST'])->exists()) {
-            // Pasar el mensaje de error a la sesión usando flash
-            // session()->flash('error', 'El valor ' . $this->originalData['PRESTA_EST'] . ' no existe en la base de datos.');
-
-            Notification::make()
-                ->title('Error')
-                ->body('El valor ' . $this->originalData['PRESTA_EST'] . ' no existe en la base de datos.')
-                ->danger()
-                ->send();
-
-            // Redirigir a la página anterior (la pantalla de la tabla de registros)
-            return redirect()->intended('/admin/users');
+            $waitlistCreatedOrUpdated->contacts()->create([
+                'type'              => 'telefonico',
+                'status'            => $statusContact,
+                'contacted_at'      => now(),
+                'text'              => 'Registrado a través de carga masiva',
+                'register_user_id'  => auth()->user()->id,
+            ]);
         }
-
-        /*
-        $user = Waitlist::firstOrNew(
-            [
-                'user_id' => $user->,
-                'PRESTA_EST'
-            ]
-        )
-        // PRESTA_EST
-        // Fondo de Ojo
-        */
-
+    
+        return $waitlistCreatedOrUpdated;
     }
 
     protected function afterSave(): void

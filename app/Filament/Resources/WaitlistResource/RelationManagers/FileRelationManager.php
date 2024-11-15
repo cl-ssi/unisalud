@@ -19,6 +19,8 @@ class FileRelationManager extends RelationManager
 
     protected static string $relationship = 'files';
 
+    protected static ?string $title = 'Adjuntos';
+
     public function form(Form $form): Form
     {
         return $form

@@ -166,6 +166,11 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->hasOne(ContactPoint::class)->where('use', 'mobile')->orderBy('created_at');
     }
 
+    public function emailContactPoint(): HasOne
+    {
+        return $this->hasOne(ContactPoint::class)->where('system', 'email')->orderBy('created_at');
+    }
+
     public function waitlists(): HasMany
     {
         return $this->hasMany(Waitlist::class);

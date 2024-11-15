@@ -16,4 +16,9 @@ class EditWaitlist extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    public function getTitle(): string
+    {
+        return 'Editar Paciente Lista de Espera'; // Cambia este título según tus necesidades
+    }
 }
