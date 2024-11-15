@@ -24,6 +24,8 @@ class WaitlistResource extends Resource
 
     protected static ?string $navigationLabel = 'Listado de Pacientes';
 
+    protected static ?string $label = 'Lista de Espera de Pacientes';
+
     public static function form(Form $form): Form
     {
         return $form
@@ -191,20 +193,44 @@ class WaitlistResource extends Resource
                     })
                     ->default('heroicon-o-clock'), // Asegurar que el ícono del reloj sea el valor predeterminado
                 Tables\Columns\BadgeColumn::make('status')
-                        ->label('Estado')
-                        ->default('pendiente')
-                        ->colors([
-                            'secondary' => 'pendiente', // Color gris para pendiente
-                            'success'   => 'derivado', // Verde para derivado
-                            'primary'   => 'citado', // Azul para citado
-                            'warning'   => 'inasistente', // Amarillo para inasistente
-                            'danger'    => 'incontactable', // Rojo para incontactable
-                            'success'   => 'egresado', // Gris claro para egresado
-                        ])
-                        ->formatStateUsing(function ($state) {
-                            return ucfirst($state); // Formatear el estado para que se muestre con la primera letra en mayúscula
-                        })
-                        ->sortable(), // Si quieres que sea ordenable
+                    ->label('Estado')
+                    ->default('pendiente')
+                    // NO DERIVADO - DERIVADO - CITADO - ATENDIDO - INASISTENTE - INCONTACTABLE - EGRESADO
+                    ->colors([
+                        'success'   => 'atendido',
+                        'primary'   => 'citado',
+                        'gray'      => 'derivado',
+                        'info'      => 'egresado',
+                        'danger'    => 'inasistente', 
+                        'warning'   => 'incontactable',
+                    ])
+                    ->formatStateUsing(function ($state) {
+                        return ucfirst($state); // Formatear el estado para que se muestre con la primera letra en mayúscula
+                    })
+                    ->sortable(), // Si quieres que sea ordenable
+                Tables\Columns\BadgeColumn::make('is_deceased')
+                    ->label('Causal')
+                    ->getStateUsing(function ($record) {
+                        // Verificar si el paciente está en estado "egresado"
+                        if ($record->status === 'egresado') {
+                            // Obtener el último evento registrado
+                            $lastEvent = $record->events()->latest('registered_at')->first();
+                            // Verificar si el último evento tiene la causa "fallecimiento"
+                            if ($lastEvent && $lastEvent->discharge === 'fallecimiento') {
+                                return 'Fallecido';
+                            }
+                            return 'Egresado';
+                        }
+                        else{
+                            return null;
+                        }
+                    })
+                    ->colors([
+                        'danger' => 'Fallecido',   // Rojo para Fallecido
+                        'success' => 'Activo',    // Verde para Activo
+                        'secondary' => 'Egresado' // Gris para Egresado
+                    ])
+                    ->sortable(), // Permitir ordenamiento por esta columna
                 Tables\Columns\TextColumn::make('user.officialIdentifier.value')
                     ->label('RUN'),
                 Tables\Columns\TextColumn::make('user.officialIdentifier.dv')
@@ -394,7 +420,8 @@ class WaitlistResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->paginated([50]);
     }
 
     public static function getRelations(): array
