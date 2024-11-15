@@ -175,11 +175,35 @@ class WaitlistEventRelationManager extends RelationManager
                            }
                        }
                     })
-                    ->disabled(fn() => $this->ownerRecord->status === 'incontactable' && !$this->ownerRecord->contacts()
+                    /*
+                    ->disabled(fn() => $this->ownerRecord->status === 'incontactable'
                         ->where('type', 'visita domiciliaria')
                         ->where('status', 'si')
-                        ->exists()), // Deshabilitar si el estado es "incontactable" y no existe un contacto válido
-
+                        ->exists()) // Deshabilitar si el estado es "incontactable" y no existe un contacto válido
+                    ->disabled(fn() => $this->ownerRecord->status === 'egresado'), // Deshabilitar si el estado es "egresado"
+                    */
+                    ->disabled(function () {
+                        $waitlist = $this->ownerRecord;
+                
+                        // Condición 1: Estado es "incontactable" y no existe un contacto válido
+                        if ($waitlist->status === 'incontactable') {
+                            $hasValidContact = $waitlist->contacts()
+                                ->where('type', 'visita domiciliaria')
+                                ->where('status', 'si')
+                                ->exists();
+                
+                            if (!$hasValidContact) {
+                                return true; // Deshabilitar si no hay contacto válido
+                            }
+                        }
+                
+                        // Condición 2: Estado es "egresado"
+                        if ($waitlist->status === 'egresado') {
+                            return true; // Deshabilitar si el estado es "egresado"
+                        }
+                
+                        return false; // Permitir el botón en otros casos
+                    }),
                 // Agregar acción para el botón "Historial"
                 Tables\Actions\Action::make('view_history')
                     ->label('Historial')

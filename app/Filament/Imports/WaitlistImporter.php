@@ -243,7 +243,7 @@ class WaitlistImporter extends Importer
         
         // CONTACTOS
         if($waitlistCreatedOrUpdated->contacts->count() == 0){
-            if(in_array(strtolower(trim($this->originalData['ESTADO'])), ['derivado', 'citado', 'atendido', 'inasistente', 'egresado'])){
+            if(in_array(strtolower(trim($this->originalData['ESTADO'])), ['citado', 'atendido', 'inasistente', 'egresado'])){
                 $statusContact = 'si';
             }
             else if(strtolower(trim($this->originalData['ESTADO'])) == 'incontactable'){

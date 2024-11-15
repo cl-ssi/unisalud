@@ -27,8 +27,6 @@ return new class extends Migration
             $table->foreignId('commune_id')->nullable()->constrained('communes');
             $table->string('status')->nullable();
             $table->foreignId('destiny_organization_id')->nullable()->constrained('organizations');
-            $table->dateTime('attention_date')->nullable();  // FECHA_ATENCION 
-            $table->string('attended')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
