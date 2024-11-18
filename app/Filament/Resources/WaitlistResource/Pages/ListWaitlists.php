@@ -83,7 +83,7 @@ class ListWaitlists extends ListRecords
 
         $waitlistResume = [
             'users'                 => 0, // Inicializar el conteo total de usuarios únicos
-            'pendientes'            => 0, // Inicializar el conteo de registros sin estado
+            //'pendientes'            => 0, // Inicializar el conteo de registros sin estado
             'contactados'           => 0, // Inicializar el conteo de registros con contacto "sí"
             'no contactados'        => 0, // Inicializar el conteo de registros con contacto "no"
             'rechazos egresados'    => 0 // Inicializar el conteo de registros con estado "egresado" y "rechazo"
@@ -112,17 +112,19 @@ class ListWaitlists extends ListRecords
                 }
             }
 
-            // Si el estado es nulo o vacío, contarlo como 'pendientes'
-            if (empty($waitlist->status)) {
-                $waitlistResume['pendientes']++;
-            } else {
-                // Inicializar el estado si no existe en el array de resumen
-                if (!isset($waitlistResume[$waitlist->status])) {
-                    $waitlistResume[$waitlist->status] = 0;
-                }
-                // Incrementar el contador del estado correspondiente
-                $waitlistResume[$waitlist->status]++;
+            /* Incrementar el contador para el estado "derivado"
+            if ($waitlist->status === 'derivado') {
+                $waitlistResume['derivados']++;
             }
+            */
+
+            // Inicializar el estado si no existe en el array de resumen
+            if (!isset($waitlistResume[$waitlist->status])) {
+                $waitlistResume[$waitlist->status] = 0;
+            }
+
+            // Incrementar el contador del estado correspondiente
+            $waitlistResume[$waitlist->status]++;
         }
 
         $waitlistResume['users'] = count($waitlistUsers);

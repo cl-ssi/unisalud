@@ -30,13 +30,15 @@
                     <td>Usuarios</td>
                     <td>{{ $waitlistResume['users'] }}</td>
                 </tr>
+                {{--
                 <tr>
                     <td>Pendientes</td>
                     <td>{{ $waitlistResume['pendientes'] }}</td>
                 </tr>
+                --}}
                 <tr>
                     <td>Usuarios Derivados</td>
-                    <td>{{ $waitlistResume['derivados'] ?? 0 }}</td>
+                    <td>{{ $waitlistResume['derivado'] ?? 0 }}</td>
                 </tr>
                 <tr>
                     <td>Usuarios Contactados</td>
