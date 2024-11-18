@@ -26,35 +26,47 @@ class ListWaitlists extends ListRecords
     */
 
     public function getTabs(): array
-    {
-        $tabs = [];
+{
+    $tabs = [];
 
-        // Validar si el usuario está vinculado a la organización "Servicio de Salud Tarapacá"
-        $userOrganizations = auth()->user()->organizations;
-        $hasAccessToAllTab = $userOrganizations->contains(function ($organization) {
-            return $organization->alias === 'Servicio de Salud Tarapacá';
-        });
+    // Obtener las organizaciones del usuario autenticado
+    $userOrganizations = auth()->user()->organizations;
 
-        // Agregar la pestaña "Todas" solo si tiene acceso
-        if ($hasAccessToAllTab == true) {
-            $tabs['Todas'] = Tab::make()
-                ->modifyQueryUsing(function (Builder $query): Builder {
-                    return $query; // No aplica ningún filtro
-                });
-        }
-
-        // Agregar pestañas por organizaciones asociadas al usuario
-        if(auth()->user()->organizations->count() > 0){
-            foreach(auth()->user()->organizations as $organization){
-                $tabs[$organization->alias] = Tab::make()
-                    ->modifyQueryUsing(callback: fn (Builder $query): Builder => 
-                        $query->where(column: 'destiny_organization_id', operator: $organization->id)
-                    );
-            }
-        }
+    // Si el usuario no tiene organizaciones vinculadas, no mostrar pestañas
+    if ($userOrganizations->isEmpty()) {
+        $tabs['Sin Resultados'] = Tab::make()
+            ->modifyQueryUsing(function (Builder $query): Builder {
+                return $query->whereRaw('1 = 0'); // Asegura que no se muestren registros
+            });
 
         return $tabs;
     }
+
+    // Validar si el usuario está vinculado a la organización "Servicio de Salud Tarapacá"
+    $hasAccessToAllTab = $userOrganizations->contains(function ($organization) {
+        return $organization->alias === 'Servicio de Salud Tarapacá';
+    });
+
+    // Agregar la pestaña "Todas" solo si tiene acceso
+    if ($hasAccessToAllTab) {
+        $tabs['Todas'] = Tab::make()
+            ->modifyQueryUsing(function (Builder $query): Builder {
+                return $query; // No aplica ningún filtro
+            });
+    }
+
+    // Agregar pestañas por organizaciones asociadas al usuario
+    foreach ($userOrganizations as $organization) {
+        $tabs[$organization->alias] = Tab::make()
+            ->modifyQueryUsing(function (Builder $query) use ($organization): Builder {
+                return $query->where('destiny_organization_id', $organization->id);
+            });
+    }
+
+    return $tabs;
+}
+
+
 
     public function exportReport()
     {

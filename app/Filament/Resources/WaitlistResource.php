@@ -443,4 +443,17 @@ class WaitlistResource extends Resource
             'edit' => Pages\EditWaitlist::route('/{record}/edit'),
         ];
     }
+
+    protected static function getTableQuery(): Builder
+    {
+        $userOrganizations = auth()->user()->organizations;
+
+        // Si no hay organizaciones vinculadas, devuelve una consulta vacía
+        if ($userOrganizations->isEmpty()) {
+            return Waitlist::query()->whereRaw('1 = 0'); // Condición que nunca se cumple
+        }
+
+        // Si el usuario tiene organizaciones, retorna la consulta base sin filtros adicionales
+        return Waitlist::query();
+    }
 }
