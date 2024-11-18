@@ -355,12 +355,13 @@ class WaitlistResource extends Resource
                 Tables\Actions\EditAction::make(),
 
                 // Acción personalizada para ver el UserResource
+                /*
                 Tables\Actions\Action::make('view_user')
                     ->label('Ver Usuario')
                     ->url(fn($record) => UserResource::getUrl('edit', ['record' => $record->user_id]))
                     ->icon('heroicon-o-user')
                     ->openUrlInNewTab(), // Opcional, abre el recurso en una nueva pestaña
-                /*
+                
                 Tables\Actions\Action::make('estado')
                     ->label('Estado')
                     ->modal('waitlist-status-modal') // Abre el modal especificado

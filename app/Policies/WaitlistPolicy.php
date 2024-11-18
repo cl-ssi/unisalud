@@ -3,39 +3,25 @@
 namespace App\Policies;
 
 use App\Models\User;
+use App\Models\Waitlist;
 use Illuminate\Auth\Access\Response;
 
-class UserPolicy
+class WaitlistPolicy
 {
-    /**
-     * Perform pre-authorization checks.
-     * For administrative purposes, the user with the 'be god' ability can do anything.
-     * If null is returned, the authorization check will fall through to the policy method
-     */
-    
-    public function before(User $user, string $ability): bool|null
-    {
-        if ( $user->can('be god') ) {
-            return true;
-        }
-
-        return null;
-    }
-
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->can('LE: listado de pacientes');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, User $model): bool
+    public function view(User $user, Waitlist $waitlist): bool
     {
-        return false;
+        return $user->can('LE: listado de pacientes');
     }
 
     /**
@@ -49,15 +35,15 @@ class UserPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, User $model): bool
+    public function update(User $user, Waitlist $waitlist): bool
     {
-        return false;
+        return $user->can('LE: listado de pacientes');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, User $model): bool
+    public function delete(User $user, Waitlist $waitlist): bool
     {
         return false;
     }
@@ -65,7 +51,7 @@ class UserPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, User $model): bool
+    public function restore(User $user, Waitlist $waitlist): bool
     {
         return false;
     }
@@ -73,7 +59,7 @@ class UserPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, User $model): bool
+    public function forceDelete(User $user, Waitlist $waitlist): bool
     {
         return false;
     }

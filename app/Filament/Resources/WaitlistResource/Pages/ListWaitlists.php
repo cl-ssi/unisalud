@@ -27,11 +27,23 @@ class ListWaitlists extends ListRecords
 
     public function getTabs(): array
     {
-        $tabs['Todas'] = Tab::make()
-            ->modifyQueryUsing(callback: fn (Builder $query): Builder => 
-                $query
-            );
+        $tabs = [];
 
+        // Validar si el usuario está vinculado a la organización "Servicio de Salud Tarapacá"
+        $userOrganizations = auth()->user()->organizations;
+        $hasAccessToAllTab = $userOrganizations->contains(function ($organization) {
+            return $organization->alias === 'Servicio de Salud Tarapacá';
+        });
+
+        // Agregar la pestaña "Todas" solo si tiene acceso
+        if ($hasAccessToAllTab == true) {
+            $tabs['Todas'] = Tab::make()
+                ->modifyQueryUsing(function (Builder $query): Builder {
+                    return $query; // No aplica ningún filtro
+                });
+        }
+
+        // Agregar pestañas por organizaciones asociadas al usuario
         if(auth()->user()->organizations->count() > 0){
             foreach(auth()->user()->organizations as $organization){
                 $tabs[$organization->alias] = Tab::make()
