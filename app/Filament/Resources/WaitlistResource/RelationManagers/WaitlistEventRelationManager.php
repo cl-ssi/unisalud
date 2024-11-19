@@ -118,6 +118,8 @@ class WaitlistEventRelationManager extends RelationManager
                     ->label('Observaciones')
                     ->wrap()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('user.text')
+                    ->label('Registrado Por'),
                 Tables\Columns\BadgeColumn::make('discharge')
                     ->label('Causal Egreso')
                     ->formatStateUsing(function ($state) {
