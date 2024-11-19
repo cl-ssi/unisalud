@@ -16,6 +16,8 @@ class DependentCaregiver extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $table = 'dependent_caregiver';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -44,6 +46,4 @@ class DependentCaregiver extends Model
     {
         return $this->hasOne(DependentUser::class);
     }
-
-    protected $table = 'dependent_caregiver';
 }

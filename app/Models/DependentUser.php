@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use App\Models\DependentConditions;
+use App\Models\DependentCaregiver;
 use App\Models\User;
 
 use App\Enums\ConditionClinicalStatus;
@@ -70,6 +71,11 @@ class DependentUser extends Model
     public function dependentConditions(): HasMany
     {
         return $this->hasMany(DependentConditions::class);
+    }
+
+    public function dependentCaregiver():BelongsTo
+    {
+        return $this->belongsTo(CareGiver::class);
     }
 
     protected $table = 'dependent_user';

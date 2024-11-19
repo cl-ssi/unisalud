@@ -10,6 +10,7 @@ use Filament\Actions\Imports\Models\Import;
 
 // use App\Models\Condition;
 use App\Models\DependentUser;
+use App\Models\DependentCaregiver;
 use App\Models\DependentConditions;
 use App\Models\Condition;
 
@@ -37,13 +38,6 @@ class ConditionImporter extends Importer
 
     public static function getColumns(): array
     {
-        /*
-        return [
-            ImportColumn::make('user_condition')
-                ->label('condicion')
-                // ->relationship(resolveUsing: ['display'])
-        ];
-        */
         return [];
     }
 
@@ -147,10 +141,6 @@ class ConditionImporter extends Importer
         );
 
         //LOCATION
-        $locationExist = new Location();
-        $locationExist = $newAddress->location ? $newAddress->location : null;
-
-        //LOCATION
         $address    = $this->originalData['calle'];
         $number     = $this->originalData['numero'];
         $commune    = $this->originalData['comuna'];
@@ -178,6 +168,120 @@ class ConditionImporter extends Importer
                 'address_id'        => $newAddress->id,
                 'longitude'         => $longitude,
                 'latitude'          => $latitude
+            ]
+        );
+
+        /*
+        * Creator Importer cuidador
+        */
+        $user_caregiver = User::whereHas('identifiers', function ($query) {
+            $query->where('value', $this->originalData['run_cuidador'])
+                ->Where('cod_con_identifier_type_id', 1);
+            })
+            ->first();
+
+        $sexValue_caregiver = ClassSex::where('text', $this->originalData['sexo_cuidador'])->first()->value;
+        $sexGender_caregiver = ClassGender::where('text', $this->originalData['genero_cuidador'])->first()->value;
+        $nationality_caregiver = Country::where('name', $this->originalData['nacionalidad_cuidador'])->first()->id;
+
+        $user_caregiver_upsert = User::updateOrCreate(
+            [
+                'id'    => $user_caregiver ? $user_caregiver->id : null
+            ]
+            ,
+            [
+                'active'                => 1,
+                'text'                  => $this->originalData['nombre_cuidador'].' '.$this->originalData['apellido_paterno_cuidador'].' '.$this->originalData['apellido_materno_cuidador'],
+                'given'                 => $this->originalData['nombre_cuidador'],
+                'fathers_family'        => $this->originalData['apellido_paterno_cuidador'],
+                'mothers_family'        => $this->originalData['apellido_materno_cuidador'],
+                'sex'                   => $sexValue_caregiver,
+                'gender'                => $sexGender_caregiver,
+                'birthday'              => date("Y-m-d", strtotime($this->originalData['fecha_nacimiento_cuidador'])),
+                // 'cod_con_marital_id'    => $this->originalData['estado_civil'],
+                'nationality_id'        => $nationality_caregiver,
+            ]
+        );
+
+        if($user_caregiver == null){
+            // SE CREA IDENTIFIER
+            $identifier_caregiver_create = Identifier::create(
+                [
+                    'user_id'                       => $user_caregiver_upsert->id,
+                    'use'                           => 'official',
+                    'cod_con_identifier_type_id'    => 1,
+                    'value'                         => $this->originalData['run_cuidador'],
+                    'dv'                            => $this->originalData['dv_cuidador']
+                ]
+            );
+
+            //SE CREA HUMAN NAME
+            $humanNameCaregiver = HumanName::create(
+                [
+                    'use'               => 'official',
+                    'given'             => $this->originalData['nombre_cuidador'],
+                    'fathers_family'    => $this->originalData['apellido_paterno_cuidador'],
+                    'mothers_family'    => $this->originalData['apellido_materno_cuidador'],
+                    'period_start'      => now(),
+                    'user_id'           => $user_caregiver_upsert->id
+                ]
+            );
+        }
+
+        //ADDRESS
+        $addressCaregiverExist = new Address();
+        foreach($user_caregiver_upsert->addresses as $address){
+            if($address->use->value == 'home'){
+                $addressCaregiverExist = $address;
+            }
+        }
+
+        $communeCaregiver = Commune::where('name', $this->originalData['comuna'])->first()->id;
+
+        $newAddressCaregiver = Address::updateOrCreate(
+            [
+                'id'    => $addressCaregiverExist ? $addressCaregiverExist->id : null
+            ]
+            ,
+            [
+
+                'user_id'       => $user_caregiver_upsert->id,
+                'use'           => 'home',
+                'type'          => 'physical',
+                'text'          => $this->originalData['calle'],
+                'line'          => $this->originalData['numero'],
+                'apartment'     => $this->originalData['departamento'],
+                'suburb'        => null,
+                'city'          => null,
+                'commune_id'    => $communeCaregiver,
+                'postal_code'   => null,
+                'region_id'     => null,
+            ]
+        );
+
+        // Verificar que no exista ya un caregiver y si existe actualizar
+        $caregiver = DependentCaregiver::whereHas('user', 
+            function ($query) use($user_caregiver_upsert) {
+                $query->where('id', $user_caregiver_upsert->id);
+            }
+        )->first();
+
+        $caregiver_upsert = DependentCaregiver::updateOrCreate(
+            [
+                'id'    => $caregiver ? $caregiver->id : null
+            ]
+            ,
+            [
+                'dependent_user_id'     => $this->record->id,
+                'user_id'               => $user_caregiver_upsert->id,
+                'relative'              => $this->originalData['parentesco_cuidador'],
+                'empam'                 => $this->validateBool($this->originalData['empam_cuidador']),
+                'zarit'                 => $this->validateBool($this->originalData['zarit_cuidador']),
+                'immunizations'         => $this->validateBool($this->originalData['inmunizaciones_cuidador']),
+                'elaborated_plan'       => $this->validateBool($this->originalData['plan_elaborado_cuidador']),
+                'evaluated_plan'        => $this->validateBool($this->originalData['plan_evaluado_cuidador']),
+                'trained'               => $this->validateBool($this->originalData['capacitacion_cuidador']),
+                'stipend'               => $this->validateBool($this->originalData['estipendio_cuidador']),
             ]
         );
 

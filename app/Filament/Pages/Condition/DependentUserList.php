@@ -68,7 +68,8 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
                 // });
 
                 // $query = User::has('dependentUser');
-                $query = User::query()->with(['dependentUser', 'dependentUser.dependentConditions', 'dependentCaregiver', 'dependentCaregiver.user', 'address']);
+                $query = User::query()->with(['dependentUser', 'dependentUser.dependentConditions', 'dependentUser.dependentCaregiver', 'dependentUser.dependentCaregiver.user', 'address']);
+
                 return $query;
             })
             ->columns([
@@ -166,29 +167,29 @@ class DependentUserList extends Page implements Forms\Contracts\HasForms, Tables
                 Tables\Columns\TextColumn::make('dependentUser.nutrition_assistance_date')
                     ->label('Fecha Entrega de Alimentación')
                     ->date(),
-                Tables\Columns\TextColumn::make('dependentCaregiver.relative')
+                Tables\Columns\TextColumn::make('dependentUser.dependentCaregiver.relative')
                     ->label(new HtmlString('Parentesco <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                     // ->label(''),
-                Tables\Columns\TextColumn::make('dependentCaregiver.user.text')
+                Tables\Columns\TextColumn::make('dependentUser.dependentCaregiver.user.text')
                     ->label(new HtmlString('Nombre <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
-                Tables\Columns\TextColumn::make('dependentCaregiver.user.age')
+                Tables\Columns\TextColumn::make('dependentUser.dependentCaregiver.user.age')
                     ->label(new HtmlString('Edad  <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
-                Tables\Columns\TextColumn::make('dependentCaregiver.user.empam')
+                Tables\Columns\TextColumn::make('dependentUser.dependentCaregiver.empam')
                     ->label(new HtmlString('Empam <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
-                Tables\Columns\TextColumn::make('dependentCaregiver.zarit')
+                Tables\Columns\TextColumn::make('dependentUser.dependentCaregiver.zarit')
                     ->label(new HtmlString('Zarit <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
-                Tables\Columns\TextColumn::make('dependentCaregiver.immunizations')
+                Tables\Columns\TextColumn::make('dependentUser.dependentCaregiver.immunizations')
                     ->label(new HtmlString('Imunizacion <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
-                Tables\Columns\TextColumn::make('dependentUser.elaborated_plan')
+                Tables\Columns\TextColumn::make('dependentUser.dependentUser.elaborated_plan')
                     ->label(new HtmlString('Plan Elaborado <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-                Tables\Columns\TextColumn::make('dependentUser.evaluated_plan')
+                Tables\Columns\TextColumn::make('dependentUser.dependentUser.evaluated_plan')
                     ->label(new HtmlString('Plan Evaluado <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-                Tables\Columns\TextColumn::make('dependentUser.elaborated_plan')
+                Tables\Columns\TextColumn::make('dependentUser.dependentUser.elaborated_plan')
                     ->label(new HtmlString('Capacitado <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
-                Tables\Columns\TextColumn::make('dependentUser.evaluated_plan')
+                Tables\Columns\TextColumn::make('dependentUser.dependentUser.evaluated_plan')
                     ->label(new HtmlString('Estipendio <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->formatStateUsing(fn($state)=>($state==1)?'Si':'No'),
 
