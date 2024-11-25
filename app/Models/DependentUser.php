@@ -14,7 +14,9 @@ use App\Enums\ConditionClinicalStatus;
 use App\Enums\ConditionVerificationStatus;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class DependentUser extends Model
 {
@@ -73,9 +75,15 @@ class DependentUser extends Model
         return $this->hasMany(DependentConditions::class);
     }
 
-    public function dependentCaregiver():BelongsTo
+    // public function conditions(): hasMany
+    // {
+    //     // return $this->hasManyThrough(Condition::class, DependentConditions::class, 'dependent_user_id', 'condition_id');
+    //     return $this->hasMany(Condition::class)->using(DependentConditions::class);
+    // }
+
+    public function dependentCaregiver():HasOne
     {
-        return $this->belongsTo(CareGiver::class);
+        return $this->HasOne(DependentCaregiver::class);
     }
 
     protected $table = 'dependent_user';

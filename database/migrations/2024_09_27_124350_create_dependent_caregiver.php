@@ -21,7 +21,7 @@ return new class extends Migration
 
             $table->string('relative')->nullable();
 
-            $table->string('empam')->nullable();
+            $table->boolean('empam')->nullable();
 
             $table->boolean('zarit')->nullable();
 

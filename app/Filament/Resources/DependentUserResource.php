@@ -3,6 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\DependentUserResource\Pages;
+use App\Filament\Resources\DependentUserResource\RelationManagers;
+use App\Filament\Imports\ConditionImporter;
 
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -10,14 +12,23 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
+
 use Illuminate\Support\HtmlString;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Models\DependentUser;
+
 use App\Models\User;
+use App\Models\Country;
+use App\Models\Commune;
 use App\Models\Condition;
+use App\Models\DependentUser;
+
+use App\Enums\Sex;
+use App\Enums\Gender;
 
 use Carbon\Carbon;
+use Filament\Actions\ActionGroup;
 
 class DependentUserResource extends Resource
 {
@@ -29,14 +40,119 @@ class DependentUserResource extends Resource
     {
         return $form
             ->schema([
-                // Forms\Components\TextInput::make('identifier')
-                //     ->maxLength(255),
-                // Forms\Components\TextInput::make('cod_con_clinical_status'),
-                // Forms\Components\TextInput::make('cod_con_verification_status'),
-                // Forms\Components\TextInput::make('cod_con_code_id')
-                //     ->numeric(),
-                // Forms\Components\Select::make('user_id')
-                //     ->relationship('user', 'id'),
+                Forms\Components\Group::make()                
+                    ->visible(fn(string $operation): bool => $operation === 'create')
+                    ->schema([
+                        Forms\Components\Hidden::make('existUser')
+                            ->default(1),
+                        Forms\Components\Fieldset::make('User Search')
+                            ->label('Buscar Usuario')
+                            ->relationship('user')
+                            ->schema([
+                                Forms\Components\Select::make('Nombre')
+                                    ->placeholder('Seleccione')
+                                    ->label('Nombre de Usuario')
+                                    ->statePath('find_user')
+                                    ->searchable()
+                                    ->searchDebounce(500)
+                                    ->preload()
+                                    ->optionsLimit(10)
+                                    ->getSearchResultsUsing(
+                                        function ($search){
+                                            $terms = explode(' ', $search);
+                                            $query = null;
+                                            foreach ($terms as $term) {
+                                                if (is_null($query)) {
+                                                    $query = User::whereRaw("UPPER(text) LIKE '%" . trim(strtoupper($term)) . "%'");
+                                                } else {
+                                                    $query->whereRaw("UPPER(text) LIKE '%" . trim(strtoupper($term)) . "%'");
+                                                }
+                                            }
+                                            $query->limit(10);
+                                            return $query->pluck('text', 'id');
+                                        }
+                                    )
+                                    ->suffixAction(
+                                        Forms\Components\Actions\Action::make('create_user')
+                                            ->icon('heroicon-m-clipboard')
+                                            ->requiresConfirmation()
+                                            ->action(function (Forms\Set $set) {
+                                                $set('existUser', 0);
+                                            }),
+                                    ),                        
+                            ]),
+                        Forms\Components\Fieldset::make('Create User')
+                            ->hidden(fn(Forms\Get $get)=>$get('existUser'))
+                            ->relationship('user')
+                            ->schema([
+                                Forms\Components\TextInput::make('rut')
+                                    ->label('RUT')
+                                    ->statePath('rut')
+                                    ->maxLength(10)
+                                    // ->tel()
+                                    // ->telRegex('^[1-9]\d*\-(\d|k|K)$')
+                                    ->hint('Utilizar formato: 13650969-1')
+                                    ->default(null),
+                                Forms\Components\TextInput::make('given')
+                                    ->label('Nombre')
+                                    ->statePath('given')
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('fathers_family')
+                                    ->label('Apellido Paterno')
+                                    ->statePath('fathers_family')
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('mothers_family')
+                                    ->label('Apellido Materno')
+                                    ->statePath('mothers_family')
+                                    ->maxLength(255),
+                                Forms\Components\Select::make('sex')
+                                    ->label('Sexo')
+                                    ->statePath('sex')
+                                    ->placeholder('Seleccione')
+                                    ->options(Sex::class),
+                                Forms\Components\Select::make('gender')
+                                    ->label('Género')
+                                    ->statePath('gender')
+                                    ->placeholder('Seleccione')
+                                    ->options(Gender::class),
+                                Forms\Components\DatePicker::make('birthday')
+                                    ->label('Fecha Nacimiento')
+                                    ->statePath('birthday'),
+                                // Forms\Components\Select::make('cod_con_marital_id')
+                                //     ->label('Estado Civil')
+                                //     ->statePath('cod_con_marital_id')
+                                //     ->placeholder('Seleccione')
+                                //     ->options(CodConMarital::pluck('text', 'id')),
+                                Forms\Components\Select::make('nationality_id')
+                                    ->label('Nacionalidad')
+                                    ->statePath('nationality_id')
+                                    ->placeholder('Seleccione')
+                                    ->options(Country::pluck('name', 'id')),
+                                Forms\Components\Select::make('commune')
+                                    ->label('Comuna')
+                                    ->statePath('commune')
+                                    ->placeholder('Seleccione')
+                                    ->options(Commune::pluck('name', 'id')),
+                                Forms\Components\TextInput::make('calle')
+                                    ->label('Calle')
+                                    ->statePath('calle')
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('numero')
+                                    ->label('Número')
+                                    ->statePath('numero')
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('departamento')
+                                    ->label('Departamento')
+                                    ->statePath('departamento')
+                                    ->maxLength(255),
+                            ]),
+                    ]),
+                
+                Forms\Components\Livewire::make('user_info')
+                    ->hidden(fn(string $operation): bool => $operation === 'create')
+                    ->columnSpan('full')
+                    ->component('condition.info-user')
+                    ->data(fn(Model $record): array => ['user_id' => $record->user->id]),
                 Forms\Components\Textarea::make('diagnosis')
                     ->columnSpanFull(),
                 Forms\Components\DatePicker::make('check_in_date'),
@@ -47,21 +163,22 @@ class DependentUserResource extends Resource
                 Forms\Components\TextInput::make('treatment_visits')
                     ->numeric(),
                 Forms\Components\DatePicker::make('last_treatment_visit'),
-                Forms\Components\TextInput::make('barthel')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('empam')
-                    ->maxLength(255),
+                Forms\Components\Select::make('barthel')
+                    ->options([
+                        'independent'=> 'Independiente',
+                        'slight'=> 'Leve',
+                        'moderate'=> 'Moderado',
+                        'severe'=> 'Grave',
+                        'total'=> 'Total',
+                    ]),
+                Forms\Components\Toggle::make('empam'),
                 Forms\Components\Toggle::make('eleam'),
                 Forms\Components\Toggle::make('upp'),
                 Forms\Components\Toggle::make('elaborated_plan'),
                 Forms\Components\Toggle::make('evaluated_plan'),
-                Forms\Components\TextInput::make('pneumonia')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('influenza')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('covid_19')
-                    ->maxLength(255),
-                Forms\Components\DatePicker::make('covid_19_date'),
+                Forms\Components\DatePicker::make('pneumonia'),
+                Forms\Components\DatePicker::make('influenza'),
+                Forms\Components\DatePicker::make('covid_19'),
                 Forms\Components\Textarea::make('extra_info')
                     ->columnSpanFull(),
                 Forms\Components\Toggle::make('tech_aid'),
@@ -185,7 +302,10 @@ class DependentUserResource extends Resource
                 Tables\Columns\TextColumn::make('dependentCaregiver.user.text')
                     ->label(new HtmlString('Nombre <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                 Tables\Columns\TextColumn::make('dependentCaregiver.user.age')
-                    ->label(new HtmlString('Edad  <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
+                    ->label(new HtmlString('Edad  <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
+                    ->getStateUsing(function ($record) {
+                        return Carbon::parse($record->dependentCaregiver->user->birthday)->age;
+                    }),
                 Tables\Columns\IconColumn::make('dependentCaregiver.empam')
                     ->label(new HtmlString('Empam <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->boolean(),
@@ -252,13 +372,22 @@ class DependentUserResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ])
+            ->headerActions([
+                Tables\Actions\ImportAction::make()
+                    ->importer(ConditionImporter::class)
+                    ->label('Importar Condición de Usuarios')
+                    ->modalHeading('Importar Condición de Usuarios')
+                    // ->modalDescription('Subir archivo CSV')
+                    ->modalSubmitActionLabel('Importar')
+                    // ->options([])
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            // 
+            RelationManagers\ConditionsRelationManager::class,
         ];
     }
 

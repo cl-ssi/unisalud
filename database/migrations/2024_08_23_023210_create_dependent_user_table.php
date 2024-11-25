@@ -16,29 +16,6 @@ return new class extends Migration
 
             $table->string('identifier')->nullable();
 
-            $table->enum('cod_con_clinical_status', [
-                    'active',
-                    'recurrence',
-                    'relapse',
-                    'inactive',
-                    'remission',
-                    'resolved',
-                    'unknown'
-                ])
-                ->nullable();
-            $table->enum('cod_con_verification_status', [
-                    'unconfirmed',
-                    'provisional',
-                    'differential',
-                    'confirmed',
-                    'refuted',
-                    'entered-in-error',
-                ])
-                ->nullable();
-
-
-            $table->foreignId('cod_con_code_id')->nullable()->constrained('codings');
-
             $table->foreignId('user_id')->nullable()->constrained('users');
 
             $table->text('diagnosis')->nullable();
@@ -55,9 +32,15 @@ return new class extends Migration
 
             $table->date('last_treatment_visit')->nullable();
 
-            $table->string('barthel')->nullable();
+            $table->enum('barthel', [
+                'independent',
+                'slight',
+                'moderate',
+                'severe',
+                'total',
+            ])->nullable();
 
-            $table->string('empam')->nullable();
+            $table->boolean('empam')->nullable();
 
             $table->boolean('eleam')->nullable();
 
@@ -67,13 +50,11 @@ return new class extends Migration
 
             $table->boolean('evaluated_plan')->nullable();
 
-            $table->string('pneumonia')->nullable();
+            $table->date('pneumonia')->nullable();
 
-            $table->string('influenza')->nullable();
+            $table->date('influenza')->nullable();
 
-            $table->string('covid_19')->nullable();
-
-            $table->date('covid_19_date')->nullable();
+            $table->date('covid_19')->nullable();
 
             $table->text('extra_info')->nullable();
 

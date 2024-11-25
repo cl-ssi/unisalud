@@ -277,7 +277,7 @@ class ConditionImporter extends Importer
                 'relative'              => $this->originalData['parentesco_cuidador'],
                 'empam'                 => $this->validateBool($this->originalData['empam_cuidador']),
                 'zarit'                 => $this->validateBool($this->originalData['zarit_cuidador']),
-                'immunizations'         => $this->validateBool($this->originalData['inmunizaciones_cuidador']),
+                'immunizations'         => $this->originalData['inmunizaciones_cuidador'],
                 'elaborated_plan'       => $this->validateBool($this->originalData['plan_elaborado_cuidador']),
                 'evaluated_plan'        => $this->validateBool($this->originalData['plan_evaluado_cuidador']),
                 'trained'               => $this->validateBool($this->originalData['capacitacion_cuidador']),
@@ -285,17 +285,32 @@ class ConditionImporter extends Importer
             ]
         );
 
-        // Se busca la Condition mediante el nombre de la condicion
-        $condition = Condition::where('name', '=', $this->originalData['condicion'])->firstOrFail();
-
-        // Se crea la relacion en la tabla pivote DependentConditions
-        DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => $condition->id]);
+        //  Asociar Condiciones
+        if($this->validateBool($this->originalData['electrodependencia'])){
+            DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => 1]);
+        }
+        if($this->validateBool($this->originalData['movilidad_reducida'])){
+            DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => 2]);
+        }
+        if($this->validateBool($this->originalData['oxigeno_dependiente'])){
+            DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => 3]);
+        }
+        if($this->validateBool($this->originalData['alimentacion_enteral'])){
+            DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => 4]);
+        }
+        if($this->validateBool($this->originalData['oncologicos'])){
+            DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => 5]);
+        }
+        if($this->validateBool($this->originalData['cuidados_paliativos_universales'])){
+            DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => 6]);
+        }
+        if($this->validateBool($this->originalData['naneas'])){
+            DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => 7]);
+        }
 
 
         // SE AGREGA EL 'user_id' A $this->record, que corresponde al user recien creado o ya creado.
-        $this->record->user_id                      = $userCreatedOrUpdated->id;
-        $this->record->cod_con_clinical_status      = 'active';
-        $this->record->cod_con_verification_status  = 'confirmed';
+        $this->record->user_id  = $userCreatedOrUpdated->id;
         $this->record->diagnosis = $this->originalData['diagnostico'];
         $this->record->check_in_date = $this->validateDate($this->originalData['fecha_ingreso']);
         $this->record->check_out_date = $this->validateDate($this->originalData['fecha_egreso']);
@@ -303,16 +318,15 @@ class ConditionImporter extends Importer
         $this->record->treatment_visits = $this->originalData['visitas_tratamiento'];
         $this->record->last_integral_visit = $this->validateDate($this->originalData['fecha_visita_integral']);
         $this->record->last_treatment_visit =  $this->validateDate($this->originalData['fecha_visita_tratamiento']);
-        $this->record->barthel = $this->originalData['barthel'];
-        $this->record->empam = $this->originalData['emp_empam'];
+        $this->record->barthel = $this->validateBarthel($this->originalData['barthel']);
+        $this->record->empam = $this->validateBool($this->originalData['emp_empam']);
         $this->record->eleam = $this->validateBool($this->originalData['eleam']);
         $this->record->upp = $this->validateBool($this->originalData['upp']);
         $this->record->elaborated_plan = $this->validateBool($this->originalData['plan_elaborado']);
         $this->record->evaluated_plan = $this->validateBool($this->originalData['plan_evaluado']);
-        $this->record->pneumonia = $this->originalData['neumo'];
-        $this->record->influenza = $this->originalData['influenza'];
-        $this->record->covid_19 = $this->originalData['covid_19'];
-        $this->record->covid_19_date = $this->validateDate($this->originalData['covid_19_fecha']);
+        $this->record->pneumonia = $this->validateDate($this->originalData['neumo']);
+        $this->record->influenza = $this->validateDate($this->originalData['influenza']);
+        $this->record->covid_19 = $this->validateDate($this->originalData['covid_19']);
         $this->record->extra_info = $this->originalData['extra_info'];
         $this->record->tech_aid = $this->validateBool($this->originalData['ayuda_tecnica']);
         $this->record->tech_aid_date = $this->validateDate($this->originalData['ayuda_tecnica_fecha']);
@@ -353,6 +367,24 @@ class ConditionImporter extends Importer
             if($date_str != false){
                 $out = $date_str->format('Y-m-d');
             }
+        }
+        return $out;
+    }
+
+    public function validateBarthel($text){
+        $out = null;
+        $text = strtolower(trim($text));
+        switch($text){
+            case 'independiente':
+                $out = 'independent';break;
+            case 'leve':
+                $out = 'slight';break;
+            case 'moderado':
+                $out = 'moderate';break;
+            case 'grave':
+                $out = 'severe';break;
+            case 'total':
+                $out = 'total';break;
         }
         return $out;
     }

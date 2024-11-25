@@ -42,8 +42,8 @@ class DependentCaregiver extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function dependentUser(): HasOne
+    public function dependentUser(): BelongsTo
     {
-        return $this->hasOne(DependentUser::class);
+        return $this->BelongsTo(DependentUser::class);
     }
 }

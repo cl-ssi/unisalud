@@ -33,9 +33,9 @@ class DependentConditions extends Model
         return $this->belongsTo(DependentUser::class);
     }
 
-    public function condition(): HasOne
+    public function condition(): BelongsTo
     {
-        return $this->HasOne(Condition::class);
+        return $this->BelongsTo(Condition::class);
     }
 
     protected $table = 'dependent_conditions';
