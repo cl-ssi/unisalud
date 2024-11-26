@@ -2,8 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\User;
+use App\Models\Em;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ContactPoint extends Model
 {
@@ -24,4 +29,8 @@ class ContactPoint extends Model
     ];
 
     // TODO: Hacer las relaciones
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

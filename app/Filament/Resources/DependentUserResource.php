@@ -222,6 +222,8 @@ class DependentUserResource extends Resource
                     ->label('Longitud'),
                 Tables\Columns\TextColumn::make('user.address.location.latitude')
                     ->label('Latitud'),
+                Tables\Columns\TextColumn::make('user.mobileContactPoint.value')
+                    ->label('Telefono'),
                 Tables\Columns\TextColumn::make('check_in_date')
                     ->label('Fecha de Ingreso')
                     ->date()
@@ -247,11 +249,10 @@ class DependentUserResource extends Resource
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('barthel')
-                    ->label('Barthel')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('empam')
+                    ->label('Barthel'),
+                Tables\Columns\IconColumn::make('empam')
                     ->label('Emp / Empam')
-                    ->searchable(),
+                    ->boolean(),
                 Tables\Columns\IconColumn::make('eleam')
                     ->label('Eleam')
                     ->boolean(),
@@ -367,6 +368,10 @@ class DependentUserResource extends Resource
             ], layout: Tables\Enums\FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('map')
+                ->label('')
+                ->icon('heroicon-s-map')
+                ->url(fn (Model $record): string => route('filament.admin.pages.dependent-user-map', ['condition_id' => $record->dependentConditions->first()->condition_id, 'user_id' => $record->user->id]))
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

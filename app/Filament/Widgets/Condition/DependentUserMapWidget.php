@@ -28,8 +28,8 @@ class DependentUserMapWidget extends MapWidget
 
     protected static array $layers = [
         'http://uni.saludtarapaca.gob.cl/kml/2012_iquique.kml', 
-        'http://uni.saludtarapaca.gob.cl/kml/cota_30_tarapaca.kml',
-        'https://gist.githubusercontent.com/piranga8/287e0160044214109b6e5a5e4e820f99/raw/bf72b22417eb2c5db7761224b4b0235909ebc9ba/linea_seguridad_onemi.kml'
+        'http://uni.saludtarapaca.gob.cl/kml/linea_seguridad_iquique.kml',
+        // 'http://uni.saludtarapaca.gob.cl/kml/cota_30_tarapaca.kml',
     ];
 
     public array $controls = [

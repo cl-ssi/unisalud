@@ -20,6 +20,7 @@ use App\Models\HumanName;
 use App\Models\Address;
 use App\Services\GeocodingService;
 use App\Models\Commune;
+use App\Models\ContactPoint;
 use App\Models\Location;
 
 // use App\Models\Coding;
@@ -141,14 +142,14 @@ class ConditionImporter extends Importer
         );
 
         //LOCATION
-        $address    = $this->originalData['calle'];
+        $street    = $this->originalData['calle'];
         $number     = $this->originalData['numero'];
         $commune    = $this->originalData['comuna'];
 
-        if ($address && $number && $commune ) {
+        if ($street && $number && $commune ) {
 
             $geocodingService = app(GeocodingService::class);
-            $coordinates = $geocodingService->getCoordinates($address.'+'.$number.'+'.$commune);
+            $coordinates = $geocodingService->getCoordinates($street.'+'.$number.'+'.$commune);
 
             if ($coordinates) {
                 $latitude   = $coordinates['lat'];
@@ -171,9 +172,32 @@ class ConditionImporter extends Importer
             ]
         );
 
+        // Verificar que no exista ya un contact point del usuario
+        $contactPoint = ContactPoint::where('user_id', $userCreatedOrUpdated->id)->first();
+        $contactPoint_upsert = ContactPoint::updateOrCreate(
+            [
+                'id'    => $contactPoint ? $contactPoint->id : null
+            ],
+            [
+                'system'        => 'phone',
+                'user_id'       => $userCreatedOrUpdated->id, 
+                'location_id'   => $newLocation->id,
+                'value'         => $this->originalData['telefono'],
+                'use'           => 'mobile',
+                'actually'      => 0, // TODO: vaya agregando si cambia
+            ]
+        );
+
+
+
+
         /*
+        *
         * Creator Importer cuidador
+        *
         */
+
+
         $user_caregiver = User::whereHas('identifiers', function ($query) {
             $query->where('value', $this->originalData['run_cuidador'])
                 ->Where('cod_con_identifier_type_id', 1);
@@ -259,6 +283,37 @@ class ConditionImporter extends Importer
             ]
         );
 
+        //LOCATION CAREGIVER
+        $caregiverStreet    = $this->originalData['calle'];
+        $caregiverNumber     = $this->originalData['numero'];
+        $caregiverCommune    = $this->originalData['comuna'];
+        if ($caregiverStreet && $caregiverNumber && $caregiverCommune ) {
+
+            $geocodingService = app(GeocodingService::class);
+            $caregiverCordinates = $geocodingService->getCoordinates($caregiverStreet.'+'.$caregiverNumber.'+'.$caregiverCommune);
+
+            if ($coordinates) {
+                $caregiverLatitude   = $caregiverCordinates['lat'];
+                $caregiverLongitude  = $caregiverCordinates['lng'];
+            } else {
+                $caregiverLatitude   = null;
+                $caregiverLongitude  = null;
+            }
+        }
+
+        
+        $newCaregiverLocation = Location::updateOrCreate(
+            [
+                'id'    => $newAddressCaregiver->location ? $newAddressCaregiver->location->id : null
+            ]
+            ,
+            [
+                'address_id'        => $newAddressCaregiver->id,
+                'longitude'         => $longitude,
+                'latitude'          => $latitude
+            ]
+        );
+
         // Verificar que no exista ya un caregiver y si existe actualizar
         $caregiver = DependentCaregiver::whereHas('user', 
             function ($query) use($user_caregiver_upsert) {
@@ -282,6 +337,23 @@ class ConditionImporter extends Importer
                 'evaluated_plan'        => $this->validateBool($this->originalData['plan_evaluado_cuidador']),
                 'trained'               => $this->validateBool($this->originalData['capacitacion_cuidador']),
                 'stipend'               => $this->validateBool($this->originalData['estipendio_cuidador']),
+            ]
+        );
+
+
+        // Crear o Actualizar contactPoint del cuidador
+        $caregiverContactPoint = ContactPoint::where('user_id', $user_caregiver_upsert->id)->first();
+        $caregiverContactPoint_upsert = ContactPoint::updateOrCreate(
+            [
+                'id'    => $caregiverContactPoint ? $caregiverContactPoint->id : null
+            ],
+            [
+                'system'        => 'phone',
+                'user_id'       => $user_caregiver_upsert->id, 
+                'location_id'   => $newLocation->id,
+                'value'         => $this->originalData['telefono'],
+                'use'           => 'mobile',
+                'actually'      => 0, // TODO: vaya agregando si cambia
             ]
         );
 
