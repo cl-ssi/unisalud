@@ -41,7 +41,7 @@ class WaitlistResource extends Resource
                             $component->state($record->user->officialIdentifier->value);
                         }
                     }),
-
+                    
                 Forms\Components\TextInput::make('dv')
                     ->label('DV')
                     ->disabled() // Deshabilita el campo
@@ -232,11 +232,13 @@ class WaitlistResource extends Resource
                     ])
                     ->sortable(), // Permitir ordenamiento por esta columna
                 Tables\Columns\TextColumn::make('user.officialIdentifier.value')
-                    ->label('RUN'),
+                    ->label('RUN')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('user.officialIdentifier.dv')
                     ->label('DV'),
                 Tables\Columns\TextColumn::make('user.text')
                     ->label('Usuario')
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.birthday')
                     ->label('Fecha Nacimiento')
