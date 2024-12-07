@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\DependentUser;
+use App\Models\ContactPoint;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class DependentCaregiver extends Model
 {
@@ -46,4 +48,14 @@ class DependentCaregiver extends Model
     {
         return $this->BelongsTo(DependentUser::class);
     }
+
+    // public function contactPoint(): hasOne
+    // {
+    //     return $this->user->hasOne(ContactPoint::class)->latestOfMany();
+    // }
+
+    // public function organization(): BelongsTo
+    // {
+    //     return $this->contactPoint?->BelongsTo(Organization::class)->where('service', '=', 3);
+    // }
 }

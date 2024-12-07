@@ -28,6 +28,7 @@ use App\Models\Location;
 use App\Models\Sex as ClassSex;
 use App\Models\Gender as ClassGender;
 use App\Models\Country;
+use App\Models\Organization;
 
 class ConditionImporter extends Importer
 {
@@ -171,25 +172,6 @@ class ConditionImporter extends Importer
                 'latitude'          => $latitude
             ]
         );
-
-        // Verificar que no exista ya un contact point del usuario
-        $contactPoint = ContactPoint::where('user_id', $userCreatedOrUpdated->id)->first();
-        $contactPoint_upsert = ContactPoint::updateOrCreate(
-            [
-                'id'    => $contactPoint ? $contactPoint->id : null
-            ],
-            [
-                'system'        => 'phone',
-                'user_id'       => $userCreatedOrUpdated->id, 
-                'location_id'   => $newLocation->id,
-                'value'         => $this->originalData['telefono'],
-                'use'           => 'mobile',
-                'actually'      => 0, // TODO: vaya agregando si cambia
-            ]
-        );
-
-
-
 
         /*
         *
@@ -342,18 +324,20 @@ class ConditionImporter extends Importer
 
 
         // Crear o Actualizar contactPoint del cuidador
-        $caregiverContactPoint = ContactPoint::where('user_id', $user_caregiver_upsert->id)->first();
+        $organization_id = Organization::where('code_deis', '=', $this->originalData['establecimiento'])->first()->id;
+        $caregiverContactPoint = ContactPoint::where('user_id', $user_caregiver_upsert->id)->latest()->first();
         $caregiverContactPoint_upsert = ContactPoint::updateOrCreate(
             [
                 'id'    => $caregiverContactPoint ? $caregiverContactPoint->id : null
             ],
             [
-                'system'        => 'phone',
-                'user_id'       => $user_caregiver_upsert->id, 
-                'location_id'   => $newLocation->id,
-                'value'         => $this->originalData['telefono'],
-                'use'           => 'mobile',
-                'actually'      => 0, // TODO: vaya agregando si cambia
+                'system'            => 'phone',
+                'user_id'           => $user_caregiver_upsert->id, 
+                'location_id'       => $newLocation->id,
+                'value'             => $this->originalData['telefono'],
+                'organization_id'   => $organization_id,
+                'use'               => 'mobile',
+                'actually'          => 0, // TODO: vaya agregando si cambia
             ]
         );
 

@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Samu\Establishment;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Organization extends Model
 {
@@ -67,5 +69,10 @@ class Organization extends Model
     public function samu()
     {
         return $this->belongsTo(Establishment::class,'id', 'organization_id');
+    }
+
+    public function contactPoint(): HasOne
+    {
+        return $this->HasOne(ContactPoint::class);
     }
 }

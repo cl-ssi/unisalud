@@ -22,6 +22,7 @@ use App\Models\User;
 use App\Models\Country;
 use App\Models\Commune;
 use App\Models\Condition;
+use App\Models\Organization;
 use App\Models\DependentUser;
 
 use App\Enums\Sex;
@@ -39,130 +40,68 @@ class DependentUserResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\Group::make()                
-                    ->visible(fn(string $operation): bool => $operation === 'create')
+            ->schema([                             
+                Forms\Components\Fieldset::make()
+                    ->relationship('user')
                     ->schema([
-                        Forms\Components\Hidden::make('existUser')
-                            ->default(1),
-                        Forms\Components\Fieldset::make('User Search')
-                            ->label('Buscar Usuario')
-                            ->relationship('user')
+                        Forms\Components\TextInput::make('text')
+                            ->label('Nombre')
+                            ->disabled(),
+                        Forms\Components\TextInput::make('birthday')
+                            // ->formatStateUsing(fn (User $record): string => Carbon::parse($record->birthday)->age . ' Años')
+                            ->label('Edad')
+                            ->disabled(),
+                        Forms\Components\Group::make()
+                            ->columns(2)
+                            ->columnSpan('full')
+                            ->relationship('officialIdentifier')
                             ->schema([
-                                Forms\Components\Select::make('Nombre')
-                                    ->placeholder('Seleccione')
-                                    ->label('Nombre de Usuario')
-                                    ->statePath('find_user')
-                                    ->searchable()
-                                    ->searchDebounce(500)
-                                    ->preload()
-                                    ->optionsLimit(10)
-                                    ->getSearchResultsUsing(
-                                        function ($search){
-                                            $terms = explode(' ', $search);
-                                            $query = null;
-                                            foreach ($terms as $term) {
-                                                if (is_null($query)) {
-                                                    $query = User::whereRaw("UPPER(text) LIKE '%" . trim(strtoupper($term)) . "%'");
-                                                } else {
-                                                    $query->whereRaw("UPPER(text) LIKE '%" . trim(strtoupper($term)) . "%'");
-                                                }
-                                            }
-                                            $query->limit(10);
-                                            return $query->pluck('text', 'id');
-                                        }
-                                    )
-                                    ->suffixAction(
-                                        Forms\Components\Actions\Action::make('create_user')
-                                            ->icon('heroicon-m-clipboard')
-                                            ->requiresConfirmation()
-                                            ->action(function (Forms\Set $set) {
-                                                $set('existUser', 0);
-                                            }),
-                                    ),                        
+                                Forms\Components\TextInput::make('value')
+                                    // ->formatStateUsing(fn (Model $record): string => $record->identifiers->first()->value . '-' . $record->identifiers->first()->dv)
+                                    ->label('RUN')
+                                    ->disabled(),
+                                Forms\Components\TextInput::make('dv')
+                                    // ->formatStateUsing(fn (Model $record): string => $record->identifiers->first()->value . '-' . $record->identifiers->first()->dv)
+                                    ->label('DV')
+                                    ->disabled(),
                             ]),
-                        Forms\Components\Fieldset::make('Create User')
-                            ->hidden(fn(Forms\Get $get)=>$get('existUser'))
-                            ->relationship('user')
+                        Forms\Components\Group::make()
+                            ->columns(3)
+                            ->columnSpan('full')
+                            ->relationship('address')
                             ->schema([
-                                Forms\Components\TextInput::make('rut')
-                                    ->label('RUT')
-                                    ->statePath('rut')
-                                    ->maxLength(10)
-                                    // ->tel()
-                                    // ->telRegex('^[1-9]\d*\-(\d|k|K)$')
-                                    ->hint('Utilizar formato: 13650969-1')
-                                    ->default(null),
-                                Forms\Components\TextInput::make('given')
-                                    ->label('Nombre')
-                                    ->statePath('given')
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('fathers_family')
-                                    ->label('Apellido Paterno')
-                                    ->statePath('fathers_family')
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('mothers_family')
-                                    ->label('Apellido Materno')
-                                    ->statePath('mothers_family')
-                                    ->maxLength(255),
-                                Forms\Components\Select::make('sex')
-                                    ->label('Sexo')
-                                    ->statePath('sex')
-                                    ->placeholder('Seleccione')
-                                    ->options(Sex::class),
-                                Forms\Components\Select::make('gender')
-                                    ->label('Género')
-                                    ->statePath('gender')
-                                    ->placeholder('Seleccione')
-                                    ->options(Gender::class),
-                                Forms\Components\DatePicker::make('birthday')
-                                    ->label('Fecha Nacimiento')
-                                    ->statePath('birthday'),
-                                // Forms\Components\Select::make('cod_con_marital_id')
-                                //     ->label('Estado Civil')
-                                //     ->statePath('cod_con_marital_id')
-                                //     ->placeholder('Seleccione')
-                                //     ->options(CodConMarital::pluck('text', 'id')),
-                                Forms\Components\Select::make('nationality_id')
-                                    ->label('Nacionalidad')
-                                    ->statePath('nationality_id')
-                                    ->placeholder('Seleccione')
-                                    ->options(Country::pluck('name', 'id')),
+                                Forms\Components\TextInput::make('text')
+                                    ->label('Calle'),
+                                Forms\Components\TextInput::make('line')
+                                    ->label('Número'),
                                 Forms\Components\Select::make('commune')
-                                    ->label('Comuna')
-                                    ->statePath('commune')
-                                    ->placeholder('Seleccione')
-                                    ->options(Commune::pluck('name', 'id')),
-                                Forms\Components\TextInput::make('calle')
-                                    ->label('Calle')
-                                    ->statePath('calle')
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('numero')
-                                    ->label('Número')
-                                    ->statePath('numero')
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('departamento')
-                                    ->label('Departamento')
-                                    ->statePath('departamento')
-                                    ->maxLength(255),
+                                    ->relationship(titleAttribute: 'name')
+                                    ->label('Ciudad'),
                             ]),
+                        Forms\Components\TextInput::make('sex')
+                            ->label('Sexo')
+                            ->disabled(),
+                        Forms\Components\TextInput::make('gender')
+                            ->label('Genero')
+                            ->disabled(),
                     ]),
-                
-                Forms\Components\Livewire::make('user_info')
-                    ->hidden(fn(string $operation): bool => $operation === 'create')
-                    ->columnSpan('full')
-                    ->component('condition.info-user')
-                    ->data(fn(Model $record): array => ['user_id' => $record->user->id]),
                 Forms\Components\Textarea::make('diagnosis')
+                    ->label('Diagnostico')
                     ->columnSpanFull(),
-                Forms\Components\DatePicker::make('check_in_date'),
-                Forms\Components\DatePicker::make('check_out_date'),
+                Forms\Components\DatePicker::make('check_in_date')
+                    ->label('Fecha de Ingreso'),
+                Forms\Components\DatePicker::make('check_out_date')
+                    ->label('Fecha de Egreso'),
                 Forms\Components\TextInput::make('integral_visits')
+                    ->label('Vistas Integrales')
                     ->numeric(),
-                Forms\Components\DatePicker::make('last_integral_visit'),
+                Forms\Components\DatePicker::make('last_integral_visit')
+                    ->label('Última Visita Integral'),
                 Forms\Components\TextInput::make('treatment_visits')
+                    ->label('Visitas de Tratamiento')
                     ->numeric(),
-                Forms\Components\DatePicker::make('last_treatment_visit'),
+                Forms\Components\DatePicker::make('last_treatment_visit')
+                    ->label('Última Visita de Tratamiento'),
                 Forms\Components\Select::make('barthel')
                     ->options([
                         'independent'=> 'Independiente',
@@ -176,16 +115,23 @@ class DependentUserResource extends Resource
                 Forms\Components\Toggle::make('upp'),
                 Forms\Components\Toggle::make('elaborated_plan'),
                 Forms\Components\Toggle::make('evaluated_plan'),
-                Forms\Components\DatePicker::make('pneumonia'),
+                Forms\Components\DatePicker::make('pneumonia')
+                    ->label('Neumonia'),
                 Forms\Components\DatePicker::make('influenza'),
                 Forms\Components\DatePicker::make('covid_19'),
                 Forms\Components\Textarea::make('extra_info')
+                    ->label('Informacion Adicional')
                     ->columnSpanFull(),
-                Forms\Components\Toggle::make('tech_aid'),
-                Forms\Components\DatePicker::make('tech_aid_date'),
-                Forms\Components\Toggle::make('nutrition_assistance'),
-                Forms\Components\DatePicker::make('nutrition_assistance_date'),
-                Forms\Components\Toggle::make('flood_zone'),                
+                Forms\Components\Toggle::make('tech_aid')
+                    ->label('Ayuda Técnica'),
+                Forms\Components\DatePicker::make('tech_aid_date')
+                    ->label('Fecha Ayuda Técnica'),
+                Forms\Components\Toggle::make('nutrition_assistance')
+                    ->label('Entrega de Alimentación'),
+                Forms\Components\DatePicker::make('nutrition_assistance_date')
+                    ->label('Fecha Entrega de Alimentación'),
+                Forms\Components\Toggle::make('flood_zone')
+                    ->label('Zona de Inundabilidad'),                
             ]);
     }
 
@@ -193,6 +139,8 @@ class DependentUserResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('dependentCaregiver.user.mobileContactPoint.organization.alias')
+                    ->label('Establecimiento'),
                 Tables\Columns\TextColumn::make('user.text')
                     ->label('Nombre Completo')
                     ->getStateUsing(function ($record) {
