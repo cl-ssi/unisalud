@@ -9,6 +9,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Webbingbrasil\FilamentCopyActions\Tables\Actions\CopyAction;
 
 use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -45,11 +46,6 @@ class FileRelationManager extends RelationManager
                     ->columnSpan('full') 
                     ->disk('gcs')
                     ->directory('/unisalud/waitlist/attached') // Directorio donde se guardarán los archivos
-                    ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file) use ($form): string {
-                        // Obtener el nombre original del archivo y agregar un prefijo personalizado
-                        $now = now()->format('Ymd_His');
-                        return "{$now}_wait_{$this->ownerRecord->id}_{$this->typeValue}.{$file->getClientOriginalExtension()}";
-                    })
                     ->required(),
             ]);
     }
@@ -85,6 +81,24 @@ class FileRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('show_link')
+                    ->label('Mostrar Link')
+                    ->icon('heroicon-o-link')
+                    ->modalHeading('Enlace del archivo')
+                    ->modalSubheading('Selecciona y copia el enlace a continuación.')
+                    ->modalButton('Cerrar')
+                    ->form(function ($record) {
+                        $url = Storage::disk('gcs')->url($record->storage_path);
+
+                        return [
+                            Forms\Components\TextInput::make('fileUrl')
+                                ->label('Enlace público')
+                                ->default($url) // Establece el valor del enlace
+                                ->readonly()
+                                ->columnSpan('full')
+                                ->extraAttributes(['onclick' => 'this.select()']),
+                        ];
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
