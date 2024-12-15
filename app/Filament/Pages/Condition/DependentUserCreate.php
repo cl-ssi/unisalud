@@ -204,6 +204,7 @@ class DependentUserCreate extends Page implements Forms\Contracts\HasForms
                                                 $query->whereRaw("UPPER(text) LIKE '%" . trim(strtoupper($term)) . "%'");
                                             }
                                         }
+                                        $query->whereNotIn('id', DependentUser::pluck('user_id')->toArray());
                                         $query->limit(10);
                                         return $query->pluck('text', 'id');
                                     }
