@@ -45,30 +45,57 @@ class DependentUserResource extends Resource
     {
         return $form
             ->schema([                             
-                Forms\Components\Fieldset::make()
+                Forms\Components\Fieldset::make('Usuario Dependiente')
                     ->relationship('user')
                     ->schema([
                         Forms\Components\TextInput::make('text')
                             ->label('Nombre')
                             ->disabled(),
-                        Forms\Components\TextInput::make('birthday')
-                            // ->formatStateUsing(fn (User $record): string => Carbon::parse($record->birthday)->age . ' Años')
-                            ->label('Edad')
+                        Forms\Components\DatePicker::make('birthday')
+                            ->label('Fecha de Nacimiento')
                             ->disabled(),
+                        Forms\Components\TextInput::make('run')
+                            ->formatStateUsing(fn (Model $record): string => $record->officialIdentifier->value . '-' . $record->officialIdentifier->dv)
+                            ->label('RUN')
+                            ->disabled(),                       
+                        Forms\Components\TextInput::make('sex')
+                            ->label('Sexo')
+                            ->disabled(),
+                        Forms\Components\TextInput::make('gender')
+                            ->label('Genero')
+                            ->disabled(),
+                    ]),
+                Forms\Components\Fieldset::make('Cuidador')
+                    ->relationship('dependentCaregiver')
+                    ->schema([
                         Forms\Components\Group::make()
                             ->columns(2)
                             ->columnSpan('full')
-                            ->relationship('officialIdentifier')
+                            ->relationship('user')
                             ->schema([
-                                Forms\Components\TextInput::make('value')
-                                    // ->formatStateUsing(fn (Model $record): string => $record->identifiers->first()->value . '-' . $record->identifiers->first()->dv)
+                                Forms\Components\TextInput::make('text')
+                                    ->label('Nombre')
+                                    ->disabled(),
+                                Forms\Components\DatePicker::make('birthday')
+                                    ->label('Edad')
+                                    ->disabled(),
+                                Forms\Components\TextInput::make('run')
+                                    ->formatStateUsing(fn (Model $record): string => $record->officialIdentifier->value . '-' . $record->officialIdentifier->dv)
                                     ->label('RUN')
                                     ->disabled(),
-                                Forms\Components\TextInput::make('dv')
-                                    // ->formatStateUsing(fn (Model $record): string => $record->identifiers->first()->value . '-' . $record->identifiers->first()->dv)
-                                    ->label('DV')
+                                Forms\Components\TextInput::make('sex')
+                                    ->label('Sexo')
+                                    ->disabled(),
+                                Forms\Components\TextInput::make('gender')
+                                    ->label('Genero')
                                     ->disabled(),
                             ]),
+                    ]),
+                Forms\Components\Fieldset::make('Direccion')
+                    // ->columns(3)
+                    // ->columnSpan('full')
+                    ->relationship('user')
+                    ->schema([
                         Forms\Components\Group::make()
                             ->columns(3)
                             ->columnSpan('full')
@@ -82,13 +109,9 @@ class DependentUserResource extends Resource
                                     ->relationship(titleAttribute: 'name')
                                     ->label('Ciudad'),
                             ]),
-                        Forms\Components\TextInput::make('sex')
-                            ->label('Sexo')
-                            ->disabled(),
-                        Forms\Components\TextInput::make('gender')
-                            ->label('Genero')
-                            ->disabled(),
                     ]),
+
+
                 Forms\Components\Textarea::make('diagnosis')
                     ->label('Diagnostico')
                     ->columnSpanFull(),
