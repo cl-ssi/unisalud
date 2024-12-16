@@ -37,6 +37,10 @@ class DependentUserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $modelLabel = 'Usuario Dependiente';
+
+    protected static ?string $pluralModelLabel = 'Usuarios Dependiente';
+
     public static function form(Form $form): Form
     {
         return $form
@@ -289,6 +293,7 @@ class DependentUserResource extends Resource
                 //     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                /*
                 Tables\Filters\SelectFilter::make('condition')
                     ->label('Tipo de Condición')
                     ->placeholder('Seleccione')
@@ -299,7 +304,8 @@ class DependentUserResource extends Resource
                             fn (Builder $query): Builder => $query->whereHas('dependentConditions', fn (Builder $query): Builder => $query->where('condition_id', '=', $state)),
                             fn (Builder $query): Builder => $query->whereNull('id')
                         );
-                    }),
+                    }), 
+                */
                 Tables\Filters\Filter::make('user')
                     ->form([
                         Forms\Components\TextInput::make('name')
@@ -313,7 +319,7 @@ class DependentUserResource extends Resource
                             fn (Builder $query, $name): Builder => $query->whereHas('user', fn (Builder $query): Builder => $query->where('text', 'like', '%' . $name . '%')),
                         );
                     })
-            ], layout: Tables\Enums\FiltersLayout::AboveContent)
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('map')
@@ -327,13 +333,15 @@ class DependentUserResource extends Resource
                 ]),
             ])
             ->headerActions([
+                /*                 
                 Tables\Actions\ImportAction::make()
                     ->importer(ConditionImporter::class)
                     ->label('Importar Condición de Usuarios')
                     ->modalHeading('Importar Condición de Usuarios')
                     // ->modalDescription('Subir archivo CSV')
                     ->modalSubmitActionLabel('Importar')
-                    // ->options([])
+                    // ->options([]) 
+                    */
             ]);
     }
 
