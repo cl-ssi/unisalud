@@ -34,6 +34,7 @@ class CreateHmRrhhTable extends Migration
 
         Schema::create('mp_services', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('service_code')->nullable();
             $table->string('service_name')->nullable();
             $table->string('color')->nullable();
   

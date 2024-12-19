@@ -6,14 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-use App\Models\DependentConditions;
 use App\Models\DependentCaregiver;
+use App\Models\Condition;
 use App\Models\User;
 
 use App\Enums\ConditionClinicalStatus;
 use App\Enums\ConditionVerificationStatus;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -70,16 +71,10 @@ class DependentUser extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function dependentConditions(): HasMany
+    public function conditions(): BelongsToMany
     {
-        return $this->hasMany(DependentConditions::class);
+        return $this->belongsToMany(Condition::class, foreignPivotKey: 'dependent_user_id')->withTimestamps();
     }
-
-    // public function conditions(): hasMany
-    // {
-    //     // return $this->hasManyThrough(Condition::class, DependentConditions::class, 'dependent_user_id', 'condition_id');
-    //     return $this->hasMany(Condition::class)->using(DependentConditions::class);
-    // }
 
     public function dependentCaregiver():HasOne
     {

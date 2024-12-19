@@ -8,11 +8,9 @@ use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
 
-// use App\Models\Condition;
+use App\Models\Condition;
 use App\Models\DependentUser;
 use App\Models\DependentCaregiver;
-use App\Models\DependentConditions;
-use App\Models\Condition;
 
 use App\Models\User;
 use App\Models\Identifier;
@@ -343,25 +341,25 @@ class ConditionImporter extends Importer
 
         //  Asociar Condiciones
         if($this->validateBool($this->originalData['electrodependencia'])){
-            DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => 1]);
+            $this->record->conditions()->attach(1);
         }
         if($this->validateBool($this->originalData['movilidad_reducida'])){
-            DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => 2]);
+            $this->record->conditions()->attach(2);
         }
         if($this->validateBool($this->originalData['oxigeno_dependiente'])){
-            DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => 3]);
+            $this->record->conditions()->attach(3);            
         }
         if($this->validateBool($this->originalData['alimentacion_enteral'])){
-            DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => 4]);
+            $this->record->conditions()->attach(4);
         }
         if($this->validateBool($this->originalData['oncologicos'])){
-            DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => 5]);
+            $this->record->conditions()->attach(5);
         }
         if($this->validateBool($this->originalData['cuidados_paliativos_universales'])){
-            DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => 6]);
+            $this->record->conditions()->attach(6);
         }
         if($this->validateBool($this->originalData['naneas'])){
-            DependentConditions::firstOrCreate(['dependent_user_id' => $this->record->id, 'condition_id' => 7]);
+            $this->record->conditions()->attach(7);
         }
 
 

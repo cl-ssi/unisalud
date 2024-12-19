@@ -78,6 +78,7 @@ return new class extends Migration
             $table->foreignIdFor(\App\Models\DependentUser::class)->constrained('dependent_user')->cascadeOnDelete();
             $table->foreignIdFor(\App\Models\Condition::class)->constrained('condition')->cascadeOnDelete();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -86,7 +87,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('condition_dependent_user');
         Schema::dropIfExists('dependent_user');
-        Schema::dropIfExists('dependent_user_condition');
     }
 };

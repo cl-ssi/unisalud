@@ -7,9 +7,11 @@ use App\Filament\Resources\DependentUserResource\RelationManagers;
 use App\Filament\Imports\ConditionImporter;
 
 use Filament\Forms;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+
 use Filament\Tables\Table;
 
 
@@ -29,6 +31,7 @@ use App\Enums\Sex;
 use App\Enums\Gender;
 
 use Carbon\Carbon;
+use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 use Filament\Actions\ActionGroup;
 
 class DependentUserResource extends Resource
@@ -108,10 +111,11 @@ class DependentUserResource extends Resource
                                 Forms\Components\Select::make('commune')
                                     ->relationship(titleAttribute: 'name')
                                     ->label('Ciudad'),
+                                // Map::make('location')
                             ]),
                     ]),
-
-
+                Forms\Components\Toggle::make('flood_zone')
+                    ->label('Zona de Inundabilidad'),
                 Forms\Components\Textarea::make('diagnosis')
                     ->label('Diagnostico')
                     ->columnSpanFull(),
@@ -137,6 +141,29 @@ class DependentUserResource extends Resource
                         'severe'=> 'Grave',
                         'total'=> 'Total',
                     ]),
+                /*                 
+                Forms\Components\ToggleButtons::make('Aplicables')
+                    ->multiple()
+                    ->boolean()
+                    ->inline()
+                    ->options([
+                        'empam'=> 'Empam',
+                        'eleam'=> 'Eleam',
+                        'upp'=> 'UPP',
+                        'elaborated_plan'=> 'Plan Elaborado',
+                        'evaluated_plan'=> 'Plan Evaluado',
+                    ]), 
+                */
+                /*  
+                Forms\Components\TagsInput::make('tags')
+                    ->suggestions([
+                        'empam',
+                        'eleam',
+                        'upp',
+                        'elaborated_plan',
+                        'evaluated_plan',
+                    ]),
+                */
                 Forms\Components\Toggle::make('empam'),
                 Forms\Components\Toggle::make('eleam'),
                 Forms\Components\Toggle::make('upp'),
@@ -157,8 +184,7 @@ class DependentUserResource extends Resource
                     ->label('Entrega de Alimentación'),
                 Forms\Components\DatePicker::make('nutrition_assistance_date')
                     ->label('Fecha Entrega de Alimentación'),
-                Forms\Components\Toggle::make('flood_zone')
-                    ->label('Zona de Inundabilidad'),                
+                
             ]);
     }
 
@@ -179,12 +205,12 @@ class DependentUserResource extends Resource
                     ->label('Genero'),
                 Tables\Columns\TextColumn::make('user.birthday')
                     ->label('Fecha Nacimiento')
-                    ->date(),
+                    ->date('Y-m-d'),
                 Tables\Columns\TextColumn::make('age')
                     ->label('Edad')
-                    ->getStateUsing(function ($record) {
-                        return Carbon::parse($record->user->birthday)->age;
-                    }),
+                    ->getStateUsing(fn ($record) =>
+                     $record->user->birthday->age
+                    ),
                 Tables\Columns\TextColumn::make('user.address.use')
                     ->label('Tipo Dirección'),
                 Tables\Columns\TextColumn::make('user.address.text')
@@ -225,6 +251,9 @@ class DependentUserResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('barthel')
                     ->label('Barthel'),
+
+                
+                /*
                 Tables\Columns\IconColumn::make('empam')
                     ->label('Emp / Empam')
                     ->boolean(),
@@ -240,19 +269,19 @@ class DependentUserResource extends Resource
                 Tables\Columns\IconColumn::make('evaluated_plan')
                     ->label('Plan Evaluado')
                     ->boolean(),
+                */
                 Tables\Columns\TextColumn::make('pneumonia')
                     ->label('Neumonia')
+                    ->date()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('influenza')
                     ->label('Influenza')
+                    ->date()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('covid_19')
                     ->label('Covid-19')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('covid_19_date')
-                    ->label('Fecha de Covid-19')
                     ->date()
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\IconColumn::make('tech_aid')
                     ->label('Ayuda Técnica')
                     ->boolean(),
@@ -348,7 +377,7 @@ class DependentUserResource extends Resource
                 Tables\Actions\Action::make('map')
                 ->label('')
                 ->icon('heroicon-s-map')
-                ->url(fn (Model $record): string => route('filament.admin.pages.dependent-user-map', ['condition_id' => $record->dependentConditions->first()->condition_id, 'user_id' => $record->user->id]))
+                ->url(fn (Model $record): string => route('filament.admin.pages.dependent-user-map', ['condition_id' => $record->conditions->first()->id, 'user_id' => $record->user->id]))
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

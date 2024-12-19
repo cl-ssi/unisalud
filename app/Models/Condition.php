@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\DependentConditions;
+use App\Models\DependentUser;
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -28,9 +28,9 @@ class Condition extends Model
         'risk'
     ];
 
-    public function dependentConditions(): BelongsToMany
+    public function dependentUser(): BelongsToMany
     {
-        return $this->BelongsToMany(DependentConditions::class);
+        return $this->BelongsToMany(DependentUser::class, relatedPivotKey: 'dependent_user_id')->withTimestamps();
     }
 
     protected $table = 'condition';
