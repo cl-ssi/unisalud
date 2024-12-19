@@ -353,7 +353,7 @@ class DependentUserResource extends Resource
                     ->query(function (Builder $query, $state){
                         return $query->when(
                             $state,
-                            fn (Builder $query): Builder => $query->whereHas('dependentConditions', fn (Builder $query): Builder => $query->where('condition_id', '=', $state)),
+                            fn (Builder $query): Builder => $query->whereHas('conditions', fn (Builder $query): Builder => $query->where('condition_id', '=', $state)),
                             fn (Builder $query): Builder => $query->whereNull('id')
                         );
                     }), 

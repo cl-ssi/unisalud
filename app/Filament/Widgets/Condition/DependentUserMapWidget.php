@@ -53,7 +53,7 @@ class DependentUserMapWidget extends MapWidget
 
         if($this->condition_id != null){
             $query = User::whereHas('dependentUser', function ($query) {
-                $query->whereHas('dependentConditions', function ($query) {
+                $query->whereHas('conditions', function ($query) {
                     $query->where('condition_id', '=', $this->condition_id);
                 });
             });

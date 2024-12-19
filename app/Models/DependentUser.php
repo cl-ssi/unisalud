@@ -73,7 +73,9 @@ class DependentUser extends Model
 
     public function conditions(): BelongsToMany
     {
-        return $this->belongsToMany(Condition::class, foreignPivotKey: 'dependent_user_id')->withTimestamps();
+        return $this->belongsToMany(Condition::class, foreignPivotKey: 'dependent_user_id')
+            ->withPivot('dependent_user_id', 'condition_id') // Atributos de la tabla pivote
+            ->withTimestamps(); // Si tienes timestamps en la tabla pivote
     }
 
     public function dependentCaregiver():HasOne
