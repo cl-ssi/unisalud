@@ -72,6 +72,13 @@ return new class extends Migration
 
             $table->softDeletes();
         });
+
+        Schema::create('condition_dependent_user', function (Blueprint $table) {
+            $table->id();
+            $table->foreignIdFor(\App\Models\DependentUser::class)->constrained('dependent_user')->cascadeOnDelete();
+            $table->foreignIdFor(\App\Models\Condition::class)->constrained('condition')->cascadeOnDelete();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -80,5 +87,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('dependent_user');
+        Schema::dropIfExists('dependent_user_condition');
     }
 };
