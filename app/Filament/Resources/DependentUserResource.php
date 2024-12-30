@@ -57,10 +57,14 @@ class DependentUserResource extends Resource
                         Forms\Components\DatePicker::make('birthday')
                             ->label('Fecha de Nacimiento')
                             ->disabled(),
-                        Forms\Components\TextInput::make('run')
-                            ->formatStateUsing(fn (Model $record): string => $record->officialIdentifier->value . '-' . $record->officialIdentifier->dv)
-                            ->label('RUN')
-                            ->disabled(),                       
+                        Forms\Components\Group::make()
+                            ->relationship('officialIdentifier')
+                            ->schema([
+                                Forms\Components\TextInput::make('value')
+                                    ->formatStateUsing(fn (Model $record): string => $record->value . '-' . $record->dv)
+                                    ->label('RUN')
+                                    ->disabled(),
+                            ]),
                         Forms\Components\TextInput::make('sex')
                             ->label('Sexo')
                             ->disabled(),
@@ -82,10 +86,14 @@ class DependentUserResource extends Resource
                                 Forms\Components\DatePicker::make('birthday')
                                     ->label('Edad')
                                     ->disabled(),
-                                Forms\Components\TextInput::make('run')
-                                    ->formatStateUsing(fn (Model $record): string => $record->officialIdentifier->value . '-' . $record->officialIdentifier->dv)
-                                    ->label('RUN')
-                                    ->disabled(),
+                                Forms\Components\Group::make()
+                                    ->relationship('officialIdentifier')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('value')
+                                            ->formatStateUsing(fn (Model $record): string => $record->value . '-' . $record->dv)
+                                            ->label('RUN')
+                                            ->disabled(),
+                                    ]),
                                 Forms\Components\TextInput::make('sex')
                                     ->label('Sexo')
                                     ->disabled(),
@@ -184,7 +192,29 @@ class DependentUserResource extends Resource
                     ->label('Entrega de Alimentación'),
                 Forms\Components\DatePicker::make('nutrition_assistance_date')
                     ->label('Fecha Entrega de Alimentación'),
-                
+                Forms\Components\Select::make('nasogastric_catheter')
+                    ->label('Sonda Nasogástrica')
+                    ->options([
+                        null => 'No Aplica',
+                        '10' => '10',
+                        '12' => '12',
+                        '14' => '14',
+                        '16' => '16',
+                        '18' => '18',
+                        '20' => '20',
+                    ]),
+                Forms\Components\Select::make('urinary_catheter')
+                    ->label('Sonda Nasogástrica')
+                    ->options([
+                        null => 'No Aplica',
+                        '12' => '12',
+                        '14' => '14',
+                        '16' => '16',
+                        '18' => '18',
+                        '20' => '20',
+                        '22' => '22',
+                        '24' => '24',
+                    ]),
             ]);
     }
 
@@ -251,8 +281,6 @@ class DependentUserResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('barthel')
                     ->label('Barthel'),
-
-                
                 /*
                 Tables\Columns\IconColumn::make('empam')
                     ->label('Emp / Empam')
@@ -296,6 +324,10 @@ class DependentUserResource extends Resource
                     ->label('Fecha Entrega de Alimentación')
                     ->date()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('nasogastric_catheter')
+                    ->label('Sonda Nasogástrica'),
+                Tables\Columns\TextColumn::make('urinary_catheter')
+                    ->label('Sonda Urinaria'),
                 Tables\Columns\IconColumn::make('flood_zone')
                     ->label('Zona de Inundabilidad')
                     ->boolean(),
