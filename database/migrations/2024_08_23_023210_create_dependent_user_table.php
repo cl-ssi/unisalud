@@ -66,6 +66,25 @@ return new class extends Migration
 
             $table->date('nutrition_assistance_date')->nullable();
 
+            $table->enum('nasogastric_catheter', [
+                '10',
+                '12',
+                '14',
+                '16',
+                '18',
+                '20',
+            ])->nullable();
+            
+            $table->enum('urinary_catheter', [
+                '12',
+                '14',
+                '16',
+                '18',
+                '20',
+                '22',
+                '24',
+            ])->nullable();
+
             $table->boolean('flood_zone')->nullable();
 
             $table->timestamps();

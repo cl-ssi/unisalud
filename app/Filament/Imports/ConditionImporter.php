@@ -368,8 +368,8 @@ class ConditionImporter extends Importer
         $this->record->diagnosis = $this->originalData['diagnostico'];
         $this->record->check_in_date = $this->validateDate($this->originalData['fecha_ingreso']);
         $this->record->check_out_date = $this->validateDate($this->originalData['fecha_egreso']);
-        $this->record->integral_visits = $this->originalData['visitas_integrales'];
-        $this->record->treatment_visits = $this->originalData['visitas_tratamiento'];
+        $this->record->integral_visits = trim($this->originalData['visitas_integrales']);
+        $this->record->treatment_visits = trim($this->originalData['visitas_tratamiento']);
         $this->record->last_integral_visit = $this->validateDate($this->originalData['fecha_visita_integral']);
         $this->record->last_treatment_visit =  $this->validateDate($this->originalData['fecha_visita_tratamiento']);
         $this->record->barthel = $this->validateBarthel($this->originalData['barthel']);
@@ -386,6 +386,8 @@ class ConditionImporter extends Importer
         $this->record->tech_aid_date = $this->validateDate($this->originalData['ayuda_tecnica_fecha']);
         $this->record->nutrition_assistance = $this->validateBool($this->originalData['entrega_alimentacion']);
         $this->record->nutrition_assistance_date = $this->validateDate($this->originalData['entrega_alimentacion_fecha']);
+        $this->record->nasogastric_catheter = $this->validateCatheter(intval(trim($this->originalData['sonda_sng'])));
+        $this->record->urinary_catheter = $this->validateCatheter(intval(trim($this->originalData['sonda_urinaria'])));
         $this->record->flood_zone = $this->validateBool($this->originalData['zona_inundabilidad']);
         $this->record->save();
     }
@@ -399,6 +401,16 @@ class ConditionImporter extends Importer
         }
 
         return $body;
+    }
+
+    public function validateCatheter($val)
+    {
+        $out = null;
+        $clean = intval(trim($val));
+        if($clean != 0){
+            $out = strval($clean);
+        }
+        return $out;
     }
 
     public function validateBool($text)
