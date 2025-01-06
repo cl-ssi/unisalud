@@ -40,9 +40,11 @@ class DependentUserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Usuarios';
+
     protected static ?string $modelLabel = 'Usuario Dependiente';
 
-    protected static ?string $pluralModelLabel = 'Usuarios Dependiente';
+    protected static ?string $pluralModelLabel = 'Usuarios Dependiente';    
 
     public static function form(Form $form): Form
     {
@@ -84,7 +86,7 @@ class DependentUserResource extends Resource
                                     ->label('Nombre')
                                     ->disabled(),
                                 Forms\Components\DatePicker::make('birthday')
-                                    ->label('Edad')
+                                    ->label('Fecha de Nacimiento')
                                     ->disabled(),
                                 Forms\Components\Group::make()
                                     ->relationship('officialIdentifier')

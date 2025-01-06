@@ -3,20 +3,27 @@
 namespace App\Filament\Pages\Condition;
 
 use Filament\Pages\Page;
-use Filament\Forms\Components\Select;
+use Filament\Actions;
+use Filament\Forms;
 
 use App\Models\User;
 use App\Models\DependentUser;
 use App\Models\Condition;
+
+use App\Filament\Resources\DependentUserResource;
 
 // use Illuminate\Database\Eloquent\Builder;
 
 class DependentUserMap extends Page
 {
     protected static ?string $navigationLabel = 'Mapa Pacientes con Condición';
+
     protected static ?string $navigationIcon = 'heroicon-o-map';
+
     protected static string $view = 'filament.pages.condition.dependent-user-map';
+
     protected static ?string $navigationGroup = 'Usuarios';
+
     // protected static ?string $slug = 'condition-map';
 
     protected static ?string $title = 'Mapa de Pacientes con Condición';
@@ -41,7 +48,7 @@ class DependentUserMap extends Page
     protected function getFormSchema(): array
     {
         return [
-            Select::make('condition_id')
+            Forms\Components\Select::make('condition_id')
                 ->label('Select Condition')
                 ->options($this->conditionTypes)
                 ->required()
@@ -50,4 +57,18 @@ class DependentUserMap extends Page
         ];
     }
     
+    protected function getHeaderActions(): array
+    {
+        if($this->condition_id && $this->user_id){
+            return [
+                Actions\Action::make('Volver')
+                    ->url(DependentUserResource::getUrl())
+                    ->button()
+                    ->color('info'),
+            ];
+        }
+        else {
+            return [];
+        }
+    }
 }
