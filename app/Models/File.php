@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class File extends Model
 {
@@ -74,6 +75,21 @@ class File extends Model
     public function fileable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function storedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'stored_by_id');
+    }
+
+    // Evento para asignar el ID del usuario autenticado
+    protected static function booted()
+    {
+        static::creating(function ($file) {
+            if (auth()->check()) {
+                $file->stored_by_id = auth()->id();
+            }
+        });
     }
 
     protected $table = 'files';

@@ -62,6 +62,11 @@ class FileRelationManager extends RelationManager
                     }),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre'),
+                Tables\Columns\TextColumn::make('storedBy.given')
+                    ->label('Cargado por')
+                    ->formatStateUsing(fn ($state, $record) => $record->storedBy ? "{$record->storedBy->given} {$record->storedBy->fathers_family}" : 'Desconocido')
+                    ->sortable()
+                    ->searchable(),
                 // Columna para ver o descargar el archivo
                 Tables\Columns\IconColumn::make('storage_path')
                     ->label('Ver Archivo')
