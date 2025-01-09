@@ -219,6 +219,9 @@ class WaitlistResource extends Resource
                             if ($lastEvent && $lastEvent->discharge === 'fallecimiento') {
                                 return 'Fallecido';
                             }
+                            if ($lastEvent && $lastEvent->discharge === 'atencion realizada') {
+                                return 'Atención Realizada';
+                            }
                             return 'Egresado';
                         }
                         else{
@@ -227,7 +230,7 @@ class WaitlistResource extends Resource
                     })
                     ->colors([
                         'danger' => 'Fallecido',   // Rojo para Fallecido
-                        'success' => 'Activo',    // Verde para Activo
+                        'success' => 'Atención Realizada',    // Verde para Activo
                         'secondary' => 'Egresado' // Gris para Egresado
                     ])
                     ->sortable(), // Permitir ordenamiento por esta columna
