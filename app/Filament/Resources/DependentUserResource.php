@@ -11,9 +11,8 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-
 use Filament\Tables\Table;
-
+use Filament\Actions\ActionGroup;
 
 use Illuminate\Support\HtmlString;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,7 +31,6 @@ use App\Enums\Gender;
 
 use Carbon\Carbon;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
-use Filament\Actions\ActionGroup;
 
 class DependentUserResource extends Resource
 {
@@ -444,6 +442,8 @@ class DependentUserResource extends Resource
             'index' => Pages\ListDependentUsers::route('/'),
             'create' => Pages\CreateDependentUser::route('/create'),
             'edit' => Pages\EditDependentUser::route('/{record}/edit'),
+            'map' => Pages\MapDependentUsers::route('/map'),
+            // 'location' => Pages\MapDependentUsers::route('/{record}/location'),
         ];
     }
 

@@ -20,17 +20,17 @@ class ListDependentUsers extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        
             if(auth()->user()->can('be god')){
                 return [
                     Actions\CreateAction::make(),
                     Actions\ImportAction::make()
                         ->importer(ConditionImporter::class)
                         ->label('Importar Condición de Usuarios')
-                        ->modalHeading('Importar Condición de Usuarios')
-                        // ->modalDescription('Subir archivo CSV')
-                        ->modalSubmitActionLabel('Importar')
-                        // ->options([])
+                        ->modalHeading('Importar Usuarios Dependientes')
+                        ->modalSubmitActionLabel('Importar'),
+                    Actions\Action::make('map')
+                        ->url(route('filament.admin.resources.dependent-users.map'))
+                        ->label('Ver Mapa'),
                 ];
             } else {
                 return [];
@@ -41,11 +41,9 @@ class ListDependentUsers extends ListRecords
     {
         $tiers = Condition::get();
         $tabs = ['Todos' => Tab::make('Todos')->badge($this->getModel()::count())];
-
         foreach ($tiers as $tier) {
             $name = ucwords($tier->name);
             $slug = str($name)->slug()->toString();
- 
             $tabs[$slug] = Tab::make($name)
                 // ->badge($tier->countDependents())
                 ->modifyQueryUsing(function ($query) use ($tier) {
