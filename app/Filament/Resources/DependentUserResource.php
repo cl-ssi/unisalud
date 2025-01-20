@@ -31,6 +31,7 @@ use App\Enums\Gender;
 
 use Carbon\Carbon;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
+use Illuminate\Support\Arr;
 
 class DependentUserResource extends Resource
 {
@@ -222,7 +223,7 @@ class DependentUserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('dependentCaregiver.user.mobileContactPoint.organization.alias')
+                Tables\Columns\TextColumn::make('user.mobileContactPoint.organization.alias')
                     ->label('Establecimiento'),
                 Tables\Columns\TextColumn::make('user.text')
                     ->label('Nombre Completo')
@@ -236,11 +237,8 @@ class DependentUserResource extends Resource
                 Tables\Columns\TextColumn::make('user.birthday')
                     ->label('Fecha Nacimiento')
                     ->date('Y-m-d'),
-                Tables\Columns\TextColumn::make('age')
-                    ->label('Edad')
-                    ->getStateUsing(fn ($record) =>
-                     $record->user->birthday->age
-                    ),
+                Tables\Columns\TextColumn::make('user.age')
+                    ->label('Edad'),
                 Tables\Columns\TextColumn::make('user.address.use')
                     ->label('Tipo Dirección'),
                 Tables\Columns\TextColumn::make('user.address.text')
@@ -339,10 +337,7 @@ class DependentUserResource extends Resource
                 Tables\Columns\TextColumn::make('dependentCaregiver.user.text')
                     ->label(new HtmlString('Nombre <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                 Tables\Columns\TextColumn::make('dependentCaregiver.user.age')
-                    ->label(new HtmlString('Edad  <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
-                    ->getStateUsing(function ($record) {
-                        return Carbon::parse($record->dependentCaregiver->user->birthday)->age;
-                    }),
+                    ->label(new HtmlString('Edad  <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                 Tables\Columns\IconColumn::make('dependentCaregiver.empam')
                     ->label(new HtmlString('Empam <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->boolean(),
@@ -377,24 +372,11 @@ class DependentUserResource extends Resource
                 //     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                /*
-                Tables\Filters\SelectFilter::make('condition')
-                    ->label('Tipo de Condición')
-                    ->placeholder('Seleccione')
-                    ->options(Condition::pluck('name', 'id')->toArray())
-                    ->query(function (Builder $query, $state){
-                        return $query->when(
-                            $state,
-                            fn (Builder $query): Builder => $query->whereHas('conditions', fn (Builder $query): Builder => $query->where('condition_id', '=', $state)),
-                            fn (Builder $query): Builder => $query->whereNull('id')
-                        );
-                    }), 
-                */
                 Tables\Filters\Filter::make('user')
                     ->form([
                         Forms\Components\TextInput::make('name')
                             ->label('Nombre')
-                            ->statePath('name')
+                            ->statePath('name'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -402,7 +384,31 @@ class DependentUserResource extends Resource
                             $data['name'],
                             fn (Builder $query, $name): Builder => $query->whereHas('user', fn (Builder $query): Builder => $query->where('text', 'like', '%' . $name . '%')),
                         );
+                    }),
+                Tables\Filters\SelectFilter::make('user.mobileContactPoint.organization')
+                    // ->relationship('user.mobileContactPoint.organization', 'alias')
+                    ->label('Organizacion')
+                    ->multiple()
+                    ->modifyQueryUsing(function ($query, $data) {
+                        if (! empty($data["values"])) {
+                            $query->whereHas('user', function ($query) use ($data) {
+                                $query->whereHas('mobileContactPoint', function ($query) use ($data) {
+                                    $query->whereHas('organization', function ($query) use ($data) {
+                                        $query->whereIn('id', Arr::flatten($data));
+                                    });
+                                });
+                            });
+                        }
                     })
+                    ->options(function(){
+                        return Organization::whereHas('contactPoint', function ($query){
+                                $query->whereNotNull('id');
+                            })->with(['contactPoint' => function($query){
+                                $query->has('user')->whereNotNull('contactPoint.id');
+                            }, 'contactPoint.user' => function($query){
+                                $query->has('dependentUser')->whereNotNull('contactPoint.user.id');
+                            }])->pluck('alias', 'id');
+                    })                    
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -9,10 +9,12 @@ use App\Models\Identifier;
 use App\Models\DependentUser;
 use App\Models\DependentCareGiver;
 use App\Models\Waitlist;
+use Carbon\Carbon;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -201,4 +203,11 @@ class User extends Authenticatable implements FilamentUser, HasName
             ->withTimestamps();
     }
     */
+
+    public function age(): Attribute
+    {
+        return new Attribute(
+            get: fn () => Carbon::parse($this->birthday)->age
+        );
+    }
 }
