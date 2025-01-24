@@ -33,17 +33,22 @@ use Carbon\Carbon;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 use Illuminate\Support\Arr;
 
+use function PHPUnit\Framework\isNan;
+use function PHPUnit\Framework\isNull;
+
 class DependentUserResource extends Resource
 {
     protected static ?string $model = DependentUser::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Usuarios';
+    protected static ?string $navigationGroup = 'Usuarios Dependientes';
 
     protected static ?string $modelLabel = 'Usuario Dependiente';
 
-    protected static ?string $pluralModelLabel = 'Usuarios Dependiente';    
+    protected static ?string $pluralModelLabel = 'Usuarios Dependiente';
+
+    protected static ?string $navigationLabel = 'Listado Pacientes con Condición';
 
     public static function form(Form $form): Form
     {
@@ -134,7 +139,8 @@ class DependentUserResource extends Resource
                     ->label('Fecha de Egreso'),
                 Forms\Components\TextInput::make('integral_visits')
                     ->label('Vistas Integrales')
-                    ->numeric(),
+                    ->numeric()
+                    ->extraAttributes(fn (Model $record) =>($record->integral_visits == null)?['class' => 'bg-danger-300 dark:bg-danger-600']:[]),
                 Forms\Components\DatePicker::make('last_integral_visit')
                     ->label('Última Visita Integral'),
                 Forms\Components\TextInput::make('treatment_visits')
@@ -253,6 +259,10 @@ class DependentUserResource extends Resource
                     ->label('Latitud'),
                 Tables\Columns\TextColumn::make('user.mobileContactPoint.value')
                     ->label('Telefono'),
+                Tables\Columns\TextColumn::make('diagnosis')
+                    ->label('Diagnostico'),
+                Tables\Columns\TextColumn::make('healthcare_type')
+                    ->label('Prevision'),
                 Tables\Columns\TextColumn::make('check_in_date')
                     ->label('Fecha de Ingreso')
                     ->date()
@@ -322,6 +332,8 @@ class DependentUserResource extends Resource
                     ->label('Fecha Entrega de Alimentación')
                     ->date()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('diapers_size')
+                    ->label('Tamaño de Pañal'),
                 Tables\Columns\TextColumn::make('nasogastric_catheter')
                     ->label('Sonda Nasogástrica'),
                 Tables\Columns\TextColumn::make('urinary_catheter')
@@ -338,6 +350,8 @@ class DependentUserResource extends Resource
                     ->label(new HtmlString('Nombre <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                 Tables\Columns\TextColumn::make('dependentCaregiver.user.age')
                     ->label(new HtmlString('Edad  <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
+                Tables\Columns\TextColumn::make('dependentCaregiver.healthcare_type')
+                    ->label(new HtmlString('Prevision  <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                 Tables\Columns\IconColumn::make('dependentCaregiver.empam')
                     ->label(new HtmlString('Empam <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->boolean(),

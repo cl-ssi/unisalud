@@ -22,7 +22,7 @@ class DependentUserMap extends Page
 
     protected static string $view = 'filament.pages.condition.dependent-user-map';
 
-    protected static ?string $navigationGroup = 'Usuarios';
+    protected static ?string $navigationGroup = 'Usuarios Dependientes';
 
     // protected static ?string $slug = 'condition-map';
 
