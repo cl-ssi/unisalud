@@ -21,6 +21,15 @@ return new class extends Migration
 
             $table->string('relative')->nullable();
 
+            $table->enum('healthcare_type', [
+                'FONASA A',
+                'FONASA B',
+                'FONASA C',
+                'FONASA D',
+                'ISAPRE',
+                'PRAIS',
+            ])->nullable();
+
             $table->boolean('empam')->nullable();
 
             $table->boolean('zarit')->nullable();

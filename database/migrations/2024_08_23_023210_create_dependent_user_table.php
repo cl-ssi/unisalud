@@ -24,6 +24,15 @@ return new class extends Migration
 
             $table->date('check_out_date')->nullable();
 
+            $table->enum('healthcare_type', [
+                'FONASA A',
+                'FONASA B',
+                'FONASA C',
+                'FONASA D',
+                'ISAPRE',
+                'PRAIS',
+            ])->nullable();
+
             $table->integer('integral_visits')->nullable();
 
             $table->date('last_integral_visit')->nullable();
@@ -56,8 +65,6 @@ return new class extends Migration
 
             $table->date('covid_19')->nullable();
 
-            $table->text('extra_info')->nullable();
-
             $table->boolean('tech_aid')->nullable();
 
             $table->date('tech_aid_date')->nullable();
@@ -65,6 +72,8 @@ return new class extends Migration
             $table->boolean('nutrition_assistance')->nullable();
 
             $table->date('nutrition_assistance_date')->nullable();
+
+            $table->text('diapers_size')->nullable();
 
             $table->enum('nasogastric_catheter', [
                 '10',
@@ -86,6 +95,8 @@ return new class extends Migration
             ])->nullable();
 
             $table->boolean('flood_zone')->nullable();
+
+            $table->text('extra_info')->nullable();
 
             $table->timestamps();
 
