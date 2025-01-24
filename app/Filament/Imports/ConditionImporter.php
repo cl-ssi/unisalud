@@ -85,8 +85,10 @@ class ConditionImporter extends Importer
         $this->originalData['entrega_alimentacion_fecha'] =$this->originalData['entrega_alimentacion_fecha'] ?? '';
         $this->originalData['sonda_sng'] = $this->originalData['sonda_sng']?? '';
         $this->originalData['sonda_urinaria'] = $this->originalData['sonda_urinaria']?? '';
+        $this->originalData['prevision'] = $this->originalData['prevision']?? '';
+        $this->originalData['prevision_cuidador'] = $this->originalData['prevision_cuidador']?? '';
+        $this->originalData['talla_panal'] = $this->originalData['talla_panal']?? '';
         $this->originalData['zona_inundabilidad'] = $this->originalData['zona_inundabilidad'] ?? '';
-
         $this->originalData['nombre_cuidador'] = $this->originalData['nombre_cuidador'] ?? '';
         $this->originalData['apellido_paterno_cuidador'] = $this->originalData['apellido_paterno_cuidador'] ?? '';
         $this->originalData['apellido_paterno_cuidador'] = $this->originalData['apellido_materno_cuidador'] ?? '';
@@ -380,6 +382,7 @@ class ConditionImporter extends Importer
                     'dependent_user_id'     => $this->record->id,
                     'user_id'               => $user_caregiver_upsert->id,
                     'relative'              => $this->originalData['parentesco_cuidador'],
+                    'healthcare_type'       => $this->validateHealthcareType($this->originalData['prevision_cuidador']),
                     'empam'                 => $this->validateBool($this->originalData['empam_cuidador']),
                     'zarit'                 => $this->validateBool($this->originalData['zarit_cuidador']),
                     'immunizations'         => $this->originalData['inmunizaciones_cuidador'],
@@ -436,6 +439,7 @@ class ConditionImporter extends Importer
         // SE AGREGA EL 'user_id' A $this->record, que corresponde al user recien creado o ya creado.
         $this->record->user_id  = $userCreatedOrUpdated->id;
         $this->record->diagnosis = $this->originalData['diagnostico'];
+        $this->record->healthcare_type = $this->validateHealthcareType($this->originalData['prevision']);
         $this->record->check_in_date = $this->validateDate($this->originalData['fecha_ingreso']);
         $this->record->check_out_date = $this->validateDate($this->originalData['fecha_egreso']);
         $this->record->integral_visits = $this->validateInt($this->originalData['visitas_integrales']);
@@ -448,6 +452,7 @@ class ConditionImporter extends Importer
         $this->record->upp = $this->validateBool($this->originalData['upp']);
         $this->record->elaborated_plan = $this->validateBool($this->originalData['plan_elaborado']);
         $this->record->evaluated_plan = $this->validateBool($this->originalData['plan_evaluado']);
+        $this->record->diapers_size = $this->originalData['talla_panal'];
         $this->record->pneumonia = $this->validateDate($this->originalData['neumo']);
         $this->record->influenza = $this->validateDate($this->originalData['influenza']);
         $this->record->covid_19 = $this->validateDate($this->originalData['covid_19']);
@@ -524,4 +529,26 @@ class ConditionImporter extends Importer
         }
         return $out;
     }
-}
+
+    public function validateHealthcareType($text){
+        $out = null;
+        $words = explode(' ', $text);
+        $text = (count($words) > 1)?array_pop($words):$text;
+        $text = strtolower(trim($text));
+        switch($text){
+            case 'a':
+                $out = 'FONASA A';break;
+            case 'b':
+                $out = 'FONASA B';break;
+            case 'c':
+                $out = 'FONASA C';break;
+            case 'd':
+                $out = 'FONASA D';break;
+            case 'isapre':
+                $out = 'ISAPRE';break;
+            case 'prais':
+                $out = 'PRAIS';break;
+        }
+        return $out;
+    }
+}   
