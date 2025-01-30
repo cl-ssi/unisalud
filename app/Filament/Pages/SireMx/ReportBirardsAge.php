@@ -6,13 +6,9 @@ use App\Models\Exam;
 
 use Filament\Tables;
 use Filament\Tables\Table;
-
 use Filament\Pages\Page;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-
-
-
 use Illuminate\Database\Eloquent\Builder;
 
 class ReportBirardsAge extends Page implements HasTable
@@ -36,6 +32,14 @@ class ReportBirardsAge extends Page implements HasTable
     protected $listeners = ['updateFilters' => 'setFilters'];
 
     public $filters;
+
+    public static function canAccess(): bool
+    {   
+        if(auth()->user()->can('be god')){
+            return true;
+        }
+        return auth()->user()->can('SireMx: Manager');
+    }
 
     public function setFilters($filters)
     {

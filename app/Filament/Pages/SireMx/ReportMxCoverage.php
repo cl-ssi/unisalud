@@ -46,6 +46,14 @@ class ReportMxCoverage extends Page implements Forms\Contracts\HasForms, Tables\
 
     public $filters;
 
+    public static function canAccess(): bool
+    {   
+        if(auth()->user()->can('be god')){
+            return true;
+        }
+        return auth()->user()->can('SireMx: Manager');
+    }
+
     public function table(Table $table): Table
     {
         return $table

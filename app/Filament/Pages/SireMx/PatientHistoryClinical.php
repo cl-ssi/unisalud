@@ -41,10 +41,12 @@ class PatientHistoryClinical extends Page implements HasTable
 
     protected static ?int $navigationSort = 1;
 
-    public static function downloadExamById(Exam $exam): Storage
-    {
-        dd($exam);
-
+    public static function canAccess(): bool
+    {   
+        if(auth()->user()->can('be god')){
+            return true;
+        }
+        return auth()->user()->can('SireMx: Manager');
     }
 
     public static function table(Table $table): Table

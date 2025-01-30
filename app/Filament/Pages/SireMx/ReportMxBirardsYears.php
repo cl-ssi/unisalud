@@ -43,6 +43,14 @@ class ReportMxBirardsYears extends Page implements HasTable
 
     public $filters;
 
+    public static function canAccess(): bool
+    {   
+        if(auth()->user()->can('be god')){
+            return true;
+        }
+        return auth()->user()->can('SireMx: Manager');
+    }
+
     public function setFilters($filters)
     {
         $this->filters = $filters;

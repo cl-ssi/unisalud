@@ -34,12 +34,19 @@ class ReportMxBirards extends Page implements HasTable
 
     protected static ?string $title = 'Reporte MX por Bidards';
 
-
     protected static ?int $navigationSort = 4;
 
     protected $listeners = ['updateFilters' => 'setFilters'];
 
     public $filters;
+
+    public static function canAccess(): bool
+    {   
+        if(auth()->user()->can('be god')){
+            return true;
+        }
+        return auth()->user()->can('SireMx: Manager');
+    }
 
     public function setFilters($filters)
     {

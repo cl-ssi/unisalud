@@ -41,6 +41,14 @@ class PatientHistory extends Page implements HasTable
 
     // protected static ?string $navigationParentItem = 'Reportes'; // TODO: Clusters Reportes
 
+     public static function canAccess(): bool
+    {   
+        if(auth()->user()->can('be god')){
+            return true;
+        }
+        return auth()->user()->can('SireMx: Manager');
+    }
+
     public static function table(Table $table): Table
     {
         return $table
