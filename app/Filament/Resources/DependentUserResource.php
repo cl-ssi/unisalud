@@ -66,8 +66,8 @@ class DependentUserResource extends Resource
                         Forms\Components\Group::make()
                             ->relationship('officialIdentifier')
                             ->schema([
-                                Forms\Components\TextInput::make('value')
-                                    ->formatStateUsing(fn (Model $record): string => $record->value . '-' . $record->dv)
+                                Forms\Components\TextInput::make('run')
+                                    // ->formatStateUsing(fn (Model $record): string => $record->value . '-' . $record->dv)
                                     ->label('RUN')
                                     ->disabled(),
                             ]),
@@ -95,8 +95,8 @@ class DependentUserResource extends Resource
                                 Forms\Components\Group::make()
                                     ->relationship('officialIdentifier')
                                     ->schema([
-                                        Forms\Components\TextInput::make('value')
-                                            ->formatStateUsing(fn (Model $record): string => $record->value . '-' . $record->dv)
+                                        Forms\Components\TextInput::make('run')
+                                            // ->formatStateUsing(fn (Model $record): string => $record->value . '-' . $record->dv)
                                             ->label('RUN')
                                             ->disabled(),
                                     ]),
