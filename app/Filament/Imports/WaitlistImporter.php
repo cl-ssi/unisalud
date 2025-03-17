@@ -58,7 +58,9 @@ class WaitlistImporter extends Importer
                 'mothers_family'    => $this->originalData['SEGUNDO_APELLIDO'],
                 //'sex'             => $sexValue,
                 //'gender'          => $sexGender,
-                'birthday'          => date("Y-m-d", strtotime($this->originalData['FECHA_NAC'])),
+                'birthday'          => !empty($this->originalData['FECHA_NAC']) 
+                                        ? date("Y-m-d", strtotime($this->originalData['FECHA_NAC'])) 
+                                        : null,
             ]
         );
 
@@ -88,7 +90,8 @@ class WaitlistImporter extends Importer
         }
 
         //COMUNA DE ORIGEN L.E.
-        $commune = Commune::whereRaw('LOWER(name) = ?', [strtolower($this->originalData['COMUNA_ORIGEN'])])->first()->id;
+        $commune = Commune::whereRaw('LOWER(name) = ?', [strtolower($this->originalData['COMUNA_ORIGEN'])])->first();
+        $communeId = $commune ? $commune->id : null;
         //ESTABLECIMIENTO ORIGEN L.E.
         $organization = Organization::whereRaw('LOWER(name) = ?', [strtolower($this->originalData['ESTABLECIMIENTO'])])->first()->id;
 
@@ -115,7 +118,7 @@ class WaitlistImporter extends Importer
                 'apartment'     => null,
                 'suburb'        => $this->originalData['RESTO_DIRECCION'],
                 'city'          => null,
-                'commune_id'    => $commune,
+                'commune_id'    => $communeId,
                 'postal_code'   => null,
                 'region_id'     => null,
             ]
@@ -223,7 +226,7 @@ class WaitlistImporter extends Importer
                 'wait_medical_benefit_id'       => $medicalBenefits->id,
                 'wait_specialty_id'             => $specialty->id,
                 'organization_id'               => $organization,
-                'commune_id'                    => $commune,
+                'commune_id'                    => $communeId,
                 'status'                        => strtolower(trim($this->originalData['ESTADO'])),
                 'destiny_organization_id'       => $organizationId,
             ]
