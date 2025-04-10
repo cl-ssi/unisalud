@@ -27,6 +27,7 @@ use App\Models\Sex as ClassSex;
 use App\Models\Gender as ClassGender;
 use App\Models\Country;
 use App\Models\Organization;
+use Carbon\Carbon;
 
 class ConditionImporter extends Importer
 {
@@ -129,7 +130,7 @@ class ConditionImporter extends Importer
                 'mothers_family'        => $this->originalData['apellido_materno'],
                 'sex'                   => $sexValue,
                 'gender'                => $sexGender,
-                'birthday'              => date("Y-m-d", strtotime($this->originalData['fecha_nacimiento'])),
+                'birthday'              => date('Y-m-d', Carbon::createFromFormat('d/m/Y', $this->originalData['fecha_nacimiento'])->getTimestamp()),
                 // 'cod_con_marital_id'    => $this->originalData['estado_civil'],
                 'nationality_id'        => $nationality,
             ]
@@ -274,7 +275,7 @@ class ConditionImporter extends Importer
                     'mothers_family'        => $this->originalData['apellido_materno_cuidador'],
                     'sex'                   => $sexValue_caregiver,
                     'gender'                => $sexGender_caregiver,
-                    'birthday'              => date("Y-m-d", strtotime($this->originalData['fecha_nacimiento_cuidador'])),
+                    'birthday'              => date('Y-m-d', Carbon::createFromFormat('d/m/Y', $this->originalData['fecha_nacimiento_cuidador'])->getTimestamp()),
                     // 'cod_con_marital_id'    => $this->originalData['estado_civil'],
                     'nationality_id'        => $nationality_caregiver,
                 ]

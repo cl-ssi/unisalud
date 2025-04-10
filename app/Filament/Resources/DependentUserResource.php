@@ -12,6 +12,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\QueryBuilder;
+use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint;
 use Filament\Actions\ActionGroup;
 
 use Illuminate\Support\HtmlString;
@@ -28,7 +30,8 @@ use App\Models\DependentUser;
 
 use App\Enums\Sex;
 use App\Enums\Gender;
-
+use App\Models\Address;
+use App\Models\DependentCaregiver;
 use Carbon\Carbon;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 use Illuminate\Support\Arr;
@@ -55,12 +58,13 @@ class DependentUserResource extends Resource
         return $form
             ->schema([                             
                 Forms\Components\Fieldset::make('Usuario Dependiente')
-                    ->relationship('user')
+                    ->relationship('User')
                     ->schema([
                         Forms\Components\TextInput::make('text')
                             ->label('Nombre')
                             ->disabled(),
                         Forms\Components\DatePicker::make('birthday')
+                            ->date()
                             ->label('Fecha de Nacimiento')
                             ->disabled(),
                         Forms\Components\Group::make()
@@ -79,12 +83,12 @@ class DependentUserResource extends Resource
                             ->disabled(),
                     ]),
                 Forms\Components\Fieldset::make('Cuidador')
-                    ->relationship('dependentCaregiver')
+                    ->relationship('DependentCaregiver')
                     ->schema([
                         Forms\Components\Group::make()
                             ->columns(2)
                             ->columnSpan('full')
-                            ->relationship('user')
+                            ->relationship('User')
                             ->schema([
                                 Forms\Components\TextInput::make('text')
                                     ->label('Nombre')
@@ -111,12 +115,12 @@ class DependentUserResource extends Resource
                 Forms\Components\Fieldset::make('Direccion')
                     // ->columns(3)
                     // ->columnSpan('full')
-                    ->relationship('user')
+                    ->relationship('User')
                     ->schema([
                         Forms\Components\Group::make()
                             ->columns(3)
                             ->columnSpan('full')
-                            ->relationship('address')
+                            ->relationship('Address')
                             ->schema([
                                 Forms\Components\TextInput::make('text')
                                     ->label('Calle'),
@@ -399,6 +403,33 @@ class DependentUserResource extends Resource
                             fn (Builder $query, $name): Builder => $query->whereHas('user', fn (Builder $query): Builder => $query->where('text', 'like', '%' . $name . '%')),
                         );
                     }),
+                    QueryBuilder::make()
+                    ->label('Condiciones')
+                        ->constraints([
+                            RelationshipConstraint::make('conditions')
+                                ->selectable(
+                                    RelationshipConstraint\Operators\IsRelatedToOperator::make()
+                                        ->titleAttribute('name')
+                                        ->searchable()
+                                        ->multiple()
+                                        ->preload(),
+                                )
+                            ]),
+                Tables\Filters\SelectFilter::make('conditions')
+                    ->relationship('conditions', 'name')
+                    ->query(function (Builder $query, array $data): Builder {
+                        $values = $data['values'];
+                        $first = true;
+                        foreach ($values as $value) {
+                            $first = false;
+                            $query = $query->where('types.type_id', $value);
+                        }
+                        return $query;
+                    })
+                    ->label('Condicion')
+                    ->preload()
+                    ->multiple(),
+                    
                 Tables\Filters\SelectFilter::make('user.mobileContactPoint.organization')
                     // ->relationship('user.mobileContactPoint.organization', 'alias')
                     ->label('Organizacion')
@@ -424,6 +455,7 @@ class DependentUserResource extends Resource
                             }])->pluck('alias', 'id');
                     })                    
             ])
+            ->filtersFormColumns(3)
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('map')
@@ -435,17 +467,6 @@ class DependentUserResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->headerActions([
-                /*                 
-                Tables\Actions\ImportAction::make()
-                    ->importer(ConditionImporter::class)
-                    ->label('Importar Condición de Usuarios')
-                    ->modalHeading('Importar Condición de Usuarios')
-                    // ->modalDescription('Subir archivo CSV')
-                    ->modalSubmitActionLabel('Importar')
-                    // ->options([]) 
-                    */
             ]);
     }
 
