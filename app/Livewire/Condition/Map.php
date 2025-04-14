@@ -7,14 +7,14 @@ use App\Models\DependentUser;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\File;
-
+use Livewire\Attributes\On;
 
 class Map extends Component
 {
 
-    public ?int $user_id;
+    public $user_id;
     
-    public ?int $condition_id;
+    public $condition_id;
 
     public function render(): View
     {
@@ -22,7 +22,9 @@ class Map extends Component
         $this->user_id = $this->user_id??null;
         $dependentUsers = DependentUser::has('user.address.location')->with(['user.address', 'user.address.location'])
         ->when($this->condition_id, function ($query) {
-            $query->where('condition_id', $this->condition_id);
+            $query->whereHas('conditions', function ($query) {
+                $query->where('condition_id', $this->condition_id);
+            });
         })
         ->when($this->user_id, function ($query) {
             $query->whereHas('user', function ($query) {
@@ -42,5 +44,12 @@ class Map extends Component
        
         // return view('livewire.condition.map', ['patients' => []]);
         
+    }
+
+    #[On('changeFilters')]
+    public function changeFilters($condition_id = null, $user_id = null)
+    {
+        $this->condition_id = $condition_id??$this->condition_id;
+        $this->user_id = $user_id??$this->user_id;
     }
 }

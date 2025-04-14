@@ -62,4 +62,12 @@ class MapDependentUsers extends Page
             return [];
         }
     }
+
+    public function updated($property)
+    {
+        $this->dispatch('changeFilters', [
+            'condition_id' => $this->condition_id,
+            'user_id' => $this->user_id,
+        ]);
+    }
 }
