@@ -21,17 +21,17 @@ class MapDependentUsers extends Page
 
     public $users = [];
     public $conditionTypes = [];
-    public $condition_id = null;
+    public $conditions_id = null;
     public $user_id = null;
 
 
     public function mount(): void
     {
-        $this->condition_id = $this->condition_id??request('condition_id');
+        $this->conditions_id = $this->conditions_id??request('conditions_id');
         $this->user_id = $this->user_id??request('user_id');
         $this->conditionTypes = Condition::pluck('name', 'id')->toArray();
         $this->form->fill([
-            'condition_id' => $this->condition_id,
+            'conditions_id' => $this->conditions_id,
         ]);
     }
 
@@ -39,18 +39,20 @@ class MapDependentUsers extends Page
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('condition_id')
-                    ->label('Select Condition')
+                Forms\Components\Select::make('conditions_id')
+                    ->label('Condición')
                     ->options($this->conditionTypes)
                     ->required()
+                    ->placeholder('Seleccione una condición')
+                    ->multiple()
                     ->reactive() // Hacer que el select sea reactivo
-                    ->afterStateUpdated(fn ($state) => $this->condition_id =$state), // Llamar a un método cuando se actualice
+                    ->afterStateUpdated(fn ($state) => $this->conditions_id =$state), // Llamar a un método cuando se actualice
             ]);
     }
 
     protected function getHeaderActions(): array
     {
-        if($this->condition_id && $this->user_id){
+        if($this->conditions_id && $this->user_id){
             return [
                 Actions\Action::make('Volver')
                     ->url(DependentUserResource::getUrl())
@@ -63,11 +65,15 @@ class MapDependentUsers extends Page
         }
     }
 
+    protected function getFooterWidgets(): array
+    {
+        return [
+            'map' => \App\Filament\Resources\DependentUserResource\Widgets\MapWidget::class,
+        ];
+    }
+
     public function updated($property)
     {
-        $this->dispatch('changeFilters', [
-            'condition_id' => $this->condition_id,
-            'user_id' => $this->user_id,
-        ]);
+        $this->dispatch('changeFilters', $this->conditions_id, $this->user_id);
     }
 }
