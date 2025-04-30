@@ -4,7 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\DependentUserResource\Pages;
 use App\Filament\Resources\DependentUserResource\RelationManagers;
-use App\Filament\Imports\ConditionImporter;
+// use App\Filament\Imports\ConditionImporter;
+
+
+use Carbon\Carbon;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 
 use Filament\Forms;
 use Filament\Forms\Components\Repeater;
@@ -14,30 +19,30 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\QueryBuilder;
 use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint;
-use Filament\Actions\ActionGroup;
+// use Filament\Actions\ActionGroup;
 
 use Illuminate\Support\HtmlString;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+// use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-use App\Models\User;
-use App\Models\Country;
-use App\Models\Commune;
-use App\Models\Condition;
+// use App\Models\User;
+// use App\Models\Country;
+// use App\Models\Commune;
+// use App\Models\Condition;
 use App\Models\Organization;
 use App\Models\DependentUser;
 
-use App\Enums\Sex;
-use App\Enums\Gender;
-use App\Models\Address;
-use App\Models\DependentCaregiver;
-use Carbon\Carbon;
-use Cheesegrits\FilamentGoogleMaps\Fields\Map;
+// use App\Enums\Sex;
+// use App\Enums\Gender;
+// use App\Models\Address;
+// use App\Models\DependentCaregiver;
+// use Carbon\Carbon;
+// use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 use Illuminate\Support\Arr;
 
-use function PHPUnit\Framework\isNan;
-use function PHPUnit\Framework\isNull;
+// use function PHPUnit\Framework\isNan;
+// use function PHPUnit\Framework\isNull;
 
 class DependentUserResource extends Resource
 {
@@ -457,11 +462,12 @@ class DependentUserResource extends Resource
             ])
             ->filtersFormColumns(3)
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('map')
                 ->label('')
                 ->icon('heroicon-s-map')
-                ->url(fn (Model $record): string => route('filament.admin.pages.dependent-user-map', ['condition_id' => $record->conditions->first()->id, 'user_id' => $record->user->id]))
+                ->url(fn (Model $record): string => route('filament.admin.pages.dependent-user-map', ['conditions_id' => $record->conditions->pluck('id'), 'user_id' => $record->user->id]))
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -469,6 +475,7 @@ class DependentUserResource extends Resource
                 ]),
             ]);
     }
+
 
     public static function getRelations(): array
     {
@@ -482,6 +489,7 @@ class DependentUserResource extends Resource
         return [
             'index' => Pages\ListDependentUsers::route('/'),
             'create' => Pages\CreateDependentUser::route('/create'),
+            'view' => Pages\ViewDependentUser::route('/{record}'),
             'edit' => Pages\EditDependentUser::route('/{record}/edit'),
             'map' => Pages\MapDependentUsers::route('/map'),
             // 'location' => Pages\MapDependentUsers::route('/{record}/location'),
