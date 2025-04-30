@@ -23,16 +23,21 @@
         Alpine.data('mapComponent', (markers) => ({
             map: null, // Mapa
             baseLayers: null, // Capas base
+            
             osm: null, // Capa base OSM
             osmHOT: null, // Capa base OSM HOT
+            
             clusterGroup: null, // para generar clusters
             layerControl: null, // Control de capas
-            inundacion: null, // Poligono de inundacion
+            
             
             //capas de geojson
             lineaJson: null,
             cotaJson: null,
             iquiqueJson: null,
+            
+            inundacion: null, // Poligono de inundacion
+            aluvion: null, // Poligono de aluvion
 
             init() {
                 // Inicializar el mapa
@@ -57,17 +62,21 @@
 
                 // Cargar capas geojson
                 Promise.all([
-                    fetch("http://unisalud.test/json/linea_seguridad_iquique.geojson").then(res => res.json()),
-                    fetch("http://unisalud.test/json/cota_30_tarapaca.geojson").then(res => res.json()),
-                    fetch("http://unisalud.test/json/2012_iquique.geojson").then(res => res.json())
-                ]).then(([lineaJson, cotaJson, iquiqueJson]) => {
+                    fetch("https://uni.saludtarapaca.gob.cl/json/linea_seguridad_iquique.geojson").then(res => res.json()),
+                    fetch("https://uni.saludtarapaca.gob.cl/json/cota_30_tarapaca.geojson").then(res => res.json()),
+                    fetch("https://uni.saludtarapaca.gob.cl/json/2012_iquique.geojson").then(res => res.json()),
+                    fetch("https://uni.saludtarapaca.gob.cl/json/UTF-81_Aluvion.geojson").then(res => res.json()),
+                ]).then(([lineaJson, cotaJson, iquiqueJson, aluvionJson]) => {
                     this.lineaJson = new L.GeoJSON(lineaJson, { style: { color: '#00FF00' } });
                     this.cotaJson = new L.GeoJSON(cotaJson, { style: { color: '#FF0000' } });
                     this.inundacion = new turf.polygon(cotaJson.features[0].geometry.coordinates);
                     this.iquiqueJson = new L.GeoJSON(iquiqueJson, { style: { color: '#0000FF' } });
+                    this.iquiqueJson = new L.GeoJSON(aluvionJson, { style: { color: '#660066' } });
+                    this.aluvion = new turf.polygon(aluvionJson.features[0].geometry.coordinates);
                     this.layerControl.addOverlay(new L.LayerGroup([this.lineaJson]), 'Linea de seguridad');
                     this.layerControl.addOverlay(new L.LayerGroup([this.cotaJson]), 'Cota de inundacion');
                     this.layerControl.addOverlay(new L.LayerGroup([this.iquiqueJson]), 'Iquique');
+                    this.layerControl.addOverlay(new L.LayerGroup([this.iquiqueJson]), 'Zona de aluvion');
                 });
             },
 
@@ -94,9 +103,15 @@
             // Modificar popup al hacer click en el marcador
             markerOnClick(e){
                 let content = `<a href="${e.target.url}" target="_blank">${e.target.name}</a><br>${e.target.address}`;
+                let point = turf.point([e.target.lng, e.target.lat]);
                 if (this.inundacion) {
-                    if (turf.booleanPointInPolygon(turf.point([e.target.lng, e.target.lat]), this.inundacion)) {
+                    if (turf.booleanPointInPolygon(point, this.inundacion)) {
                         content += '<br> En zona de inundacion';
+                    }
+                }
+                if (this.aluvion) {
+                    if (turf.booleanPointInPolygon(point, this.aluvion)) {
+                        content += '<br> En zona de aluvion';
                     }
                 }
                 e.target.getPopup().setContent(content);

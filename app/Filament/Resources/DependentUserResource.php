@@ -488,10 +488,10 @@ class DependentUserResource extends Resource
     {
         return [
             'index' => Pages\ListDependentUsers::route('/'),
+            'map' => Pages\MapDependentUsers::route('/map'),
             'create' => Pages\CreateDependentUser::route('/create'),
             'view' => Pages\ViewDependentUser::route('/{record}'),
             'edit' => Pages\EditDependentUser::route('/{record}/edit'),
-            'map' => Pages\MapDependentUsers::route('/map'),
             // 'location' => Pages\MapDependentUsers::route('/{record}/location'),
         ];
     }
