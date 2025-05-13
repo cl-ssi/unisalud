@@ -10,7 +10,6 @@
         "awcodes/filament-gravatar": "^2.0",
         "barryvdh/laravel-dompdf": "^3.0",
         "calebporzio/sushi": "^2.4",
-        "cheesegrits/filament-google-maps": "^3.0",
         "filament/filament": "^3.2",
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9",
@@ -18,13 +17,12 @@
         "psr/simple-cache": "2.0",
         "pxlrbt/filament-environment-indicator": "^2.0",
         "pxlrbt/filament-excel": "^2.3",
+        "ryangjchandler/blade-capture-directive": "1.0 as 0.3",
         "socialiteproviders/claveunica": "^4.2",
         "spatie/laravel-google-cloud-storage": "^2.3",
         "spatie/laravel-permission": "^6.9",
         "stackkit/laravel-google-cloud-tasks-queue": "^4.2",
-        "stechstudio/filament-impersonate": "^3.11",
-        "mastani/laravel-google-static-map": "dev-l11-compatibility as 2.3",
-        "ryangjchandler/blade-capture-directive": "1.0 as 0.3"
+        "stechstudio/filament-impersonate": "^3.11"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

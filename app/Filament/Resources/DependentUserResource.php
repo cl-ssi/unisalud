@@ -32,13 +32,13 @@ use Illuminate\Database\Eloquent\Model;
 // use App\Models\Condition;
 use App\Models\Organization;
 use App\Models\DependentUser;
-
+use Illuminate\Routing\Route;
 // use App\Enums\Sex;
 // use App\Enums\Gender;
 // use App\Models\Address;
 // use App\Models\DependentCaregiver;
 // use Carbon\Carbon;
-// use Cheesegrits\FilamentGoogleMaps\Fields\Map;
+
 use Illuminate\Support\Arr;
 
 // use function PHPUnit\Framework\isNan;
@@ -49,8 +49,6 @@ class DependentUserResource extends Resource
     protected static ?string $model = DependentUser::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
-    protected static ?string $navigationGroup = 'Usuarios Dependientes';
 
     protected static ?string $modelLabel = 'Usuario Dependiente';
 
@@ -408,37 +406,23 @@ class DependentUserResource extends Resource
                             fn (Builder $query, $name): Builder => $query->whereHas('user', fn (Builder $query): Builder => $query->where('text', 'like', '%' . $name . '%')),
                         );
                     }),
-                    QueryBuilder::make()
-                    ->label('Condiciones')
-                        ->constraints([
-                            RelationshipConstraint::make('conditions')
-                                ->selectable(
-                                    RelationshipConstraint\Operators\IsRelatedToOperator::make()
-                                        ->titleAttribute('name')
-                                        ->searchable()
-                                        ->multiple()
-                                        ->preload(),
-                                )
-                            ]),
                 Tables\Filters\SelectFilter::make('conditions')
                     ->relationship('conditions', 'name')
                     ->query(function (Builder $query, array $data): Builder {
-                        $values = $data['values'];
-                        $first = true;
-                        foreach ($values as $value) {
-                            $first = false;
-                            $query = $query->where('types.type_id', $value);
-                        }
-                        return $query;
+                        return $query->when($data['values'], function ($q, $values) {
+                            foreach ($values as $condition_id) {
+                                $q->whereHas('conditions', fn($q) => $q->where('condition_id', $condition_id));
+                            }
+                        });
                     })
                     ->label('Condicion')
                     ->preload()
                     ->multiple(),
-                    
                 Tables\Filters\SelectFilter::make('user.mobileContactPoint.organization')
                     // ->relationship('user.mobileContactPoint.organization', 'alias')
                     ->label('Organizacion')
                     ->multiple()
+                    ->preload()
                     ->modifyQueryUsing(function ($query, $data) {
                         if (! empty($data["values"])) {
                             $query->whereHas('user', function ($query) use ($data) {
@@ -459,15 +443,17 @@ class DependentUserResource extends Resource
                                 $query->has('dependentUser')->whereNotNull('contactPoint.user.id');
                             }])->pluck('alias', 'id');
                     })                    
-            ])
-            ->filtersFormColumns(3)
+            ], layout: Tables\Enums\FiltersLayout::AboveContent)
+            // ->filtersFormColumns(3)
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('map')
-                ->label('')
-                ->icon('heroicon-s-map')
-                ->url(fn (Model $record): string => route('filament.admin.pages.dependent-user-map', ['conditions_id' => $record->conditions->pluck('id'), 'user_id' => $record->user->id]))
+                    ->url(fn (Model $record): string => route('filament.admin.resources.dependent-users.map', [
+                        'users_id' => [$record->user->id],
+                    ]))
+                    ->icon('heroicon-o-map')
+                    ->label('Mapa'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -492,7 +478,6 @@ class DependentUserResource extends Resource
             'create' => Pages\CreateDependentUser::route('/create'),
             'view' => Pages\ViewDependentUser::route('/{record}'),
             'edit' => Pages\EditDependentUser::route('/{record}/edit'),
-            // 'location' => Pages\MapDependentUsers::route('/{record}/location'),
         ];
     }
 

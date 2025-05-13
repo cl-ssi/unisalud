@@ -39,8 +39,15 @@ class ListDependentUsers extends ListRecords
 
     public function getTabs(): array
     {
+        return [];
+    }
+
+    /*
+    public function getTabs(): array
+    {
         $tiers = Condition::get();
         $tabs = ['Todos' => Tab::make('Todos')->badge($this->getModel()::count())];
+        
         foreach ($tiers as $tier) {
             $name = ucwords($tier->name);
             $slug = str($name)->slug()->toString();
@@ -53,5 +60,9 @@ class ListDependentUsers extends ListRecords
                 });
         }
         return $tabs;
+        
     }
+        */
+
+
 }
