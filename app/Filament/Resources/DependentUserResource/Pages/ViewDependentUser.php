@@ -20,18 +20,60 @@ class ViewDependentUser extends ViewRecord
     {
         return $infolist
             ->schema([
-                Infolists\Components\TextEntry::make('RUT')
-                    ->label('RUT')
-                    ->getStateUsing(fn (Model $record): string => $record->user->identifiers->first()->value . '-' . $record->user->identifiers->first()->dv),
-                Infolists\Components\TextEntry::make('Direccion')
-                    ->getStateUsing(fn (Model $record): string => $record->user->address->text . ' ' . $record->user->address->line . ', ' . $record->user->address->commune->name),
-                Infolists\Components\TextEntry::make('birthday')
-                    ->label('Fecha Nacimiento')
-                    ->date(),
-                Infolists\Components\TextEntry::make('sex')
+                Infolists\Components\TextEntry::make('user.mobileContactPoint.organization.alias')
+                    ->label('Establecimiento'),
+                Infolists\Components\TextEntry::make('user.text')
+                    ->label('Nombre Completo')
+                    ->getStateUsing(function ($record) {
+                        return ($record->user->text)??$record->user->given . ' ' . $record->user->fathers_family . ' ' . $record->user->mothers_family;
+                    }),
+                Infolists\Components\TextEntry::make('user.sex')
                     ->label('Sexo'),
-                Infolists\Components\TextEntry::make('gender')
+                Infolists\Components\TextEntry::make('user.gender')
                     ->label('Genero'),
+                Infolists\Components\TextEntry::make('user.birthday')
+                    ->label('Fecha Nacimiento')
+                    ->date('Y-m-d'),
+                Infolists\Components\TextEntry::make('user.age')
+                    ->label('Edad'),
+                Infolists\Components\TextEntry::make('user.address.use')
+                    ->label('Tipo Dirección'),
+                Infolists\Components\TextEntry::make('user.address.text')
+                    ->label('Calle'),
+                Infolists\Components\TextEntry::make('user.address.line')
+                    ->label('N°'),
+                Infolists\Components\TextEntry::make('user.address.commune.name')
+                    ->label('Comuna'),
+                Infolists\Components\TextEntry::make('user.address.location.longitude')
+                    ->label('Longitud'),
+                Infolists\Components\TextEntry::make('user.address.location.latitude')
+                    ->label('Latitud'),
+                Infolists\Components\TextEntry::make('user.mobileContactPoint.value')
+                    ->label('Telefono'),
+                Infolists\Components\TextEntry::make('diagnosis')
+                    ->label('Diagnostico'),
+                Infolists\Components\TextEntry::make('healthcare_type')
+                    ->label('Prevision'),
+                Infolists\Components\TextEntry::make('check_in_date')
+                    ->label('Fecha de Ingreso')
+                    ->date(),
+                Infolists\Components\TextEntry::make('check_out_date')
+                    ->label('Fecha de Egreso')
+                    ->date(),
+                Infolists\Components\TextEntry::make('integral_visits')
+                    ->label('Vistas Integrales')
+                    ->numeric(),
+                Infolists\Components\TextEntry::make('last_integral_visit')
+                    ->label('Última Visita Integral')
+                    ->date(),
+                Infolists\Components\TextEntry::make('treatment_visits')
+                    ->label('Visitas de Tratamiento')
+                    ->numeric(),
+                Infolists\Components\TextEntry::make('last_treatment_visit')
+                    ->label('Última Visita de Tratamiento')
+                    ->date(),
+                Infolists\Components\TextEntry::make('barthel')
+                    ->label('Barthel'),
             ]);
     }
 
