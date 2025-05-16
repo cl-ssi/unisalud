@@ -89,7 +89,6 @@ class ConditionImporter extends Importer
         $this->originalData['prevision'] = $this->originalData['prevision']?? '';
         $this->originalData['prevision_cuidador'] = $this->originalData['prevision_cuidador']?? '';
         $this->originalData['talla_panal'] = $this->originalData['talla_panal']?? '';
-        $this->originalData['zona_inundabilidad'] = $this->originalData['zona_inundabilidad'] ?? '';
         $this->originalData['nombre_cuidador'] = $this->originalData['nombre_cuidador'] ?? '';
         $this->originalData['apellido_paterno_cuidador'] = $this->originalData['apellido_paterno_cuidador'] ?? '';
         $this->originalData['apellido_paterno_cuidador'] = $this->originalData['apellido_materno_cuidador'] ?? '';
@@ -464,7 +463,6 @@ class ConditionImporter extends Importer
         $this->record->nutrition_assistance_date = $this->validateDate($this->originalData['entrega_alimentacion_fecha']);
         $this->record->nasogastric_catheter = $this->validateInt(intval(trim($this->originalData['sonda_sng'])));
         $this->record->urinary_catheter = $this->validateInt(intval(trim($this->originalData['sonda_urinaria'])));
-        $this->record->flood_zone = $this->validateBool($this->originalData['zona_inundabilidad']);
         $this->record->save();
     }
 

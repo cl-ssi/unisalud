@@ -57,8 +57,7 @@ class DependentUser extends Model
         'tech_aid',
         'tech_aid_date',
         'nutrition_assistance',
-        'nutrition_assistance_date',
-        'flood_zone',
+        'nutrition_assistance_date'
     ];
 
     protected $casts = [

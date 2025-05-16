@@ -94,8 +94,6 @@ return new class extends Migration
                 '24',
             ])->nullable();
 
-            $table->boolean('flood_zone')->nullable();
-
             $table->text('extra_info')->nullable();
 
             $table->timestamps();
