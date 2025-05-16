@@ -13,6 +13,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Enums\FiltersLayout;
 
 class WaitlistResource extends Resource
 {
@@ -328,23 +331,49 @@ class WaitlistResource extends Resource
                           ->limit(1);
                     });
                 }),
-                Tables\Filters\SelectFilter::make('health_care_service')
-                    ->label('Lista de Espera')
-                    ->relationship('healthCareService', 'text')
-                    ->placeholder('Seleccionar'),
-                Tables\Filters\SelectFilter::make('status')
-                    ->label('Estado')
-                    ->options([
-                        'no derivado'       => 'No derivado',
-                        'derivado'          => 'Derivado',
-                        'citado'            => 'Citado',
-                        'atendido'          => 'Atendido',
-                        'inasistente'       => 'Inasistente',
-                        'incontactable'     => 'Incontactable',
-                        'egresado'          => 'Egresado',
+                Filter::make('service_status')
+                    ->form([
+                        Select::make('health_care_service')
+                            ->label('Lista de Espera')
+                            ->relationship('healthCareService', 'text')
+                            ->reactive()
+                            ->afterStateUpdated(fn(callable $set) => $set('status', null))
+                            ->placeholder('Seleccionar')
+                            ->live(),
+
+                        Select::make('status')
+                            ->label('Estado')
+                            ->options(function (callable $get) {
+                                return $get('health_care_service') === "1"
+                                    ? [
+                                        'derivado'      => 'Derivado',
+                                        'programado'    => 'Programado',
+                                        'operado'       => 'Operado',
+                                        'digitado'      => 'Digitado',
+                                        'no operable'   => 'No Operable',
+                                        'incontactable' => 'Incontactable',
+                                        'nsp'           => 'NSP',
+                                        'rechazo'       => 'Rechazo',
+                                    ]
+                                    : [
+                                        'no derivado'   => 'No derivado',
+                                        'derivado'      => 'Derivado',
+                                        'citado'        => 'Citado',
+                                        'atendido'      => 'Atendido',
+                                        'inasistente'   => 'Inasistente',
+                                        'incontactable' => 'Incontactable',
+                                        'egresado'      => 'Egresado',
+                                    ];
+                            })
+                            ->placeholder('Seleccionar'),
                     ])
-                    ->placeholder('Seleccionar'),
-            ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query
+                            ->when($data['health_care_service'] ?? null, fn($query, $value) => $query->where('wait_health_care_service_id', $value))
+                            ->when($data['status'] ?? null, fn($query, $value) => $query->where('status', $value));
+                    })->columns(2),
+                ], layout: FiltersLayout::AboveContent)
+                ->filtersFormColumns(2)
             ->headerActions([
                 Tables\Actions\Action::make('reporte')
                     ->label('Reporte')
