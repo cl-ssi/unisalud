@@ -24,9 +24,11 @@ class Condition extends Model
     protected $fillable = [
         'id',
         'name',
+        'code',
         'description',
         'type',
-        'risk'
+        'risk',
+        'parent_id'
     ];
 
     public function dependentUser(): BelongsToMany
@@ -34,6 +36,16 @@ class Condition extends Model
         return $this->BelongsToMany(DependentUser::class, relatedPivotKey: 'dependent_user_id')
             ->withPivot('dependent_user_id', 'condition_id') // Atributos de la tabla pivote
             ->withTimestamps(); // Si tienes timestamps en la tabla pivote        
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Condition::class, 'parent_id');
+    }
+
+    public function subConditions()
+    {
+        return $this->hasMany(Condition::class, 'parent_id');
     }
 
     public function countDependents() : Int
