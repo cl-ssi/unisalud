@@ -302,6 +302,8 @@ class WaitlistResource extends Resource
                     ->label('Teléfono Fijo'),
                 Tables\Columns\TextColumn::make('user.mobileContactPoint.value')
                     ->label('Teléfono Móvil'),
+                Tables\Columns\TextColumn::make('plano.text')
+                    ->label('Plano'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('contact_status')
@@ -346,23 +348,24 @@ class WaitlistResource extends Resource
                             ->options(function (callable $get) {
                                 return $get('health_care_service') === "1"
                                     ? [
-                                        'derivado'      => 'Derivado',
-                                        'programado'    => 'Programado',
-                                        'operado'       => 'Operado',
-                                        'digitado'      => 'Digitado',
-                                        'no operable'   => 'No Operable',
-                                        'incontactable' => 'Incontactable',
-                                        'nsp'           => 'NSP',
-                                        'rechazo'       => 'Rechazo',
+                                        'derivado'          => 'Derivado',
+                                        'digitado'          => 'Digitado',
+                                        'incontactable'     => 'Incontactable',
+                                        'nsp'               => 'NSP',
+                                        'rechazo'           => 'Rechazo',
+                                        'realizado por UAPO' => 'Realizado por UAPO'
                                     ]
                                     : [
                                         'no derivado'   => 'No derivado',
                                         'derivado'      => 'Derivado',
-                                        'citado'        => 'Citado',
-                                        'atendido'      => 'Atendido',
                                         'inasistente'   => 'Inasistente',
                                         'incontactable' => 'Incontactable',
                                         'egresado'      => 'Egresado',
+                                        'operado'       => 'Operado',
+                                        'no operable'   => 'No Operable',
+                                        'incontactable' => 'Incontactable',
+                                        'nsp'           => 'NSP',
+                                        'rechazo'       => 'Rechazo',
                                     ];
                             })
                             ->placeholder('Seleccionar'),

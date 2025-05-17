@@ -18,7 +18,7 @@ use App\Models\Commune;
 use App\Models\Organization;
 use App\Models\Address;
 use App\Models\ContactPoint;
-
+use App\Models\Plano;
 use Filament\Notifications\Notification;
 use Filament\Actions\Imports\Exceptions\RowImportFailedException;
 
@@ -229,6 +229,7 @@ class WaitlistImporter extends Importer
                 'commune_id'                    => $communeId,
                 'status'                        => strtolower(trim($this->originalData['ESTADO'])),
                 'destiny_organization_id'       => $organizationId,
+                'plano_id'                      => $this->originalData['PLANO'],
             ]
         );
 
