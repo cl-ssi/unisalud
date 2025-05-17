@@ -24,7 +24,7 @@ class Waitlist extends Model
         'id',
         'identifier',
         'user_id',
-        'plano', // PLANO: vació
+        'plano_id', // PLANO: vació
         'extremity', // EXTREMIDAD: vació
         'wait_health_care_service_id', //PRESTA_EST: Fondo de Ojo
         'cie10_id',
@@ -106,6 +106,11 @@ class Waitlist extends Model
     public function messages(): HasMany
     {
         return $this->hasMany(WaitlistMessage::class, 'waitlist_id');
+    }
+
+    public function plano(): BelongsTo
+    {
+        return $this->belongsTo(Plano::class, 'plano_id');
     }
 
     protected $table = 'wait_waitlists';
