@@ -16,6 +16,7 @@ class MapWidget extends Widget
 
     protected static bool   $isLazy = false;
 
+    public ?string $baseUrl;
     public ?array $conditions_id = [];
     public ?int $user_id      = null;
     public array $patients    = [];
@@ -23,8 +24,9 @@ class MapWidget extends Widget
 
     public function mount(?array $conditions_id = [], ?int $user_id = null): void
     {
-        $this->conditions_id = $conditions_id;
-        $this->user_id      = $user_id;
+        $this->baseUrl          = env('APP_URL', 'https://uni.saludtarapaca.gob.cl/');
+        $this->conditions_id    = $conditions_id;
+        $this->user_id          = $user_id;
         $this->loadPatients();
     }
 
@@ -42,7 +44,7 @@ class MapWidget extends Widget
 
         $this->markers = $dependentUsers->map(fn($p) => [
             'id'   => $p->id,
-            'url'   => route('filament.admin.resources.dependent-users.edit', $p->id),
+            'url'   => route('filament.admin.resources.dependent-users.view', $p->id),
             'lat'   => $p->user->address->location->latitude,
             'lng'   => $p->user->address->location->longitude,
             'name'    => $p->user->text,
