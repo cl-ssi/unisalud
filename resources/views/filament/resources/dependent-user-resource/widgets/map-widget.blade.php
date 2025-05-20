@@ -61,7 +61,6 @@
                 });
 
                 // Load GeoJSON layers from the server
-                baseUrl = "http://" + baseUrl;
                 Promise.all([
                     fetch(baseUrl + "json/linea_seguridad_iquique.geojson").then(res => res.json()),
                     fetch(baseUrl + "json/cota_30_tarapaca.geojson").then(res => res.json()),
