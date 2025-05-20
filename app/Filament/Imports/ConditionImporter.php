@@ -57,12 +57,18 @@ class ConditionImporter extends Importer
     {
         //COALESCE ARREGLO
         $this->originalData['establecimiento'] = $this->originalData['establecimiento'] ?? '';
-        $this->originalData['run'] = $this->originalData['run']?? '';
-        $this->originalData['sexo'] = $this->originalData['sexo']?? '';
-        $this->originalData['nacionalidad'] = $this->originalData['nacionalidad']?? '';
+
         $this->originalData['nombre'] = $this->originalData['nombre']?? '';
         $this->originalData['apellido_paterno'] = $this->originalData['apellido_paterno'] ?? '';
         $this->originalData['apellido_materno'] = $this->originalData['apellido_materno'] ?? '';
+        $this->originalData['run'] = $this->originalData['run']?? '';
+        //dv
+        $this->originalData['prevision'] = $this->originalData['prevision']?? '';
+        $this->originalData['sexo'] = $this->originalData['sexo']?? '';
+        $this->originalData['genero'] = $this->originalData['genero']?? '';
+        
+        $this->originalData['fecha_nacimiento'] = $this->originalData['fecha_nacimiento']??null;
+        $this->originalData['nacionalidad'] = $this->originalData['nacionalidad']?? '';
         $this->originalData['comuna'] = $this->originalData['comuna'] ?? '';
         $this->originalData['calle'] = $this->originalData['calle'] ?? '';
         $this->originalData['departamento'] = $this->originalData['departamento'] ?? '';
@@ -86,13 +92,13 @@ class ConditionImporter extends Importer
         $this->originalData['entrega_alimentacion_fecha'] =$this->originalData['entrega_alimentacion_fecha'] ?? '';
         $this->originalData['sonda_sng'] = $this->originalData['sonda_sng']?? '';
         $this->originalData['sonda_urinaria'] = $this->originalData['sonda_urinaria']?? '';
-        $this->originalData['prevision'] = $this->originalData['prevision']?? '';
+        
         $this->originalData['prevision_cuidador'] = $this->originalData['prevision_cuidador']?? '';
         $this->originalData['talla_panal'] = $this->originalData['talla_panal']?? '';
         $this->originalData['nombre_cuidador'] = $this->originalData['nombre_cuidador'] ?? '';
         $this->originalData['apellido_paterno_cuidador'] = $this->originalData['apellido_paterno_cuidador'] ?? '';
         $this->originalData['apellido_paterno_cuidador'] = $this->originalData['apellido_materno_cuidador'] ?? '';
-        $this->originalData['fecha_nacimiento_cuidador'] = $this->originalData['fecha_nacimiento_cuidador'] ?? '';
+        $this->originalData['fecha_nacimiento_cuidador'] = $this->originalData['fecha_nacimiento_cuidador']?? null;
         $this->originalData['run_cuidador'] = $this->originalData['run_cuidador'] ?? '';
         $this->originalData['dv_cuidador'] = $this->originalData['dv_cuidador'] ?? '';
         $this->originalData['sexo_cuidador'] = $this->originalData['sexo_cuidador'] ?? '';

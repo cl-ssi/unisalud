@@ -50,6 +50,28 @@ class ViewDependentUser extends ViewRecord
                     ->label('Latitud'),
                 Infolists\Components\TextEntry::make('user.mobileContactPoint.value')
                     ->label('Telefono'),
+                Infolists\Components\TextEntry::make('dependentCaregiver.relative')
+                    ->label('Parentesco Cuidador'),
+                Infolists\Components\TextEntry::make('dependentCaregiver.user.text')
+                    ->label('Nombre Cuidador'),
+                Infolists\Components\TextEntry::make('dependentCaregiver.user.age')
+                    ->label('Edad  Cuidador'),
+                Infolists\Components\TextEntry::make('dependentCaregiver.healthcare_type')
+                    ->label('Prevision  Cuidador'),
+                Infolists\Components\TextEntry::make('dependentCaregiver.empam')
+                    ->label('Empam Cuidador'),
+                Infolists\Components\TextEntry::make('dependentCaregiver.zarit')
+                    ->label('Zarit Cuidador'),
+                Infolists\Components\TextEntry::make('dependentCaregiver.immunizations')
+                    ->label('Imunizacion Cuidador'),
+                Infolists\Components\TextEntry::make('dependentCaregiver.elaborated_plan')
+                    ->label('Plan Elaborado Cuidador'),
+                Infolists\Components\TextEntry::make('dependentCaregiver.evaluated_plan')
+                    ->label('Plan Evaluado Cuidador'),
+                Infolists\Components\TextEntry::make('dependentCaregiver.trained')
+                    ->label('Plan Evaluado Cuidador'),
+                Infolists\Components\TextEntry::make('dependentCaregiver.stipend')
+                    ->label('Plan Evaluado Cuidador'),
                 Infolists\Components\TextEntry::make('diagnosis')
                     ->label('Diagnostico'),
                 Infolists\Components\TextEntry::make('healthcare_type')

@@ -54,7 +54,7 @@ class DependentUserResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Usuarios Dependiente';
 
-    protected static ?string $navigationLabel = 'Listado Pacientes con Condición';
+    protected static ?string $navigationLabel = 'Listado Usuarios Dependientes';
 
     public static function form(Form $form): Form
     {
@@ -479,10 +479,5 @@ class DependentUserResource extends Resource
             'view' => Pages\ViewDependentUser::route('/{record}'),
             'edit' => Pages\EditDependentUser::route('/{record}/edit'),
         ];
-    }
-
-    public static function viewAny(): bool  {
-        // return true;
-        return auth()->user()->can('be god'); 
     }
 }

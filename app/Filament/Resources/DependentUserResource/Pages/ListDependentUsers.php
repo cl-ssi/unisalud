@@ -29,7 +29,8 @@ class ListDependentUsers extends ListRecords
                         ->modalHeading('Importar Usuarios Dependientes')
                         ->modalSubmitActionLabel('Importar'),
                     Actions\Action::make('map')
-                        ->url(route('filament.admin.resources.dependent-users.map'))
+                        ->url(fn () => route('filament.admin.resources.dependent-users.map', request()->query()))
+                        ->icon('heroicon-o-map')
                         ->label('Ver Mapa'),
                 ];
             } else {
