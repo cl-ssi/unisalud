@@ -53,5 +53,10 @@ class Condition extends Model
         return $this->dependentUser()->where('condition_id', $this->id)->count();
     }
 
+    public static function parentsOnly()
+    {
+        return self::whereNull('parent_id')->get();
+    }
+
     protected $table = 'condition';
 }

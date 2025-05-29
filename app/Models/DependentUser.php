@@ -31,7 +31,6 @@ class DependentUser extends Model
      */
     protected $fillable = [
         'id',
-        'identifier',
         'cod_con_clinical_status',
         'cod_con_verification_status',
         'cod_con_code_id',

@@ -14,9 +14,7 @@ return new class extends Migration
         Schema::create('dependent_user', function (Blueprint $table) {
             $table->id();
 
-            $table->string('identifier')->nullable();
-
-            $table->foreignId('user_id')->nullable()->constrained('users');
+            $table->foreignId('user_id')->constrained('users');
 
             $table->text('diagnosis')->nullable();
 
