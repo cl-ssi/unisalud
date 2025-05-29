@@ -5,14 +5,13 @@ namespace App\Filament\Resources\DependentUserResource\Pages;
 use App\Filament\Imports\ConditionImporter;
 use App\Filament\Resources\DependentUserResource;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Resources\Components\Tab;
+
 use Filament\Actions;
 
-use App\Models\Condition;
-use App\Models\DependentUser;
+use pxlrbt\FilamentExcel;
+use YOS\FilamentExcel\Actions\Import;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+
 
 class ListDependentUsers extends ListRecords
 {
@@ -22,16 +21,36 @@ class ListDependentUsers extends ListRecords
     {
             if(auth()->user()->can('be god')){
                 return [
-                    Actions\CreateAction::make(),
-                    Actions\ImportAction::make()
-                        ->importer(ConditionImporter::class)
-                        ->label('Importar Condición de Usuarios')
-                        ->modalHeading('Importar Usuarios Dependientes')
-                        ->modalSubmitActionLabel('Importar'),
+                    Actions\CreateAction::make()
+                        ->label('Nuevo')
+                        ->icon('heroicon-o-user-plus'),
+                    // Actions\ImportAction::make()
+                    //     ->importer(ConditionImporter::class)
+                    //     ->label('Importar')
+                    //     ->icon('heroicon-o-table-cells'),
                     Actions\Action::make('map')
                         ->url(fn () => route('filament.admin.resources.dependent-users.map', request()->query()))
                         ->icon('heroicon-o-map')
-                        ->label('Ver Mapa'),
+                        ->label('Mapa'),
+                    FilamentExcel\Actions\Pages\ExportAction::make()
+                        ->label('Exportar')
+                        ->icon('heroicon-o-arrow-up-tray')
+                        ->exports([
+                            FilamentExcel\Exports\ExcelExport::make()
+                                ->fromTable()
+                                ->withFilename(fn ($resource) => $resource::getModelLabel() . '-' . date('Y-m-d'))
+                                ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
+                                // ->withColumns([
+                                //     FilamentExcel\Columns\Column::make('updated_at'),
+                                // ])
+                        ]),
+                    Import::make('TEst')
+                        ->import(\App\Imports\DependentUserImport::class)
+                        ->type(\Maatwebsite\Excel\Excel::XLSX)
+                        ->label('Importar XLSX')
+                        ->hint('Subir archivo de tipo xlsx')
+                        ->icon('heroicon-o-arrow-down-tray'),
+                        
                 ];
             } else {
                 return [];
@@ -42,28 +61,4 @@ class ListDependentUsers extends ListRecords
     {
         return [];
     }
-
-    /*
-    public function getTabs(): array
-    {
-        $tiers = Condition::get();
-        $tabs = ['Todos' => Tab::make('Todos')->badge($this->getModel()::count())];
-        
-        foreach ($tiers as $tier) {
-            $name = ucwords($tier->name);
-            $slug = str($name)->slug()->toString();
-            $tabs[$slug] = Tab::make($name)
-                // ->badge($tier->countDependents())
-                ->modifyQueryUsing(function ($query) use ($tier) {
-                    return $query->whereHas('conditions', function($query) use ($tier) {
-                        $query->where('condition_id', $tier->id);
-                    });
-                });
-        }
-        return $tabs;
-        
-    }
-        */
-
-
 }
