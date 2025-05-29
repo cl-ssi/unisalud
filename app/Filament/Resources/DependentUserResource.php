@@ -241,7 +241,7 @@ class DependentUserResource extends Resource
                 Tables\Columns\TextColumn::make('user.text')
                     ->label('Nombre Completo')
                     ->getStateUsing(function ($record) {
-                        return ($record->user->text)??$record->user->given . ' ' . $record->user->fathers_family . ' ' . $record->user->mothers_family;
+                        return ($record->user?->text)??$record->user?->given . ' ' . $record->user?->fathers_family . ' ' . $record->user?->mothers_family;
                     }),
                 Tables\Columns\TextColumn::make('user.sex')
                     ->label('Sexo'),
@@ -450,7 +450,7 @@ class DependentUserResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('map')
                     ->url(fn (Model $record): string => route('filament.admin.resources.dependent-users.map', [
-                        'users_id' => [$record->user->id],
+                        'users_id' => [$record->user?->id],
                     ]))
                     ->icon('heroicon-o-map')
                     ->label('Mapa'),

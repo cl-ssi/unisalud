@@ -62,10 +62,10 @@
 
                 // Load GeoJSON layers from the server
                 Promise.all([
-                    fetch(baseUrl + "json/linea_seguridad_iquique.geojson").then(res => res.json()),
-                    fetch(baseUrl + "json/cota_30_tarapaca.geojson").then(res => res.json()),
-                    fetch(baseUrl + "json/2012_iquique.geojson").then(res => res.json()),
-                    fetch(baseUrl + "json/UTF-81_Aluvion.geojson").then(res => res.json())
+                    fetch(baseUrl + "/json/linea_seguridad_iquique.geojson").then(res => res.json()),
+                    fetch(baseUrl + "/json/cota_30_tarapaca.geojson").then(res => res.json()),
+                    fetch(baseUrl + "/json/2012_iquique.geojson").then(res => res.json()),
+                    fetch(baseUrl + "/json/UTF-81_Aluvion.geojson").then(res => res.json())
                 ]).then(([lineaJson, cotaJson, iquiqueJson, aluvionJson]) => {
                     // Initialize GeoJSON layers with styles
                     this.lineaJson = new L.GeoJSON(lineaJson, { style: { color: '#00FF00' } });
