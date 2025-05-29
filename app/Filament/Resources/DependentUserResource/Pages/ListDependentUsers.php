@@ -19,15 +19,10 @@ class ListDependentUsers extends ListRecords
 
     protected function getHeaderActions(): array
     {
-            if(auth()->user()->can('be god')){
                 return [
-                    Actions\CreateAction::make()
-                        ->label('Nuevo')
-                        ->icon('heroicon-o-user-plus'),
-                    // Actions\ImportAction::make()
-                    //     ->importer(ConditionImporter::class)
-                    //     ->label('Importar')
-                    //     ->icon('heroicon-o-table-cells'),
+                    // Actions\CreateAction::make()
+                    //     ->label('Nuevo')
+                    //     ->icon('heroicon-o-user-plus'),
                     Actions\Action::make('map')
                         ->url(fn () => route('filament.admin.resources.dependent-users.map', request()->query()))
                         ->icon('heroicon-o-map')
@@ -40,11 +35,8 @@ class ListDependentUsers extends ListRecords
                                 ->fromTable()
                                 ->withFilename(fn ($resource) => $resource::getModelLabel() . '-' . date('Y-m-d'))
                                 ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
-                                // ->withColumns([
-                                //     FilamentExcel\Columns\Column::make('updated_at'),
-                                // ])
                         ]),
-                    Import::make('TEst')
+                    Import::make()
                         ->import(\App\Imports\DependentUserImport::class)
                         ->type(\Maatwebsite\Excel\Excel::XLSX)
                         ->label('Importar XLSX')
@@ -52,8 +44,6 @@ class ListDependentUsers extends ListRecords
                         ->icon('heroicon-o-arrow-down-tray'),
                         
                 ];
-            } else {
-                return [];
             }
     }
 
