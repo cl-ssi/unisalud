@@ -29,7 +29,7 @@ class ListDependentUsers extends ListRecords
                     [
                         'conditions_id' => $livewire->getTable()->getFilters()['conditions']->getState('name')['values'] ?? null,
                         'search' => $livewire->getTable()->getFilters()['user']->getForm()->getState()['name'] ?? null,
-                        'organization_id' => $livewire->getTable()->getFilters()['user.mobileContactPoint.organization']->getState()['values'] ?? null,
+                        'organizations_id' => $livewire->getTable()->getFilters()['user.mobileContactPoint.organization']->getState()['values'] ?? null,
                     ]
                 ))
                 ->icon('heroicon-o-map')

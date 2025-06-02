@@ -30,14 +30,14 @@ class MapDependentUsers extends Page
 
     public $search;
     public $conditions_id = null;
-    public $organization_id = null;
+    public $organizations_id = null;
     public $user_id = null;
 
 
     // New way to handle filters
     public $req_conditions_id = null;
     public $req_users_id = null;
-    public $req_organization_id = null;
+    public $req_organizations_id = null;
     public $req_search = null;
 
 
@@ -54,14 +54,14 @@ class MapDependentUsers extends Page
         }])->pluck('alias', 'id');
 
         $this->req_conditions_id = request('conditions_id') ?? null;
-        // $this->req_users_id = request('users_id') ?? null;
-        $this->req_organization_id = request('organization_id') ?? null;
+        $this->req_users_id = request('users_id') ?? null;
+        $this->req_organizations_id = request('organizations_id') ?? null;
         // $this->req_search = request('search') ?? null;
 
         $this->form->fill([
             'conditions_id' => $this->req_conditions_id,
-            'organization_id' => $this->req_organization_id,
-            // 'users_id' => $this->req_users_id,
+            'organizations_id' => $this->req_organizations_id,
+            'users_id' => $this->req_users_id,
             // 'search' => $this->req_search,
         ]);
     }
@@ -77,18 +77,16 @@ class MapDependentUsers extends Page
                     ->options($this->conditionTypes)
                     ->placeholder('Seleccione una condición')
                     ->preload()
-                    ->required()
                     ->multiple()
                     ->reactive() // Hacer que el select sea reactivo
                     ->afterStateUpdated(fn ($state) => $this->req_conditions_id =$state), // Llamar a un método cuando se actualice
-                Forms\Components\Select::make('organization_id')
+                Forms\Components\Select::make('organizations_id')
                     ->label('Organización')
                     ->options($this->organizationTypes)
                     ->placeholder('Seleccione una organización')
                     ->preload()
-                    ->required()
                     ->reactive()
-                    ->afterStateUpdated(fn ($state) => $this->req_organization_id = $state),
+                    ->afterStateUpdated(fn ($state) => $this->req_organizations_id = $state),
             ]);
     }
 
@@ -108,8 +106,8 @@ class MapDependentUsers extends Page
         return [
             'map' => \App\Filament\Resources\DependentUserResource\Widgets\MapWidget::make([
                 'conditions_id' => $this->req_conditions_id,
-                'organization_id' => $this->req_organization_id,
-                'user_id' => $this->user_id,
+                'organizations_id' => $this->req_organizations_id,
+                'users_id' => $this->users_id,
             ])
 
         ];
@@ -117,6 +115,6 @@ class MapDependentUsers extends Page
 
     public function updated($property = null)
     {                
-        $this->dispatch('changeFilters', $this->req_conditions_id, $this->user_id);
+        $this->dispatch('changeFilters', $this->req_conditions_id, $this->req_organizations_id, $this->users_id);
     }
 }

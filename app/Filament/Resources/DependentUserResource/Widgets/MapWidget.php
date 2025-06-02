@@ -17,17 +17,20 @@ class MapWidget extends Widget
     protected static bool   $isLazy = false;
 
     public ?string $baseUrl;
+    
     public ?array $conditions_id = [];
-    public ?int $user_id      = null;
+    public ?array $organizations_id = [];
+    public ?array $users_id      = [];
+
     public array $patients    = [];
     public array $markers     = [];
 
-    public function mount(?array $conditions_id = [], ?int $user_id = null): void
+    public function mount(?array $conditions_id = [], ?array $users_id = null): void
     {
 
         $this->baseUrl          = env('APP_URL', 'https://uni.saludtarapaca.gob.cl/');
         $this->conditions_id    = $conditions_id;        
-        $this->user_id          = $user_id;
+        $this->users_id          = $users_id;
         $this->loadPatients();
     }
 
@@ -42,7 +45,18 @@ class MapWidget extends Widget
                 }
                 return $q;
             })
-            ->when($this->user_id, fn($q) => $q->whereHas('user', fn($q) => $q->where('id', $this->user_id)))
+            ->when($this->organizations_id, function($q) {
+                $q->whereHas('user', function($query) {
+                    $query->whereHas('mobileContactPoint', function($query) {
+                        $query->whereHas('organization', function($query) {
+                            $query->whereIn('id', $this->organizations_id);
+                        });
+                    });
+                });
+            })
+
+
+            ->when($this->users_id, fn($q) => $q->whereHas('user', fn($q) => $q->whereIn('id', $this->users_id))) // Updated to use $this->users_id
             ->get();
 
         $this->markers = $dependentUsers->map(fn($p) => [
@@ -56,10 +70,11 @@ class MapWidget extends Widget
     }
 
     #[On('changeFilters')]
-    public function changeFilters(?array $conditions_id = [], ?int $user_id = null): void
+    public function changeFilters(?array $conditions_id = [], ?array $organizations_id = [], ?array $users_id = null): void
     {
         $this->conditions_id = $conditions_id ?? $this->conditions_id;
-        $this->user_id      = $user_id      ?? $this->user_id;        
+        $this->organizations_id = $organizations_id ?? $this->organizations_id;            
+        $this->users_id      = $users_id ?? $this->users_id;        
         $this->loadPatients();
     }
 }

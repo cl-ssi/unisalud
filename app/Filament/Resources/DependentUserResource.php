@@ -244,7 +244,8 @@ class DependentUserResource extends Resource
                 Tables\Columns\TextColumn::make('user.mobileContactPoint.value')
                     ->label('Telefono'),
                 Tables\Columns\TextColumn::make('diagnosis')
-                    ->label('Diagnostico'),
+                    ->label('Diagnostico')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('healthcare_type')
                     ->label('Prevision'),
                 Tables\Columns\TextColumn::make('check_in_date')
