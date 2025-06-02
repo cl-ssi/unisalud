@@ -4,45 +4,22 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\DependentUserResource\Pages;
 use App\Filament\Resources\DependentUserResource\RelationManagers;
-// use App\Filament\Imports\ConditionImporter;
-
-
-use Carbon\Carbon;
-use Filament\Infolists;
-use Filament\Infolists\Infolist;
 
 use Filament\Forms;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Tables\Filters\QueryBuilder;
-use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint;
-// use Filament\Actions\ActionGroup;
+
 
 use Illuminate\Support\HtmlString;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-// use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-// use App\Models\User;
-// use App\Models\Country;
-// use App\Models\Commune;
-// use App\Models\Condition;
 use App\Models\Organization;
 use App\Models\DependentUser;
-use Illuminate\Routing\Route;
-// use App\Enums\Sex;
-// use App\Enums\Gender;
-// use App\Models\Address;
-// use App\Models\DependentCaregiver;
-// use Carbon\Carbon;
 
 use Illuminate\Support\Arr;
-
-// use function PHPUnit\Framework\isNan;
-// use function PHPUnit\Framework\isNull;
 
 class DependentUserResource extends Resource
 {
