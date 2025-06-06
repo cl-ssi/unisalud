@@ -301,7 +301,15 @@ class DependentUserImport implements ToModel, WithHeadingRow//, WithValidation
         // Attach conditions
         $conditions = Condition::parentsOnly()->pluck('id', 'name')->all();
         foreach ($conditions as $name => $id) {
-            if ($this->formatField($row[str_replace(" ", "_", $name)], 'boolean')) {
+            $column_name = str_replace(" ", "_", $name);
+            $condition_childs = Condition::where('parent_id', $id)->pluck('id', 'code')->all();
+            $value = strtoupper(trim($row[$column_name]));
+            if($condition_childs[$value]){
+                $dependentUser->conditions()->attach($id);
+                $dependentUser->conditions()->attach($condition_childs[$value]);
+                
+            }
+            else if ($this->formatField($value, 'boolean')) {
                 $dependentUser->conditions()->attach($id);
             }
         }
@@ -390,5 +398,7 @@ class DependentUserImport implements ToModel, WithHeadingRow//, WithValidation
                 return $value;
         }
     }
+
+    public function 
 
 }

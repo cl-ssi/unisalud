@@ -10,10 +10,11 @@
         "awcodes/filament-gravatar": "^2.0",
         "barryvdh/laravel-dompdf": "^3.0",
         "calebporzio/sushi": "^2.4",
+        "codewithdennis/filament-select-tree": "^3.1",
         "filament/filament": "^3.2",
         "laravel/framework": "^11.44.1",
-        "league/commonmark": "^2.7",
         "laravel/tinker": "^2.9",
+        "league/commonmark": "^2.7",
         "owen-it/laravel-auditing": "^13.6",
         "psr/simple-cache": "2.0",
         "pxlrbt/filament-environment-indicator": "^2.0",
@@ -24,6 +25,7 @@
         "spatie/laravel-permission": "^6.9",
         "stackkit/laravel-google-cloud-tasks-queue": "^4.2",
         "stechstudio/filament-impersonate": "^3.11",
+        "vancuren/php-turf": "^1.0",
         "yemenopensource/filament-excel": "^0.1.0"
     },
     "require-dev": {

@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
+use Vancuren\PhpTurf\PhpTurf as Turf;
 
 class Location extends Model
 {
@@ -121,5 +123,36 @@ class Location extends Model
         return 'location';
     }
 
+    public function getFloodAttribute(): ?bool
+    {
+        $contents = file_get_contents(base_path('public/json/cota_30_tarapaca.geojson'));        
+        $json = json_decode(json: $contents, associative: true);
+        if (is_null($this->location['lat']) || is_null($this->location['lng']) || !isset($json['features'])) {
+            return null;
+        }
+        $point = new Turf\Point([$this->location['lng'], $this->location['lat']]);
+        $polygon = new Turf\Polygon([$json['features'][0]['geometry']['coordinates'][0]]);
+        $flood = $polygon->containsPoint($point);
+        // dd($point, $polygon, $flood);
+        return $flood;
+    }
+
+    public function getAlluviumAttribute(): ?bool
+    {
+        $contents = file_get_contents(base_path('public/json/UTF-81_Aluvion.geojson'));        
+        $json = json_decode(json: $contents, associative: true);
+        if (is_null($this->location['lat']) || is_null($this->location['lng']) || !isset($json['features'])) {
+            return null;
+        }
+        $point = new Turf\Point([$this->location['lng'], $this->location['lat']]);
+        $polygon1 = new Turf\Polygon([$json['features'][0]['geometry']['geometries'][0]['coordinates'][0]]);
+        $polygon2 = new Turf\Polygon([$json['features'][0]['geometry']['geometries'][1]['coordinates'][0]]);
+        $polygon3 = new Turf\Polygon([$json['features'][0]['geometry']['geometries'][2]['coordinates'][0]]);
+        $alluvium1 = $polygon1->containsPoint($point);
+        $alluvium2 = $polygon2->containsPoint($point);
+        $alluvium3 = $polygon3->containsPoint($point);
+        return $alluvium1 || $alluvium2 || $alluvium3;
+    }
+    
     protected $table = 'locations';
 }

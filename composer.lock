@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fbceda735a621d806d7c71282122f7a6",
+    "content-hash": "e77464c69742c9dadafd6935a85885d4",
     "packages": [
         {
             "name": "actived/microsoft-teams-notifier",
@@ -600,6 +600,77 @@
                 }
             ],
             "time": "2024-02-09T16:56:22+00:00"
+        },
+        {
+            "name": "codewithdennis/filament-select-tree",
+            "version": "v3.1.56",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/CodeWithDennis/filament-select-tree.git",
+                "reference": "fdb9dcccc9e800a741d663e3d3dc89d111db5ee0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/CodeWithDennis/filament-select-tree/zipball/fdb9dcccc9e800a741d663e3d3dc89d111db5ee0",
+                "reference": "fdb9dcccc9e800a741d663e3d3dc89d111db5ee0",
+                "shasum": ""
+            },
+            "require": {
+                "filament/forms": "^3.0",
+                "illuminate/contracts": "^10.0|^11.0|^12.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.15.0"
+            },
+            "require-dev": {
+                "nunomaduro/collision": "^7.9",
+                "orchestra/testbench": "^8.0|^9.0|^10.0",
+                "pestphp/pest": "^2.0|^3.7",
+                "pestphp/pest-plugin-arch": "^2.0|^3.0",
+                "pestphp/pest-plugin-laravel": "^2.0|^3.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "CodeWithDennis\\FilamentSelectTree\\FilamentSelectTreeServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "CodeWithDennis\\FilamentSelectTree\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "CodeWithDennis",
+                    "role": "Developer"
+                }
+            ],
+            "description": "The multi-level select field enables you to make single selections from a predefined list of options that are organized into multiple levels or depths.",
+            "homepage": "https://github.com/codewithdennis/filament-select-tree",
+            "keywords": [
+                "CodeWithDennis",
+                "filament",
+                "filament-select-tree",
+                "laravel",
+                "tree"
+            ],
+            "support": {
+                "issues": "https://github.com/codewithdennis/filament-select-tree/issues",
+                "source": "https://github.com/codewithdennis/filament-select-tree"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/CodeWithDennis",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-05-29T16:34:31+00:00"
         },
         {
             "name": "composer/pcre",
@@ -10196,6 +10267,61 @@
                 "source": "https://github.com/tijsverkoyen/CssToInlineStyles/tree/v2.3.0"
             },
             "time": "2024-12-21T16:25:41+00:00"
+        },
+        {
+            "name": "vancuren/php-turf",
+            "version": "v1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/vancuren/php-turf.git",
+                "reference": "714b5a74c1745d39872dbb223df48bb13ffa3c55"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/vancuren/php-turf/zipball/714b5a74c1745d39872dbb223df48bb13ffa3c55",
+                "reference": "714b5a74c1745d39872dbb223df48bb13ffa3c55",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Vancuren\\PhpTurf\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Russell Van Curen"
+                }
+            ],
+            "description": "A PHP library for geospatial analysis similar to Turf.js",
+            "keywords": [
+                "analysis",
+                "geojson",
+                "geometry",
+                "geospatial",
+                "gis",
+                "math",
+                "spatial",
+                "topology",
+                "turf",
+                "turf.js",
+                "vector"
+            ],
+            "support": {
+                "issues": "https://github.com/vancuren/php-turf/issues",
+                "source": "https://github.com/vancuren/php-turf/tree/v1.0.4"
+            },
+            "time": "2024-07-15T16:02:02+00:00"
         },
         {
             "name": "vlucas/phpdotenv",

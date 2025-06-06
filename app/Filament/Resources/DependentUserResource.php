@@ -21,6 +21,8 @@ use App\Models\DependentUser;
 
 use Illuminate\Support\Arr;
 
+use CodeWithDennis\FilamentSelectTree\SelectTree;
+
 class DependentUserResource extends Resource
 {
     protected static ?string $model = DependentUser::class;
@@ -237,6 +239,12 @@ class DependentUserResource extends Resource
                     ->label('N°'),
                 Tables\Columns\TextColumn::make('user.address.commune.name')
                     ->label('Comuna'),
+                Tables\Columns\IconColumn::make('user.address.location.flood')
+                    ->label('Zona Inundable')
+                    ->boolean(),                    
+                Tables\Columns\IconColumn::make('user.address.location.alluvium')
+                    ->label('Zona Aluvional')
+                    ->boolean(),                    
                 Tables\Columns\TextColumn::make('user.address.location.longitude')
                     ->label('Longitud'),
                 Tables\Columns\TextColumn::make('user.address.location.latitude')
@@ -384,6 +392,28 @@ class DependentUserResource extends Resource
                             fn (Builder $query, $name): Builder => $query->whereHas('user', fn (Builder $query): Builder => $query->where('text', 'like', '%' . $name . '%')),
                         );
                     }),
+                Tables\Filters\Filter::make('tree_conditions')
+                    ->label('Condiciones')
+                    ->form([
+                        SelectTree::make('conditions')
+                            ->relationship('conditions', 'name', 'parent_id')
+                            ->multiple(true)
+                            ->independent(false)
+                            ->enableBranchNode(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                        ->when(
+                            $data['conditions'],
+                            fn (Builder $query, $conditions): Builder => $query->whereHas('conditions', 
+                                fn (Builder $query): Builder => $query->where(function($q) use ($conditions) {
+                                    collect($conditions)->each(fn($condition) => $q->where('condition_id', $condition));
+                                })
+                            ),
+                        );
+                    }),
+
+                
                 Tables\Filters\SelectFilter::make('conditions')
                     ->relationship('conditions', 'name')
                     ->query(function (Builder $query, array $data): Builder {
