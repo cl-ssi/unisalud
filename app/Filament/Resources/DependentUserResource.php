@@ -20,8 +20,7 @@ use App\Models\Organization;
 use App\Models\DependentUser;
 
 use Illuminate\Support\Arr;
-
-use CodeWithDennis\FilamentSelectTree\SelectTree;
+use Illuminate\Support\Str;
 
 class DependentUserResource extends Resource
 {
@@ -29,11 +28,11 @@ class DependentUserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $modelLabel = 'Usuario Dependiente';
+    protected static ?string $modelLabel = 'Paciente dependiente severo';
 
-    protected static ?string $pluralModelLabel = 'Usuarios Dependiente';
+    protected static ?string $pluralModelLabel = 'Pacientes dependientes severos';
 
-    protected static ?string $navigationLabel = 'Listado Usuarios Dependientes';
+    protected static ?string $navigationLabel = 'Paciente dependiente severo';
 
     public static function form(Form $form): Form
     {
@@ -239,12 +238,12 @@ class DependentUserResource extends Resource
                     ->label('N°'),
                 Tables\Columns\TextColumn::make('user.address.commune.name')
                     ->label('Comuna'),
-                Tables\Columns\IconColumn::make('user.address.location.flood')
+                Tables\Columns\IconColumn::make('user.address.location.flooded')
                     ->label('Zona Inundable')
-                    ->boolean(),                    
+                    ->boolean(),
                 Tables\Columns\IconColumn::make('user.address.location.alluvium')
                     ->label('Zona Aluvional')
-                    ->boolean(),                    
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('user.address.location.longitude')
                     ->label('Longitud'),
                 Tables\Columns\TextColumn::make('user.address.location.latitude')
@@ -331,9 +330,6 @@ class DependentUserResource extends Resource
                     ->label('Sonda Nasogástrica'),
                 Tables\Columns\TextColumn::make('urinary_catheter')
                     ->label('Sonda Urinaria'),
-                Tables\Columns\IconColumn::make('flood_zone')
-                    ->label('Zona de Inundabilidad')
-                    ->boolean(),
                 Tables\Columns\TextColumn::make('extra_info')
                     ->label('Otros'),
                 Tables\Columns\TextColumn::make('dependentCaregiver.relative')
@@ -365,18 +361,6 @@ class DependentUserResource extends Resource
                 Tables\Columns\IconColumn::make('dependentCaregiver.stipend')
                     ->label(new HtmlString('Plan Evaluado <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->boolean(),
-                // Tables\Columns\TextColumn::make('created_at')
-                //     ->dateTime()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
-                // Tables\Columns\TextColumn::make('updated_at')
-                //     ->dateTime()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
-                // Tables\Columns\TextColumn::make('deleted_at')
-                //     ->dateTime()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\Filter::make('user')
@@ -392,30 +376,9 @@ class DependentUserResource extends Resource
                             fn (Builder $query, $name): Builder => $query->whereHas('user', fn (Builder $query): Builder => $query->where('text', 'like', '%' . $name . '%')),
                         );
                     }),
-                Tables\Filters\Filter::make('tree_conditions')
-                    ->label('Condiciones')
-                    ->form([
-                        SelectTree::make('conditions')
-                            ->relationship('conditions', 'name', 'parent_id')
-                            ->multiple(true)
-                            ->independent(false)
-                            ->enableBranchNode(),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                        ->when(
-                            $data['conditions'],
-                            fn (Builder $query, $conditions): Builder => $query->whereHas('conditions', 
-                                fn (Builder $query): Builder => $query->where(function($q) use ($conditions) {
-                                    collect($conditions)->each(fn($condition) => $q->where('condition_id', $condition));
-                                })
-                            ),
-                        );
-                    }),
-
-                
                 Tables\Filters\SelectFilter::make('conditions')
                     ->relationship('conditions', 'name')
+                    ->getOptionLabelFromRecordUsing(fn (Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when($data['values'], function ($q, $values) {
                             foreach ($values as $condition_id) {
@@ -452,7 +415,6 @@ class DependentUserResource extends Resource
                             }])->pluck('alias', 'id');
                     })                    
             ], layout: Tables\Enums\FiltersLayout::AboveContent)
-            // ->filtersFormColumns(3)
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
