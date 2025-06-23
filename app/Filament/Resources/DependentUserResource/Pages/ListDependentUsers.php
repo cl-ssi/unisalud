@@ -12,10 +12,27 @@ use pxlrbt\FilamentExcel;
 use Symfony\Component\CssSelector\Node\FunctionNode;
 use YOS\FilamentExcel\Actions\Import;
 
-
+use App\Filament\Pages\Concerns\HasHeadingIcon;
+use Filament\Support\Enums\IconSize;
+use Filament\Support\Enums\IconPosition;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\HtmlString;
 
 class ListDependentUsers extends ListRecords
 {
+    use HasHeadingIcon;
+
+    public function getHeading(): string|Htmlable
+    {
+        return new HtmlString($this->getHeadingWithIcon(
+            heading: 'Pacientes dependientes severos',
+            icon: 'heroicon-o-rectangle-stack',
+            iconColor: 'black',
+            iconPosition: IconPosition::Before,
+            iconSize: IconSize::Medium
+        ));
+    }
+
     protected static string $resource = DependentUserResource::class;
 
     protected function getHeaderActions(): array
@@ -46,7 +63,7 @@ class ListDependentUsers extends ListRecords
             Import::make()
                 ->import(\App\Imports\DependentUserImport::class)
                 ->type(\Maatwebsite\Excel\Excel::XLSX)
-                ->label('Importar XLSX')
+                ->label('Importar')
                 ->hint('Subir archivo de tipo xlsx')
                 ->icon('heroicon-o-arrow-down-tray'),
                 

@@ -32,7 +32,7 @@ class DependentUserResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Pacientes dependientes severos';
 
-    protected static ?string $navigationLabel = 'Paciente dependiente severo';
+    protected static ?string $navigationLabel = 'Pacientes dependientes severos';
 
     public static function form(Form $form): Form
     {

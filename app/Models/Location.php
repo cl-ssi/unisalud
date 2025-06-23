@@ -123,7 +123,7 @@ class Location extends Model
         return 'location';
     }
 
-    public function getFloodAttribute(): ?bool
+    public function getFloodedAttribute(): ?bool
     {
         $contents = file_get_contents(base_path('public/json/cota_30_tarapaca.geojson'));        
         $json = json_decode(json: $contents, associative: true);
