@@ -35,8 +35,6 @@
             lineaJson: null, // GeoJSON layer for "Linea de seguridad"
             cotaJson: null, // GeoJSON layer for "Cota de inundacion"
             iquiqueJson: null, // GeoJSON layer for "Iquique"
-            inundacion: null, // Polygon for "Zona de inundacion"
-            aluvion: null, // Polygon for "Zona de aluvion"
 
             init() {                
                 // Initialize the map with default center and zoom level
@@ -78,14 +76,6 @@
                     .addOverlay(new L.LayerGroup([this.cotaJson]), 'Cota de inundacion')
                     .addOverlay(new L.LayerGroup([this.iquiqueJson]), 'Iquique')
                     .addOverlay(new L.LayerGroup([this.aluvionJson]), 'Zona de aluvion');
-
-                    // Convert GeoJSON features to Turf.js polygons for spatial analysis
-                    this.inundacion = new turf.polygon(cotaJson.features[0].geometry.coordinates);
-                    this.aluvion = new turf.multiPolygon([
-                        aluvionJson.features[0].geometry.geometries[0].coordinates,
-                        aluvionJson.features[0].geometry.geometries[1].coordinates,
-                        aluvionJson.features[0].geometry.geometries[2].coordinates,
-                    ]);
                 });
             },
 
@@ -105,6 +95,8 @@
                     marker.name = d.name;
                     marker.address = d.address;
                     marker.url = d.url;
+                    marker.flooded = d.flooded;
+                    marker.alluvion = d.alluvion;
                     marker.bindPopup("Cargando...");
                     marker.on('click', this.markerOnClick.bind(this));
                     this.clusterGroup.addLayer(marker);
@@ -114,19 +106,8 @@
             // Handle marker click event and update popup content
             markerOnClick(e){
                 let content = `<a href="${e.target.url}" target="_blank">${e.target.name}</a><br>${e.target.address}`;
-                let point = turf.point([e.target.lng, e.target.lat]);
-                // Check if the marker is within the inundation zone
-                if (this.inundacion) {
-                    if (turf.booleanPointInPolygon(point, this.inundacion)) {
-                        content += '<br> En zona de inundacion';
-                    }
-                }
-                // Check if the marker is within the aluvion zone
-                if (this.aluvion) {
-                    if (turf.booleanPointInPolygon(point, this.aluvion)) {
-                        content += '<br> En zona de aluvion';
-                    }
-                }
+                content += e.target.flooded ? '<br> En zona de inundacion' : '';
+                content += e.target.alluvion ? '<br> En zona de aluvion' : '';
                 e.target.getPopup().setContent(content);
             }
         }));

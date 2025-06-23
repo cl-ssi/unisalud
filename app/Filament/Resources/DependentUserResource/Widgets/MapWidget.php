@@ -66,6 +66,8 @@ class MapWidget extends Widget
             'lng'   => $p->user->address->location->longitude,
             'name'    => $p->user->text,
             'address' => $p->user->address->text . ' ' . $p->user->address->line,
+            'flooded' => $p->user->address->location->flooded,
+            'alluvion' => $p->user->address->location->alluvion,
         ])->toArray();
     }
 
