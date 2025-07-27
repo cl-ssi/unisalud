@@ -2,14 +2,11 @@
 
 namespace App\Filament\Resources\DependentUserResource\Pages;
 
-use App\Filament\Imports\ConditionImporter;
 use App\Filament\Resources\DependentUserResource;
 use Filament\Resources\Pages\ListRecords;
 
 use Filament\Actions;
-use Filament\Tables\Table;
 use pxlrbt\FilamentExcel;
-use Symfony\Component\CssSelector\Node\FunctionNode;
 use YOS\FilamentExcel\Actions\Import;
 
 use App\Filament\Pages\Concerns\HasHeadingIcon;
@@ -38,11 +35,12 @@ class ListDependentUsers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            // Actions\CreateAction::make()
-            //     ->label('Nuevo')
-            //     ->icon('heroicon-o-user-plus'),
+            Actions\CreateAction::make()
+                ->label('Nuevo')
+                ->icon('heroicon-o-user-plus'),
             Actions\Action::make('map')
-                ->url(fn (\Livewire\Component $livewire) => route('filament.admin.resources.dependent-users.map', 
+                ->url(fn(\Livewire\Component $livewire) => route(
+                    'filament.admin.resources.dependent-users.map',
                     [
                         'conditions_id' => $livewire->getTable()->getFilters()['conditions']->getState('name')['values'] ?? null,
                         'search' => $livewire->getTable()->getFilters()['user']->getForm()->getState()['name'] ?? null,
@@ -57,7 +55,7 @@ class ListDependentUsers extends ListRecords
                 ->exports([
                     FilamentExcel\Exports\ExcelExport::make()
                         ->fromTable()
-                        ->withFilename(fn ($resource) => $resource::getModelLabel() . '-' . date('Y-m-d'))
+                        ->withFilename(fn($resource) => $resource::getModelLabel() . '-' . date('Y-m-d'))
                         ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
                 ]),
             Import::make()
@@ -66,9 +64,8 @@ class ListDependentUsers extends ListRecords
                 ->label('Importar')
                 ->hint('Subir archivo de tipo xlsx')
                 ->icon('heroicon-o-arrow-down-tray'),
-                
+
         ];
-            
     }
 
     public function getTabs(): array

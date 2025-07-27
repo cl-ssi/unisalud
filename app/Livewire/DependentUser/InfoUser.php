@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Condition;
+namespace App\Livewire\DependentUser;
 
 use app\Models\User;
 use Livewire\Attributes\On;
@@ -23,7 +23,7 @@ class InfoUser extends Component implements Forms\Contracts\HasForms, Infolists\
     #[On('updateUserId')]
     public function mount(?string $user_id = null): void
     {
-        $this->user_id = $this->user_id??$user_id;
+        $this->user_id = $this->user_id ?? $user_id;
         $this->user = User::with(['identifiers', 'address', 'address.commune'])->find($this->user_id);
     }
 
@@ -33,13 +33,13 @@ class InfoUser extends Component implements Forms\Contracts\HasForms, Infolists\
             ->record($this->user)
             ->schema([
                 Infolists\Components\Fieldset::make('User')
-                    ->label(fn (User $record): string => $record->text . ', ' . Carbon::parse($record->birthday)->age . ' Años')
+                    ->label(fn(User $record): string => $record->text . ', ' . Carbon::parse($record->birthday)->age . ' Años')
                     ->schema([
                         Infolists\Components\TextEntry::make('RUT')
                             ->label('RUT')
-                            ->state(fn (User $record): string => $record->identifiers->first()->value . '-' . $record->identifiers->first()->dv),
+                            ->state(fn(User $record): string => $record->identifiers->first()->value . '-' . $record->identifiers->first()->dv),
                         Infolists\Components\TextEntry::make('Direccion')
-                            ->state(fn (User $record): string => $record->address->text . ' ' . $record->address->line . ', ' . $record->address->commune->name),
+                            ->state(fn(User $record): string => $record->address->text . ' ' . $record->address->line . ', ' . $record->address->commune->name),
                         Infolists\Components\TextEntry::make('birthday')
                             ->label('Fecha Nacimiento')
                             ->date(),
@@ -55,6 +55,6 @@ class InfoUser extends Component implements Forms\Contracts\HasForms, Infolists\
 
     public function render()
     {
-        return view('livewire.condition.info-user');
+        return view('livewire.dependent-user.info-user');
     }
 }

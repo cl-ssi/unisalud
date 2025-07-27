@@ -37,7 +37,7 @@ class DependentUserResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([                             
+            ->schema([
                 Forms\Components\Fieldset::make('Usuario Dependiente')
                     ->relationship('User')
                     ->schema([
@@ -52,7 +52,6 @@ class DependentUserResource extends Resource
                             ->relationship('officialIdentifier')
                             ->schema([
                                 Forms\Components\TextInput::make('run')
-                                    // ->formatStateUsing(fn (Model $record): string => $record->value . '-' . $record->dv)
                                     ->label('RUN')
                                     ->disabled(),
                             ]),
@@ -81,7 +80,6 @@ class DependentUserResource extends Resource
                                     ->relationship('officialIdentifier')
                                     ->schema([
                                         Forms\Components\TextInput::make('run')
-                                            // ->formatStateUsing(fn (Model $record): string => $record->value . '-' . $record->dv)
                                             ->label('RUN')
                                             ->disabled(),
                                     ]),
@@ -94,8 +92,6 @@ class DependentUserResource extends Resource
                             ]),
                     ]),
                 Forms\Components\Fieldset::make('Direccion')
-                    // ->columns(3)
-                    // ->columnSpan('full')
                     ->relationship('User')
                     ->schema([
                         Forms\Components\Group::make()
@@ -110,7 +106,6 @@ class DependentUserResource extends Resource
                                 Forms\Components\Select::make('commune')
                                     ->relationship(titleAttribute: 'name')
                                     ->label('Ciudad'),
-                                // Map::make('location')
                             ]),
                     ]),
                 Forms\Components\Toggle::make('flood_zone')
@@ -125,7 +120,7 @@ class DependentUserResource extends Resource
                 Forms\Components\TextInput::make('integral_visits')
                     ->label('Vistas Integrales')
                     ->numeric()
-                    ->extraAttributes(fn (Model $record) =>($record->integral_visits == null)?['class' => 'bg-danger-300 dark:bg-danger-600']:[]),
+                    ->extraAttributes(fn(Model $record) => ($record->integral_visits == null) ? ['class' => 'bg-danger-300 dark:bg-danger-600'] : []),
                 Forms\Components\DatePicker::make('last_integral_visit')
                     ->label('Última Visita Integral'),
                 Forms\Components\TextInput::make('treatment_visits')
@@ -135,35 +130,12 @@ class DependentUserResource extends Resource
                     ->label('Última Visita de Tratamiento'),
                 Forms\Components\Select::make('barthel')
                     ->options([
-                        'independent'=> 'Independiente',
-                        'slight'=> 'Leve',
-                        'moderate'=> 'Moderado',
-                        'severe'=> 'Grave',
-                        'total'=> 'Total',
+                        'independent' => 'Independiente',
+                        'slight' => 'Leve',
+                        'moderate' => 'Moderado',
+                        'severe' => 'Grave',
+                        'total' => 'Total',
                     ]),
-                /*                 
-                Forms\Components\ToggleButtons::make('Aplicables')
-                    ->multiple()
-                    ->boolean()
-                    ->inline()
-                    ->options([
-                        'empam'=> 'Empam',
-                        'eleam'=> 'Eleam',
-                        'upp'=> 'UPP',
-                        'elaborated_plan'=> 'Plan Elaborado',
-                        'evaluated_plan'=> 'Plan Evaluado',
-                    ]), 
-                */
-                /*  
-                Forms\Components\TagsInput::make('tags')
-                    ->suggestions([
-                        'empam',
-                        'eleam',
-                        'upp',
-                        'elaborated_plan',
-                        'evaluated_plan',
-                    ]),
-                */
                 Forms\Components\Toggle::make('empam'),
                 Forms\Components\Toggle::make('eleam'),
                 Forms\Components\Toggle::make('upp'),
@@ -219,7 +191,7 @@ class DependentUserResource extends Resource
                 Tables\Columns\TextColumn::make('user.text')
                     ->label('Nombre Completo')
                     ->getStateUsing(function ($record) {
-                        return ($record->user?->text)??$record->user?->given . ' ' . $record->user?->fathers_family . ' ' . $record->user?->mothers_family;
+                        return ($record->user?->text) ?? $record->user?->given . ' ' . $record->user?->fathers_family . ' ' . $record->user?->mothers_family;
                     }),
                 Tables\Columns\TextColumn::make('user.sex')
                     ->label('Sexo'),
@@ -334,7 +306,7 @@ class DependentUserResource extends Resource
                     ->label('Otros'),
                 Tables\Columns\TextColumn::make('dependentCaregiver.relative')
                     ->label(new HtmlString('Parentesco <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
-                    // ->label(''),
+                // ->label(''),
                 Tables\Columns\TextColumn::make('dependentCaregiver.user.text')
                     ->label(new HtmlString('Nombre <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                 Tables\Columns\TextColumn::make('dependentCaregiver.user.age')
@@ -371,14 +343,14 @@ class DependentUserResource extends Resource
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
-                        ->when(
-                            $data['name'],
-                            fn (Builder $query, $name): Builder => $query->whereHas('user', fn (Builder $query): Builder => $query->where('text', 'like', '%' . $name . '%')),
-                        );
+                            ->when(
+                                $data['name'],
+                                fn(Builder $query, $name): Builder => $query->whereHas('user', fn(Builder $query): Builder => $query->where('text', 'like', '%' . $name . '%')),
+                            );
                     }),
                 Tables\Filters\SelectFilter::make('conditions')
                     ->relationship('conditions', 'name')
-                    ->getOptionLabelFromRecordUsing(fn (Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
+                    ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when($data['values'], function ($q, $values) {
                             foreach ($values as $condition_id) {
@@ -405,21 +377,21 @@ class DependentUserResource extends Resource
                             });
                         }
                     })
-                    ->options(function(){
-                        return Organization::whereHas('contactPoint', function ($query){
-                                $query->whereNotNull('id');
-                            })->with(['contactPoint' => function($query){
-                                $query->has('user')->whereNotNull('contactPoint.id');
-                            }, 'contactPoint.user' => function($query){
-                                $query->has('dependentUser')->whereNotNull('contactPoint.user.id');
-                            }])->pluck('alias', 'id');
-                    })                    
+                    ->options(function () {
+                        return Organization::whereHas('contactPoint', function ($query) {
+                            $query->whereNotNull('id');
+                        })->with(['contactPoint' => function ($query) {
+                            $query->has('user')->whereNotNull('contactPoint.id');
+                        }, 'contactPoint.user' => function ($query) {
+                            $query->has('dependentUser')->whereNotNull('contactPoint.user.id');
+                        }])->pluck('alias', 'id');
+                    })
             ], layout: Tables\Enums\FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('map')
-                    ->url(fn (Model $record): string => route('filament.admin.resources.dependent-users.map', [
+                    ->url(fn(Model $record): string => route('filament.admin.resources.dependent-users.map', [
                         'users_id' => [$record->user?->id],
                     ]))
                     ->icon('heroicon-o-map')
