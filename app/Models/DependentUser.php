@@ -51,12 +51,14 @@ class DependentUser extends Model
         'pneumonia',
         'influenza',
         'covid_19',
-        'covid_19_date',
-        'extra_info',
         'tech_aid',
         'tech_aid_date',
         'nutrition_assistance',
-        'nutrition_assistance_date'
+        'nutrition_assistance_date',
+        'diapers_size',
+        'nasogastric_catheter',
+        'urinary_catheter',
+        'extra_info',
     ];
 
     protected $casts = [
@@ -76,7 +78,7 @@ class DependentUser extends Model
             ->withTimestamps(); // Si tienes timestamps en la tabla pivote
     }
 
-    public function dependentCaregiver():HasOne
+    public function dependentCaregiver(): HasOne
     {
         return $this->HasOne(DependentCaregiver::class);
     }

@@ -28,6 +28,7 @@ use App\Models\Gender as ClassGender;
 use App\Models\Country;
 use App\Models\Organization;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 
 class ConditionImporter extends Importer
 {
@@ -47,36 +48,41 @@ class ConditionImporter extends Importer
         $user = User::whereHas('identifiers', function ($query) {
             $query->where('value', $this->originalData['run'])
                 ->where('cod_con_identifier_type_id', 1);
-            })
+        })
             ->first();
-        $user_id = $user->id??null;
-        return DependentUser::firstOrCreate(['user_id' => $user_id ]);
+        $user_id = $user->id ?? null;
+        return DependentUser::firstOrCreate(['user_id' => $user_id]);
     }
 
     protected function afterSave(): void
     {
         //COALESCE ARREGLO
-        $this->originalData['establecimiento'] = $this->originalData['establecimiento'] ?? '';
 
-        $this->originalData['nombre'] = $this->originalData['nombre']?? '';
+
+        $this->originalData['nombre'] = $this->originalData['nombre'] ?? '';
         $this->originalData['apellido_paterno'] = $this->originalData['apellido_paterno'] ?? '';
         $this->originalData['apellido_materno'] = $this->originalData['apellido_materno'] ?? '';
-        $this->originalData['run'] = $this->originalData['run']?? '';
-        //dv
-        $this->originalData['prevision'] = $this->originalData['prevision']?? '';
-        $this->originalData['sexo'] = $this->originalData['sexo']?? '';
-        $this->originalData['genero'] = $this->originalData['genero']?? '';
-        
-        $this->originalData['fecha_nacimiento'] = $this->originalData['fecha_nacimiento']??null;
-        $this->originalData['nacionalidad'] = $this->originalData['nacionalidad']?? '';
+        $this->originalData['run'] = $this->originalData['run'] ?? '';
+        $this->originalData['dv'] = $this->originalData['dv'] ?? '';
+
+
+        $this->originalData['sexo'] = $this->originalData['sexo'] ?? '';
+        $this->originalData['genero'] = $this->originalData['genero'] ?? '';
+
+        $this->originalData['fecha_nacimiento'] = $this->originalData['fecha_nacimiento'] ?? null;
+        $this->originalData['nacionalidad'] = $this->originalData['nacionalidad'] ?? '';
         $this->originalData['comuna'] = $this->originalData['comuna'] ?? '';
         $this->originalData['calle'] = $this->originalData['calle'] ?? '';
         $this->originalData['departamento'] = $this->originalData['departamento'] ?? '';
+        $this->originalData['establecimiento'] = $this->originalData['establecimiento'] ?? '';
+        $this->originalData['prevision'] = $this->originalData['prevision'] ?? '';
+
         $this->originalData['diagnostico'] = $this->originalData['diagnostico'] ?? '';
         $this->originalData['fecha_ingreso'] = $this->originalData['fecha_ingreso'] ?? null;
         $this->originalData['fecha_egreso'] = $this->originalData['fecha_egreso'] ?? null;
         $this->originalData['visitas_integrales'] = $this->originalData['visitas_integrales'] ?? null;
         $this->originalData['visitas_tratamiento'] = $this->originalData['visitas_tratamiento'] ?? null;
+        $this->originalData['barthel'] = $this->originalData['barthel'] ?? null;
         $this->originalData['emp_empam'] = $this->originalData['emp_empam'] ?? null;
         $this->originalData['eleam'] = $this->originalData['eleam'] ?? null;
         $this->originalData['upp'] = $this->originalData['upp'] ?? null;
@@ -85,20 +91,20 @@ class ConditionImporter extends Importer
         $this->originalData['neumo'] = $this->originalData['neumo'] ?? null;
         $this->originalData['influenza'] = $this->originalData['influenza'] ?? null;
         $this->originalData['covid_19'] = $this->originalData['covid_19'] ?? null;
-        $this->originalData['extra_info'] = $this->originalData['extra_info'] ?? null;
         $this->originalData['ayuda_tecnica'] = $this->originalData['ayuda_tecnica'] ?? null;
         $this->originalData['ayuda_tecnica_fecha'] = $this->originalData['ayuda_tecnica_fecha'] ?? '';
         $this->originalData['entrega_alimentacion'] = $this->originalData['entrega_alimentacion'] ?? null;
-        $this->originalData['entrega_alimentacion_fecha'] =$this->originalData['entrega_alimentacion_fecha'] ?? '';
-        $this->originalData['sonda_sng'] = $this->originalData['sonda_sng']?? '';
-        $this->originalData['sonda_urinaria'] = $this->originalData['sonda_urinaria']?? '';
-        
-        $this->originalData['prevision_cuidador'] = $this->originalData['prevision_cuidador']?? '';
-        $this->originalData['talla_panal'] = $this->originalData['talla_panal']?? '';
+        $this->originalData['entrega_alimentacion_fecha'] = $this->originalData['entrega_alimentacion_fecha'] ?? '';
+        $this->originalData['talla_panal'] = $this->originalData['talla_panal'] ?? '';
+        $this->originalData['sonda_sng'] = $this->originalData['sonda_sng'] ?? '';
+        $this->originalData['sonda_urinaria'] = $this->originalData['sonda_urinaria'] ?? '';
+        $this->originalData['extra_info'] = $this->originalData['extra_info'] ?? null;
+
+        $this->originalData['prevision_cuidador'] = $this->originalData['prevision_cuidador'] ?? '';
         $this->originalData['nombre_cuidador'] = $this->originalData['nombre_cuidador'] ?? '';
         $this->originalData['apellido_paterno_cuidador'] = $this->originalData['apellido_paterno_cuidador'] ?? '';
         $this->originalData['apellido_paterno_cuidador'] = $this->originalData['apellido_materno_cuidador'] ?? '';
-        $this->originalData['fecha_nacimiento_cuidador'] = $this->originalData['fecha_nacimiento_cuidador']?? null;
+        $this->originalData['fecha_nacimiento_cuidador'] = $this->originalData['fecha_nacimiento_cuidador'] ?? null;
         $this->originalData['run_cuidador'] = $this->originalData['run_cuidador'] ?? '';
         $this->originalData['dv_cuidador'] = $this->originalData['dv_cuidador'] ?? '';
         $this->originalData['sexo_cuidador'] = $this->originalData['sexo_cuidador'] ?? '';
@@ -117,19 +123,18 @@ class ConditionImporter extends Importer
         $user = User::whereHas('identifiers', function ($query) {
             $query->where('value', $this->originalData['run'])->Where('cod_con_identifier_type_id', 1);
         })->first();
-        
-        $sexValue = ClassSex::where('text', $this->originalData['sexo'])->first()->value??null;
-        $sexGender = ClassGender::where('text', $this->originalData['genero'])->first()->value??null;
-        $nationality = Country::where('name', $this->originalData['nacionalidad'])->first()->id??null;
+
+        $sexValue = ClassSex::where('text', $this->originalData['sexo'])->first()->value ?? null;
+        $sexGender = ClassGender::where('text', $this->originalData['genero'])->first()->value ?? null;
+        $nationality = Country::where('name', $this->originalData['nacionalidad'])->first()->id ?? null;
 
         $userCreatedOrUpdated = User::updateOrCreate(
             [
                 'id'    => $user ? $user->id : null
-            ]
-            ,
+            ],
             [
                 'active'                => 1,
-                'text'                  => $this->originalData['nombre'].' '.$this->originalData['apellido_paterno'].' '.$this->originalData['apellido_materno'],
+                'text'                  => $this->originalData['nombre'] . ' ' . $this->originalData['apellido_paterno'] . ' ' . $this->originalData['apellido_materno'],
                 'given'                 => $this->originalData['nombre'],
                 'fathers_family'        => $this->originalData['apellido_paterno'],
                 'mothers_family'        => $this->originalData['apellido_materno'],
@@ -141,7 +146,7 @@ class ConditionImporter extends Importer
             ]
         );
 
-        if($user == null){
+        if ($user == null) {
             // SE CREA IDENTIFIER
             $identifierCreate = Identifier::create(
                 [
@@ -168,19 +173,18 @@ class ConditionImporter extends Importer
 
         //ADDRESS
         $addressExist = new Address();
-        foreach($userCreatedOrUpdated->addresses as $address){
-            if($address->use->value == 'home'){
+        foreach ($userCreatedOrUpdated->addresses as $address) {
+            if ($address->use->value == 'home') {
                 $addressExist = $address;
             }
         }
 
-        $commune = Commune::where('name', $this->originalData['comuna'])->first()->id??null;
+        $commune = Commune::where('name', $this->originalData['comuna'])->first()->id ?? null;
 
         $newAddress = Address::updateOrCreate(
             [
                 'id'    => $addressExist ? $addressExist->id : null
-            ]
-            ,
+            ],
             [
 
                 'user_id'       => $userCreatedOrUpdated->id,
@@ -202,10 +206,10 @@ class ConditionImporter extends Importer
         $number     = $this->originalData['numero'];
         $commune    = $this->originalData['comuna'];
 
-        if ($street && $number && $commune ) {
+        if ($street && $number && $commune) {
 
             $geocodingService = app(GeocodingService::class);
-            $coordinates = $geocodingService->getCoordinates($street.'+'.$number.'+'.$commune);
+            $coordinates = $geocodingService->getCoordinates($street . '+' . $number . '+' . $commune);
 
             if ($coordinates) {
                 $latitude   = $coordinates['lat'];
@@ -218,8 +222,7 @@ class ConditionImporter extends Importer
             $newLocation = Location::updateOrCreate(
                 [
                     'id'    => $newAddress->location ? $newAddress->location->id : null
-                ]
-                ,
+                ],
                 [
                     'address_id'        => $newAddress->id,
                     'longitude'         => $longitude,
@@ -238,7 +241,7 @@ class ConditionImporter extends Importer
             ],
             [
                 'system'            => 'phone',
-                'user_id'           => $userCreatedOrUpdated->id, 
+                'user_id'           => $userCreatedOrUpdated->id,
                 'location_id'       => $newLocation->id ?? null,
                 'value'             => $this->originalData['telefono'],
                 'organization_id'   => $organization_id,
@@ -255,12 +258,11 @@ class ConditionImporter extends Importer
         *
         */
 
-        if($this->originalData['run_cuidador'] != '')
-        {
+        if ($this->originalData['run_cuidador'] != '') {
             $user_caregiver = User::whereHas('identifiers', function ($query) {
                 $query->where('value', $this->originalData['run_cuidador'])
                     ->Where('cod_con_identifier_type_id', 1);
-                })
+            })
                 ->first();
 
             $sexValue_caregiver = ClassSex::where('text', $this->originalData['sexo_cuidador'])->first()->value ?? null;
@@ -270,11 +272,10 @@ class ConditionImporter extends Importer
             $user_caregiver_upsert = User::updateOrCreate(
                 [
                     'id'    => $user_caregiver ? $user_caregiver->id : null
-                ]
-                ,
+                ],
                 [
                     'active'                => 1,
-                    'text'                  => $this->originalData['nombre_cuidador'].' '.$this->originalData['apellido_paterno_cuidador'].' '.$this->originalData['apellido_materno_cuidador'],
+                    'text'                  => $this->originalData['nombre_cuidador'] . ' ' . $this->originalData['apellido_paterno_cuidador'] . ' ' . $this->originalData['apellido_materno_cuidador'],
                     'given'                 => $this->originalData['nombre_cuidador'],
                     'fathers_family'        => $this->originalData['apellido_paterno_cuidador'],
                     'mothers_family'        => $this->originalData['apellido_materno_cuidador'],
@@ -286,7 +287,7 @@ class ConditionImporter extends Importer
                 ]
             );
 
-            if($user_caregiver == null){
+            if ($user_caregiver == null) {
                 // SE CREA IDENTIFIER
                 $identifier_caregiver_create = Identifier::create(
                     [
@@ -313,8 +314,8 @@ class ConditionImporter extends Importer
 
             //ADDRESS
             $addressCaregiverExist = new Address();
-            foreach($user_caregiver_upsert->addresses as $address){
-                if($address->use->value == 'home'){
+            foreach ($user_caregiver_upsert->addresses as $address) {
+                if ($address->use->value == 'home') {
                     $addressCaregiverExist = $address;
                 }
             }
@@ -324,8 +325,7 @@ class ConditionImporter extends Importer
             $newAddressCaregiver = Address::updateOrCreate(
                 [
                     'id'    => $addressCaregiverExist ? $addressCaregiverExist->id : null
-                ]
-                ,
+                ],
                 [
 
                     'user_id'       => $user_caregiver_upsert->id,
@@ -346,10 +346,10 @@ class ConditionImporter extends Importer
             $caregiverStreet    = $this->originalData['calle'];
             $caregiverNumber     = $this->originalData['numero'];
             $caregiverCommune    = $this->originalData['comuna'];
-            if ($caregiverStreet && $caregiverNumber && $caregiverCommune ) {
+            if ($caregiverStreet && $caregiverNumber && $caregiverCommune) {
 
                 $geocodingService = app(GeocodingService::class);
-                $caregiverCordinates = $geocodingService->getCoordinates($caregiverStreet.'+'.$caregiverNumber.'+'.$caregiverCommune);
+                $caregiverCordinates = $geocodingService->getCoordinates($caregiverStreet . '+' . $caregiverNumber . '+' . $caregiverCommune);
 
                 if ($coordinates) {
                     $caregiverLatitude   = $caregiverCordinates['lat'];
@@ -362,8 +362,7 @@ class ConditionImporter extends Importer
                 $newCaregiverLocation = Location::updateOrCreate(
                     [
                         'id'    => $newAddressCaregiver->location ? $newAddressCaregiver->location->id : null
-                    ]
-                    ,
+                    ],
                     [
                         'address_id'        => $newAddressCaregiver->id,
                         'longitude'         => $longitude,
@@ -373,8 +372,9 @@ class ConditionImporter extends Importer
             }
 
             // Verificar que no exista ya un caregiver y si existe actualizar
-            $caregiver = DependentCaregiver::whereHas('user', 
-                function ($query) use($user_caregiver_upsert) {
+            $caregiver = DependentCaregiver::whereHas(
+                'user',
+                function ($query) use ($user_caregiver_upsert) {
                     $query->where('id', $user_caregiver_upsert->id);
                 }
             )->first();
@@ -382,8 +382,7 @@ class ConditionImporter extends Importer
             $caregiver_upsert = DependentCaregiver::updateOrCreate(
                 [
                     'id'    => $caregiver ? $caregiver->id : null
-                ]
-                ,
+                ],
                 [
                     'dependent_user_id'     => $this->record->id,
                     'user_id'               => $user_caregiver_upsert->id,
@@ -419,28 +418,28 @@ class ConditionImporter extends Importer
         }
 
         //  Asociar Condiciones
-        if($this->validateBool($this->originalData['electrodependencia'])){
+        if ($this->validateBool($this->originalData['electrodependencia'])) {
             $this->record->conditions()->attach(1);
         }
-        if($this->validateBool($this->originalData['movilidad_reducida'])){
+        if ($this->validateBool($this->originalData['movilidad_reducida'])) {
             $this->record->conditions()->attach(2);
         }
-        if($this->validateBool($this->originalData['oxigeno_dependiente'])){
-            $this->record->conditions()->attach(3);            
+        if ($this->validateBool($this->originalData['oxigeno_dependiente'])) {
+            $this->record->conditions()->attach(3);
         }
-        if($this->validateBool($this->originalData['alimentacion_enteral'])){
+        if ($this->validateBool($this->originalData['alimentacion_enteral'])) {
             $this->record->conditions()->attach(4);
         }
-        if($this->validateBool($this->originalData['oncologicos'])){
+        if ($this->validateBool($this->originalData['oncologicos'])) {
             $this->record->conditions()->attach(5);
         }
-        if($this->validateBool($this->originalData['cuidados_paliativos_universales'])){
+        if ($this->validateBool($this->originalData['cuidados_paliativos_universales'])) {
             $this->record->conditions()->attach(6);
         }
-        if($this->validateBool($this->originalData['naneas'])){
+        if ($this->validateBool($this->originalData['naneas'])) {
             $this->record->conditions()->attach(7);
         }
-        
+
 
         // SE AGREGA EL 'user_id' A $this->record, que corresponde al user recien creado o ya creado.
         $this->record->user_id  = $userCreatedOrUpdated->id;
@@ -487,7 +486,7 @@ class ConditionImporter extends Importer
     {
         $out = null;
         $clean = intval(trim($val));
-        if($clean != 0){
+        if ($clean != 0) {
             $out = strval($clean);
         }
         return $out;
@@ -497,9 +496,9 @@ class ConditionImporter extends Importer
     {
         $out = null;
         $text = strtolower(trim($text));
-        if($text == 'si' || $text == 'ok'){
+        if ($text == 'si' || $text == 'ok') {
             $out = true;
-        } else if($text == 'no' || $text == 'p'){
+        } else if ($text == 'no' || $text == 'p') {
             $out = false;
         }
         return $out;
@@ -508,52 +507,65 @@ class ConditionImporter extends Importer
     public function validateDate($text)
     {
         $out = null;
-        if($text != ''){
+        if ($text != '') {
             $date_str = DateTime::createFromFormat('d/m/Y', $text);
-            if($date_str != false){
+            if ($date_str != false) {
                 $out = $date_str->format('Y-m-d');
             }
         }
         return $out;
     }
 
-    public function validateBarthel($text){
+    public function validateBarthel($text)
+    {
         $out = null;
         $text = strtolower(trim($text));
-        switch($text){
+        switch ($text) {
             case 'independiente':
-                $out = 'independent';break;
+                $out = 'independent';
+                break;
             case 'leve':
-                $out = 'slight';break;
+                $out = 'slight';
+                break;
             case 'moderado':
-                $out = 'moderate';break;
+                $out = 'moderate';
+                break;
             case 'grave':
-                $out = 'severe';break;
+                $out = 'severe';
+                break;
             case 'total':
-                $out = 'total';break;
+                $out = 'total';
+                break;
         }
         return $out;
     }
 
-    public function validateHealthcareType($text){
+    public function validateHealthcareType($text)
+    {
         $out = null;
         $words = explode(' ', $text);
-        $text = (count($words) > 1)?array_pop($words):$text;
+        $text = (count($words) > 1) ? array_pop($words) : $text;
         $text = strtolower(trim($text));
-        switch($text){
+        switch ($text) {
             case 'a':
-                $out = 'FONASA A';break;
+                $out = 'FONASA A';
+                break;
             case 'b':
-                $out = 'FONASA B';break;
+                $out = 'FONASA B';
+                break;
             case 'c':
-                $out = 'FONASA C';break;
+                $out = 'FONASA C';
+                break;
             case 'd':
-                $out = 'FONASA D';break;
+                $out = 'FONASA D';
+                break;
             case 'isapre':
-                $out = 'ISAPRE';break;
+                $out = 'ISAPRE';
+                break;
             case 'prais':
-                $out = 'PRAIS';break;
+                $out = 'PRAIS';
+                break;
         }
         return $out;
     }
-}   
+}

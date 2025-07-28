@@ -11,7 +11,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-
 use Illuminate\Support\HtmlString;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -421,5 +420,11 @@ class DependentUserResource extends Resource
             'view' => Pages\ViewDependentUser::route('/{record}'),
             'edit' => Pages\EditDependentUser::route('/{record}/edit'),
         ];
+    }
+
+    protected function handleRecordCreation(array $data): Model
+    {
+        dd($data);
+        // return static::getModel()::create($data);
     }
 }
