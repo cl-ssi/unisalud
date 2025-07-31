@@ -422,9 +422,8 @@ class DependentUserResource extends Resource
         ];
     }
 
-    protected function handleRecordCreation(array $data): Model
+    public static function canAccess(): bool
     {
-        dd($data);
-        // return static::getModel()::create($data);
+        return auth()->user()->hasRole('dependecy_user') || auth()->user()->can('be god');
     }
 }
