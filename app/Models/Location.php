@@ -40,8 +40,6 @@ class Location extends Model
 
     protected $casts = [
         'processed' => 'bool',
-        'flooded' => 'bool',
-        'alluvium' => 'bool',
     ];
 
     public function appointments()
@@ -132,14 +130,14 @@ class Location extends Model
     {
         $contents = file_get_contents(base_path('public/json/cota_30_tarapaca.geojson'));
         $json = json_decode(json: $contents, associative: true);
-        $out = false;
+        $out = null;
         if (!is_null($this->location['lng']) || !is_null($this->location['lat']) || isset($json['features'])) {
             $point = new Turf\Point([$this->location['lng'], $this->location['lat']]);
             $polygon = new Turf\Polygon([$json['features'][0]['geometry']['coordinates'][0]]);
             $flood = $polygon->containsPoint($point);
             $out = $flood;
         }
-        return (bool) $out;
+        return $out;
     }
 
     public function getAlluviumAttribute()
@@ -147,7 +145,7 @@ class Location extends Model
         $contents = file_get_contents(base_path('public/json/UTF-81_Aluvion.geojson'));
         $json = json_decode(json: $contents, associative: true);
 
-        $out = false;
+        $out = null;
         if (!is_null($this->location['lng']) || !is_null($this->location['lat']) || isset($json['features'])) {
             $point = new Turf\Point([$this->location['lng'], $this->location['lat']]);
             $polygon1 = new Turf\Polygon([$json['features'][0]['geometry']['geometries'][0]['coordinates'][0]]);
@@ -159,7 +157,7 @@ class Location extends Model
             $out = $alluvium1 || $alluvium2 || $alluvium3;
         }
 
-        return (bool) $out;
+        return $out;
     }
 
     protected $table = 'locations';

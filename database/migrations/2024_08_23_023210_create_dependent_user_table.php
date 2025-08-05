@@ -81,7 +81,7 @@ return new class extends Migration
                 '18',
                 '20',
             ])->nullable();
-            
+
             $table->enum('urinary_catheter', [
                 '12',
                 '14',
@@ -93,6 +93,8 @@ return new class extends Migration
             ])->nullable();
 
             $table->text('extra_info')->nullable();
+
+            $table->json('risks')->nullable();
 
             $table->timestamps();
 

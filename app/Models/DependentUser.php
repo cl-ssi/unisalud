@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+
+use App\Observers\DependentUserObserver;
 
 use App\Models\DependentCaregiver;
 use App\Models\Condition;
@@ -16,9 +19,8 @@ use App\Enums\ConditionVerificationStatus;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
+#[ObservedBy([DependentUserObserver::class])]
 class DependentUser extends Model
 {
     use HasFactory;
@@ -59,11 +61,13 @@ class DependentUser extends Model
         'nasogastric_catheter',
         'urinary_catheter',
         'extra_info',
+        'risks',
     ];
 
     protected $casts = [
         'cod_con_clinical_status'       => ConditionClinicalStatus::class,
         'cod_con_verification_status'   => ConditionVerificationStatus::class,
+        'risks' => 'array',
     ];
 
     public function user(): BelongsTo

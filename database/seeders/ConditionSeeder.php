@@ -41,7 +41,7 @@ class ConditionSeeder extends Seeder
                     'parent_id' => null,
                     'created_at' => now(),
                     'updated_at' => now(),
-                ],                
+                ],
                 [
                     'name' => 'alimentacion enteral',
                     'code' => 'ENTERAL',
@@ -83,7 +83,7 @@ class ConditionSeeder extends Seeder
                     'code' => 'AVNI',
                     'description' => 'Condición de salud que requiere asistencia ventilatoria no invasiva.',
                     'risk' => 'alto',
-                    'parent_id' => 1, // Assuming the ID of electrodependencia is 3
+                    'parent_id' => 1, // Assuming the ID of electrodependencia is 1
                     'created_at' => now(),
                     'updated_at' => now(),
                 ],
@@ -92,7 +92,7 @@ class ConditionSeeder extends Seeder
                     'code' => 'AVI',
                     'description' => 'Condición de salud que requiere asistencia ventilatoria invasiva.',
                     'risk' => 'alto',
-                    'parent_id' => 1,
+                    'parent_id' => 1, // Assuming the ID of electrodependencia is 1
                     'created_at' => now(),
                     'updated_at' => now(),
                 ],
@@ -101,7 +101,7 @@ class ConditionSeeder extends Seeder
                     'code' => 'CONOXI',
                     'description' => 'Condición de salud que requiere el uso de concentradores de oxígeno.',
                     'risk' => 'alto',
-                    'parent_id' => 1,
+                    'parent_id' => 1, // Assuming the ID of electrodependencia is 1
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]
