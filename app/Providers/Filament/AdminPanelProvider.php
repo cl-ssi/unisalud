@@ -28,7 +28,7 @@ use pxlrbt\FilamentEnvironmentIndicator\EnvironmentIndicatorPlugin;
 use Awcodes\FilamentGravatar\GravatarProvider;
 use Awcodes\FilamentGravatar\GravatarPlugin;
 use Hasnayeen\Themes\ThemesPlugin;
-use \Hasnayeen\Themes\Themes;
+use Hasnayeen\Themes\Http\Middleware\SetTheme;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -79,6 +79,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                SetTheme::class,
             ])
             ->authMiddleware([
                 Authenticate::class,

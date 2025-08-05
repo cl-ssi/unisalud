@@ -15,6 +15,7 @@
         "blade-ui-kit/blade-icons": "^1.8",
         "calebporzio/sushi": "^2.4",
         "filament/filament": "^3.3.34",
+        "hasnayeen/themes": "^3.0",
         "laravel/framework": "^11.45",
         "league/commonmark": "^2.7",
         "owen-it/laravel-auditing": "^14",
