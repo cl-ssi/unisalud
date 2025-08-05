@@ -13,8 +13,6 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
-// use Filament\Widgets;
-
 
 use Filament\Support\Colors\Color;
 use Filament\Navigation\NavigationGroup;
@@ -40,13 +38,14 @@ class AdminPanelProvider extends PanelProvider
             ->login(Login::class)
             ->renderHook(
                 'panels::auth.login.form.after',
-                fn () => view('auth.socialite.claveunica')
+                fn() => view('auth.socialite.claveunica')
             )
             ->colors([
                 'primary' => Color::Amber,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->sidebarFullyCollapsibleOnDesktop()
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('Usuarios'),
@@ -87,7 +86,7 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 GravatarPlugin::make(),
                 EnvironmentIndicatorPlugin::make()
-                    ->visible(fn () => auth()->user()?->can('be god'))
+                    ->visible(fn() => auth()->user()?->can('be god'))
             ]);
     }
 }

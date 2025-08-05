@@ -349,6 +349,7 @@ class DependentUserResource extends Resource
                     }),
                 Tables\Filters\SelectFilter::make('conditions')
                     ->relationship('conditions', 'name')
+                    ->preload()
                     ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when($data['values'], function ($q, $values) {
@@ -358,7 +359,6 @@ class DependentUserResource extends Resource
                         });
                     })
                     ->label('Condicion')
-                    ->preload()
                     ->multiple(),
                 Tables\Filters\SelectFilter::make('user.mobileContactPoint.organization')
                     // ->relationship('user.mobileContactPoint.organization', 'alias')
