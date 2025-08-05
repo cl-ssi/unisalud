@@ -22,8 +22,8 @@ class LocationObserver
         $dependentUser = $location->address->dependentUser;
         if ($dependentUser) {
             $dependentUser->risks = [
-                'flooded' => $location->flooded,
-                'alluvium' => $location->alluvium
+                'flooded' => $location->flooded ?? null,
+                'alluvium' => $location->alluvium ?? null
             ];
             $dependentUser->save();
         }

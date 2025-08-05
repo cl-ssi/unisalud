@@ -334,16 +334,16 @@ class DependentUserImport implements ToModel, WithHeadingRow //, WithValidation
         // Attach conditions optimally
         $conditions = Condition::parentsOnly()->pluck('id', 'name')->all();
         $childs = Condition::childsOnly()->pluck('id', 'code')->all();
-        $val = strtoupper($row['electrodependencia'] ?? '');
+        $electro = strtoupper($row['electrodependencia'] ?? '');
         $attachIds = [];
 
         foreach ($conditions as $name => $id) {
-            $fieldKey = str_replace(" ", "_", $name);
-            if ($this->formatField($row[$fieldKey] ?? null, 'boolean') === true) {
+            $val = $this->formatField($row[str_replace(" ", "_", $name)] ?? null, 'boolean');
+            if ($val === true) {
                 $attachIds[] = $id;
-            } elseif ($name === 'electrodependencia' && $childs[$val] != null) {
+            } elseif ($name === 'electrodependencia' && array_key_exists($electro, $childs) && $val != false) {
                 $attachIds[] = $id;
-                $attachIds[] = $childs[$val];
+                $attachIds[] = $childs[$electro];
             }
         }
         if (!empty($attachIds)) {

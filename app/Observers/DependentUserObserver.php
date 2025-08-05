@@ -12,8 +12,8 @@ class DependentUserObserver
     public function created(DependentUser $dependentUser): void
     {
         $dependentUser->risks = [
-            'flooded' => $dependentUser->user->address->location->flooded,
-            'alluvium' => $dependentUser->user->address->location->alluvium
+            'flooded' => $dependentUser->user->address->location->flooded ?? null,
+            'alluvium' => $dependentUser->user->address->location->alluvium ?? null
         ];
         $dependentUser->save();
     }
