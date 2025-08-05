@@ -9,6 +9,7 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/4.0.0/Control.FullScreen.min.css" integrity="sha512-Dww58CIezLb4kFGtZ8Zlr85kRDwJgyPhe3gVABsvnJruZuYn3xCTpLbE3iBT5hGbrfCytJnZ4aiI3MxN0p+NVQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" integrity="sha256-YU3qCpj/P06tdPBJGPax0bm6Q1wltfwjsho5TR4+TYc=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" integrity="sha256-YSWCMtmNZNwqex4CEw1nQhvFub2lmU7vcCKP+XVwwXA=" crossorigin="anonymous">
 @endpush
@@ -16,6 +17,7 @@
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/4.0.0/Control.FullScreen.min.js" integrity="sha512-javanlE101qSyZ7XdaJMpB/RnKP4S/8jq1we4sy50BfBgXlcVbIJ5LIOyVa2qqnD+aGiD7J6TQ4bYKnL1Yqp5g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.min.js"></script>
 <script>
     document.addEventListener('alpine:init', () => {
@@ -33,7 +35,8 @@
             // GeoJSON layers
             lineaJson: null, // GeoJSON layer for "Linea de seguridad"
             cotaJson: null, // GeoJSON layer for "Cota de inundacion"
-            iquiqueJson: null, // GeoJSON layer for "Iquique"
+            aluvionJson: null, // GeoJSON layer for "UTF-81_Aluvion"
+
 
             init() {
                 // Initialize the map with default center and zoom level
@@ -50,8 +53,10 @@
                 this.map = new L.map(this.$el, {
                     center: center,
                     zoom: zoom,
+                    zoomAnimation: true,
                     layers: [this.osm],
-                    fullscreenControl: true
+                    fullscreenControl: true,
+                    renderer: L.canvas()
                 });
                 this.clusterGroup = L.markerClusterGroup().addTo(this.map);
                 this.baseLayers = {
@@ -60,6 +65,7 @@
                 };
                 this.layerControl = new L.Control.Layers(this.baseLayers).addTo(this.map);
                 this.updateMarkers(markers);
+
 
                 // Listen for marker updates and refresh the map
                 window.addEventListener('markersUpdated', event => {
@@ -78,10 +84,8 @@
                 Promise.all([
                     fetch(baseUrl + "/json/linea_seguridad_iquique.geojson").then(res => res.json()),
                     fetch(baseUrl + "/json/cota_30_tarapaca.geojson").then(res => res.json()),
-                    fetch(baseUrl + "/json/2012_iquique.geojson").then(res => res.json()),
                     fetch(baseUrl + "/json/UTF-81_Aluvion.geojson").then(res => res.json())
-                ]).then(([lineaJson, cotaJson, iquiqueJson, aluvionJson]) => {
-                    // Initialize GeoJSON layers with styles
+                ]).then(([lineaJson, cotaJson, aluvionJson]) => {
                     this.lineaJson = new L.GeoJSON(lineaJson, {
                         style: {
                             color: '#00FF00'
@@ -92,22 +96,19 @@
                             color: '#FF0000'
                         }
                     });
-                    this.iquiqueJson = new L.GeoJSON(iquiqueJson, {
-                        style: {
-                            color: '#0000FF'
-                        }
-                    });
                     this.aluvionJson = new L.GeoJSON(aluvionJson, {
                         style: {
                             color: '#660066'
                         }
                     });
 
-                    // Add overlay layers to the layer control
-                    this.layerControl.addOverlay(new L.LayerGroup([this.lineaJson]), 'Linea de seguridad')
-                        .addOverlay(new L.LayerGroup([this.cotaJson]), 'Cota de inundacion')
-                        .addOverlay(new L.LayerGroup([this.iquiqueJson]), 'Iquique')
-                        .addOverlay(new L.LayerGroup([this.aluvionJson]), 'Zona de aluvion');
+                    this.layerControl.remove();
+                    this.layerControl = null;
+                    this.layerControl = new L.Control.Layers(this.baseLayers, {
+                        'Linea de seguridad': new L.LayerGroup([this.lineaJson]),
+                        'Cota de inundacion': new L.LayerGroup([this.cotaJson]),
+                        'Zona de aluvion': new L.LayerGroup([this.aluvionJson])
+                    }).addTo(this.map);
                 });
             },
 
@@ -139,9 +140,9 @@
             markerOnClick(e) {
                 let content = `<a href="${e.target.url}" target="_blank">${e.target.name}</a><br>${e.target.address}`;
                 content += e.target.flooded ? '<br> En zona de inundacion' : '';
-                content += e.target.alluvion ? '<br> En zona de aluvion' : '';
+                content += e.target.alluvium ? '<br> En zona de aluvion' : '';
                 e.target.getPopup().setContent(content);
-            }
+            },
         }));
     });
 </script>

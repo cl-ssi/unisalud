@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\Builder;
 class MapDependentUsers extends Page
 {
 
-
     protected static string $resource = DependentUserResource::class;
 
     protected static string $view = 'filament.resources.dependent-user-resource.pages.map-dependent-users';
@@ -27,11 +26,11 @@ class MapDependentUsers extends Page
 
     public $organizationTypes;
     public $conditionTypes;
-    
-    public $req_conditions_id = null;
+
+    public $conditions_id = null;
     public $req_users_id = null;
-    public $req_organizations_id = null;
-    public $req_search = null;
+    public $organizations_id = null;
+    public $search = null;
 
 
 
@@ -39,19 +38,19 @@ class MapDependentUsers extends Page
     {
         $this->conditionTypes = Condition::pluck('name', 'id')->toArray();
         $this->organizationTypes = Organization::whereHas('contactPoint', fn($query) => $query->whereNotNull('id'))
-        ->with([
-            'contactPoint' => fn($query) => $query->has('user')->whereNotNull('contactPoint.id'),
-            'contactPoint.user' => fn($query) => $query->has('dependentUser')->whereNotNull('contactPoint.user.id')
+            ->with([
+                'contactPoint' => fn($query) => $query->has('user')->whereNotNull('contactPoint.id'),
+                'contactPoint.user' => fn($query) => $query->has('dependentUser')->whereNotNull('contactPoint.user.id')
             ])
-        ->pluck('alias', 'id');
+            ->pluck('alias', 'id');
 
-        $this->req_conditions_id = request('conditions_id') ?? null;
+        $this->conditions_id = request('conditions_id') ?? null;
         $this->req_users_id = request('users_id') ?? null;
-        $this->req_organizations_id = request('organizations_id') ?? null;
+        $this->organizations_id = request('organizations_id') ?? null;
 
         $this->form->fill([
-            'conditions_id' => $this->req_conditions_id,
-            'organizations_id' => $this->req_organizations_id,
+            'conditions_id' => $this->conditions_id,
+            'organizations_id' => $this->organizations_id,
             'users_id' => $this->req_users_id,
         ]);
     }
@@ -69,20 +68,20 @@ class MapDependentUsers extends Page
                     ->preload()
                     ->multiple()
                     ->reactive()
-                    ->afterStateUpdated(fn ($state) => $this->req_conditions_id =$state),
+                    ->afterStateUpdated(fn($state) => $this->conditions_id = $state),
                 Forms\Components\Select::make('organizations_id')
                     ->label('Organización')
                     ->options($this->organizationTypes)
                     ->placeholder('Seleccione una organización')
                     ->preload()
                     ->reactive()
-                    ->afterStateUpdated(fn ($state) => $this->req_organizations_id = $state),
+                    ->afterStateUpdated(fn($state) => $this->organizations_id = $state),
             ]);
     }
 
     protected function getHeaderActions(): array
     {
-        
+
         return [
             Actions\Action::make('Volver')
                 ->url(DependentUserResource::getUrl())
@@ -95,8 +94,8 @@ class MapDependentUsers extends Page
     {
         return [
             'map' => \App\Filament\Resources\DependentUserResource\Widgets\MapWidget::make([
-                'conditions_id' => $this->req_conditions_id,
-                'organizations_id' => $this->req_organizations_id,
+                'conditions_id' => $this->conditions_id,
+                'organizations_id' => $this->organizations_id,
                 'users_id' => $this->req_users_id,
             ])
 
@@ -104,7 +103,7 @@ class MapDependentUsers extends Page
     }
 
     public function updated($property = null)
-    {                
-        $this->dispatch('changeFilters', $this->req_conditions_id, $this->req_organizations_id, $this->req_users_id);
+    {
+        $this->dispatch('changeFilters', $this->conditions_id, $this->organizations_id, $this->req_users_id);
     }
 }

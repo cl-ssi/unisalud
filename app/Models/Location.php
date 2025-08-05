@@ -4,11 +4,12 @@ namespace App\Models;
 
 use App\Models\Appointment;
 use Carbon\Traits\Timestamp;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Vancuren\PhpTurf\PhpTurf as Turf;
 
@@ -32,11 +33,15 @@ class Location extends Model
 
     protected $appends = [
         'location',
+        'flooded',
+        'alluvium'
     ];
 
 
     protected $casts = [
         'processed' => 'bool',
+        'flooded' => 'bool',
+        'alluvium' => 'bool',
     ];
 
     public function appointments()
@@ -44,7 +49,8 @@ class Location extends Model
         return $this->morphToMany(Appointment::class, 'appointable');
     }
 
-    public function organization(){
+    public function organization()
+    {
         return $this->belongsTo('App\Models\Organization', 'organization_id');
     }
 
@@ -54,15 +60,15 @@ class Location extends Model
     }
 
     /**
-    * Returns the 'latitude' and 'longitude' attributes as the computed 'location' attribute,
-    * as a standard Google Maps style Point array with 'lat' and 'lng' attributes.
-    *
-    * Used by the Filament Google Maps package.
-    *
-    * Requires the 'location' attribute be included in this model's $fillable array.
-    *
-    * @return array
-    */
+     * Returns the 'latitude' and 'longitude' attributes as the computed 'location' attribute,
+     * as a standard Google Maps style Point array with 'lat' and 'lng' attributes.
+     *
+     * Used by the Filament Google Maps package.
+     *
+     * Requires the 'location' attribute be included in this model's $fillable array.
+     *
+     * @return array
+     */
 
     public function getLocationAttribute(): array
     {
@@ -73,20 +79,19 @@ class Location extends Model
     }
 
     /**
-    * Takes a Google style Point array of 'lat' and 'lng' values and assigns them to the
-    * 'latitude' and 'longitude' attributes on this model.
-    *
-    * Used by the Filament Google Maps package.
-    *
-    * Requires the 'location' attribute be included in this model's $fillable array.
-    *
-    * @param ?array $location
-    * @return void
-    */
+     * Takes a Google style Point array of 'lat' and 'lng' values and assigns them to the
+     * 'latitude' and 'longitude' attributes on this model.
+     *
+     * Used by the Filament Google Maps package.
+     *
+     * Requires the 'location' attribute be included in this model's $fillable array.
+     *
+     * @param ?array $location
+     * @return void
+     */
     public function setLocationAttribute(?array $location): void
     {
-        if (is_array($location))
-        {
+        if (is_array($location)) {
             // $this->attributes['latitude'] = $location['lat'];
             // $this->attributes['longitude'] = $location['lng'];
             $this->latitude = $location['lat'];
@@ -111,48 +116,51 @@ class Location extends Model
         ];
     }
 
-   /**
-    * Get the name of the computed location attribute
-    *
-    * Used by the Filament Google Maps package.
-    *
-    * @return string
-    */
+    /**
+     * Get the name of the computed location attribute
+     *
+     * Used by the Filament Google Maps package.
+     *
+     * @return string
+     */
     public static function getComputedLocation(): string
     {
         return 'location';
     }
 
-    public function getFloodedAttribute(): ?bool
+    public function getFloodedAttribute()
     {
-        $contents = file_get_contents(base_path('public/json/cota_30_tarapaca.geojson'));        
+        $contents = file_get_contents(base_path('public/json/cota_30_tarapaca.geojson'));
         $json = json_decode(json: $contents, associative: true);
-        if (is_null($this->location['lat']) || is_null($this->location['lng']) || !isset($json['features'])) {
-            return null;
+        $out = false;
+        if (!is_null($this->location['lng']) || !is_null($this->location['lat']) || isset($json['features'])) {
+            $point = new Turf\Point([$this->location['lng'], $this->location['lat']]);
+            $polygon = new Turf\Polygon([$json['features'][0]['geometry']['coordinates'][0]]);
+            $flood = $polygon->containsPoint($point);
+            $out = $flood;
         }
-        $point = new Turf\Point([$this->location['lng'], $this->location['lat']]);
-        $polygon = new Turf\Polygon([$json['features'][0]['geometry']['coordinates'][0]]);
-        $flood = $polygon->containsPoint($point);
-        // dd($point, $polygon, $flood);
-        return $flood;
+        return (bool) $out;
     }
 
-    public function getAlluviumAttribute(): ?bool
+    public function getAlluviumAttribute()
     {
-        $contents = file_get_contents(base_path('public/json/UTF-81_Aluvion.geojson'));        
+        $contents = file_get_contents(base_path('public/json/UTF-81_Aluvion.geojson'));
         $json = json_decode(json: $contents, associative: true);
-        if (is_null($this->location['lat']) || is_null($this->location['lng']) || !isset($json['features'])) {
-            return null;
+
+        $out = false;
+        if (!is_null($this->location['lng']) || !is_null($this->location['lat']) || isset($json['features'])) {
+            $point = new Turf\Point([$this->location['lng'], $this->location['lat']]);
+            $polygon1 = new Turf\Polygon([$json['features'][0]['geometry']['geometries'][0]['coordinates'][0]]);
+            $polygon2 = new Turf\Polygon([$json['features'][0]['geometry']['geometries'][1]['coordinates'][0]]);
+            $polygon3 = new Turf\Polygon([$json['features'][0]['geometry']['geometries'][2]['coordinates'][0]]);
+            $alluvium1 = $polygon1->containsPoint($point);
+            $alluvium2 = $polygon2->containsPoint($point);
+            $alluvium3 = $polygon3->containsPoint($point);
+            $out = $alluvium1 || $alluvium2 || $alluvium3;
         }
-        $point = new Turf\Point([$this->location['lng'], $this->location['lat']]);
-        $polygon1 = new Turf\Polygon([$json['features'][0]['geometry']['geometries'][0]['coordinates'][0]]);
-        $polygon2 = new Turf\Polygon([$json['features'][0]['geometry']['geometries'][1]['coordinates'][0]]);
-        $polygon3 = new Turf\Polygon([$json['features'][0]['geometry']['geometries'][2]['coordinates'][0]]);
-        $alluvium1 = $polygon1->containsPoint($point);
-        $alluvium2 = $polygon2->containsPoint($point);
-        $alluvium3 = $polygon3->containsPoint($point);
-        return $alluvium1 || $alluvium2 || $alluvium3;
+
+        return (bool) $out;
     }
-    
+
     protected $table = 'locations';
 }

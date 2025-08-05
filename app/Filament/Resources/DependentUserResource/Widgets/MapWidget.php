@@ -17,7 +17,7 @@ class MapWidget extends Widget
     protected static bool   $isLazy = false;
 
     public ?string $baseUrl;
-    
+
     public ?array $conditions_id = [];
     public ?array $organizations_id = [];
     public ?array $users_id      = [];
@@ -29,26 +29,26 @@ class MapWidget extends Widget
     {
 
         $this->baseUrl          = env('APP_URL', 'https://uni.saludtarapaca.gob.cl/');
-        $this->conditions_id    = $conditions_id;        
+        $this->conditions_id    = $conditions_id;
         $this->users_id          = $users_id;
         $this->loadPatients();
     }
 
     private function loadPatients(): void
     {
-        
+
         $dependentUsers = DependentUser::has('user.address.location')
             ->with(['user.address.location'])
-            ->when($this->conditions_id, function($q) {
+            ->when($this->conditions_id, function ($q) {
                 foreach ($this->conditions_id as $condition_id) {
                     $q->whereHas('conditions', fn($qu)  => $qu->where('condition_id', $condition_id));
                 }
                 return $q;
             })
-            ->when($this->organizations_id, function($q) {
-                $q->whereHas('user', function($query) {
-                    $query->whereHas('mobileContactPoint', function($query) {
-                        $query->whereHas('organization', function($query) {
+            ->when($this->organizations_id, function ($q) {
+                $q->whereHas('user', function ($query) {
+                    $query->whereHas('mobileContactPoint', function ($query) {
+                        $query->whereHas('organization', function ($query) {
                             $query->whereIn('id', $this->organizations_id);
                         });
                     });
@@ -67,7 +67,7 @@ class MapWidget extends Widget
             'name'    => $p->user->text,
             'address' => $p->user->address->text . ' ' . $p->user->address->line,
             'flooded' => $p->user->address->location->flooded,
-            'alluvion' => $p->user->address->location->alluvion,
+            'alluvium' => $p->user->address->location->alluvium,
         ])->toArray();
     }
 
@@ -75,8 +75,8 @@ class MapWidget extends Widget
     public function changeFilters(?array $conditions_id = [], ?array $organizations_id = [], ?array $users_id = null): void
     {
         $this->conditions_id = $conditions_id ?? $this->conditions_id;
-        $this->organizations_id = $organizations_id ?? $this->organizations_id;            
-        $this->users_id      = $users_id ?? $this->users_id;        
+        $this->organizations_id = $organizations_id ?? $this->organizations_id;
+        $this->users_id      = $users_id ?? $this->users_id;
         $this->loadPatients();
     }
 }
