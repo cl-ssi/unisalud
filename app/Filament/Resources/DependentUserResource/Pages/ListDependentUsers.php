@@ -4,15 +4,16 @@ namespace App\Filament\Resources\DependentUserResource\Pages;
 
 use App\Filament\Resources\DependentUserResource;
 use Filament\Resources\Pages\ListRecords;
-
 use Filament\Actions;
-use pxlrbt\FilamentExcel;
+
 use YOS\FilamentExcel\Actions\Import;
+use App\Imports\DependentUserImport;
+use pxlrbt\FilamentExcel;
 
 use App\Filament\Pages\Concerns\HasHeadingIcon;
-use Filament\Support\Enums\IconSize;
-use Filament\Support\Enums\IconPosition;
 use Illuminate\Contracts\Support\Htmlable;
+use Filament\Support\Enums\IconPosition;
+use Filament\Support\Enums\IconSize;
 use Illuminate\Support\HtmlString;
 
 class ListDependentUsers extends ListRecords
@@ -59,7 +60,7 @@ class ListDependentUsers extends ListRecords
                         ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
                 ]),
             Import::make()
-                ->import(\App\Imports\DependentUserImport::class)
+                ->import(DependentUserImport::class)
                 ->type(\Maatwebsite\Excel\Excel::XLSX)
                 ->label('Importar')
                 ->hint('Subir archivo de tipo xlsx')

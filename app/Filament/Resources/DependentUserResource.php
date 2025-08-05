@@ -360,6 +360,9 @@ class DependentUserResource extends Resource
                     })
                     ->label('Condicion')
                     ->multiple(),
+                Tables\Filters\SelectFilter::make('risks')
+                    ->label('Riesgos')
+                    ->multiple(),
                 Tables\Filters\SelectFilter::make('user.mobileContactPoint.organization')
                     // ->relationship('user.mobileContactPoint.organization', 'alias')
                     ->label('Organizacion')

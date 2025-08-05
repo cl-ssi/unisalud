@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\DependentUser;
-
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Number;
 
@@ -48,14 +48,19 @@ class Condition extends Model
         return $this->hasMany(Condition::class, 'parent_id');
     }
 
-    public function countDependents() : Int
+    public function countDependents(): Int
     {
         return $this->dependentUser()->where('condition_id', $this->id)->count();
     }
 
-    public static function parentsOnly()
+    public static function parentsOnly(): Collection
     {
         return self::whereNull('parent_id')->get();
+    }
+
+    public static function childsOnly(): Collection
+    {
+        return self::whereNotNull('parent_id')->get();
     }
 
     protected $table = 'condition';
