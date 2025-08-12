@@ -38,7 +38,7 @@ class AppointmentResource extends Resource
                 Forms\Components\Select::make('cod_con_appointment_type_id')
                     ->label('Tipo')
                     ->relationship('appointmentType', 'text'),
-                    // ->options(AppointmentType::class),
+                // ->options(AppointmentType::class),
                 Forms\Components\TextInput::make('priority')
                     ->label('Prioridad')
                     ->numeric(),
@@ -151,5 +151,12 @@ class AppointmentResource extends Resource
     public static function getPluralLabel(): string
     {
         return 'Citas';
+    }
+
+    public static function canAccess(): bool
+    {
+        // TODO: Cuando tengas el rol usas este, por mientras deje solo modo dios
+        //return auth()->user()->hasRole('appointment_user') || auth()->user()->can('be god');
+        return auth()->user()->can('be god');
     }
 }

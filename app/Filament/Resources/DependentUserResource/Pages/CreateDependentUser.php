@@ -6,7 +6,6 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\DependentUserResource;
-use App\Filament\Resources\DependentUserResource\RelationManagers;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\DependentUser;
@@ -20,8 +19,8 @@ use App\Models\Commune;
 use App\Models\Condition;
 use App\Models\ContactPoint;
 use App\Models\Location;
-use App\Models\Sex as ClassSex;
-use App\Models\Gender as ClassGender;
+use App\Models\Sex;
+use App\Models\Gender;
 use App\Models\Country;
 use App\Models\Organization;
 use DateTime;
@@ -31,10 +30,13 @@ class CreateDependentUser extends CreateRecord
 {
     protected static string $resource = DependentUserResource::class;
 
+    private $date_format = 'Y-m-d';
+
     public function form(Form $form): Form
     {
         return $form
             ->schema([
+
                 Forms\Components\Section::make('Datos del Paciente')
                     ->schema([
                         Forms\Components\TextInput::make('nombre')
@@ -71,6 +73,7 @@ class CreateDependentUser extends CreateRecord
                             ])
                             ->required()
                             ->columnSpan(1),
+
                         Forms\Components\Select::make('genero')
                             ->label('Género')
                             ->options([
@@ -83,16 +86,19 @@ class CreateDependentUser extends CreateRecord
                                 'non-disclose' => 'No revelar',
                             ])
                             ->columnSpan(1),
+
                         Forms\Components\Select::make('nacionalidad')
                             ->label('Nacionalidad')
-                            ->options(Country::pluck('id', 'name'))
+                            ->options(Country::pluck('name', 'id'))
                             ->required()
                             ->columnSpan(1),
+
                         Forms\Components\Select::make('comuna')
                             ->label('Comuna')
-                            ->options(Commune::pluck('id', 'name'))
+                            ->options(Commune::pluck('name', 'id'))
                             ->required()
                             ->columnSpan(1),
+
                         Forms\Components\TextInput::make('calle')
                             ->label('Calle')
                             ->required()
@@ -110,7 +116,7 @@ class CreateDependentUser extends CreateRecord
                             ->columnSpan(1),
                         Forms\Components\Select::make('establecimiento')
                             ->label('Establecimiento')
-                            ->options(Organization::pluck('code_deis', 'alias'))
+                            ->options(Organization::whereService(3)->whereNotNull('code_deis')->pluck('alias', 'code_deis'))
                             ->columnSpan(1),
                         Forms\Components\Select::make('prevision')
                             ->label('Previsión')
@@ -141,7 +147,7 @@ class CreateDependentUser extends CreateRecord
                             ->label('Visitas Tratamiento')
                             ->columnSpan(1),
                         Forms\Components\Select::make('barthel')
-                            ->label('EMP EMPAM')
+                            ->label('BARTHEL')
                             ->columnSpan(1)
                             ->options([
                                 'independent' => 'Independiente',
@@ -216,12 +222,117 @@ class CreateDependentUser extends CreateRecord
                             ->label('Información Extra')
                             ->columnSpan(1),
                     ])->columns(2),
+                Forms\Components\Section::make('Condiciones del Paciente')
+                    ->schema([
+                        Forms\Components\Select::make('condiciones')
+                            ->label('Condiciones')
+                            ->required()
+                            ->options(Condition::pluck('name', 'id'))
+                            ->multiple()
+                            ->columnSpan(2),
+                    ])->columns(2),
+                Forms\Components\Section::make('Datos del Cuidador')
+                    ->schema([
+                        Forms\Components\TextInput::make('nombre_cuidador')
+                            ->label('Nombre Cuidador')
+                            ->required()
+                            ->columnSpan(1),
+                        Forms\Components\TextInput::make('apellido_paterno_cuidador')
+                            ->label('Apellido Paterno Cuidador')
+                            ->required()
+                            ->columnSpan(1),
+                        Forms\Components\TextInput::make('apellido_materno_cuidador')
+                            ->label('Apellido Materno Cuidador')
+                            ->required()
+                            ->columnSpan(1),
+                        Forms\Components\DatePicker::make('fecha_nacimiento_cuidador')
+                            ->label('Fecha de Nacimiento Cuidador')
+                            ->required()
+                            ->columnSpan(1),
+                        Forms\Components\TextInput::make('run_cuidador')
+                            ->label('RUN Cuidador')
+                            ->required()
+                            ->columnSpan(1),
+                        Forms\Components\TextInput::make('dv_cuidador')
+                            ->label('DV Cuidador')
+                            ->required()
+                            ->columnSpan(1),
+                        Forms\Components\Select::make('sexo_cuidador')
+                            ->label('Sexo Cuidador')
+                            ->options([
+                                'male' => 'Masculino',
+                                'female' => 'Femenino',
+                                'other' => 'Otro',
+                                'unknown' => 'Desconocido',
+                            ])
+                            ->required()
+                            ->columnSpan(1),
+                        Forms\Components\Select::make('genero_cuidador')
+                            ->label('Género Cuidador')
+                            ->options([
+                                'female' => 'Mujer',
+                                'male' => 'Hombre',
+                                'non-binary' => 'No binario',
+                                'transgender-male' => 'Transgénero masculino',
+                                'transgender-female' => 'Transgénero femenino',
+                                'other' => 'Otro',
+                                'non-disclose' => 'No revelar',
+                            ])
+                            ->columnSpan(1),
+                        Forms\Components\TextInput::make('nacionalidad_cuidador')
+                            ->label('Nacionalidad Cuidador')
+                            ->required()
+                            ->columnSpan(1),
+                        Forms\Components\Select::make('parentesco_cuidador')
+                            ->label('Parentesco Cuidador')
+                            ->options([
+                                'CONYUGE' => 'Conyuge',
+                                'PADRE' => 'Padre o Madre',
+                                'HIJO' => 'Hijo/a',
+                                'PAGADO' => 'Cuidador Pagado',
+                                'OTRO' => 'Otro',
+                            ])
+                            ->required()
+                            ->columnSpan(1),
+                        Forms\Components\Select::make('prevision_cuidador')
+                            ->label('Previsión Cuidador')
+                            ->options([
+                                'FONASA A'  => 'Fonasa A',
+                                'FONASA B'  => 'Fonasa B',
+                                'FONASA C'  => 'Fonasa C',
+                                'FONASA D'  => 'Fonasa D',
+                                'ISAPRE'    => 'Isapre',
+                                'PRAIS'     => 'PRAIS'
+                            ])
+                            ->columnSpan(1),
+                        Forms\Components\Toggle::make('empam_cuidador')
+                            ->label('EMPAM Cuidador')
+                            ->columnSpan(1),
+                        Forms\Components\Toggle::make('zarit_cuidador')
+                            ->label('Zarit Cuidador')
+                            ->columnSpan(1),
+                        Forms\Components\TextInput::make('inmunizaciones_cuidador')
+                            ->label('Inmunizaciones Cuidador')
+                            ->columnSpan(1),
+                        Forms\Components\Toggle::make('plan_elaborado_cuidador')
+                            ->label('Plan Elaborado Cuidador')
+                            ->columnSpan(1),
+                        Forms\Components\Toggle::make('plan_evaluado_cuidador')
+                            ->label('Plan Evaluado Cuidador')
+                            ->columnSpan(1),
+                        Forms\Components\Toggle::make('capacitacion_cuidador')
+                            ->label('Capacitación Cuidador')
+                            ->columnSpan(1),
+                        Forms\Components\Toggle::make('estipendio_cuidador')
+                            ->label('Estipendio Cuidador')
+                            ->columnSpan(1),
+                    ])->columns(2),
             ]);
     }
 
     protected function handleRecordCreation(array $data): Model
     {
-        $data = $this->validate([
+        $rules = [
             'data.nombre'                       => 'required|string',
             'data.apellido_paterno'             => 'required|string',
             'data.apellido_materno'             => 'required|string',
@@ -236,13 +347,14 @@ class CreateDependentUser extends CreateRecord
             'data.numero'                       => 'required|string',
             'data.departamento'                 => 'nullable|string',
             'data.telefono'                     => 'required|numeric',
+            'data.establecimiento'              => 'nullable|string',
             'data.prevision'                    => 'required|string',
             'data.diagnostico'                  => 'required|string',
             'data.fecha_ingreso'                => 'nullable|date',
             'data.fecha_egreso'                 => 'nullable|date',
-            'data.establecimiento'              => 'nullable|string',
             'data.visitas_integrales'           => 'nullable|numeric',
             'data.visitas_tratamiento'          => 'nullable|numeric',
+            'data.barthel'                      => 'nullable|string',
             'data.emp_empam'                    => 'nullable|boolean',
             'data.eleam'                        => 'nullable|boolean',
             'data.upp'                          => 'nullable|boolean',
@@ -251,15 +363,15 @@ class CreateDependentUser extends CreateRecord
             'data.neumo'                        => 'nullable|date',
             'data.influenza'                    => 'nullable|date',
             'data.covid_19'                     => 'nullable|date',
-            'data.extra_info'                   => 'nullable|string',
             'data.ayuda_tecnica'                => 'nullable|boolean',
             'data.ayuda_tecnica_fecha'          => 'nullable|date',
             'data.entrega_alimentacion'         => 'nullable|boolean',
             'data.entrega_alimentacion_fecha'   => 'nullable|date',
+            'data.talla_panal'                  => 'nullable|numeric',
+            'data.condiciones'                  => 'required|array',
             'data.sonda_sng'                    => 'nullable|numeric',
             'data.sonda_urinaria'               => 'nullable|numeric',
-            'data.prevision_cuidador'           => 'nullable|string',
-            'data.talla_panal'                  => 'nullable|numeric',
+            'data.extra_info'                   => 'nullable|string',
             'data.nombre_cuidador'              => 'required|string', // Requiered if in form has_cuidador is true
             'data.apellido_paterno_cuidador'    => 'required|string', // Requiered if in form has_cuidador is true
             'data.apellido_materno_cuidador'    => 'required|string', // Requiered if in form has_cuidador is true
@@ -270,6 +382,7 @@ class CreateDependentUser extends CreateRecord
             'data.genero_cuidador'              => 'nullable|string',
             'data.nacionalidad_cuidador'        => 'required|string', // Requiered if in form has_cuidador is true
             'data.parentesco_cuidador'          => 'required|string', // Requiered if in form has_cuidador is true
+            'data.prevision_cuidador'           => 'nullable|string',
             'data.empam_cuidador'               => 'nullable|boolean',
             'data.zarit_cuidador'               => 'nullable|boolean',
             'data.inmunizaciones_cuidador'      => 'nullable|date',
@@ -277,144 +390,125 @@ class CreateDependentUser extends CreateRecord
             'data.plan_evaluado_cuidador'       => 'nullable|boolean',
             'data.capacitacion_cuidador'        => 'nullable|boolean',
             'data.estipendio_cuidador'          => 'nullable|boolean',
-        ]);
+        ];
+        $data = $this->validate($rules);
+        foreach ($rules as $heading => $rule) {
+            $row[$heading] = $row[$heading] ?? null;
+        }
 
-        $this->data['nombre'] = $this->data['nombre'] ?? '';
-        $this->data['apellido_paterno'] = $this->data['apellido_paterno'] ?? '';
-        $this->data['apellido_materno'] = $this->data['apellido_materno'] ?? '';
-        $this->data['run'] = $this->data['run'] ?? '';
-        $this->data['dv'] = $this->data['dv'] ?? '';
-        $this->data['sexo'] = $this->data['sexo'] ?? '';
-        $this->data['genero'] = $this->data['genero'] ?? '';
-        $this->data['fecha_nacimiento'] = $this->data['fecha_nacimiento'] ?? null;
-        $this->data['nacionalidad'] = $this->data['nacionalidad'] ?? '';
-        $this->data['comuna'] = $this->data['comuna'] ?? '';
-        $this->data['calle'] = $this->data['calle'] ?? '';
-        $this->data['departamento'] = $this->data['departamento'] ?? '';
-        $this->data['establecimiento'] = $this->data['establecimiento'] ?? '';
-        $this->data['prevision'] = $this->data['prevision'] ?? '';
-        $this->data['diagnostico'] = $this->data['diagnostico'] ?? '';
-        $this->data['fecha_ingreso'] = $this->data['fecha_ingreso'] ?? null;
-        $this->data['fecha_egreso'] = $this->data['fecha_egreso'] ?? null;
-        $this->data['visitas_integrales'] = $this->data['visitas_integrales'] ?? null;
-        $this->data['fecha_visita_integral'] = $this->data['fecha_visita_integral'] ?? null;
-        $this->data['visitas_tratamiento'] = $this->data['visitas_tratamiento'] ?? null;
-        $this->data['fecha_visita_tratamiento'] = $this->data['fecha_visita_tratamiento'] ?? null;
-        $this->data['barthel'] = $this->data['barthel'] ?? null;
-        $this->data['emp_empam'] = $this->data['emp_empam'] ?? null;
-        $this->data['eleam'] = $this->data['eleam'] ?? null;
-        $this->data['upp'] = $this->data['upp'] ?? null;
-        $this->data['plan_elaborado'] = $this->data['plan_elaborado'] ?? null;
-        $this->data['plan_evaluado'] = $this->data['plan_evaluado'] ?? null;
-        $this->data['neumo'] = $this->data['neumo'] ?? null;
-        $this->data['influenza'] = $this->data['influenza'] ?? null;
-        $this->data['covid_19'] = $this->data['covid_19'] ?? null;
-        $this->data['ayuda_tecnica'] = $this->data['ayuda_tecnica'] ?? null;
-        $this->data['ayuda_tecnica_fecha'] = $this->data['ayuda_tecnica_fecha'] ?? '';
-        $this->data['entrega_alimentacion'] = $this->data['entrega_alimentacion'] ?? null;
-        $this->data['entrega_alimentacion_fecha'] = $this->data['entrega_alimentacion_fecha'] ?? '';
-        $this->data['talla_panal'] = $this->data['talla_panal'] ?? '';
-        $this->data['sonda_sng'] = $this->data['sonda_sng'] ?? '';
-        $this->data['sonda_urinaria'] = $this->data['sonda_urinaria'] ?? '';
-        $this->data['extra_info'] = $this->data['extra_info'] ?? null;
+        // Upsert an User, Address, ContactPoint, for Upsert a DependentUser and Attach Conditions
+        $dependentUser = $this->getDependentUser($data);
 
-        $this->data['prevision_cuidador'] = $this->data['prevision_cuidador'] ?? '';
-        $this->data['nombre_cuidador'] = $this->data['nombre_cuidador'] ?? '';
-        $this->data['apellido_paterno_cuidador'] = $this->data['apellido_paterno_cuidador'] ?? '';
-        $this->data['apellido_paterno_cuidador'] = $this->data['apellido_materno_cuidador'] ?? '';
-        $this->data['fecha_nacimiento_cuidador'] = $this->data['fecha_nacimiento_cuidador'] ?? null;
-        $this->data['run_cuidador'] = $this->data['run_cuidador'] ?? '';
-        $this->data['dv_cuidador'] = $this->data['dv_cuidador'] ?? '';
-        $this->data['sexo_cuidador'] = $this->data['sexo_cuidador'] ?? '';
-        $this->data['genero_cuidador'] = $this->data['genero_cuidador'] ?? '';
-        $this->data['nacionalidad_cuidador'] = $this->data['nacionalidad_cuidador'] ?? '';
-        $this->data['parentesco_cuidador'] = $this->data['parentesco_cuidador'] ?? '';
-        $this->data['empam_cuidador'] = $this->data['empam_cuidador'] ?? '';
-        $this->data['zarit_cuidador'] = $this->data['zarit_cuidador'] ?? '';
-        $this->data['inmunizaciones_cuidador'] = $this->data['inmunizaciones_cuidador'] ?? '';
-        $this->data['plan_elaborado_cuidador'] = $this->data['plan_elaborado_cuidador'] ?? '';
-        $this->data['plan_evaluado_cuidador'] = $this->data['plan_evaluado_cuidador'] ?? '';
-        $this->data['capacitacion_cuidador'] = $this->data['capacitacion_cuidador'] ?? '';
-        $this->data['estipendio_cuidador'] = $this->data['estipendio_cuidador'] ?? '';
+        // Upsert an User, Address, ContactPoint, for Upsert a DependentCaregiver        
+        $this->getCaregiver($data, $dependentUser);
 
-        //PRIMERO VERIFICAR SI EXITE EL USER
-        $user = User::whereHas('identifiers', function ($query) {
-            $query->where('value', $this->data['run'])->Where('cod_con_identifier_type_id', 1);
+        return $dependentUser;
+    }
+
+
+
+    public function getUser($row, $cuidador = false)
+    {
+        $cuidador = $cuidador ? '_cuidador' : '';
+        $run = $row['run' . $cuidador];
+        $dv = $row['dv' . $cuidador];
+        $sexo = $row['sexo' . $cuidador];
+        $genero = $row['genero' . $cuidador];
+        $nacionalidad = $row['nacionalidad' . $cuidador];
+        $nombre = $row['nombre' . $cuidador];
+        $apellido_paterno = $row['apellido_paterno' . $cuidador];
+        $apellido_materno = $row['apellido_materno' . $cuidador];
+        $fecha_nacimiento = $this->formatField($row['fecha_nacimiento' . $cuidador], 'date');
+
+        // Check if user exists
+        $user = User::whereHas('identifiers', function ($query) use ($run) {
+            $query->where('value', $run)
+                ->where('cod_con_identifier_type_id', 1);
         })->first();
 
-        $sexValue = ClassSex::where('text', $this->data['sexo'])->first()->value ?? null;
-        $sexGender = ClassGender::where('text', $this->data['genero'])->first()->value ?? null;
-        $nationality = Country::where('name', $this->data['nacionalidad'])->first()->id ?? null;
+        // Obtain possible values
+        $sex = Sex::where('text', $sexo)->first()?->value;
+        $gender = Gender::where('text', $genero)->first()?->value;
+        $nationality = Country::where('name', $nacionalidad)->first()?->id;
 
-        $userCreatedOrUpdated = User::updateOrCreate(
+        // If the user does not exist, create a new one
+        $userOut = User::updateOrCreate(
             [
                 'id'    => $user ? $user->id : null
             ],
             [
                 'active'                => 1,
-                'text'                  => $this->data['nombre'] . ' ' . $this->data['apellido_paterno'] . ' ' . $this->data['apellido_materno'],
-                'given'                 => $this->data['nombre'],
-                'fathers_family'        => $this->data['apellido_paterno'],
-                'mothers_family'        => $this->data['apellido_materno'],
-                'sex'                   => $sexValue,
-                'gender'                => $sexGender,
-                'birthday'              => date('Y-m-d', Carbon::createFromFormat('Y-m-d', $this->data['fecha_nacimiento'])->getTimestamp()),
-                // 'cod_con_marital_id'    => $this->data['estado_civil'],
+                'text'                  => $nombre . ' ' . $apellido_paterno . ' ' . $apellido_materno,
+                'given'                 => $nombre,
+                'fathers_family'        => $apellido_paterno,
+                'mothers_family'        => $apellido_materno,
+                'sex'                   => $sex,
+                'gender'                => $gender,
+                'birthday'              => $fecha_nacimiento,
+                // 'cod_con_marital_id'    => $row['estado_civil'],
                 'nationality_id'        => $nationality,
             ]
         );
 
-        // GET RECORD
-        $user_id = $userCreatedOrUpdated ? $userCreatedOrUpdated->id : null;
-        $record = DependentUser::firstOrCreate(['user_id' => $user_id]);
-
         if ($user == null) {
             // SE CREA IDENTIFIER
-            $identifierCreate = Identifier::create(
+            Identifier::create(
                 [
-                    'user_id'                       => $userCreatedOrUpdated->id,
+                    'user_id'                       => $userOut->id,
                     'use'                           => 'official',
                     'cod_con_identifier_type_id'    => 1,
-                    'value'                         => $this->data['run'],
-                    'dv'                            => $this->data['dv']
+                    'value'                         => $run,
+                    'dv'                            => $dv
                 ]
             );
 
             //SE CREA HUMAN NAME
-            $humanName = HumanName::create(
+            HumanName::create(
                 [
                     'use'               => 'official',
-                    'given'             => $this->data['nombre'],
-                    'fathers_family'    => $this->data['apellido_paterno'],
-                    'mothers_family'    => $this->data['apellido_materno'],
+                    'given'             => $nombre,
+                    'fathers_family'    => $apellido_paterno,
+                    'mothers_family'    => $apellido_materno,
                     'period_start'      => now(),
-                    'user_id'           => $userCreatedOrUpdated->id
+                    'user_id'           => $userOut->id
                 ]
             );
         }
+        $this->getAddress($row, $userOut);
+        return $userOut;
+    }
 
-        //ADDRESS
-        $addressExist = new Address();
-        foreach ($userCreatedOrUpdated->addresses as $address) {
-            if ($address->use->value == 'home') {
+    public function getAddress($row, $user)
+    {
+
+        $calle = $row['calle'];
+        $numero = $row['numero'];
+        $departamento = $row['departamento'];
+        $comuna = $row['comuna'];
+
+        // Check if user has home address
+        $addressExist = null;
+        foreach ($user->addresses as $address) {
+            if ($address->use == 'home') {
                 $addressExist = $address;
             }
         }
 
-        $commune = Commune::where('name', $this->data['comuna'])->first()->id ?? null;
+        // Get commune id from name
+        $commune = Commune::where('name', $comuna)->first()?->id;
 
-        $newAddress = Address::updateOrCreate(
+        // Create or update address
+        $address = Address::updateOrCreate(
             [
-                'id'    => $addressExist ? $addressExist->id : null
+                'id' => $addressExist ? $addressExist->id : null
             ],
             [
-
-                'user_id'       => $userCreatedOrUpdated->id,
+                'user_id'       => $user->id,
                 'use'           => 'home',
                 'type'          => 'physical',
-                'text'          => $this->data['calle'],
-                'line'          => $this->data['numero'],
-                'apartment'     => $this->data['departamento'] ?? null,
+                'text'          => $calle,
+                'line'          => $numero,
+                'apartment'     => $departamento,
                 'suburb'        => null,
                 'city'          => null,
                 'commune_id'    => $commune,
@@ -423,282 +517,181 @@ class CreateDependentUser extends CreateRecord
             ]
         );
 
-        //LOCATION
-        $street    = $this->data['calle'];
-        $number     = $this->data['numero'];
-        $commune    = $this->data['comuna'];
-
-        if ($street && $number && $commune) {
-
+        // Get coordinates and create location
+        if ($calle && $numero && $comuna) {
             $geocodingService = app(GeocodingService::class);
-            $coordinates = $geocodingService->getCoordinates($street . '+' . $number . '+' . $commune);
+            $coordinates = $geocodingService->getCoordinates($calle . '+' . $numero . '+' . $comuna);
 
-            if ($coordinates) {
-                $latitude   = $coordinates['lat'];
-                $longitude  = $coordinates['lng'];
-            } else {
-                $latitude   = null;
-                $longitude  = null;
-            }
+            $latitude = $coordinates['lat'] ?? null;
+            $longitude = $coordinates['lng'] ?? null;
 
-            $newLocation = Location::updateOrCreate(
+            Location::updateOrCreate(
                 [
-                    'id'    => $newAddress->location ? $newAddress->location->id : null
+                    'id' => $address->location?->id ?? null
                 ],
                 [
-                    'address_id'        => $newAddress->id,
-                    'longitude'         => $longitude,
-                    'latitude'          => $latitude
+                    'address_id' => $address->id,
+                    'longitude'  => $longitude,
+                    'latitude'   => $latitude
                 ]
             );
         }
 
-        $organization_id = Organization::where('code_deis', '=', $this->data['establecimiento'])->first()->id ?? null;
-        $contactPoint = ContactPoint::where('user_id', $userCreatedOrUpdated->id)->latest()->first();
-        $contactPoint_upsert = ContactPoint::updateOrCreate(
+        $this->getContactPoint($row, $user, $address);
+
+        return $address;
+    }
+
+    public function getContactPoint($row, $user, $address = null)
+    {
+        $telefono = $row['telefono'];
+        $establecimiento = $row['establecimiento'];
+
+        // Get organization_id from code_deis
+        $organization_id = preg_replace("/[^0-9]/", '', $establecimiento);
+        $organization_id = Organization::where('code_deis', '=', $organization_id)->first()?->id;
+
+        // Check if user has a contact point
+        $contactPoint = ContactPoint::where('user_id', $user->id)->latest()->first();
+
+        // Create or update contact point
+        return ContactPoint::updateOrCreate(
             [
-                'id'    => $contactPoint ? $contactPoint->id : null
+                'id' => $contactPoint ? $contactPoint->id : null
             ],
             [
                 'system'            => 'phone',
-                'user_id'           => $userCreatedOrUpdated->id,
-                'location_id'       => $newLocation->id ?? null,
-                'value'             => $this->data['telefono'],
+                'user_id'           => $user->id,
+                'location_id'       => $address?->location?->id,
+                'value'             => $telefono,
                 'organization_id'   => $organization_id,
-                'use'               => 'mobile',
-                'actually'          => 0, // TODO: vaya agregando si cambia
+                'use'              => 'mobile',
+                'actually'         => 0
+            ]
+        );
+    }
+
+    public function getDependentUser($row)
+    {
+        $user = $this->getUser($row);
+
+        // Create or update DependentUser
+        $dependentUser = DependentUser::updateOrCreate(
+            [
+                'user_id' => $user->id
+            ],
+            [
+                'diagnosis' => $this->formatField($row['diagnostico'], 'text'),
+                'healthcare_type' => $this->formatField($row['prevision'], 'healthcare'),
+                'check_in_date' => $this->formatField($row['fecha_ingreso'], 'date'),
+                'check_out_date' => $this->formatField($row['fecha_egreso'], 'date'),
+                'integral_visits' => $this->formatField($row['visitas_integrales'], 'integer'),
+                'treatment_visits' => $this->formatField($row['visitas_tratamiento'], 'integer'),
+                'last_integral_visit' => $this->formatField($row['fecha_visita_integral'], 'date'),
+                'last_treatment_visit' => $this->formatField($row['fecha_visita_tratamiento'], 'date'),
+                'barthel' => $this->formatField($row['barthel'], 'barthel'),
+                'empam' => $this->formatField($row['emp_empam'], 'boolean'),
+                'eleam' => $this->formatField($row['eleam'], 'boolean'),
+                'upp' => $this->formatField($row['upp'], 'boolean'),
+                'elaborated_plan' => $this->formatField($row['plan_elaborado'], 'boolean'),
+                'evaluated_plan' => $this->formatField($row['plan_evaluado'], 'boolean'),
+                'diapers_size' => $row['talla_panal'],
+                'pneumonia' => $this->formatField($row['neumo'], 'date'),
+                'influenza' => $this->formatField($row['influenza'], 'date'),
+                'covid_19' => $this->formatField($row['covid_19'], 'date'),
+                'extra_info' => $row['extra_info'],
+                'tech_aid' => $this->formatField($row['ayuda_tecnica'], 'boolean'),
+                'tech_aid_date' => $this->formatField($row['ayuda_tecnica_fecha'], 'date'),
+                'nutrition_assistance' => $this->formatField($row['entrega_alimentacion'], 'boolean'),
+                'nutrition_assistance_date' => $this->formatField($row['entrega_alimentacion_fecha'], 'date'),
+                'nasogastric_catheter' => $this->formatField($row['sonda_sng'], 'integer'),
+                'urinary_catheter' => $this->formatField($row['sonda_urinaria'], 'integer')
             ]
         );
 
-        //  -- Creator Importer cuidador
-
-        if ($this->data['run_cuidador'] != '') {
-            $user_caregiver = User::whereHas('identifiers', function ($query) {
-                $query->where('value', $this->data['run_cuidador'])
-                    ->Where('cod_con_identifier_type_id', 1);
-            })
-                ->first();
-
-            $sexValue_caregiver = ClassSex::where('text', $this->data['sexo_cuidador'])->first()->value ?? null;
-            $sexGender_caregiver = ClassGender::where('text', $this->data['genero_cuidador'])->first()->value ?? null;
-            $nationality_caregiver = Country::where('name', $this->data['nacionalidad_cuidador'])->first()->id ?? null;
-
-            $user_caregiver_upsert = User::updateOrCreate(
-                [
-                    'id'    => $user_caregiver ? $user_caregiver->id : null
-                ],
-                [
-                    'active'                => 1,
-                    'text'                  => $this->data['nombre_cuidador'] . ' ' . $this->data['apellido_paterno_cuidador'] . ' ' . $this->data['apellido_materno_cuidador'],
-                    'given'                 => $this->data['nombre_cuidador'],
-                    'fathers_family'        => $this->data['apellido_paterno_cuidador'],
-                    'mothers_family'        => $this->data['apellido_materno_cuidador'],
-                    'sex'                   => $sexValue_caregiver,
-                    'gender'                => $sexGender_caregiver,
-                    'birthday'              => date('Y-m-d', Carbon::createFromFormat('Y-m-d', $this->data['fecha_nacimiento_cuidador'])->getTimestamp()),
-                    // 'cod_con_marital_id'    => $this->data['estado_civil'],
-                    'nationality_id'        => $nationality_caregiver,
-                ]
-            );
-
-            if ($user_caregiver == null) {
-                // SE CREA IDENTIFIER
-                $identifier_caregiver_create = Identifier::create(
-                    [
-                        'user_id'                       => $user_caregiver_upsert->id,
-                        'use'                           => 'official',
-                        'cod_con_identifier_type_id'    => 1,
-                        'value'                         => $this->data['run_cuidador'],
-                        'dv'                            => $this->data['dv_cuidador']
-                    ]
-                );
-
-                //SE CREA HUMAN NAME
-                $humanNameCaregiver = HumanName::create(
-                    [
-                        'use'               => 'official',
-                        'given'             => $this->data['nombre_cuidador'],
-                        'fathers_family'    => $this->data['apellido_paterno_cuidador'],
-                        'mothers_family'    => $this->data['apellido_materno_cuidador'],
-                        'period_start'      => now(),
-                        'user_id'           => $user_caregiver_upsert->id
-                    ]
-                );
-            }
-
-            //ADDRESS
-            $addressCaregiverExist = new Address();
-            foreach ($user_caregiver_upsert->addresses as $address) {
-                if ($address->use->value == 'home') {
-                    $addressCaregiverExist = $address;
-                }
-            }
-
-            $communeCaregiver = Commune::where('name', $this->data['comuna'])->first()->id;
-
-            $newAddressCaregiver = Address::updateOrCreate(
-                [
-                    'id'    => $addressCaregiverExist ? $addressCaregiverExist->id : null
-                ],
-                [
-
-                    'user_id'       => $user_caregiver_upsert->id,
-                    'use'           => 'home',
-                    'type'          => 'physical',
-                    'text'          => $this->data['calle'],
-                    'line'          => $this->data['numero'],
-                    'apartment'     => $this->data['departamento'] ?? null,
-                    'suburb'        => null,
-                    'city'          => null,
-                    'commune_id'    => $communeCaregiver,
-                    'postal_code'   => null,
-                    'region_id'     => null,
-                ]
-            );
-
-            //LOCATION CAREGIVER
-            $caregiverStreet    = $this->data['calle'];
-            $caregiverNumber     = $this->data['numero'];
-            $caregiverCommune    = $this->data['comuna'];
-            if ($caregiverStreet && $caregiverNumber && $caregiverCommune) {
-
-                $geocodingService = app(GeocodingService::class);
-                $caregiverCordinates = $geocodingService->getCoordinates($caregiverStreet . '+' . $caregiverNumber . '+' . $caregiverCommune);
-
-                if ($coordinates) {
-                    $caregiverLatitude   = $caregiverCordinates['lat'];
-                    $caregiverLongitude  = $caregiverCordinates['lng'];
-                } else {
-                    $caregiverLatitude   = null;
-                    $caregiverLongitude  = null;
-                }
-
-                $newCaregiverLocation = Location::updateOrCreate(
-                    [
-                        'id'    => $newAddressCaregiver->location ? $newAddressCaregiver->location->id : null
-                    ],
-                    [
-                        'address_id'        => $newAddressCaregiver->id,
-                        'longitude'         => $longitude,
-                        'latitude'          => $latitude
-                    ]
-                );
-            }
-
-            // Verificar que no exista ya un caregiver y si existe actualizar
-            $caregiver = DependentCaregiver::whereHas(
-                'user',
-                function ($query) use ($user_caregiver_upsert) {
-                    $query->where('id', $user_caregiver_upsert->id);
-                }
-            )->first();
-
-            $caregiver_upsert = DependentCaregiver::updateOrCreate(
-                [
-                    'id'    => $caregiver ? $caregiver->id : null
-                ],
-                [
-                    'dependent_user_id'     => $record->id,
-                    'user_id'               => $user_caregiver_upsert->id,
-                    'relative'              => $this->data['parentesco_cuidador'],
-                    'healthcare_type'       => $this->data['prevision_cuidador'],
-                    'empam'                 => $this->data['empam_cuidador'],
-                    'zarit'                 => $this->data['zarit_cuidador'],
-                    'immunizations'         => $this->data['inmunizaciones_cuidador'],
-                    'elaborated_plan'       => $this->data['plan_elaborado_cuidador'],
-                    'evaluated_plan'        => $this->data['plan_evaluado_cuidador'],
-                    'trained'               => $this->data['capacitacion_cuidador'],
-                    'stipend'               => $this->data['estipendio_cuidador'],
-                ]
-            );
-
-
-            // Crear o Actualizar contactPoint del cuidador
-            $caregiverContactPoint = ContactPoint::where('user_id', $user_caregiver_upsert->id)->latest()->first();
-            $caregiverContactPoint_upsert = ContactPoint::updateOrCreate(
-                [
-                    'id'    => $caregiverContactPoint ? $caregiverContactPoint->id : null
-                ],
-                [
-                    'system'            => 'phone',
-                    'user_id'           => $user_caregiver_upsert->id,
-                    'location_id'       => $newCaregiverLocation->id ?? null,
-                    'value'             => $this->data['telefono'],
-                    'organization_id'   => $organization_id,
-                    'use'               => 'mobile',
-                    'actually'          => 0, // TODO: vaya agregando si cambia
-                ]
-            );
+        $attachIds = array_keys($row['condiciones']);
+        if (!empty($attachIds)) {
+            $dependentUser->conditions()->syncWithoutDetaching($attachIds);
         }
-
-        $record->user_id  = $userCreatedOrUpdated->id;
-        $record->diagnosis = $this->data['diagnostico'];
-        $record->healthcare_type = $this->data['prevision'];
-        $record->check_in_date = $this->validateDate($this->data['fecha_ingreso']);
-        $record->check_out_date = $this->validateDate($this->data['fecha_egreso']);
-        $record->integral_visits = $this->data['visitas_integrales'];
-        $record->treatment_visits = $this->data['visitas_tratamiento'];
-        $record->last_integral_visit = $this->validateDate($this->data['fecha_visita_integral']);
-        $record->last_treatment_visit =  $this->validateDate($this->data['fecha_visita_tratamiento']);
-        $record->barthel = $this->data['barthel'];
-        $record->empam = $this->data['emp_empam'];
-        $record->eleam = $this->data['eleam'];
-        $record->upp = $this->data['upp'];
-        $record->elaborated_plan = $this->data['plan_elaborado'];
-        $record->evaluated_plan = $this->data['plan_evaluado'];
-        $record->diapers_size = $this->data['talla_panal'];
-        $record->pneumonia = $this->validateDate($this->data['neumo']);
-        $record->influenza = $this->validateDate($this->data['influenza']);
-        $record->covid_19 = $this->validateDate($this->data['covid_19']);
-        $record->extra_info = $this->data['extra_info'];
-        $record->tech_aid = $this->data['ayuda_tecnica'];
-        $record->tech_aid_date = $this->validateDate($this->data['ayuda_tecnica_fecha']);
-        $record->nutrition_assistance = $this->data['entrega_alimentacion'];
-        $record->nutrition_assistance_date = $this->validateDate($this->data['entrega_alimentacion_fecha']);
-        $record->nasogastric_catheter = $this->data['sonda_sng'];
-        $record->urinary_catheter = $this->data['sonda_urinaria'];
-        $record->save();
-
-        return $record;
+        return $dependentUser;
     }
 
-    public function validateDate($text)
+    public function getCaregiver($row, $dependentUser)
     {
-        $out = null;
-        if ($text != '') {
-            $date_str = DateTime::createFromFormat('d/m/Y', $text);
-            if ($date_str != false) {
-                $out = $date_str->format('Y-m-d');
-            }
-        }
-        return $out;
+        $caregiverUser = $this->getUser($row, true);
+        // Check if caregiver exists
+        $caregiver = DependentCaregiver::whereHas('user', function ($query) use ($caregiverUser) {
+            $query->where('id', $caregiverUser->id);
+        })->first();
+
+        // Create or update caregiver
+        $dependentCaregiver = DependentCaregiver::updateOrCreate(
+            [
+                'id' => $caregiver ? $caregiver->id : null
+            ],
+            [
+                'dependent_user_id' => $dependentUser->id,
+                'user_id'          => $caregiverUser->id,
+                'relative'         => $row['parentesco_cuidador'],
+                'healthcare_type'  => $this->formatField($row['prevision_cuidador'], 'healthcare'),
+                'empam'           => $this->formatField($row['empam_cuidador'], 'boolean'),
+                'zarit'           => $this->formatField($row['zarit_cuidador'], 'boolean'),
+                'immunizations'    => $row['inmunizaciones_cuidador'],
+                'elaborated_plan' => $this->formatField($row['plan_elaborado_cuidador'], 'boolean'),
+                'evaluated_plan'  => $this->formatField($row['plan_evaluado_cuidador'], 'boolean'),
+                'trained'         => $this->formatField($row['capacitacion_cuidador'], 'boolean'),
+                'stipend'         => $this->formatField($row['estipendio_cuidador'], 'boolean')
+            ]
+        );
+        return $dependentCaregiver;
     }
 
-    public function assignConditions(array $conditions, $record): void
+    public function formatField($value, $type)
     {
+        switch ($type) {
+            case 'boolean':
+                $value = strtolower(trim($value));
+                return $value == 'si' || $value == 'ok' ? true : ($value == 'no' || $value == 'p' ? false : null);
 
+            case 'integer':
+                $clean = intval(trim($value));
+                return $clean != 0 ? strval($clean) : null;
 
+            case 'date':
+                if (is_null($value)) {
+                    return null;
+                }
+                $value = intval(trim($value));
+                // $date = DateTime::createFromFormat('d/m/Y', $value)->format($this->date_format);
+                $date = DateTime::createFromFormat($this->date_format, $value);
 
-        if ($this->validateBool($this->originalData['electrodependencia'])) {
-            $this->record->conditions()->attach(1);
-        }
-        if ($this->validateBool($this->originalData['movilidad_reducida'])) {
-            $this->record->conditions()->attach(2);
-        }
-        if ($this->validateBool($this->originalData['oxigeno_dependiente'])) {
-            $this->record->conditions()->attach(3);
-        }
-        if ($this->validateBool($this->originalData['alimentacion_enteral'])) {
-            $this->record->conditions()->attach(4);
-        }
-        if ($this->validateBool($this->originalData['oncologicos'])) {
-            $this->record->conditions()->attach(5);
-        }
-        if ($this->validateBool($this->originalData['cuidados_paliativos_universales'])) {
-            $this->record->conditions()->attach(6);
-        }
-        if ($this->validateBool($this->originalData['naneas'])) {
-            $this->record->conditions()->attach(7);
+                return $date ?? null;
+
+            case 'barthel':
+                $map = [
+                    'independiente' => 'independent',
+                    'leve' => 'slight',
+                    'moderado' => 'moderate',
+                    'grave' => 'severe',
+                    'total' => 'total'
+                ];
+                return $map[strtolower(trim($value))] ?? null;
+
+            case 'healthcare':
+                $value = strtolower(trim($value));
+                $words = explode(' ', $value);
+                $value = (count($words) > 1) ? array_pop($words) : $value;
+                $map = [
+                    'a' => 'FONASA A',
+                    'b' => 'FONASA B',
+                    'c' => 'FONASA C',
+                    'd' => 'FONASA D',
+                    'isapre' => 'ISAPRE',
+                    'prais' => 'PRAIS'
+                ];
+                return $map[$value] ?? null;
+            default:
+                return $value;
         }
     }
 }
