@@ -25,13 +25,13 @@ class DependentUserResource extends Resource
 {
     protected static ?string $model = DependentUser::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'icon-dependent-temp';
 
     protected static ?string $modelLabel = 'Paciente dependiente severo';
 
-    protected static ?string $pluralModelLabel = 'Pacientes dependientes severos';
+    protected static ?string $pluralModelLabel = 'Dependientes severos';
 
-    protected static ?string $navigationLabel = 'Pacientes dependientes severos';
+    protected static ?string $navigationLabel = 'Dependientes severos';
 
     public static function form(Form $form): Form
     {
@@ -307,7 +307,6 @@ class DependentUserResource extends Resource
                     ->label('Otros'),
                 Tables\Columns\TextColumn::make('dependentCaregiver.relative')
                     ->label(new HtmlString('Parentesco <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
-                // ->label(''),
                 Tables\Columns\TextColumn::make('dependentCaregiver.user.text')
                     ->label(new HtmlString('Nombre <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                 Tables\Columns\TextColumn::make('dependentCaregiver.user.age')
@@ -334,7 +333,7 @@ class DependentUserResource extends Resource
                 Tables\Columns\IconColumn::make('dependentCaregiver.stipend')
                     ->label(new HtmlString('Plan Evaluado <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->boolean(),
-            ])
+            ])->striped()
             ->filters([
                 Tables\Filters\Filter::make('user')
                     ->form([

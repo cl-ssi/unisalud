@@ -15,6 +15,7 @@ use Illuminate\Contracts\Support\Htmlable;
 use Filament\Support\Enums\IconPosition;
 use Filament\Support\Enums\IconSize;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Blade;
 
 class ListDependentUsers extends ListRecords
 {
@@ -22,13 +23,21 @@ class ListDependentUsers extends ListRecords
 
     public function getHeading(): string|Htmlable
     {
+        /* 
         return new HtmlString($this->getHeadingWithIcon(
-            heading: 'Pacientes dependientes severos',
-            icon: 'heroicon-o-rectangle-stack',
-            iconColor: 'black',
+            heading: 'Dependientes severos',
+            icon: 'icon-dependent-temp',
             iconPosition: IconPosition::Before,
-            iconSize: IconSize::Medium
-        ));
+            iconSize: IconSize::Large
+        )); 
+        */
+
+        return new HtmlString(Blade::render('<div class="flex items-center">
+                <x-icon-dependent-temp 
+                style="--c-600: var(--black-600);margin-inline-end: .5rem; width: 5rem; height: 5rem;"
+                class="inline text-custom-600"
+                /> Dependientes Severos 
+            </div>'));
     }
 
     protected static string $resource = DependentUserResource::class;

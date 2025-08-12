@@ -1,13 +1,13 @@
 <?php
-    
+
 namespace App\Filament\Pages\Concerns;
-    
+
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Filament\Support\Enums\IconSize;
 use Filament\Support\Enums\IconPosition;
-    
+
 trait HasHeadingIcon
 {
     public function getHeadingWithIcon(
@@ -16,45 +16,44 @@ trait HasHeadingIcon
         string $iconColor = 'primary',
         IconPosition $iconPosition = IconPosition::Before,
         IconSize $iconSize = IconSize::Medium,
-    ): string | Htmlable
-    {
+    ): string | Htmlable {
         $color = "--c-600: var(--{$iconColor}-600);";
-    
+
         $margin = ($iconPosition === IconPosition::Before)
             ? 'margin-inline-end: .5rem;'
             : 'margin-inline-start: .5rem;';
-    
-        $size = match($iconSize) {
+
+        $size = match ($iconSize) {
             IconSize::Small => '1.4rem',
             IconSize::Medium => '1.75rem',
             IconSize::Large => '2.5rem',
         };
-    
+
         $dimensions = "width: {$size}; height: {$size};";
-    
+
         $iconStyle = "{$color} {$margin} {$dimensions}";
-    
+
         $iconComponent = filled($icon)
-            ? '<x-'. $icon .' style="'. $iconStyle .'" class="inline text-custom-600" />'
+            ? '<x-' . $icon . ' style="' . $iconStyle . '" class="inline text-custom-600" />'
             : null;
-    
+
         $headingText = $heading ?? $this->heading ?? $this->getTitle();
-    
+
         if (blank($iconComponent)) {
             return $headingText;
         }
-    
+
         $iconBefore = ($iconPosition === IconPosition::Before)
             ? $iconComponent
             : null;
-    
+
         $iconAfter = ($iconPosition === IconPosition::After)
             ? $iconComponent
             : null;
 
         return new HtmlString(
             Blade::render('<div class="flex items-center">
-                '. $iconBefore .' '. $headingText .' '. $iconAfter .'
+                ' . $iconBefore . ' ' . $headingText . ' ' . $iconAfter . '
             </div>')
         );
     }
