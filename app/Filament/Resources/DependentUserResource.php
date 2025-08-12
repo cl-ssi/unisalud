@@ -201,6 +201,7 @@ class DependentUserResource extends Resource
                     ->date('Y-m-d'),
                 Tables\Columns\TextColumn::make('user.age')
                     ->label('Edad'),
+                /*
                 Tables\Columns\TextColumn::make('user.address.use')
                     ->label('Tipo Dirección'),
                 Tables\Columns\TextColumn::make('user.address.text')
@@ -209,18 +210,19 @@ class DependentUserResource extends Resource
                     ->label('N°'),
                 Tables\Columns\TextColumn::make('user.address.commune.name')
                     ->label('Comuna'),
-                Tables\Columns\IconColumn::make('user.address.location.flooded')
-                    ->label('Zona Inundable')
-                    ->boolean(),
-                Tables\Columns\IconColumn::make('user.address.location.alluvium')
-                    ->label('Zona Aluvional')
-                    ->boolean(),
+                */
+                Tables\Columns\TextColumn::make('risks')
+                    ->label('Zona de Riesgo')
+                    ->badge()
+                    ->separator(','),
+                /*
                 Tables\Columns\TextColumn::make('user.address.location.longitude')
                     ->label('Longitud'),
                 Tables\Columns\TextColumn::make('user.address.location.latitude')
                     ->label('Latitud'),
                 Tables\Columns\TextColumn::make('user.mobileContactPoint.value')
                     ->label('Telefono'),
+                */
                 Tables\Columns\TextColumn::make('diagnosis')
                     ->label('Diagnostico')
                     ->searchable(),
@@ -360,9 +362,19 @@ class DependentUserResource extends Resource
                     })
                     ->label('Condicion')
                     ->multiple(),
-                Tables\Filters\SelectFilter::make('risks')
+                Tables\Filters\SelectFilter::make('riesgos')
                     ->label('Riesgos')
-                    ->multiple(),
+                    ->options([
+                        'Zona de Inundacion' => 'Zona de Inundación',
+                        'Zona de Aluvion' => 'Zona de Aluvión'
+                    ])
+                    ->multiple()
+                    ->query(function ($query, $data) {
+                        if (! empty($data["values"])) {
+                            // $query->whereIn('risks', Arr::flatten($data));
+                            $query->whereJsonContains('risks', Arr::flatten($data));
+                        }
+                    }),
                 Tables\Filters\SelectFilter::make('user.mobileContactPoint.organization')
                     // ->relationship('user.mobileContactPoint.organization', 'alias')
                     ->label('Organizacion')

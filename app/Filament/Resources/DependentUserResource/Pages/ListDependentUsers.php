@@ -63,6 +63,7 @@ class ListDependentUsers extends ListRecords
                 ->import(DependentUserImport::class)
                 ->type(\Maatwebsite\Excel\Excel::XLSX)
                 ->label('Importar')
+                ->visible(auth()->user()->can('be god'))
                 ->hint('Subir archivo de tipo xlsx')
                 ->icon('heroicon-o-arrow-down-tray'),
 

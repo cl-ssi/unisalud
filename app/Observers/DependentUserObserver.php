@@ -11,11 +11,14 @@ class DependentUserObserver
      */
     public function created(DependentUser $dependentUser): void
     {
-        $dependentUser->risks = [
-            'flooded' => $dependentUser->user->address->location->flooded ?? null,
-            'alluvium' => $dependentUser->user->address->location->alluvium ?? null
-        ];
-        $dependentUser->save();
+        $location = $dependentUser->user->address->location ?? null;
+        $risks = array_filter([
+            $location?->flooded ? 'Zona de Inundacion' : null,
+            $location?->alluvium ? 'Zona de Aluvion' : null,
+        ]);
+        if (isset($risks)) {
+            $dependentUser->update(['risks' => $risks]);
+        }
     }
 
     /**

@@ -21,11 +21,13 @@ class LocationObserver
     {
         $dependentUser = $location->address->dependentUser;
         if ($dependentUser) {
-            $dependentUser->risks = [
-                'flooded' => $location->flooded ?? null,
-                'alluvium' => $location->alluvium ?? null
-            ];
-            $dependentUser->save();
+            $risks = array_filter([
+                $location?->flooded ? 'Zona de Inundacion' : null,
+                $location?->alluvium ? 'Zona de Aluvion' : null,
+            ]);
+            if (isset($risks)) {
+                $dependentUser->update(['risks' => $risks]);
+            }
         }
     }
 
