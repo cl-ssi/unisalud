@@ -27,7 +27,7 @@ class DependentUserResource extends Resource
 
     protected static ?string $navigationIcon = 'icon-dependent-temp';
 
-    protected static ?string $modelLabel = 'Paciente dependiente severo';
+    protected static ?string $modelLabel = 'Dependiente severo';
 
     protected static ?string $pluralModelLabel = 'Dependientes severos';
 
@@ -44,7 +44,7 @@ class DependentUserResource extends Resource
                             ->label('Nombre')
                             ->disabled(),
                         Forms\Components\DatePicker::make('birthday')
-                            ->date()
+                            ->date('d/m/Y')
                             ->label('Fecha de Nacimiento')
                             ->disabled(),
                         Forms\Components\Group::make()
@@ -184,57 +184,86 @@ class DependentUserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->heading('Dependientes Severos')
+            ->description('Listado de Dependientes Severos.')
             ->columns([
                 Tables\Columns\TextColumn::make('user.mobileContactPoint.organization.alias')
+                    ->wrap(false)
                     ->label('Establecimiento'),
                 Tables\Columns\TextColumn::make('user.text')
-                    ->label('Nombre Completo')
-                    ->getStateUsing(function ($record) {
-                        return ($record->user?->text) ?? $record->user?->given . ' ' . $record->user?->fathers_family . ' ' . $record->user?->mothers_family;
-                    }),
+                    ->wrap(false)
+                    ->label('Nombre Completo'),
+                Tables\Columns\TextColumn::make('user.given')
+                    ->hidden()
+                    ->label('Nombre'),
+                Tables\Columns\TextColumn::make('user.fathers_family')
+                    ->hidden()
+                    ->label('Apellido Paterno'),
+                Tables\Columns\TextColumn::make('user.mothers_family')
+                    ->hidden()
+                    ->label('Apellido Materno'),
+                Tables\Columns\TextColumn::make('user.officialIdentifier.rut')
+                    ->label('RUT'),
+                Tables\Columns\TextColumn::make('user.officialIdentifier.value')
+                    ->hidden()
+                    ->label('RUN'),
+                Tables\Columns\TextColumn::make('user.officialIdentifier.dv')
+                    ->hidden()
+                    ->label('DV'),
+                Tables\Columns\TextColumn::make('healthcare_type')
+                    ->hidden()
+                    ->label('Prevision'),
                 Tables\Columns\TextColumn::make('user.sex')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label('Sexo'),
                 Tables\Columns\TextColumn::make('user.gender')
+                    ->hidden()
                     ->label('Genero'),
                 Tables\Columns\TextColumn::make('user.birthday')
+                    ->hidden()
                     ->label('Fecha Nacimiento')
                     ->date('Y-m-d'),
                 Tables\Columns\TextColumn::make('user.age')
                     ->label('Edad'),
-                /*
-                Tables\Columns\TextColumn::make('user.address.use')
-                    ->label('Tipo Dirección'),
-                Tables\Columns\TextColumn::make('user.address.text')
-                    ->label('Calle'),
-                Tables\Columns\TextColumn::make('user.address.line')
-                    ->label('N°'),
-                Tables\Columns\TextColumn::make('user.address.commune.name')
-                    ->label('Comuna'),
-                */
-                Tables\Columns\TextColumn::make('risks')
-                    ->label('Zona de Riesgo')
-                    ->badge()
-                    ->separator(','),
-                /*
-                Tables\Columns\TextColumn::make('user.address.location.longitude')
-                    ->label('Longitud'),
-                Tables\Columns\TextColumn::make('user.address.location.latitude')
-                    ->label('Latitud'),
-                Tables\Columns\TextColumn::make('user.mobileContactPoint.value')
-                    ->label('Telefono'),
-                */
+                Tables\Columns\TextColumn::make('user.nationality.name')
+                    ->hidden()
+                    ->label('Nacionalidad'),
                 Tables\Columns\TextColumn::make('diagnosis')
+                    ->wrap(false)
                     ->label('Diagnostico')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('healthcare_type')
-                    ->label('Prevision'),
+                Tables\Columns\TextColumn::make('user.address.full_address')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Dirección'),
+                Tables\Columns\TextColumn::make('user.address.text')
+                    ->hidden()
+                    ->label('Calle'),
+                Tables\Columns\TextColumn::make('user.address.line')
+                    ->hidden()
+                    ->label('Número'),
+                Tables\Columns\TextColumn::make('user.address.apartment')
+                    ->hidden()
+                    ->label('Departamento'),
+                Tables\Columns\TextColumn::make('user.address.commune.name')
+                    ->hidden()
+                    ->label('Comuna'),
+                Tables\Columns\TextColumn::make('user.mobileContactPoint.value')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Telefono'),
+                Tables\Columns\TextColumn::make('user.address.location.longitude')
+                    ->hidden()
+                    ->label('Longitud'),
+                Tables\Columns\TextColumn::make('user.address.location.latitude')
+                    ->hidden()
+                    ->label('Latitud'),
                 Tables\Columns\TextColumn::make('check_in_date')
                     ->label('Fecha de Ingreso')
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('check_out_date')
                     ->label('Fecha de Egreso')
-                    ->date()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->date('d/m/Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('integral_visits')
                     ->label('Vistas Integrales')
@@ -242,7 +271,7 @@ class DependentUserResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('last_integral_visit')
                     ->label('Última Visita Integral')
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('treatment_visits')
                     ->label('Visitas de Tratamiento')
@@ -250,65 +279,97 @@ class DependentUserResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('last_treatment_visit')
                     ->label('Última Visita de Tratamiento')
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('risks')
+                    ->label('Zonas de Riesgo')
+                    ->badge()
+                    ->separator(','),
+                Tables\Columns\TextColumn::make('badges')
+                    ->label('Controles')
+                    ->badge()
+                    ->separator(','),
                 Tables\Columns\TextColumn::make('barthel')
+                    ->hidden()
                     ->label('Barthel'),
-                /*
                 Tables\Columns\IconColumn::make('empam')
+                    ->hidden()
                     ->label('Emp / Empam')
                     ->boolean(),
                 Tables\Columns\IconColumn::make('eleam')
+                    ->hidden()
                     ->label('Eleam')
                     ->boolean(),
                 Tables\Columns\IconColumn::make('upp')
+                    ->hidden()
                     ->label('UPP')
                     ->boolean(),
                 Tables\Columns\IconColumn::make('elaborated_plan')
+                    ->hidden()
                     ->label('Plan Elaborado')
                     ->boolean(),
                 Tables\Columns\IconColumn::make('evaluated_plan')
+                    ->hidden()
                     ->label('Plan Evaluado')
                     ->boolean(),
-                */
                 Tables\Columns\TextColumn::make('pneumonia')
+                    ->hidden()
                     ->label('Neumonia')
-                    ->date()
-                    ->searchable(),
+                    ->date('d/m/Y')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('influenza')
+                    ->hidden()
                     ->label('Influenza')
-                    ->date()
-                    ->searchable(),
+                    ->date('d/m/Y')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('covid_19')
+                    ->hidden()
                     ->label('Covid-19')
-                    ->date()
-                    ->searchable(),
+                    ->date('d/m/Y')
+                    ->sortable(),
                 Tables\Columns\IconColumn::make('tech_aid')
+                    ->hidden()
                     ->label('Ayuda Técnica')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('tech_aid_date')
                     ->label('Fecha Ayuda Técnica')
-                    ->date()
+                    ->date('d/m/Y')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
                 Tables\Columns\IconColumn::make('nutrition_assistance')
+                    ->hidden()
                     ->label('Entrega de Alimentación')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('nutrition_assistance_date')
                     ->label('Fecha Entrega de Alimentación')
-                    ->date()
+                    ->date('d/m/Y')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('diapers_size')
-                    ->label('Tamaño de Pañal'),
+                    ->label('Tamaño de Pañal')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('nasogastric_catheter')
-                    ->label('Sonda Nasogástrica'),
+                    ->label('Sonda Nasogástrica')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('urinary_catheter')
-                    ->label('Sonda Urinaria'),
+                    ->label('Sonda Urinaria')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('extra_info')
-                    ->label('Otros'),
+                    ->label('Otros')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('dependentCaregiver.relative')
                     ->label(new HtmlString('Parentesco <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                 Tables\Columns\TextColumn::make('dependentCaregiver.user.text')
                     ->label(new HtmlString('Nombre <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
+                Tables\Columns\TextColumn::make('dependentCaregiver.user.given')
+                    ->hidden()
+                    ->label(new HtmlString('Nombre Cuidador')),
+                Tables\Columns\TextColumn::make('dependentCaregiver.user.fathers_family')
+                    ->hidden()
+                    ->label(new HtmlString('Apellido Paterno Cuidador')),
+                Tables\Columns\TextColumn::make('dependentCaregiver.user.mothers_family')
+                    ->hidden()
+                    ->label(new HtmlString('Apellido Materno Cuidador')),
                 Tables\Columns\TextColumn::make('dependentCaregiver.user.age')
                     ->label(new HtmlString('Edad  <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                 Tables\Columns\TextColumn::make('dependentCaregiver.healthcare_type')
@@ -328,12 +389,12 @@ class DependentUserResource extends Resource
                     ->label(new HtmlString('Plan Evaluado <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->boolean(),
                 Tables\Columns\IconColumn::make('dependentCaregiver.trained')
-                    ->label(new HtmlString('Plan Evaluado <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
+                    ->label(new HtmlString('Capacitacion <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->boolean(),
                 Tables\Columns\IconColumn::make('dependentCaregiver.stipend')
-                    ->label(new HtmlString('Plan Evaluado <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
+                    ->label(new HtmlString('Estipéndio <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->boolean(),
-            ])->striped()
+            ])->striped()->paginationPageOptions([10, 25, 50])->defaultPaginationPageOption(25)
             ->filters([
                 Tables\Filters\Filter::make('user')
                     ->form([

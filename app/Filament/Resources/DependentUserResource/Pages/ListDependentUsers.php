@@ -9,6 +9,7 @@ use Filament\Actions;
 use YOS\FilamentExcel\Actions\Import;
 use App\Imports\DependentUserImport;
 use pxlrbt\FilamentExcel;
+use pxlrbt\FilamentExcel\Columns\Column;
 
 use App\Filament\Pages\Concerns\HasHeadingIcon;
 use Illuminate\Contracts\Support\Htmlable;
@@ -34,7 +35,7 @@ class ListDependentUsers extends ListRecords
 
         return new HtmlString(Blade::render('<div class="flex items-center">
                 <x-icon-dependent-temp 
-                style="--c-600: var(--black-600);margin-inline-end: .5rem; width: 5rem; height: 5rem;"
+                style="--c-600: var(--black-600);margin-inline-end: .5rem; width: 4rem; height: 5rem;"
                 class="inline text-custom-600"
                 /> Dependientes Severos 
             </div>'));
@@ -59,15 +60,6 @@ class ListDependentUsers extends ListRecords
                 ))
                 ->icon('heroicon-o-map')
                 ->label('Mapa'),
-            FilamentExcel\Actions\Pages\ExportAction::make()
-                ->label('Exportar')
-                ->icon('heroicon-o-arrow-up-tray')
-                ->exports([
-                    FilamentExcel\Exports\ExcelExport::make()
-                        ->fromTable()
-                        ->withFilename(fn($resource) => $resource::getModelLabel() . '-' . date('Y-m-d'))
-                        ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
-                ]),
             Import::make()
                 ->import(DependentUserImport::class)
                 ->type(\Maatwebsite\Excel\Excel::XLSX)
@@ -75,7 +67,36 @@ class ListDependentUsers extends ListRecords
                 ->visible(auth()->user()->can('be god'))
                 ->hint('Subir archivo de tipo xlsx')
                 ->icon('heroicon-o-arrow-down-tray'),
-
+            FilamentExcel\Actions\Pages\ExportAction::make()
+                ->label('Exportar')
+                ->icon('heroicon-o-arrow-up-tray')
+                ->exports([
+                    FilamentExcel\Exports\ExcelExport::make()
+                        ->withFilename(fn($resource) => $resource::getModelLabel() . '-' . date('Y-m-d_H-s'))
+                        ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
+                        ->fromTable()
+                        ->except([
+                            'user.officialIdentifier.rut',
+                            'risks',
+                            'badges',
+                            'user.address.full_address',
+                        ])
+                        ->withColumns([
+                            Column::make('dependentCaregiver.relative')->heading('Parentesco_Cuidador'),
+                            Column::make('dependentCaregiver.user.given')->heading('Nombre_Cuidador'),
+                            Column::make('dependentCaregiver.user.fathers_family')->heading('Apellido_Paterno_Cuidador'),
+                            Column::make('dependentCaregiver.user.mothers_family')->heading('Apellido_Materno_Cuidador'),
+                            Column::make('dependentCaregiver.user.age')->heading('Edad_Cuidador'),
+                            Column::make('dependentCaregiver.healthcare_type')->heading('Prevision_Cuidador'),
+                            Column::make('dependentCaregiver.empam')->heading('Empam_Cuidador'),
+                            Column::make('dependentCaregiver.zarit')->heading('Zarit_Cuidador'),
+                            Column::make('dependentCaregiver.immunizations')->heading('Inmunizaciones_Cuidador'),
+                            Column::make('dependentCaregiver.elaborated_plan')->heading('Plan_Elaborado_Cuidador'),
+                            Column::make('dependentCaregiver.evaluated_plan')->heading('Plan_Evaluado_Cuidador'),
+                            Column::make('dependentCaregiver.trained')->heading('Capacitacion_Cuidador'),
+                            Column::make('dependentCaregiver.stipend')->heading('Estipendio_Cuidador'),
+                        ]),
+                ]),
         ];
     }
 
