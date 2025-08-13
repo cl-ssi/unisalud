@@ -68,6 +68,14 @@ class DependentUser extends Model
         'cod_con_clinical_status'       => ConditionClinicalStatus::class,
         'cod_con_verification_status'   => ConditionVerificationStatus::class,
         'risks' => 'array',
+        'badges' => 'array',
+        'pneumonia' => 'date',
+        'influenza' => 'date',
+        'covid-19'  => 'date',
+    ];
+
+    protected $appends = [
+        'badges'
     ];
 
     public function user(): BelongsTo
@@ -85,6 +93,61 @@ class DependentUser extends Model
     public function dependentCaregiver(): HasOne
     {
         return $this->HasOne(DependentCaregiver::class);
+    }
+
+    public function getBadgesAttribute(): array
+    {
+        $out = [];
+        $data = [
+            'barthel'           => true,
+            'empam'             => false,
+            'eleam'             => false,
+            'upp'               => false,
+            'elaborated_plan'   => false,
+            'evaluated_plan'    => false,
+            'pneumonia'         => true,
+            'influenza'         => true,
+            'covid-19'          => true,
+        ];
+        foreach ($data as $name => $show) {
+            if ($this->$name) {
+                $value = (strtotime($this->$name) !== false) ? ($this->$name->format('d/m/Y')) : $this->$name;
+                $out[] = $this->getLabel($name) . (($show) ? (': ' . $value) : '');
+            }
+        }
+        return $out;
+    }
+
+    public function getLabel(string $name): string
+    {
+        $headings = [
+            'diagnosis' => 'Diagnostico',
+            'check_in_date' => 'Fecha de Ingreso',
+            'check_out_date' => 'Fecha de Egreso',
+            'integral_visits' => 'Vistas Integrales',
+            'treatment_visits' => 'Visitas de Tratamiento',
+            'last_integral_visit' => 'Última Visita Integral',
+            'last_treatment_visit' => 'Última Visita de Tratamiento',
+            'barthel' => 'Barthel',
+            'empam' => 'Emp / Empam',
+            'eleam' => 'Eleam',
+            'upp' => 'UPP',
+            'elaborated_plan' => 'Plan Elaborado',
+            'evaluated_plan' => 'Plan Evaluado',
+            'pneumonia' => 'Neumonia',
+            'influenza' => 'Influenza',
+            'covid_19' => 'Covid-19',
+            'tech_aid' => 'Ayuda Técnica',
+            'tech_aid_date' => 'Fecha Ayuda Técnica',
+            'nutrition_assistance' => 'Entrega de Alimentación',
+            'nutrition_assistance_date' => 'Fecha Entrega de Alimentación',
+            'diapers_size' => 'Tamaño de Pañal',
+            'nasogastric_catheter' => 'Sonda Nasogástrica',
+            'urinary_catheter' => 'Sonda Urinaria',
+            'extra_info' => 'Otros',
+            'risks' => 'Zonas de Riesgo',
+        ];
+        return $headings[$name] ?? '';
     }
 
     protected $table = 'dependent_user';

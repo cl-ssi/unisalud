@@ -30,6 +30,10 @@ class Identifier extends Model
         'use'   => IdentifierUse::class
     ];
 
+    protected $appends = [
+        'rut',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -40,10 +44,10 @@ class Identifier extends Model
         return $this->belongsTo(CodConIdentifierType::class);
     }
 
-    public function run(): Attribute
+    public function rut(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->value . '-' . $this->dv
+            get: fn() => $this->value . '-' . $this->dv
         );
     }
 }

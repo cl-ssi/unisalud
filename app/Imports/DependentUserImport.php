@@ -87,7 +87,7 @@ class DependentUserImport implements ToModel, WithHeadingRow //, WithValidation
             'parentesco_cuidador',
             'empam_cuidador'
         ];
-
+        // $row = array_change_key_case($row, CASE_LOWER);
         foreach ($headings as $heading) {
             $row[$heading] = $row[$heading] ?? null;
         }
@@ -206,7 +206,7 @@ class DependentUserImport implements ToModel, WithHeadingRow //, WithValidation
         $calle = $row['calle'];
         $numero = $row['numero'];
         $departamento = $row['departamento'];
-        $comuna = $row['comuna'];
+        $comuna = ucfirst($row['comuna']);
 
         // Check if user has home address
         $addressExist = null;
@@ -233,11 +233,12 @@ class DependentUserImport implements ToModel, WithHeadingRow //, WithValidation
                 'apartment'     => $departamento,
                 'suburb'        => null,
                 'city'          => null,
-                'commune_id'    => $commune,
+                'commune_id'    => $commune->id ?? null,
                 'postal_code'   => null,
-                'region_id'     => null,
+                'region_id'     => $commune->region_id ?? null,
             ]
         );
+
 
         // Get coordinates and create location
         if ($calle && $numero && $comuna) {
