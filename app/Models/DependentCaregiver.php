@@ -24,7 +24,7 @@ class DependentCaregiver extends Model
      * The attributes that are mass assignable.
      *
      * @var array
-    */
+     */
     protected $fillable = [
         'id',
         'dependent_user_id',
@@ -58,4 +58,40 @@ class DependentCaregiver extends Model
     // {
     //     return $this->contactPoint?->BelongsTo(Organization::class)->where('service', '=', 3);
     // }
+
+    public function getControlsAttribute(): array
+    {
+        $out = [];
+        $data = [
+            'empam'             => false,
+            'zarit'             => false,
+            'elaborated_plan'   => false,
+            'evaluated_plan'    => false,
+            'trained'           => false,
+            'stipend'           => false,
+            'immunizations'     => true,
+        ];
+        foreach ($data as $name => $show) {
+            if ($this->$name) {
+                $value = (strtotime($this->$name) !== false) ? ($this->$name->format('d/m/Y')) : $this->$name;
+                $out[] = self::getLabel($name) . (($show) ? (': ' . $value) : '');
+            }
+        }
+        return $out;
+    }
+
+    public static function getLabel(string $name): string
+    {
+        $headings = [
+            'relative' => 'Parentesco',
+            'empam' => 'Emp / Empam',
+            'zarit' => 'Zarit',
+            'immunizations' => 'Imunizaciones',
+            'elaborated_plan' => 'Plan Elaborado',
+            'evaluated_plan' => 'Plan Evaluado',
+            'trained' => 'Capacitación',
+            'stipend' => 'Estipéndio',
+        ];
+        return $headings[$name] ?? '';
+    }
 }

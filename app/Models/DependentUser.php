@@ -68,7 +68,7 @@ class DependentUser extends Model
         'cod_con_clinical_status'       => ConditionClinicalStatus::class,
         'cod_con_verification_status'   => ConditionVerificationStatus::class,
         'risks' => 'array',
-        'badges' => 'array',
+        'controls' => 'array',
         'pneumonia' => 'date',
         'influenza' => 'date',
         'covid-19'  => 'date',
@@ -95,7 +95,7 @@ class DependentUser extends Model
         return $this->HasOne(DependentCaregiver::class);
     }
 
-    public function getBadgesAttribute(): array
+    public function getControlsAttribute(): array
     {
         $out = [];
         $data = [
@@ -112,13 +112,13 @@ class DependentUser extends Model
         foreach ($data as $name => $show) {
             if ($this->$name) {
                 $value = (strtotime($this->$name) !== false) ? ($this->$name->format('d/m/Y')) : $this->$name;
-                $out[] = $this->getLabel($name) . (($show) ? (': ' . $value) : '');
+                $out[] = self::getLabel($name) . (($show) ? (': ' . $value) : '');
             }
         }
         return $out;
     }
 
-    public function getLabel(string $name): string
+    public static function getLabel(string $name): string
     {
         $headings = [
             'diagnosis' => 'Diagnostico',

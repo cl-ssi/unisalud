@@ -80,6 +80,7 @@ class ListDependentUsers extends ListRecords
                             'risks',
                             'badges',
                             'user.address.full_address',
+                            'dependentCaregiver.controls'
                         ])
                         ->withColumns([
                             Column::make('dependentCaregiver.relative')->heading('Parentesco_Cuidador'),

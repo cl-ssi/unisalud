@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\DependentUserResource\Pages;
 use App\Filament\Resources\DependentUserResource\RelationManagers;
-
+use App\Models\DependentCaregiver;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -184,14 +184,15 @@ class DependentUserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->heading('Dependientes Severos')
-            ->description('Listado de Dependientes Severos.')
+            ->heading('GeoPADDS')
+            ->description(new HtmlString('Georreferenciación <br>
+             Programa de Atención Domiciliaria para personas con Dependencia Severa y Cuidadores'))
             ->columns([
                 Tables\Columns\TextColumn::make('user.mobileContactPoint.organization.alias')
-                    ->wrap(false)
+                    ->wrap()
                     ->label('Establecimiento'),
                 Tables\Columns\TextColumn::make('user.text')
-                    ->wrap(false)
+                    ->wrap()
                     ->label('Nombre Completo'),
                 Tables\Columns\TextColumn::make('user.given')
                     ->hidden()
@@ -229,7 +230,7 @@ class DependentUserResource extends Resource
                     ->hidden()
                     ->label('Nacionalidad'),
                 Tables\Columns\TextColumn::make('diagnosis')
-                    ->wrap(false)
+                    ->wrap()
                     ->label('Diagnostico')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('user.address.full_address')
@@ -284,11 +285,28 @@ class DependentUserResource extends Resource
                 Tables\Columns\TextColumn::make('risks')
                     ->label('Zonas de Riesgo')
                     ->badge()
-                    ->separator(','),
-                Tables\Columns\TextColumn::make('badges')
+                    ->separator(',')
+                    ->color(fn(string $state): string => match ($state) {
+                        'Zona de Inundacion'    => 'danger',
+                        'Zona de Aluvion'       => 'warning',
+                        default                 => 'primary',
+                    }),
+                Tables\Columns\TextColumn::make('controls')
                     ->label('Controles')
                     ->badge()
-                    ->separator(','),
+                    ->separator(',')
+                    ->color(fn(string $state): string => match (true) {
+                        Str::contains($state, DependentUser::getLabel('barthel'))          => 'fuchsia',
+                        Str::contains($state, DependentUser::getLabel('empam'))            => 'amber',
+                        Str::contains($state, DependentUser::getLabel('eleam'))            => 'sky',
+                        Str::contains($state, DependentUser::getLabel('upp'))              => 'violet',
+                        Str::contains($state, DependentUser::getLabel('elaborated_plan'))  => 'lime',
+                        Str::contains($state, DependentUser::getLabel('evaluated_plan'))   => 'teal',
+                        Str::contains($state, DependentUser::getLabel('pneumonia'))        => 'orange',
+                        Str::contains($state, DependentUser::getLabel('influenza'))        => 'stone',
+                        Str::contains($state, DependentUser::getLabel('covid-19'))         => 'slate',
+                        default                                                           => 'primary',
+                    }),
                 Tables\Columns\TextColumn::make('barthel')
                     ->hidden()
                     ->label('Barthel'),
@@ -328,7 +346,7 @@ class DependentUserResource extends Resource
                     ->date('d/m/Y')
                     ->sortable(),
                 Tables\Columns\IconColumn::make('tech_aid')
-                    ->hidden()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label('Ayuda Técnica')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('tech_aid_date')
@@ -337,7 +355,7 @@ class DependentUserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
                 Tables\Columns\IconColumn::make('nutrition_assistance')
-                    ->hidden()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label('Entrega de Alimentación')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('nutrition_assistance_date')
@@ -373,27 +391,49 @@ class DependentUserResource extends Resource
                 Tables\Columns\TextColumn::make('dependentCaregiver.user.age')
                     ->label(new HtmlString('Edad  <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                 Tables\Columns\TextColumn::make('dependentCaregiver.healthcare_type')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(new HtmlString('Prevision  <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                 Tables\Columns\IconColumn::make('dependentCaregiver.empam')
                     ->label(new HtmlString('Empam <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
+                    ->hidden()
                     ->boolean(),
                 Tables\Columns\IconColumn::make('dependentCaregiver.zarit')
                     ->label(new HtmlString('Zarit <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
+                    ->hidden()
                     ->boolean(),
                 Tables\Columns\TextColumn::make('.dependentCaregiver.immunizations')
-                    ->label(new HtmlString('Imunizacion <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
+                    ->hidden()
+                    ->label(new HtmlString('Imunizaciones <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                 Tables\Columns\IconColumn::make('dependentCaregiver.elaborated_plan')
+                    ->hidden()
                     ->label(new HtmlString('Plan Elaborado <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->boolean(),
                 Tables\Columns\IconColumn::make('dependentCaregiver.evaluated_plan')
+                    ->hidden()
                     ->label(new HtmlString('Plan Evaluado <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->boolean(),
                 Tables\Columns\IconColumn::make('dependentCaregiver.trained')
+                    ->hidden()
                     ->label(new HtmlString('Capacitacion <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->boolean(),
                 Tables\Columns\IconColumn::make('dependentCaregiver.stipend')
+                    ->hidden()
                     ->label(new HtmlString('Estipéndio <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->boolean(),
+                Tables\Columns\TextColumn::make('dependentCaregiver.controls')
+                    ->label(new HtmlString('Controles <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
+                    ->badge()
+                    ->separator(',')
+                    ->color(fn(string $state): string => match (true) {
+                        Str::contains($state, DependentCaregiver::getLabel('empam'))             => 'fuchsia',
+                        Str::contains($state, DependentCaregiver::getLabel('zarit'))             => 'amber',
+                        Str::contains($state, DependentCaregiver::getLabel('elaborated_plan'))   => 'sky',
+                        Str::contains($state, DependentCaregiver::getLabel('evaluated_plan'))    => 'violet',
+                        Str::contains($state, DependentCaregiver::getLabel('trained'))           => 'lime',
+                        Str::contains($state, DependentCaregiver::getLabel('stipend'))           => 'teal',
+                        Str::contains($state, DependentCaregiver::getLabel('immunizations'))           => 'orange',
+                        default                                                                 => 'primary',
+                    }),
             ])->striped()->paginationPageOptions([10, 25, 50])->defaultPaginationPageOption(25)
             ->filters([
                 Tables\Filters\Filter::make('user')
