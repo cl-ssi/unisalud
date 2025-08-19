@@ -39,53 +39,41 @@
 
 
             init() {
-                // Initialize the map with default center and zoom level
-                const zoom = 14;
-                const center = [-20.216700, -70.14222];
-                this.osm = new L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '© OpenStreetMap'
-                });
-                this.osmHOT = new L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '© OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team hosted by OpenStreetMap France'
-                });
-                this.map = new L.map(this.$el, {
-                    center: center,
-                    zoom: zoom,
-                    zoomAnimation: true,
-                    layers: [this.osm],
-                    fullscreenControl: true,
-                    renderer: L.canvas()
-                });
-                this.clusterGroup = L.markerClusterGroup().addTo(this.map);
-                this.baseLayers = {
-                    "OSM": this.osm,
-                    "OSM HOT": this.osmHOT
-                };
-                this.layerControl = new L.Control.Layers(this.baseLayers).addTo(this.map);
-                this.updateMarkers(markers);
-
-
-                // Listen for marker updates and refresh the map
-                window.addEventListener('markersUpdated', event => {
-                    const newMarkers = event.detail.markers;
-                    this.updateMarkers(newMarkers);
-                    if (newMarkers.length) {
-                        const {
-                            lat,
-                            lng
-                        } = newMarkers[0];
-                        this.map.setView([lat, lng], zoom);
-                    }
-                });
-
-                // Load GeoJSON layers from the server
                 Promise.all([
                     fetch(baseUrl + "/json/linea_seguridad_iquique.geojson").then(res => res.json()),
                     fetch(baseUrl + "/json/cota_30_tarapaca.geojson").then(res => res.json()),
                     fetch(baseUrl + "/json/UTF-81_Aluvion.geojson").then(res => res.json())
                 ]).then(([lineaJson, cotaJson, aluvionJson]) => {
+                    this.osm = new L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '© OpenStreetMap'
+                    });
+                    this.map = new L.map(this.$el, {
+                        center: [-20.216700, -70.14222],
+                        zoom: 14,
+                        zoomAnimation: true,
+                        layers: [this.osm],
+                        fullscreenControl: true,
+                        renderer: L.canvas()
+                    });
+                    this.clusterGroup = L.markerClusterGroup();
+                    this.updateMarkers(markers);
+
+                    // Listen for marker updates and refresh the map
+                    Livewire.on('markersUpdated', (markers) => {
+                        const newMarkers = JSON.parse(markers);
+                        this.updateMarkers(newMarkers);
+                        if (newMarkers.length) {
+                            const {
+                                lat,
+                                lng
+                            } = newMarkers[0];
+                            // this.map.setView([lat, lng], zoom);
+                        }
+                    });
+
+                    // Load GeoJSON layers from the server
+
                     this.lineaJson = new L.GeoJSON(lineaJson, {
                         style: {
                             color: '#00FF00'
@@ -101,19 +89,18 @@
                             color: '#660066'
                         }
                     });
-
-                    this.layerControl.remove();
-                    this.layerControl = null;
                     this.layerControl = new L.Control.Layers(this.baseLayers, {
                         'Linea de seguridad': new L.LayerGroup([this.lineaJson]),
                         'Cota de inundacion': new L.LayerGroup([this.cotaJson]),
-                        'Zona de aluvion': new L.LayerGroup([this.aluvionJson])
+                        'Zona de aluvion': new L.LayerGroup([this.aluvionJson]),
+                        'Marcadores': this.clusterGroup,
                     }).addTo(this.map);
                 });
             },
 
             // Update the markers on the map
             async updateMarkers(data) {
+                console.log(data);
                 this.clusterGroup.clearLayers();
                 await data.forEach(d => {
                     const marker = L.marker(

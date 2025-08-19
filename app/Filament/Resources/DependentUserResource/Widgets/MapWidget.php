@@ -74,7 +74,6 @@ class MapWidget extends Widget
 
             ->get();
 
-
         $this->markers = $dependentUsers->map(function ($p) {
             $lat = $p->user->address->location->latitude;
             $lng = $p->user->address->location->longitude;
@@ -103,6 +102,8 @@ class MapWidget extends Widget
         $this->users_id      = $users_id ?? $this->users_id;
         $this->risks      = $risks ?? $this->risks;
         $this->loadPatients();
-        $this->dispatch('markersUpdated', $this->markers);
+
+        // $data = ['markers' => $this->loadPatients(), 'baseUrl' => $this->baseUrl];
+        // $this->dispatch('markersUpdated', data: $data);
     }
 }
