@@ -25,7 +25,7 @@ class DependentUserResource extends Resource
 {
     protected static ?string $model = DependentUser::class;
 
-    protected static ?string $navigationIcon = 'icon-dependent-temp';
+    protected static ?string $navigationIcon = 'icon-geo-padds';
 
     protected static ?string $modelLabel = 'Dependiente severo';
 
@@ -184,7 +184,6 @@ class DependentUserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->heading('GeoPADDS')
             ->description(new HtmlString('Georreferenciación <br>
              Programa de Atención Domiciliaria para personas con Dependencia Severa y Cuidadores'))
             ->columns([
@@ -230,9 +229,30 @@ class DependentUserResource extends Resource
                     ->hidden()
                     ->label('Nacionalidad'),
                 Tables\Columns\TextColumn::make('diagnosis')
-                    ->wrap()
                     ->label('Diagnostico')
+                    // ->listWithLineBreaks()
+                    ->bulleted()
+                    ->separator('/')
+                    ->limitList(3)
+                    ->expandableLimitedList()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('conditions.name')
+                    ->label('Condiciones')
+                    ->badge()
+                    ->formatStateUsing(fn(string $state) => Str::ucwords($state))
+                    ->color(fn(string $state): string => match (true) {
+                        Str::contains($state, 'electrodependencia')          => 'fuchsia',
+                        Str::contains($state, 'movilidad reducida')            => 'amber',
+                        Str::contains($state, 'oxigeno dependient')            => 'sky',
+                        Str::contains($state, 'alimentacion enteral')              => 'violet',
+                        Str::contains($state, 'oncologicos')  => 'lime',
+                        Str::contains($state, 'cuidados paliativos universales')   => 'teal',
+                        Str::contains($state, 'naneas')        => 'orange',
+                        Str::contains($state, 'asistencia ventilatoria no invasiva')        => 'stone',
+                        Str::contains($state, 'asistencia ventilatoria invasiva')         => 'slate',
+                        Str::contains($state, 'concentradores de oxigeno')         => 'neutral',
+                        default                                                           => 'primary',
+                    }),
                 Tables\Columns\TextColumn::make('user.address.full_address')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label('Dirección'),

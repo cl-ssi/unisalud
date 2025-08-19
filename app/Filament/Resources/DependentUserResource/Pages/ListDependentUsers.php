@@ -34,10 +34,7 @@ class ListDependentUsers extends ListRecords
         */
 
         return new HtmlString(Blade::render('<div class="flex items-center">
-                <x-icon-dependent-temp 
-                style="--c-600: var(--black-600);margin-inline-end: .5rem; width: 4rem; height: 5rem;"
-                class="inline text-custom-600"
-                /> Dependientes Severos 
+                <img src="{{asset(\'images/GeoPADDS-Header.png\')}}" alt="GeoPADDS Header" class="img-fluid" style="max-height: 5.5vw;">
             </div>'));
     }
 
@@ -56,6 +53,7 @@ class ListDependentUsers extends ListRecords
                         'conditions_id' => $livewire->getTable()->getFilters()['conditions']->getState('name')['values'] ?? null,
                         'search' => $livewire->getTable()->getFilters()['user']->getForm()->getState()['name'] ?? null,
                         'organizations_id' => $livewire->getTable()->getFilters()['user.mobileContactPoint.organization']->getState()['values'] ?? null,
+                        'risks' => $livewire->getTable()->getFilters()['riesgos']->getState()['values'] ?? null,
                     ]
                 ))
                 ->icon('heroicon-o-map')
