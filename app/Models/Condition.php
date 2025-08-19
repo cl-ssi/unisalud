@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\DependentUser;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Number;
 
 class Condition extends Model
 {
@@ -62,6 +61,24 @@ class Condition extends Model
     {
         return self::whereNotNull('parent_id')->get();
     }
+
+    public static function getHeadingAttribute(string $name): String
+    {
+        $headings = [
+            "electrodependencia"                    => "",
+            "movilidad reducida"                    => "",
+            "oxigeno dependiente"                   => "",
+            "alimentacion enteral"                  => "",
+            "oncologicos"                           => "",
+            "cuidados paliativos universales"       => "",
+            "naneas"                                => "",
+            "asistencia ventilatoria no invasiva"   => "",
+            "asistencia ventilatoria invasiva"      => "",
+            "concentradores de oxigeno"             => "",
+        ];
+        return $headings[$name] ?? '';
+    }
+
 
     protected $table = 'condition';
 }

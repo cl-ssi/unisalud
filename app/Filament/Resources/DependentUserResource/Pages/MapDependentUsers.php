@@ -27,10 +27,12 @@ class MapDependentUsers extends Page
     public $organizationTypes;
     public $conditionTypes;
 
+
     public $conditions_id = null;
     public $req_users_id = null;
     public $organizations_id = null;
     public $search = null;
+    public $risks = null;
 
 
 
@@ -44,14 +46,17 @@ class MapDependentUsers extends Page
             ])
             ->pluck('alias', 'id');
 
+
         $this->conditions_id = request('conditions_id') ?? null;
         $this->req_users_id = request('users_id') ?? null;
         $this->organizations_id = request('organizations_id') ?? null;
+        $this->risks = request('risks') ?? null;
 
         $this->form->fill([
             'conditions_id' => $this->conditions_id,
             'organizations_id' => $this->organizations_id,
             'users_id' => $this->req_users_id,
+            'risks' => $this->risks,
         ]);
     }
 
@@ -76,6 +81,15 @@ class MapDependentUsers extends Page
                     ->preload()
                     ->reactive()
                     ->afterStateUpdated(fn($state) => $this->organizations_id = $state),
+                Forms\Components\Select::make('risks')
+                    ->label('Riesgos')
+                    ->options([
+                        'Zona de Inundacion' => 'Zona de Inundación',
+                        'Zona de Aluvion' => 'Zona de Aluvión'
+                    ])
+                    ->multiple()
+                    ->reactive()
+                    ->afterStateUpdated(fn($state) => $this->risks = $state),
             ]);
     }
 
@@ -97,13 +111,14 @@ class MapDependentUsers extends Page
                 'conditions_id' => $this->conditions_id,
                 'organizations_id' => $this->organizations_id,
                 'users_id' => $this->req_users_id,
+                'risks' => $this->risks,
             ])
 
         ];
     }
 
-    public function updated($property = null)
+    public function updated($name)
     {
-        $this->dispatch('changeFilters', $this->conditions_id, $this->organizations_id, $this->req_users_id);
+        $this->dispatch('changeFilters', $this->conditions_id, $this->organizations_id, $this->req_users_id, $this->risks);
     }
 }

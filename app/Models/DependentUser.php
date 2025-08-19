@@ -67,7 +67,6 @@ class DependentUser extends Model
     protected $casts = [
         'cod_con_clinical_status'       => ConditionClinicalStatus::class,
         'cod_con_verification_status'   => ConditionVerificationStatus::class,
-        'risks' => 'array',
         'controls' => 'array',
         'pneumonia' => 'date',
         'influenza' => 'date',
@@ -75,7 +74,7 @@ class DependentUser extends Model
     ];
 
     protected $appends = [
-        'badges'
+        'controls'
     ];
 
     public function user(): BelongsTo
@@ -149,6 +148,8 @@ class DependentUser extends Model
         ];
         return $headings[$name] ?? '';
     }
+
+
 
     protected $table = 'dependent_user';
 }
