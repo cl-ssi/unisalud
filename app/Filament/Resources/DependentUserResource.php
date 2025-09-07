@@ -398,6 +398,7 @@ class DependentUserResource extends Resource
                 Tables\Columns\TextColumn::make('dependentCaregiver.relative')
                     ->label(new HtmlString('Parentesco <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                 Tables\Columns\TextColumn::make('dependentCaregiver.user.text')
+                    ->wrap()
                     ->label(new HtmlString('Nombre <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                 Tables\Columns\TextColumn::make('dependentCaregiver.user.given')
                     ->hidden()

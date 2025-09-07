@@ -103,7 +103,6 @@ class MapWidget extends Widget
         $this->risks      = $risks ?? $this->risks;
         $this->loadPatients();
 
-        // $data = ['markers' => $this->loadPatients(), 'baseUrl' => $this->baseUrl];
-        // $this->dispatch('markersUpdated', data: $data);
+        $this->dispatch('markersUpdated', $this->loadPatients());
     }
 }
