@@ -87,8 +87,8 @@ class MapWidget extends Widget
                 'lng'   => floatval($lng),
                 'name'    => $p->user->text,
                 'address' => $p->user->address->text . ' ' . $p->user->address->line,
-                'flooded' => in_array('Zona de Inundacion', json_decode($p->risks)),
-                'alluvium' => in_array('Zona de Aluvion', json_decode($p->risks)),
+                'flooded' => in_array('Zona de Inundacion', $p->risks),
+                'alluvium' => in_array('Zona de Aluvion', $p->risks),
             ];
         })->filter()->values()->toArray();
     }

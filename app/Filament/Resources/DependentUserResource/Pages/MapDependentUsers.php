@@ -90,7 +90,7 @@ class MapDependentUsers extends Page
                     ->multiple()
                     ->reactive()
                     ->afterStateUpdated(fn($state) => $this->risks = $state),
-            ]);
+            ])->columns(3);
     }
 
     protected function getHeaderActions(): array
