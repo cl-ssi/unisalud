@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\Organization;
+use App\Models\DependentUser;
+
 use App\Filament\Resources\DependentUserResource\Pages;
 use App\Filament\Resources\DependentUserResource\RelationManagers;
 use App\Models\DependentCaregiver;
@@ -11,15 +14,14 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-use Illuminate\Support\HtmlString;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Database\Eloquent\Model;
-
-use App\Models\Organization;
-use App\Models\DependentUser;
-
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+
+
 
 class DependentUserResource extends Resource
 {
@@ -31,7 +33,7 @@ class DependentUserResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Dependientes severos';
 
-    protected static ?string $navigationLabel = 'Dependientes severos';
+    protected static ?string $navigationLabel = 'GEO PADDS';
 
     public static function form(Form $form): Form
     {
@@ -473,6 +475,7 @@ class DependentUserResource extends Resource
                 Tables\Filters\SelectFilter::make('conditions')
                     ->relationship('conditions', 'name')
                     ->preload()
+                    ->default(Request::query('conditions_id'))
                     ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when($data['values'], function ($q, $values) {
@@ -490,6 +493,7 @@ class DependentUserResource extends Resource
                         'Zona de Aluvion' => 'Zona de Aluvión'
                     ])
                     ->multiple()
+                    ->default(Request::query('risks'))
                     ->query(function ($query, $data) {
                         if (! empty($data["values"])) {
                             // $query->whereIn('risks', Arr::flatten($data));
@@ -501,6 +505,7 @@ class DependentUserResource extends Resource
                     ->label('Organizacion')
                     ->multiple()
                     ->preload()
+                    ->default(Request::query('organizations_id'))
                     ->modifyQueryUsing(function ($query, $data) {
                         if (! empty($data["values"])) {
                             $query->whereHas('user', function ($query) use ($data) {

@@ -46,7 +46,6 @@ class MapDependentUsers extends Page
             ])
             ->pluck('alias', 'id');
 
-
         $this->conditions_id = request('conditions_id') ?? null;
         $this->req_users_id = request('users_id') ?? null;
         $this->organizations_id = request('organizations_id') ?? null;
@@ -78,6 +77,7 @@ class MapDependentUsers extends Page
                     ->label('Organización')
                     ->options($this->organizationTypes)
                     ->placeholder('Seleccione una organización')
+                    ->multiple()
                     ->preload()
                     ->reactive()
                     ->afterStateUpdated(fn($state) => $this->organizations_id = $state),
@@ -97,28 +97,45 @@ class MapDependentUsers extends Page
     {
 
         return [
-            Actions\Action::make('Volver')
-                ->url(DependentUserResource::getUrl())
-                ->button()
-                ->color('info'),
+            // Actions\Action::make('Volver')
+            //     ->url(DependentUserResource::getUrl(
+            //         'index',
+            //         [
+            //             'conditions_id' => $this->conditions_id,
+            //             'risks' => $this->risks,
+            //             'organizations_id' => $this->organizations_id,
+            //         ]
+            //     ))
+            //     ->button()
+            //     ->color('info'),
         ];
     }
 
     protected function getFooterWidgets(): array
     {
         return [
-            // 'map' => \App\Filament\Resources\DependentUserResource\Widgets\MapWidget::make([
-            //     'conditions_id' => $this->conditions_id,
-            //     'organizations_id' => $this->organizations_id,
-            //     'users_id' => $this->req_users_id,
-            //     'risks' => $this->risks,
-            // ])
-
+            'map' => \App\Filament\Resources\DependentUserResource\Widgets\MapWidget::make([
+                'conditions_id' => $this->conditions_id,
+                'organizations_id' => $this->organizations_id,
+                'users_id' => $this->req_users_id,
+                'risks' => $this->risks,
+            ])
         ];
     }
 
     public function updated($name)
     {
         $this->dispatch('changeFilters', $this->conditions_id, $this->organizations_id, $this->req_users_id, $this->risks);
+    }
+
+    public function goBack()
+    {
+
+        return redirect()->route('filament.admin.resources.dependent-users.index', [
+            'conditions_id' => $this->conditions_id,
+            'risks' => $this->risks,
+            'organizations_id' => $this->organizations_id,
+            // 'users_id' => $this->req_users_id,
+        ]);
     }
 }
