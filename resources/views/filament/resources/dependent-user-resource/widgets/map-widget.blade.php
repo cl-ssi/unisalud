@@ -27,12 +27,28 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/4.0.0/Control.FullScreen.min.js" integrity="sha512-javanlE101qSyZ7XdaJMpB/RnKP4S/8jq1we4sy50BfBgXlcVbIJ5LIOyVa2qqnD+aGiD7J6TQ4bYKnL1Yqp5g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
     document.addEventListener('livewire:initialized', function() {
+        let lineaData = null;
+        let cotaData = null;
+        let aluvionData = null;
         let mapRef = null;
+        let markers = null;
         let markersLayerRef = null;
         let osmLayerRef = null;
         let geoJsonLayersRef = {};
         let layerControlRef = null;
         let mapContainerId = 'map';
+        Promise.all([
+            fetch("/json/linea_seguridad_iquique.geojson").then(res => res.json()),
+            fetch("/json/cota_30_tarapaca.geojson").then(res => res.json()),
+            fetch("/json/UTF-81_Aluvion.geojson").then(res => res.json())
+        ]).then(([lineaData, cotaData, aluvionData]) => {
+            lineaData = lineaData;
+            cotaData = cotaData;
+            aluvionData = aluvionData;
+            setupMap()
+        }).catch(error => {
+            console.error('Error al cargar o procesar los datos GeoJSON:', error);
+        });
 
         function setupMap() {
             console.log('Inicializando/Reinicializando el mapa...');
@@ -46,6 +62,9 @@
             if (!dataElement) {
                 console.error('Elemento con ID "dev-data" no encontrado.');
                 return;
+            } else {
+                markers = JSON.parse(dataElement.dataset.markers);
+                console.log('datos:', markers);
             }
 
             // Si ya existe un mapa, destrúyelo primero
@@ -60,13 +79,12 @@
                 markersLayerRef = null;
                 osmLayerRef = null;
                 geoJsonLayersRef = {};
-                // layerControlRef = null;
             }
 
             // Verificar si el contenedor es visible y tiene tamaño
             const rect = mapElement.getBoundingClientRect();
             const isVisible = rect.width > 0 && rect.height > 0;
-            console.log('Dimensiones del contenedor del mapa:', rect);
+
 
             if (!isVisible) {
                 console.warn('El contenedor del mapa no es visible o tiene tamaño 0. Retrasando inicialización.');
@@ -95,70 +113,62 @@
             markersLayerRef = L.layerGroup().addTo(mapRef);
 
             // Cargar y agregar capas GeoJSON
-            Promise.all([
-                fetch("/json/linea_seguridad_iquique.geojson").then(res => res.json()),
-                fetch("/json/cota_30_tarapaca.geojson").then(res => res.json()),
-                fetch("/json/UTF-81_Aluvion.geojson").then(res => res.json())
-            ]).then(([lineaData, cotaData, aluvionData]) => {
-                if (!mapRef) return;
 
-                geoJsonLayersRef.linea = L.geoJSON(lineaData, {
-                    style: {
-                        color: '#00FF00',
-                        weight: 2,
-                        opacity: 0.7
-                    }
-                }).addTo(mapRef);
+            if (!mapRef) return;
 
-                geoJsonLayersRef.cota = L.geoJSON(cotaData, {
-                    style: {
-                        color: '#FF0000',
-                        weight: 2,
-                        opacity: 0.7
-                    }
-                }).addTo(mapRef);
+            geoJsonLayersRef.linea = L.geoJSON(lineaData, {
+                style: {
+                    color: '#00FF00',
+                    weight: 2,
+                    opacity: 0.7
+                }
+            }).addTo(mapRef);
 
-                geoJsonLayersRef.aluvion = L.geoJSON(aluvionData, {
-                    style: {
-                        color: '#660066',
-                        weight: 2,
-                        opacity: 0.7
-                    }
-                }).addTo(mapRef);
+            geoJsonLayersRef.cota = L.geoJSON(cotaData, {
+                style: {
+                    color: '#FF0000',
+                    weight: 2,
+                    opacity: 0.7
+                }
+            }).addTo(mapRef);
 
-                const baseLayers = {
-                    'OpenStreetMap': osmLayerRef
-                };
-                const overlayLayers = {
-                    'Línea de seguridad': geoJsonLayersRef.linea,
-                    'Cota de inundación': geoJsonLayersRef.cota,
-                    'Zona de aluvión': geoJsonLayersRef.aluvion,
-                    'Marcadores': markersLayerRef
-                };
+            geoJsonLayersRef.aluvion = L.geoJSON(aluvionData, {
+                style: {
+                    color: '#660066',
+                    weight: 2,
+                    opacity: 0.7
+                }
+            }).addTo(mapRef);
 
-                layerControlRef = L.control.layers(baseLayers, overlayLayers, {
-                    collapsed: false
-                }).addTo(mapRef);
+            const baseLayers = {
+                'OpenStreetMap': osmLayerRef
+            };
+            const overlayLayers = {
+                'Línea de seguridad': geoJsonLayersRef.linea,
+                'Cota de inundación': geoJsonLayersRef.cota,
+                'Zona de aluvión': geoJsonLayersRef.aluvion,
+                'Marcadores': markersLayerRef
+            };
 
-                // Actualizar marcadores después de crear el mapa
-                const markers = JSON.parse(dataElement.dataset.markers);
-                updateMarkers(markers);
+            layerControlRef = L.control.layers(baseLayers, overlayLayers, {
+                collapsed: false
+            }).addTo(mapRef);
 
-                // Forzar invalidación del tamaño después de un breve retraso
-                // para asegurar que el contenedor ha terminado de renderizarse
-                setTimeout(() => {
-                    if (mapRef) {
-                        console.log('Forzando invalidación del tamaño del mapa...');
-                        mapRef.invalidateSize();
-                    }
-                }, 80); // 100ms después de cargar todo
+            updateMarkers(markers);
 
-            }).catch(error => {
-                console.error('Error al cargar o procesar los datos GeoJSON:', error);
-            });
+            // Forzar invalidación del tamaño después de un breve retraso
+            // para asegurar que el contenedor ha terminado de renderizarse
+            setTimeout(() => {
+                if (mapRef) {
+                    console.log('Forzando invalidación del tamaño del mapa...');
+                    mapRef.invalidateSize();
+                }
+            }, 80); // 100ms después de cargar todo
+
         }
 
-        function updateMarkers(data) {
+
+        function updateMarkers(markers) {
             console.log('Actualizando marcadores...');
             if (!mapRef || !markersLayerRef) {
                 console.warn('Mapa o capa de marcadores no inicializados.');
@@ -168,13 +178,14 @@
             try {
                 markersLayerRef.clearLayers();
 
-                if (!data || !data.length) {
+                if (!markers || !markers.length) {
                     console.log('No hay marcadores para mostrar.');
+                    console.log(markers);
                     return;
                 }
 
                 const newMarkers = [];
-                data.forEach(d => {
+                markers.forEach(d => {
                     const marker = L.marker([parseFloat(d.lat), parseFloat(d.lng)]);
 
                     let popupContent = `<div class="popup-content">
@@ -209,10 +220,6 @@
                 console.error('Error al actualizar marcadores:', e);
             }
         }
-
-        // Inicializar el mapa por primera vez con un pequeño retraso
-        // para asegurar que todo el DOM está cargado
-        setTimeout(setupMap, 100);
 
         // Escuchar eventos de Livewire
         Livewire.on('markersUpdated', (event) => {
