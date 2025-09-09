@@ -107,12 +107,12 @@ class MapDependentUsers extends Page
     protected function getFooterWidgets(): array
     {
         return [
-            'map' => \App\Filament\Resources\DependentUserResource\Widgets\MapWidget::make([
-                'conditions_id' => $this->conditions_id,
-                'organizations_id' => $this->organizations_id,
-                'users_id' => $this->req_users_id,
-                'risks' => $this->risks,
-            ])
+            // 'map' => \App\Filament\Resources\DependentUserResource\Widgets\MapWidget::make([
+            //     'conditions_id' => $this->conditions_id,
+            //     'organizations_id' => $this->organizations_id,
+            //     'users_id' => $this->req_users_id,
+            //     'risks' => $this->risks,
+            // ])
 
         ];
     }

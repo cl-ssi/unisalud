@@ -76,13 +76,21 @@ async function getOverlays(map) {
 
 async function addMarkers() {
     try {
-        const response = await axios.get(urlGeoPadds);
+        const response = await axios.get(urlGeoPadds, {
+            params: {
+                // conditions: conditions ?? null,
+                organizations: organizations ?? null,
+                users: users ?? null,
+                risks: risks ?? null,
+            }
+        });
+        console.log(response);
         geoPadds = response.data.geoPadds;
 
         geoPadds.map((geoPadd) => {
             if (geoPadd.latitude != null && geoPadd.longitude != null) {
                 // let icon = new L.icon(iconGeoPadd);
-                let latLng = [geoPadd.latitude, geoPadd.longitude];
+                let latLng = [geoPadd.lat, geoPadd.lng];
                 // let marker = new L.marker(latLng, { icon: icon });
                 let marker = new L.marker(latLng);
                 marker.bindTooltip(`${geoPadd.name}`).openTooltip();
@@ -102,9 +110,9 @@ function deleteMarkers() {
 
 
 
-setInterval(() => {
+// setInterval(() => {
 
-    // markers.refreshClusters();
-    deleteMarkers();
-    addMarkers(map)
-}, 20000);
+//     // markers.refreshClusters();
+//     deleteMarkers();
+//     addMarkers(map)
+// }, 20000);

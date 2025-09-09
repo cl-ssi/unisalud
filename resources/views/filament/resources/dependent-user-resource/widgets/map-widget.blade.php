@@ -19,8 +19,10 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/4.0.0/Control.FullScreen.min.js" integrity="sha512-javanlE101qSyZ7XdaJMpB/RnKP4S/8jq1we4sy50BfBgXlcVbIJ5LIOyVa2qqnD+aGiD7J6TQ4bYKnL1Yqp5g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.min.js"></script>
+@endpush
+@script
 <script>
-    document.addEventListener('alpine:init', () => {
+    document.addEventListener('livewire:load', () => {
         Alpine.data('mapComponent', (markers, baseUrl) => ({
             map: null,
             baseLayers: null,
@@ -259,4 +261,4 @@
         });
         */
 </script>
-@endpush
+@endscript

@@ -6,10 +6,10 @@ use Livewire\Component;
 
 class Map extends Component
 {
-    public $conditions_id = null;
-    public $organizations_id = null;
-    public $users_id = null;
-    public $risks = null;
+    public $conditions_id = [];
+    public $organizations_id = [];
+    public $users_id = [];
+    public $risks = [];
 
     protected $listeners = ['changeFilters'];
 
@@ -37,12 +37,12 @@ class Map extends Component
         $this->organizations_id = $organizations_id;
         $this->users_id = $req_users_id;
         $this->risks = $risks;
-        $this->dispatch('dataUpdated');
-        // $this->dispatch('dataUpdated', ['data' => [
-        //     'conditions_id' => $this->conditions_id,
-        //     'organizations_id' => $this->organizations_id,
-        //     'users_id' => $this->users_id,
-        //     'risks' => $this->risks
-        // ]]);
+        // $this->dispatch('dataUpdated');
+        $this->dispatch('dataUpdated', ['data' => [
+            'conditions_id' => $this->conditions_id,
+            'organizations_id' => $this->organizations_id,
+            'users_id' => $this->users_id,
+            'risks' => $this->risks
+        ]]);
     }
 }

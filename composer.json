@@ -17,6 +17,7 @@
         "filament/filament": "^3.3.34",
         "hasnayeen/themes": "^3.0",
         "laravel/framework": "^11.45",
+        "laravel/sanctum": "^4.0",
         "league/commonmark": "^2.7",
         "owen-it/laravel-auditing": "^14",
         "psr/simple-cache": "^3.0",
