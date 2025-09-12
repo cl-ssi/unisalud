@@ -116,6 +116,7 @@ class CreateDependentUser extends CreateRecord
                             ->columnSpan(1),
                         Forms\Components\Select::make('establecimiento')
                             ->label('Establecimiento')
+
                             ->options(Organization::whereService(3)->whereNotNull('code_deis')->pluck('alias', 'code_deis'))
                             ->columnSpan(1),
                         Forms\Components\Select::make('prevision')
@@ -139,6 +140,12 @@ class CreateDependentUser extends CreateRecord
                             ->columnSpan(1),
                         Forms\Components\DatePicker::make('fecha_egreso')
                             ->label('Fecha de Egreso')
+                            ->columnSpan(1),
+                        Forms\Components\DatePicker::make('fecha_visita_integral')
+                            ->label('Fecha de Visita Integral')
+                            ->columnSpan(1),
+                        Forms\Components\DatePicker::make('fecha_visita_tratamiento')
+                            ->label('Fecha de visita de Tratamiento')
                             ->columnSpan(1),
                         Forms\Components\TextInput::make('visitas_integrales')
                             ->label('Visitas Integrales')
@@ -279,8 +286,9 @@ class CreateDependentUser extends CreateRecord
                                 'non-disclose' => 'No revelar',
                             ])
                             ->columnSpan(1),
-                        Forms\Components\TextInput::make('nacionalidad_cuidador')
+                        Forms\Components\Select::make('nacionalidad_cuidador')
                             ->label('Nacionalidad Cuidador')
+                            ->options(Country::pluck('name', 'id'))
                             ->required()
                             ->columnSpan(1),
                         Forms\Components\Select::make('parentesco_cuidador')
@@ -332,7 +340,7 @@ class CreateDependentUser extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        $rules = [
+        /*  $rules = [
             'data.nombre'                       => 'required|string',
             'data.apellido_paterno'             => 'required|string',
             'data.apellido_materno'             => 'required|string',
@@ -347,7 +355,7 @@ class CreateDependentUser extends CreateRecord
             'data.numero'                       => 'required|string',
             'data.departamento'                 => 'nullable|string',
             'data.telefono'                     => 'required|numeric',
-            'data.establecimiento'              => 'nullable|string',
+            'data.establecimiento'              => 'tring',
             'data.prevision'                    => 'required|string',
             'data.diagnostico'                  => 'required|string',
             'data.fecha_ingreso'                => 'nullable|date',
@@ -380,7 +388,7 @@ class CreateDependentUser extends CreateRecord
             'data.dv_cuidador'                  => 'required|numeric', // Requiered if in form has_cuidador is true
             'data.sexo_cuidador'                => 'required|string', // Requiered if in form has_cuidador is true
             'data.genero_cuidador'              => 'nullable|string',
-            'data.nacionalidad_cuidador'        => 'required|string', // Requiered if in form has_cuidador is true
+            'data.nacionalidad_cuidador'        => 'required|array', // Requiered if in form has_cuidador is true
             'data.parentesco_cuidador'          => 'required|string', // Requiered if in form has_cuidador is true
             'data.prevision_cuidador'           => 'nullable|string',
             'data.empam_cuidador'               => 'nullable|boolean',
@@ -390,12 +398,12 @@ class CreateDependentUser extends CreateRecord
             'data.plan_evaluado_cuidador'       => 'nullable|boolean',
             'data.capacitacion_cuidador'        => 'nullable|boolean',
             'data.estipendio_cuidador'          => 'nullable|boolean',
-        ];
-        $data = $this->validate($rules);
-        foreach ($rules as $heading => $rule) {
-            $row[$heading] = $row[$heading] ?? null;
-        }
+        ]; */
 
+        $input = [];
+        foreach ($data as $name => $value) {
+            $input[$name] = $value ?? null;
+        }
         // Upsert an User, Address, ContactPoint, for Upsert a DependentUser and Attach Conditions
         $dependentUser = $this->getDependentUser($data);
 
@@ -444,7 +452,7 @@ class CreateDependentUser extends CreateRecord
                 'mothers_family'        => $apellido_materno,
                 'sex'                   => $sex,
                 'gender'                => $gender,
-                'birthday'              => $fecha_nacimiento,
+                'birthday'              => $fecha_nacimiento ? Carbon::parse($fecha_nacimiento)->format('d-m-Y') : null,
                 // 'cod_con_marital_id'    => $row['estado_civil'],
                 'nationality_id'        => $nationality,
             ]

@@ -30,21 +30,25 @@
         let lineaData = null;
         let cotaData = null;
         let aluvionData = null;
+
         let mapRef = null;
         let markers = null;
         let markersLayerRef = null;
         let osmLayerRef = null;
+        let satelliteLayer = null;
+
         let geoJsonLayersRef = {};
+
         let layerControlRef = null;
         let mapContainerId = 'map';
         Promise.all([
             fetch("/json/linea_seguridad_iquique.geojson").then(res => res.json()),
             fetch("/json/cota_30_tarapaca.geojson").then(res => res.json()),
             fetch("/json/UTF-81_Aluvion.geojson").then(res => res.json())
-        ]).then(([lineaData, cotaData, aluvionData]) => {
-            lineaData = lineaData;
-            cotaData = cotaData;
-            aluvionData = aluvionData;
+        ]).then(([lineaGeo, cotaGeo, aluvionGeo]) => {
+            lineaData = lineaGeo;
+            cotaData = cotaGeo;
+            aluvionData = aluvionGeo;
             setupMap()
         }).catch(error => {
             console.error('Error al cargar o procesar los datos GeoJSON:', error);
@@ -99,6 +103,11 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             });
 
+            satelliteLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+            });
+
             // Crear el mapa
             mapRef = L.map(mapContainerId, {
                 center: [-20.216700, -70.14222],
@@ -141,13 +150,14 @@
             }).addTo(mapRef);
 
             const baseLayers = {
-                'OpenStreetMap': osmLayerRef
+                'OpenStreetMap': osmLayerRef,
+                "Satellite": satelliteLayer
             };
             const overlayLayers = {
                 'Línea de seguridad': geoJsonLayersRef.linea,
                 'Cota de inundación': geoJsonLayersRef.cota,
                 'Zona de aluvión': geoJsonLayersRef.aluvion,
-                'Marcadores': markersLayerRef
+                'Marcadores': markersLayerRef,
             };
 
             layerControlRef = L.control.layers(baseLayers, overlayLayers, {

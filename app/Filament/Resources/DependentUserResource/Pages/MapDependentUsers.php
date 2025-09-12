@@ -38,6 +38,7 @@ class MapDependentUsers extends Page
 
     public function mount(): void
     {
+        // dd($this->getRecord()->children()->get());
         $this->conditionTypes = Condition::pluck('name', 'id')->toArray();
         $this->organizationTypes = Organization::whereHas('contactPoint', fn($query) => $query->whereNotNull('id'))
             ->with([
@@ -46,6 +47,7 @@ class MapDependentUsers extends Page
             ])
             ->pluck('alias', 'id');
 
+        //Obtener datos de solicitud con filtros y/o seleccion
         $this->conditions_id = request('conditions_id') ?? null;
         $this->req_users_id = request('users_id') ?? null;
         $this->organizations_id = request('organizations_id') ?? null;
@@ -135,7 +137,7 @@ class MapDependentUsers extends Page
             'conditions_id' => $this->conditions_id,
             'risks' => $this->risks,
             'organizations_id' => $this->organizations_id,
-            // 'users_id' => $this->req_users_id,
+            'users_id' => $this->req_users_id,
         ]);
     }
 }

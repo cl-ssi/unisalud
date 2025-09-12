@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use lluminate\Auth\AuthManager;
 use App\Models\Organization;
 use App\Models\DependentUser;
 
@@ -17,6 +18,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -539,6 +541,31 @@ class DependentUserResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('map')
+                        // ->url(fn(\Livewire\Component $livewire, Collection $records) => route(
+                        //     'filament.admin.resources.dependent-users.map',
+                        //     [
+                        //         'conditions_id' => $livewire->getTable()->getFilters()['conditions']->getState('name')['values'] ?? null,
+                        //         'search' => $livewire->getTable()->getFilters()['user']->getForm()->getState()['name'] ?? null,
+                        //         'organizations_id' => $livewire->getTable()->getFilters()['user.mobileContactPoint.organization']->getState()['values'] ?? null,
+                        //         'risks' => $livewire->getTable()->getFilters()['riesgos']->getState()['values'] ?? null,
+                        //         'users_id' => $records ?? 'peo',
+                        //     ]
+                        // ))
+                        ->action(function (\Livewire\Component $livewire, Collection $records) {
+                            $ids = $records->pluck('user_id')->toArray();
+                            return redirect()->route(
+                                'filament.admin.resources.dependent-users.map',
+                                [
+                                    'conditions_id' => $livewire->getTable()->getFilters()['conditions']->getState('name')['values'] ?? null,
+                                    'search' => $livewire->getTable()->getFilters()['user']->getForm()->getState()['name'] ?? null,
+                                    'organizations_id' => $livewire->getTable()->getFilters()['user.mobileContactPoint.organization']->getState()['values'] ?? null,
+                                    'risks' => $livewire->getTable()->getFilters()['riesgos']->getState()['values'] ?? null,
+                                    'users_id' => $ids ?? null,
+                                ]
+                            );
+                        })
+                        ->label('Mapa'),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
