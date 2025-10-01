@@ -99,18 +99,19 @@ class MapDependentUsers extends Page
     {
 
         return [
-            // Actions\Action::make('Volver')
-            //     ->url(DependentUserResource::getUrl(
-            //         'index',
-            //         [
-            //             'conditions_id' => $this->conditions_id,
-            //             'risks' => $this->risks,
-            //             'organizations_id' => $this->organizations_id,
-            //         ]
-            //     ))
-            //     ->button()
-            //     ->color('info'),
-        ];
+            /*          
+            Actions\Action::make('Volver')
+                ->url(DependentUserResource::getUrl(
+                    'index',
+                    [
+                        'conditions_id' => $this->conditions_id,
+                        'risks' => $this->risks,
+                        'organizations_id' => $this->organizations_id,
+                    ]
+                ))
+                ->button()
+                ->color('info'), 
+            */];
     }
 
     protected function getFooterWidgets(): array
@@ -137,7 +138,7 @@ class MapDependentUsers extends Page
             'conditions_id' => $this->conditions_id,
             'risks' => $this->risks,
             'organizations_id' => $this->organizations_id,
-            'users_id' => $this->req_users_id,
+            // 'users_id' => $this->req_users_id,
         ]);
     }
 }

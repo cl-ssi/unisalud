@@ -22,6 +22,8 @@ class ListDependentUsers extends ListRecords
 {
     use HasHeadingIcon;
 
+    protected static string $resource = DependentUserResource::class;
+
     public function getHeading(): string|Htmlable
     {
         /* 
@@ -33,12 +35,14 @@ class ListDependentUsers extends ListRecords
         )); 
         */
 
-        return new HtmlString(Blade::render('<div class="flex items-center">
-                <img src="{{asset(\'images/GeoPADDS-Header.png\')}}" alt="GeoPADDS Header" class="img-fluid" style="max-height: 5.5vw;">
-            </div>'));
+        return new HtmlString(Blade::render(
+            '<div class="flex items-center">
+            <img src="{{asset(\'images/GeoPADDS-Header.png\')}}" alt="GeoPADDS Header" class="img-fluid" style="max-height: 5.5vw;">
+            </div>'
+        ));
     }
 
-    protected static string $resource = DependentUserResource::class;
+
 
     protected function getHeaderActions(): array
     {
@@ -78,13 +82,83 @@ class ListDependentUsers extends ListRecords
                             'risks',
                             'badges',
                             'user.address.full_address',
+                            'controls',
                             'dependentCaregiver.controls'
                         ])
                         ->withColumns([
+                            // Datos del establecimiento
+                            Column::make('user.mobileContactPoint.organization.alias')->heading('Establecimiento'),
+
+                            // Datos del paciente
+                            Column::make('user.text')->heading('Nombre_Completo'),
+                            Column::make('user.given')->heading('Nombre'),
+                            Column::make('user.fathers_family')->heading('Apellido_Paterno'),
+                            Column::make('user.mothers_family')->heading('Apellido_Materno'),
+                            Column::make('user.officialIdentifier.value')->heading('RUN'),
+                            Column::make('user.officialIdentifier.dv')->heading('DV'),
+                            Column::make('healthcare_type')->heading('Prevision'),
+                            Column::make('user.sex')->heading('Sexo'),
+                            Column::make('user.gender')->heading('Genero'),
+                            Column::make('user.birthday')->heading('Fecha_Nacimiento'),
+                            Column::make('user.age')->heading('Edad'),
+                            Column::make('user.nationality.name')->heading('Nacionalidad'),
+
+                            // Dirección
+                            Column::make('user.address.text')->heading('Calle'),
+                            Column::make('user.address.line')->heading('Numero'),
+                            Column::make('user.address.apartment')->heading('Departamento'),
+                            Column::make('user.address.commune.name')->heading('Comuna'),
+                            Column::make('user.mobileContactPoint.value')->heading('Telefono'),
+                            Column::make('user.address.location.longitude')->heading('Longitud'),
+                            Column::make('user.address.location.latitude')->heading('Latitud'),
+
+                            // Diagnóstico y condiciones
+                            Column::make('diagnosis')->heading('Diagnostico'),
+                            Column::make('conditions.name')->heading('Condiciones'),
+
+                            // Fechas y visitas
+                            Column::make('check_in_date')->heading('Fecha_Ingreso'),
+                            Column::make('check_out_date')->heading('Fecha_Egreso'),
+                            Column::make('integral_visits')->heading('Visitas_Integrales'),
+                            Column::make('last_integral_visit')->heading('Ultima_Visita_Integral'),
+                            Column::make('treatment_visits')->heading('Visitas_Tratamiento'),
+                            Column::make('last_treatment_visit')->heading('Ultima_Visita_Tratamiento'),
+
+                            // Evaluaciones y controles
+                            Column::make('barthel')->heading('Barthel'),
+                            Column::make('empam')->heading('EMPAM'),
+                            Column::make('eleam')->heading('ELEAM'),
+                            Column::make('upp')->heading('UPP'),
+                            Column::make('elaborated_plan')->heading('Plan_Elaborado'),
+                            Column::make('evaluated_plan')->heading('Plan_Evaluado'),
+
+                            // Vacunas
+                            Column::make('pneumonia')->heading('Neumonia'),
+                            Column::make('influenza')->heading('Influenza'),
+                            Column::make('covid_19')->heading('Covid19'),
+
+                            // Ayudas técnicas
+                            Column::make('tech_aid')->heading('Ayuda_Tecnica'),
+                            Column::make('tech_aid_date')->heading('Fecha_Ayuda_Tecnica'),
+                            Column::make('nutrition_assistance')->heading('Entrega_Alimentacion'),
+                            Column::make('nutrition_assistance_date')->heading('Fecha_Entrega_Alimentacion'),
+                            Column::make('diapers_size')->heading('Talla_Panal'),
+                            Column::make('nasogastric_catheter')->heading('Sonda_Nasogastrica'),
+                            Column::make('urinary_catheter')->heading('Sonda_Urinaria'),
+                            Column::make('extra_info')->heading('Informacion_Extra'),
+
+                            // Datos del cuidador
                             Column::make('dependentCaregiver.relative')->heading('Parentesco_Cuidador'),
+                            Column::make('dependentCaregiver.user.text')->heading('Nombre_Completo_Cuidador'),
                             Column::make('dependentCaregiver.user.given')->heading('Nombre_Cuidador'),
                             Column::make('dependentCaregiver.user.fathers_family')->heading('Apellido_Paterno_Cuidador'),
                             Column::make('dependentCaregiver.user.mothers_family')->heading('Apellido_Materno_Cuidador'),
+                            Column::make('dependentCaregiver.user.officialIdentifier.value')->heading('RUN_Cuidador'),
+                            Column::make('dependentCaregiver.user.officialIdentifier.dv')->heading('DV_Cuidador'),
+                            Column::make('dependentCaregiver.healthcare_type')->heading('Prevision_Cuidador'),
+                            Column::make('dependentCaregiver.user.sex')->heading('Sexo_Cuidador'),
+                            Column::make('dependentCaregiver.user.gender')->heading('Genero_Cuidador'),
+                            Column::make('dependentCaregiver.user.birthday')->heading('Fecha_Nacimiento_Cuidador'),
                             Column::make('dependentCaregiver.user.age')->heading('Edad_Cuidador'),
                             Column::make('dependentCaregiver.healthcare_type')->heading('Prevision_Cuidador'),
                             Column::make('dependentCaregiver.empam')->heading('Empam_Cuidador'),

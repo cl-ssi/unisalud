@@ -39,6 +39,7 @@ class CreateDependentUser extends CreateRecord
 
                 Forms\Components\Section::make('Datos del Paciente')
                     ->schema([
+                        // 1. Datos personales básicos
                         Forms\Components\TextInput::make('nombre')
                             ->label('Nombre')
                             ->required()
@@ -73,7 +74,6 @@ class CreateDependentUser extends CreateRecord
                             ])
                             ->required()
                             ->columnSpan(1),
-
                         Forms\Components\Select::make('genero')
                             ->label('Género')
                             ->options([
@@ -86,19 +86,16 @@ class CreateDependentUser extends CreateRecord
                                 'non-disclose' => 'No revelar',
                             ])
                             ->columnSpan(1),
-
                         Forms\Components\Select::make('nacionalidad')
                             ->label('Nacionalidad')
                             ->options(Country::pluck('name', 'id'))
                             ->required()
                             ->columnSpan(1),
-
                         Forms\Components\Select::make('comuna')
                             ->label('Comuna')
                             ->options(Commune::pluck('name', 'id'))
                             ->required()
                             ->columnSpan(1),
-
                         Forms\Components\TextInput::make('calle')
                             ->label('Calle')
                             ->required()
@@ -116,7 +113,6 @@ class CreateDependentUser extends CreateRecord
                             ->columnSpan(1),
                         Forms\Components\Select::make('establecimiento')
                             ->label('Establecimiento')
-
                             ->options(Organization::whereService(3)->whereNotNull('code_deis')->pluck('alias', 'code_deis'))
                             ->columnSpan(1),
                         Forms\Components\Select::make('prevision')
@@ -141,17 +137,17 @@ class CreateDependentUser extends CreateRecord
                         Forms\Components\DatePicker::make('fecha_egreso')
                             ->label('Fecha de Egreso')
                             ->columnSpan(1),
-                        Forms\Components\DatePicker::make('fecha_visita_integral')
-                            ->label('Fecha de Visita Integral')
-                            ->columnSpan(1),
-                        Forms\Components\DatePicker::make('fecha_visita_tratamiento')
-                            ->label('Fecha de visita de Tratamiento')
-                            ->columnSpan(1),
                         Forms\Components\TextInput::make('visitas_integrales')
                             ->label('Visitas Integrales')
                             ->columnSpan(1),
+                        Forms\Components\DatePicker::make('fecha_visita_integral')
+                            ->label('Fecha de Visita Integral')
+                            ->columnSpan(1),
                         Forms\Components\TextInput::make('visitas_tratamiento')
                             ->label('Visitas Tratamiento')
+                            ->columnSpan(1),
+                        Forms\Components\DatePicker::make('fecha_visita_tratamiento')
+                            ->label('Fecha de Visita Tratamiento')
                             ->columnSpan(1),
                         Forms\Components\Select::make('barthel')
                             ->label('BARTHEL')
@@ -202,6 +198,12 @@ class CreateDependentUser extends CreateRecord
                         Forms\Components\TextInput::make('talla_panal')
                             ->label('Talla Pañal')
                             ->columnSpan(1),
+                        Forms\Components\Select::make('condiciones')
+                            ->label('Condiciones')
+                            ->required()
+                            ->options(Condition::pluck('name', 'id'))
+                            ->multiple()
+                            ->columnSpan(2),
                         Forms\Components\Select::make('sonda_sng')
                             ->label('Sonda SNG')
                             ->options([
@@ -341,36 +343,38 @@ class CreateDependentUser extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
         /*  $rules = [
-            'data.nombre'                       => 'required|string',
-            'data.apellido_paterno'             => 'required|string',
-            'data.apellido_materno'             => 'required|string',
-            'data.run'                          => 'required|numeric',
-            'data.dv'                           => 'required|numeric',
-            'data.fecha_nacimiento'             => 'required|date',
+            'data.nombre'                       => 'required|string', // --
+            'data.apellido_paterno'             => 'required|string', // --
+            'data.apellido_materno'             => 'required|string', // --
+            'data.run'                          => 'required|numeric', // --
+            'data.dv'                           => 'required|numeric', // --
+            'data.fecha_nacimiento'             => 'required|date', // --
             'data.sexo'                         => 'required|string',
-            'data.genero'                       => 'nullable|string',
-            'data.nacionalidad'                 => 'required|string',
-            'data.comuna'                       => 'required|string',
-            'data.calle'                        => 'required|string',
-            'data.numero'                       => 'required|string',
-            'data.departamento'                 => 'nullable|string',
+            'data.genero'                       => 'nullable|string', // --
+            'data.nacionalidad'                 => 'required|string', // --
+            'data.comuna'                       => 'required|string', // --
+            'data.calle'                        => 'required|string', // --
+            'data.numero'                       => 'required|string', // --
+            'data.departamento'                 => 'nullable|string', // --
             'data.telefono'                     => 'required|numeric',
-            'data.establecimiento'              => 'tring',
-            'data.prevision'                    => 'required|string',
-            'data.diagnostico'                  => 'required|string',
-            'data.fecha_ingreso'                => 'nullable|date',
+            'data.establecimiento'              => 'string',  // --
+            'data.prevision'                    => 'required|string', // --
+            'data.diagnostico'                  => 'required|string', // --
+            'data.fecha_ingreso'                => 'nullable|date', // --
             'data.fecha_egreso'                 => 'nullable|date',
-            'data.visitas_integrales'           => 'nullable|numeric',
-            'data.visitas_tratamiento'          => 'nullable|numeric',
-            'data.barthel'                      => 'nullable|string',
-            'data.emp_empam'                    => 'nullable|boolean',
-            'data.eleam'                        => 'nullable|boolean',
-            'data.upp'                          => 'nullable|boolean',
-            'data.plan_elaborado'               => 'nullable|boolean',
-            'data.plan_evaluado'                => 'nullable|boolean',
-            'data.neumo'                        => 'nullable|date',
-            'data.influenza'                    => 'nullable|date',
-            'data.covid_19'                     => 'nullable|date',
+            'data.visitas_integrales'           => 'nullable|numeric', // --
+            'data.fecha_visita_integral'        => 'nullable|numeric',
+            'data.visitas_tratamiento'          => 'nullable|numeric', // --
+            'data.fecha_visita_tratamiento'     => 'nullable|numeric',
+            'data.barthel'                      => 'nullable|string', // --
+            'data.emp_empam'                    => 'nullable|boolean', // --
+            'data.eleam'                        => 'nullable|boolean', // --
+            'data.upp'                          => 'nullable|boolean', // --
+            'data.plan_elaborado'               => 'nullable|boolean', // --
+            'data.plan_evaluado'                => 'nullable|boolean', // --
+            'data.neumo'                        => 'nullable|date', // --
+            'data.influenza'                    => 'nullable|date', // --
+            'data.covid_19'                     => 'nullable|date', // --
             'data.ayuda_tecnica'                => 'nullable|boolean',
             'data.ayuda_tecnica_fecha'          => 'nullable|date',
             'data.entrega_alimentacion'         => 'nullable|boolean',
@@ -380,24 +384,24 @@ class CreateDependentUser extends CreateRecord
             'data.sonda_sng'                    => 'nullable|numeric',
             'data.sonda_urinaria'               => 'nullable|numeric',
             'data.extra_info'                   => 'nullable|string',
-            'data.nombre_cuidador'              => 'required|string', // Requiered if in form has_cuidador is true
-            'data.apellido_paterno_cuidador'    => 'required|string', // Requiered if in form has_cuidador is true
-            'data.apellido_materno_cuidador'    => 'required|string', // Requiered if in form has_cuidador is true
-            'data.fecha_nacimiento_cuidador'    => 'required|date', // Requiered if in form has_cuidador is true
-            'data.run_cuidador'                 => 'required|numeric', // Requiered if in form has_cuidador is true
-            'data.dv_cuidador'                  => 'required|numeric', // Requiered if in form has_cuidador is true
-            'data.sexo_cuidador'                => 'required|string', // Requiered if in form has_cuidador is true
+            'data.nombre_cuidador'              => 'required|string', // --
+            'data.apellido_paterno_cuidador'    => 'required|string', // --
+            'data.apellido_materno_cuidador'    => 'required|string', // --
+            'data.fecha_nacimiento_cuidador'    => 'required|date',
+            'data.run_cuidador'                 => 'required|numeric',
+            'data.dv_cuidador'                  => 'required|numeric',
+            'data.sexo_cuidador'                => 'required|string',
             'data.genero_cuidador'              => 'nullable|string',
-            'data.nacionalidad_cuidador'        => 'required|array', // Requiered if in form has_cuidador is true
-            'data.parentesco_cuidador'          => 'required|string', // Requiered if in form has_cuidador is true
-            'data.prevision_cuidador'           => 'nullable|string',
-            'data.empam_cuidador'               => 'nullable|boolean',
-            'data.zarit_cuidador'               => 'nullable|boolean',
-            'data.inmunizaciones_cuidador'      => 'nullable|date',
-            'data.plan_elaborado_cuidador'      => 'nullable|boolean',
-            'data.plan_evaluado_cuidador'       => 'nullable|boolean',
-            'data.capacitacion_cuidador'        => 'nullable|boolean',
-            'data.estipendio_cuidador'          => 'nullable|boolean',
+            'data.nacionalidad_cuidador'        => 'required|array',
+            'data.parentesco_cuidador'          => 'required|string', // --
+            'data.prevision_cuidador'           => 'nullable|string', // --
+            'data.empam_cuidador'               => 'nullable|boolean', // --
+            'data.zarit_cuidador'               => 'nullable|boolean', // --
+            'data.inmunizaciones_cuidador'      => 'nullable|date', // --
+            'data.plan_elaborado_cuidador'      => 'nullable|boolean', // --
+            'data.plan_evaluado_cuidador'       => 'nullable|boolean', // --
+            'data.capacitacion_cuidador'        => 'nullable|boolean', // --
+            'data.estipendio_cuidador'          => 'nullable|boolean', // --
         ]; */
 
         $input = [];

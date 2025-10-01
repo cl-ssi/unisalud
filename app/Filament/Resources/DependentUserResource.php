@@ -426,7 +426,7 @@ class DependentUserResource extends Resource
                     ->label(new HtmlString('Zarit <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->hidden()
                     ->boolean(),
-                Tables\Columns\TextColumn::make('.dependentCaregiver.immunizations')
+                Tables\Columns\TextColumn::make('dependentCaregiver.immunizations')
                     ->hidden()
                     ->label(new HtmlString('Imunizaciones <br /> <a class="font-medium text-gray-700">Cuidador</a> ')),
                 Tables\Columns\IconColumn::make('dependentCaregiver.elaborated_plan')
