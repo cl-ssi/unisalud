@@ -11,6 +11,7 @@ use App\Filament\Resources\DependentUserResource\RelationManagers;
 use App\Models\DependentCaregiver;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -474,6 +475,63 @@ class DependentUserResource extends Resource
                                 fn(Builder $query, $name): Builder => $query->whereHas('user', fn(Builder $query): Builder => $query->where('text', 'like', '%' . $name . '%')),
                             );
                     }),
+
+                Tables\Filters\Filter::make('conditions-multiple')
+                    ->form([
+                        Forms\Components\Fieldset::make('Condiciones')
+                            ->schema([
+                                Forms\Components\ToggleButtons::make('tipo')
+                                    ->boolean()
+                                    ->label('')
+                                    ->inline()
+                                    ->options([
+                                        'u' => 'Union',
+                                        'v' => 'Disyunción'
+                                    ])
+                                    ->grouped()
+                                    ->colors([
+                                        'false' => 'Draft',
+                                        'true' => 'Success',
+                                    ])
+                                    ->icons([
+                                        'u' => 'heroicon-s-underline',
+                                        'v' => 'heroicon-s-chevron-down',
+                                    ])
+                                    ->hiddenButtonLabels()
+                                    ->live(), // Crucial for making the server filter react to changes
+
+                                Forms\Components\Select::make('conditions')
+                                    ->relationship('conditions', 'name')
+                                    ->placeholder('Seleccionar')
+                                    ->multiple(true)
+                                    ->label('')
+                                    // ->columnSpan('')
+                                    ->preload()
+                                    ->hidden(fn(Get $get) => $get('tipo') == null)
+                                    ->default(Request::query('conditions_id'))
+                                    ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
+                            ])
+                    ])
+                    ->columnSpan(2)
+                    ->query(function (Builder $query, array $data): Builder {
+
+                        return $query
+                            ->when(
+                                $data,
+                                function (Builder $query, $data) {
+                                    if ($data['tipo'] == 'u' && $data['conditions']) {
+                                        $query->whereHas('conditions', fn($q) => $q->whereIn('condition_id', $data['conditions']));
+                                    } else if ($data['tipo'] == 'v' && $data['conditions']) {
+                                        foreach ($data['conditions'] as $condition_id) {
+                                            $query->whereHas('conditions', fn($q) => $q->where('condition_id', $condition_id));
+                                        }
+                                    } else {
+                                        $query;
+                                    }
+                                }
+                            );
+                    }),
+                /* 
                 Tables\Filters\SelectFilter::make('conditions')
                     ->relationship('conditions', 'name')
                     ->preload()
@@ -488,6 +546,7 @@ class DependentUserResource extends Resource
                     })
                     ->label('Condicion')
                     ->multiple(),
+                     */
                 Tables\Filters\SelectFilter::make('riesgos')
                     ->label('Riesgos')
                     ->options([
@@ -576,6 +635,8 @@ class DependentUserResource extends Resource
     {
         return [
             RelationManagers\ConditionsRelationManager::class,
+            // RelationManagers\DependentCaregiverRelationManager::class,
+            // RelationManagers\UserRelationManager::class,
         ];
     }
 
@@ -586,7 +647,7 @@ class DependentUserResource extends Resource
             'map' => Pages\MapDependentUsers::route('/map'),
             'create' => Pages\CreateDependentUser::route('/create'),
             'view' => Pages\ViewDependentUser::route('/{record}'),
-            'edit' => Pages\EditDependentUser::route('/{record}/edit'),
+            'edit' => Pages\EditDependentUser::route('/{record}/edit')
         ];
     }
 
