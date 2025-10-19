@@ -139,7 +139,7 @@ class DependentUserImport implements ToModel, WithHeadingRow //, WithValidation
         $apellido_materno = $row['apellido_materno' . $cuidador];
         $fecha_nacimiento = $row['fecha_nacimiento' . $cuidador];
         // $fecha_nacimiento = $fecha_nacimiento?date('Y-m-d', Carbon::createFromFormat('d/m/Y', $fecha_nacimiento)->getTimestamp()):null;
-        $fecha_nacimiento = $fecha_nacimiento ? Date::excelToDateTimeObject($fecha_nacimiento)->format($this->date_format) : null;
+        // $fecha_nacimiento = $fecha_nacimiento ? Date::excelToDateTimeObject($fecha_nacimiento)->format($this->date_format) : null;
 
 
         // Check if user exists
@@ -166,7 +166,7 @@ class DependentUserImport implements ToModel, WithHeadingRow //, WithValidation
                 'mothers_family'        => $apellido_materno,
                 'sex'                   => $sex,
                 'gender'                => $gender,
-                'birthday'              => $fecha_nacimiento,
+                'birthday'              => $this->formatField($fecha_nacimiento, 'date'),
                 // 'cod_con_marital_id'    => $row['estado_civil'],
                 'nationality_id'        => $nationality,
             ]
