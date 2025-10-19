@@ -16,6 +16,7 @@ class ConditionsRelationManager extends RelationManager
 {
     protected static string $relationship = 'conditions';
 
+    protected static ?string $title = 'Condiciones';
 
     public function form(Form $form): Form
     {
@@ -45,8 +46,8 @@ class ConditionsRelationManager extends RelationManager
             ->actions([
                 // Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
-                ->label('Eliminar')
-                ->recordTitle(fn(Model $record) => $record->name),
+                    ->label('Eliminar')
+                    ->recordTitle(fn(Model $record) => $record->name),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -55,5 +56,4 @@ class ConditionsRelationManager extends RelationManager
                 ]),
             ]);
     }
-
 }

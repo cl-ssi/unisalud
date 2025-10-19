@@ -19,6 +19,7 @@ use App\Enums\ConditionVerificationStatus;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 #[ObservedBy([DependentUserObserver::class])]
 class DependentUser extends Model
@@ -40,6 +41,7 @@ class DependentUser extends Model
         'diagnosis',
         'check_in_date',
         'check_out_date',
+        'healthcare_type',
         'integral_visits',
         'treatment_visits',
         'last_integral_visit',
@@ -94,6 +96,11 @@ class DependentUser extends Model
     public function dependentCaregiver(): HasOne
     {
         return $this->HasOne(DependentCaregiver::class);
+    }
+
+    public function caregiverUser(): HasOneThrough
+    {
+        return $this->HasOneThrough(User::class, DependentCaregiver::class, 'dependent_user_id', 'id', null, 'user_id');
     }
 
     public function getControlsAttribute(): array
