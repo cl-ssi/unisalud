@@ -138,6 +138,7 @@ class DependentUserImport implements ToModel, WithHeadingRow //, WithValidation
         $apellido_paterno = $row['apellido_paterno' . $cuidador];
         $apellido_materno = $row['apellido_materno' . $cuidador];
         $fecha_nacimiento = $row['fecha_nacimiento' . $cuidador];
+
         // $fecha_nacimiento = $fecha_nacimiento?date('Y-m-d', Carbon::createFromFormat('d/m/Y', $fecha_nacimiento)->getTimestamp()):null;
         // $fecha_nacimiento = $fecha_nacimiento ? Date::excelToDateTimeObject($fecha_nacimiento)->format($this->date_format) : null;
 
