@@ -16,10 +16,10 @@ class DependentUserObserver
         if ($dependentUser->user->address?->location) {
             $location = $dependentUser->user->address->location;
             if ($location->flooded) {
-                $risks[] = $location->flooded;
+                $risks[] = 'Zona de Inundacion';
             }
             if ($location->alluvium) {
-                $risks[] = $location->alluvium;
+                $risks[] = 'Zona de Aluvion';
             }
         }
         if (isset($risks)) {

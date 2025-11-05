@@ -2,35 +2,43 @@
 
 namespace App\Imports;
 
-use App\Models\Condition;
-use App\Models\DependentUser;
-use App\Models\DependentCaregiver;
-
-use App\Models\User;
-use App\Models\Identifier;
-use App\Models\HumanName;
 use App\Models\Address;
-use App\Services\GeocodingService;
 use App\Models\Commune;
+use App\Models\Condition;
 use App\Models\ContactPoint;
-use App\Models\Location;
-use App\Models\Sex;
-use App\Models\Gender;
 use App\Models\Country;
+use App\Models\DependentCaregiver;
+use App\Models\DependentUser;
+use App\Models\Gender;
+use App\Models\HumanName;
+use App\Models\Identifier;
+use App\Models\Location;
 use App\Models\Organization;
+use App\Models\Sex;
+use App\Models\User;
+use App\Services\GeocodingService;
 
-use Carbon\Carbon;
-use DateTime;
-use Illuminate\Validation\Rule;
-use Maatwebsite\Excel\Concerns\ToModel;
+use Filament\Actions\Imports\Importer;
+use Filament\Actions\Imports\ImportColumn;
+use Filament\Actions\Imports\Models\Import;
+use Illuminate\Contracts\Queue\ShouldQueue; // Para la cola
+use Maatwebsite\Excel\Concerns\WithChunkReading; // Para leer en trozos
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
-// use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\ToModel;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
+use Illuminate\Support\Facades\Log;
+// use Maatwebsite\Excel\Concerns\WithValidation;
 
-class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading //, WithValidation
+
+class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, ShouldQueue //, WithValidation
 {
     private $date_format = 'Y-m-d';
+
+    protected static bool $rowNew = false;
+    protected static int $insertedCount = 0;
+    protected static int $updatedCount = 0;
+    protected static int $skippedCount = 0;
+
 
     /**
      * @param array $row
@@ -39,7 +47,7 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading /
      */
     public function model(array $row)
     {
-
+        self::$rowNew = false;
         $headings = [
             'establecimiento',
             'nombre',
@@ -93,13 +101,35 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading /
             $row[$heading] = $row[$heading] ?? null;
         }
 
-        // Upsert an User, Address, ContactPoint, for Upsert a DependentUser and Attach Conditions
-        $dependentUser = $this->getDependentUser($row);
+        if (isset($row['run']) && isset($row['dv'])) {
 
-        // Upsert an User, Address, ContactPoint, for Upsert a DependentCaregiver        
-        $this->getCaregiver($row, $dependentUser);
+            // Upsert an User, Address, ContactPoint, for Upsert a DependentUser and Attach Conditions
+            $dependentUser = $this->getDependentUser($row);
+            if (isset($row['run_cuidador']) && isset($row['dv_cuidador'])) {
+                // Upsert an User, Address, ContactPoint, for Upsert a DependentCaregiver        
+                $this->getCaregiver($row, $dependentUser);
+            }
+            self::$insertedCount++;
+            return $dependentUser;
+        } else {
+            self::$skippedCount++;
+            return null;
+        }
+    }
 
-        return $dependentUser;
+    public static function getCompletedNotificationBody(Import $import): string
+    {
+        $body = 'La importación de usuarios dependientes ha finalizado. ';
+        $body .= self::$insertedCount . ' ' . str('fila')->plural(self::$insertedCount) . ' insertada(s), ';
+        $body .= self::$updatedCount . ' ' . str('fila')->plural(self::$updatedCount) . ' actualizada(s) y ';
+        $body .= self::$skippedCount . ' ' . str('fila')->plural(self::$skippedCount) . ' omitida(s).';
+
+        // Es crucial reiniciar los contadores para la próxima importación que se ejecute.
+        self::$insertedCount = 0;
+        self::$updatedCount = 0;
+        self::$skippedCount = 0;
+        Log::info($body);
+        return $body;
     }
 
     /*
@@ -150,6 +180,8 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading /
                 ->where('cod_con_identifier_type_id', 1);
         })->first();
 
+        self::$skippedCount = $user?->id ? true : false;
+
         // Obtain possible values
         $sex = Sex::where('text', $sexo)->first()?->value;
         $gender = Gender::where('text', $genero)->first()?->value;
@@ -198,7 +230,9 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading /
                 ]
             );
         }
-        $this->getAddress($row, $userOut);
+        if (isset($row['calle'])) {
+            $this->getAddress($row, $userOut);
+        }
         return $userOut;
     }
 
@@ -299,7 +333,11 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading /
     public function getDependentUser($row)
     {
         $user = $this->getUser($row);
-
+        if (Self::$rowNew) {
+            self::$insertedCount++;
+        } else {
+            self::$updatedCount++;
+        }
         // Create or update DependentUser
         $dependentUser = DependentUser::updateOrCreate(
             [
@@ -436,6 +474,6 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading /
 
     public function chunkSize(): int
     {
-        return 50;
+        return 10;
     }
 }
