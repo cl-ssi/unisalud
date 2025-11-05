@@ -24,10 +24,11 @@ use DateTime;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
 // use Maatwebsite\Excel\Concerns\WithValidation;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-class DependentUserImport implements ToModel, WithHeadingRow //, WithValidation
+class DependentUserImport implements ToModel, WithHeadingRow, WithBatchInserts //, WithValidation
 {
     private $date_format = 'Y-m-d';
 
@@ -431,5 +432,10 @@ class DependentUserImport implements ToModel, WithHeadingRow //, WithValidation
             default:
                 return $value;
         }
+    }
+
+    public function batchSize(): int
+    {
+        return 50;
     }
 }
