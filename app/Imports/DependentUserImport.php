@@ -24,11 +24,11 @@ use DateTime;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 // use Maatwebsite\Excel\Concerns\WithValidation;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-class DependentUserImport implements ToModel, WithHeadingRow, WithBatchInserts //, WithValidation
+class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading //, WithValidation
 {
     private $date_format = 'Y-m-d';
 
@@ -434,7 +434,7 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithBatchInserts /
         }
     }
 
-    public function batchSize(): int
+    public function chunkSize(): int
     {
         return 50;
     }
