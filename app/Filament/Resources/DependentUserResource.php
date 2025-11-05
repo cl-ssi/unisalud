@@ -2,23 +2,26 @@
 
 namespace App\Filament\Resources;
 
-use lluminate\Auth\AuthManager;
+
+use App\Models\Condition;
 use App\Models\Organization;
 use App\Models\DependentUser;
+use App\Models\DependentCaregiver;
 
 use App\Filament\Resources\DependentUserResource\Pages;
 use App\Filament\Resources\DependentUserResource\RelationManagers;
-use App\Models\DependentCaregiver;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Support\Enums\MaxWidth;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Arr;
@@ -462,28 +465,18 @@ class DependentUserResource extends Resource
                     }),
             ])->striped()->paginationPageOptions([10, 25, 50])->defaultPaginationPageOption(25)
             ->filters([
-                Tables\Filters\Filter::make('user')
-                    ->form([
-                        Forms\Components\TextInput::make('name')
-                            ->label('Nombre')
-                            ->statePath('name'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['name'],
-                                fn(Builder $query, $name): Builder => $query->whereHas('user', fn(Builder $query): Builder => $query->where('text', 'like', '%' . $name . '%')),
-                            );
-                    }),
 
-                Tables\Filters\Filter::make('conditions-multiple')
+                Tables\Filters\Filter::make('conditions_multiple')
                     ->form([
                         Forms\Components\Fieldset::make('Condiciones')
+                            ->label('')
                             ->schema([
                                 Forms\Components\ToggleButtons::make('tipo')
                                     ->boolean()
-                                    ->label('')
+                                    ->default(Request::query('conditions_multiple.tipo'))
+                                    ->label('Tipo')
                                     ->inline()
+                                    // ->columnSpanFull()
                                     ->options([
                                         'u' => 'Union',
                                         'v' => 'Disyunción'
@@ -493,22 +486,17 @@ class DependentUserResource extends Resource
                                         'false' => 'Draft',
                                         'true' => 'Success',
                                     ])
-                                    ->icons([
-                                        'u' => 'heroicon-s-underline',
-                                        'v' => 'heroicon-s-chevron-down',
-                                    ])
-                                    ->hiddenButtonLabels()
                                     ->live(), // Crucial for making the server filter react to changes
 
                                 Forms\Components\Select::make('conditions')
-                                    ->relationship('conditions', 'name')
+                                    ->relationship('conditions', 'name', fn(Builder $query) => $query->orderByRaw('COALESCE(condition.parent_id, condition.id), condition.parent_id IS NOT NULL, condition.id'))
                                     ->placeholder('Seleccionar')
-                                    ->multiple(true)
-                                    ->label('')
-                                    // ->columnSpan('')
+                                    ->multiple()
+                                    // ->columnSpanFull()
+                                    ->label('Condición')
                                     ->preload()
                                     ->hidden(fn(Get $get) => $get('tipo') == null)
-                                    ->default(Request::query('conditions_id'))
+                                    ->default(Request::query('conditions_multiple.conditions'))
                                     ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
                             ])
                     ])
@@ -531,24 +519,30 @@ class DependentUserResource extends Resource
                                 }
                             );
                     }),
-                /* 
-                Tables\Filters\SelectFilter::make('conditions')
-                    ->relationship('conditions', 'name')
-                    ->preload()
-                    ->default(Request::query('conditions_id'))
-                    ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
+                /* Tables\Filters\SelectFilter::make('user2')
+                    ->relationship('user', 'text')
+                    ->searchable()
+                    ->multiple()
+                    ->getSearchResultsUsing(fn(string $search) => strlen($search > 3) ? (User::has('dependentUser')->where('text', 'like', '%' . $search . '%')->pluck('text', 'id')) : [])
+                    ->optionsLimit(20), */
+                Tables\Filters\Filter::make('user')
+                    ->columnSpan(1)
+                    ->form([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nombre')
+                            ->statePath('name'),
+                    ])
                     ->query(function (Builder $query, array $data): Builder {
-                        return $query->when($data['values'], function ($q, $values) {
-                            foreach ($values as $condition_id) {
-                                $q->whereHas('conditions', fn($q) => $q->where('condition_id', $condition_id));
-                            }
-                        });
-                    })
-                    ->label('Condicion')
-                    ->multiple(),
-                     */
+                        return $query
+                            ->when(
+                                $data['name'],
+                                fn(Builder $query, $name): Builder => $query->whereHas('user', fn(Builder $query): Builder => $query->where('text', 'like', '%' . $name . '%')),
+                            );
+                    }),
+
                 Tables\Filters\SelectFilter::make('riesgos')
                     ->label('Riesgos')
+                    ->columnSpan(1)
                     ->options([
                         'Zona de Inundacion' => 'Zona de Inundación',
                         'Zona de Aluvion' => 'Zona de Aluvión'
@@ -557,14 +551,22 @@ class DependentUserResource extends Resource
                     ->default(Request::query('risks'))
                     ->query(function ($query, $data) {
                         if (! empty($data["values"])) {
-                            // $query->whereIn('risks', Arr::flatten($data));
-                            $query->whereJsonContains('risks', Arr::flatten($data));
+                            $query->whereJsonLength('risks', '>', 0);
+                            dd($data["values"]);
+                            foreach ($data["values"] as $risk) {
+                                // $query->whereIn('risks', [$risk]);
+                                // dd($risk);
+                                // $query->whereJsonContains('risks', [$risk]);
+                                $query->whereJsonContains('risks', ['1' => 'Zona de Aluvion']);
+                                dd($query->get('risks'));
+                            }
                         }
                     }),
                 Tables\Filters\SelectFilter::make('user.mobileContactPoint.organization')
                     // ->relationship('user.mobileContactPoint.organization', 'alias')
                     ->label('Organizacion')
                     ->multiple()
+                    ->columnSpan(1)
                     ->preload()
                     ->default(Request::query('organizations_id'))
                     ->modifyQueryUsing(function ($query, $data) {
@@ -586,8 +588,10 @@ class DependentUserResource extends Resource
                         }, 'contactPoint.user' => function ($query) {
                             $query->has('dependentUser')->whereNotNull('contactPoint.user.id');
                         }])->pluck('alias', 'id');
-                    })
+                    }),
             ], layout: Tables\Enums\FiltersLayout::AboveContent)
+            ->filtersFormColumns(5)
+            ->filtersFormWidth(MaxWidth::Large)
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
