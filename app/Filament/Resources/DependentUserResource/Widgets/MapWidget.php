@@ -19,20 +19,28 @@ class MapWidget extends Widget
     public ?string $baseUrl;
     public $peo = 0;
 
-    public ?array $conditions_id = [];
-    public ?array $organizations_id = [];
+    // public ?array $conditions_id = [];
+    // public ?array $conditions_multiple = [];
+    public ?string $conditions_type = null;
+    public ?array $conditions_ids = [];
     public ?array $users_id      = [];
     public ?array $risks      = [];
+    public ?array $organizations_id      = [];
 
     public array $patients    = [];
     public array $markers     = [];
 
-    public function mount(?array $conditions_id = [], ?array $users_id = null): void
+    public function mount(?array $conditions_multiple = [], ?array $organizations_id = [], ?array $risks = [], ?array $users_id = []): void
     {
 
         $this->baseUrl          = env('APP_URL', 'https://uni.saludtarapaca.gob.cl/');
-        $this->conditions_id    = $conditions_id;
-        $this->users_id          = $users_id;
+        // $this->conditions_ids    = $conditions_id;
+        $this->conditions_type    = $conditions_multiple['tipo'];
+        $this->conditions_ids    = array_values($conditions_multiple['conditions']);
+        // dd($this->conditions_ids);
+        $this->organizations_id = $organizations_id;
+        $this->users_id = $users_id;
+        $this->risks = $risks;
         $this->loadPatients();
     }
 
@@ -41,11 +49,17 @@ class MapWidget extends Widget
 
         $dependentUsers = DependentUser::has('user.address.location')
             ->with(['user.address.location', 'conditions'])
-            ->when($this->conditions_id, function ($q) {
-                foreach ($this->conditions_id as $condition_id) {
-                    $q->whereHas('conditions', fn($qu)  => $qu->where('condition_id', $condition_id));
+            ->when($this->conditions_ids && $this->conditions_type, function ($query) {
+                if ($this->conditions_type == 'u' && $this->conditions_ids) {
+                    return $query->whereHas('conditions', fn($q) => $q->whereIn('condition_id', $this->conditions_ids));
+                } else if ($this->conditions_type == 'v' && $this->conditions_ids) {
+                    foreach ($this->conditions_ids as $condition_id) {
+                        $query->whereHas('conditions', fn($q) => $q->where('condition_id', $condition_id));
+                    }
+                    return $query;
+                } else {
+                    return $query;
                 }
-                return $q;
             })
             ->when($this->organizations_id, function ($q) {
                 $q->whereHas('user', function ($query) {
@@ -66,12 +80,11 @@ class MapWidget extends Widget
             ->whereHas('user', function ($query) {
                 $query->whereHas('address', function ($query) {
                     $query->whereHas('location', function ($query) {
-                        $query->whereNotNull('latitude');
-                        $query->whereNotNull('longitude');
+                        $query->whereNotNull('latitude')->where('latitude', '<>', '');
+                        $query->whereNotNull('longitude')->where('longitude', '<>', '');
                     });
                 });
             })
-
             ->get();
 
         $this->markers = $dependentUsers->map(function ($p) {
@@ -94,10 +107,11 @@ class MapWidget extends Widget
     }
 
     #[On('changeFilters')]
-    public function changeFilters(?array $conditions_id = [], ?array $organizations_id = [], ?array $users_id = null, ?array $risks = []): void
+    public function changeFilters(?array $conditions_multiple = [], ?array $organizations_id = [], ?array $users_id = null, ?array $risks = []): void
     {
-
-        $this->conditions_id = $conditions_id ?? $this->conditions_id;
+        // $this->conditions_ids = $conditions_id ?? $this->conditions_id;
+        $this->conditions_type    = $conditions_multiple['tipo'];
+        $this->conditions_ids    = $conditions_multiple['conditions'];
         $this->organizations_id = $organizations_id ?? $this->organizations_id;
         $this->users_id      = $users_id ?? $this->users_id;
         $this->risks      = $risks ?? $this->risks;

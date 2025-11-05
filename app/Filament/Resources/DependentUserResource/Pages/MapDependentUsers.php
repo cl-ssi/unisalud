@@ -11,7 +11,10 @@ use App\Models\User;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Pages\Page;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Database\Eloquent\Builder;
 
@@ -28,7 +31,8 @@ class MapDependentUsers extends Page
     public $conditionTypes;
 
 
-    public $conditions_id = null;
+    // public $conditions_id = null;
+    public $conditions_multiple = null;
     public $req_users_id = null;
     public $organizations_id = null;
     public $search = null;
@@ -48,13 +52,20 @@ class MapDependentUsers extends Page
             ->pluck('alias', 'id');
 
         //Obtener datos de solicitud con filtros y/o seleccion
-        $this->conditions_id = request('conditions_id') ?? null;
+        // $this->conditions_id = request('conditions_id') ?? null;
+        $this->conditions_multiple = request('conditions_multiple') ?? null;
+        // dd($this->conditions_multiple['tipo']);
         $this->req_users_id = request('users_id') ?? null;
         $this->organizations_id = request('organizations_id') ?? null;
         $this->risks = request('risks') ?? null;
-
+        // dd($this->conditions_multiple);
         $this->form->fill([
-            'conditions_id' => $this->conditions_id,
+            // 'conditions_id' => $this->conditions_id,
+            'conditions_multiple' => $this->conditions_multiple,
+            // 'conditions_multiple' => [
+            //     'tipo' => $this->conditions_multiple['tipo'] ?? null,
+            //     'conditions' => $this->conditions_multiple['conditions'] ?? null,
+            // ],
             'organizations_id' => $this->organizations_id,
             'users_id' => $this->req_users_id,
             'risks' => $this->risks,
@@ -67,22 +78,39 @@ class MapDependentUsers extends Page
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('conditions_id')
-                    ->label('Condición')
-                    ->options($this->conditionTypes)
-                    ->placeholder('Seleccione una condición')
-                    ->preload()
-                    ->multiple()
-                    ->reactive()
-                    ->afterStateUpdated(fn($state) => $this->conditions_id = $state),
-                Forms\Components\Select::make('organizations_id')
-                    ->label('Organización')
-                    ->options($this->organizationTypes)
-                    ->placeholder('Seleccione una organización')
-                    ->multiple()
-                    ->preload()
-                    ->reactive()
-                    ->afterStateUpdated(fn($state) => $this->organizations_id = $state),
+                Forms\Components\Fieldset::make('conditions_multiple')
+                    ->label('')
+                    ->schema([
+                        Forms\Components\ToggleButtons::make('tipo')
+                            ->boolean()
+                            ->label('')
+                            ->inline()
+                            ->options([
+                                'u' => 'Unión',
+                                'v' => 'Disyunción',
+                            ])
+                            ->grouped()
+                            ->colors([
+                                'false' => 'gray',
+                                'true' => 'primary',
+                            ])
+                            ->live()
+                            ->afterStateUpdated(fn($state) => $this->conditions_multiple['tipo'] = $state),
+                        Forms\Components\Select::make('conditions')
+                            // ->relationship('conditions', 'name')
+                            ->placeholder('Seleccionar')
+                            ->multiple()
+                            // ->reactive()
+                            // ->live()
+                            ->label('')
+                            ->preload()
+                            ->options(fn(Condition $query) => $query->orderByRaw('COALESCE(condition.parent_id, condition.id), condition.parent_id IS NOT NULL, condition.id')->pluck('name', 'id'))
+                            // ->hidden(fn(Get $get) => $conditions_multiple['tipo'] ? false : true)                            
+                            // ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
+                            ->afterStateUpdated(fn($state) => $this->conditions_multiple['conditions'] = $state),
+                    ])
+                    ->columnSpan(1)
+                    ->reactive(),
                 Forms\Components\Select::make('risks')
                     ->label('Riesgos')
                     ->options([
@@ -91,7 +119,17 @@ class MapDependentUsers extends Page
                     ])
                     ->multiple()
                     ->reactive()
+                    ->columnSpan(1)
                     ->afterStateUpdated(fn($state) => $this->risks = $state),
+                Forms\Components\Select::make('organizations_id')
+                    ->label('Organización')
+                    ->options($this->organizationTypes)
+                    ->placeholder('Seleccione una organización')
+                    ->multiple()
+                    ->preload()
+                    ->columnSpan(1)
+                    ->reactive()
+                    ->afterStateUpdated(fn($state) => $this->organizations_id = $state),
             ])->columns(3);
     }
 
@@ -118,7 +156,8 @@ class MapDependentUsers extends Page
     {
         return [
             'map' => \App\Filament\Resources\DependentUserResource\Widgets\MapWidget::make([
-                'conditions_id' => $this->conditions_id,
+                // 'conditions_id' => $this->conditions_id,
+                'conditions_multiple' => $this->conditions_multiple,
                 'organizations_id' => $this->organizations_id,
                 'users_id' => $this->req_users_id,
                 'risks' => $this->risks,
@@ -128,14 +167,15 @@ class MapDependentUsers extends Page
 
     public function updated($name)
     {
-        $this->dispatch('changeFilters', $this->conditions_id, $this->organizations_id, $this->req_users_id, $this->risks);
+        $this->dispatch('changeFilters', $this->conditions_multiple, $this->organizations_id, $this->req_users_id, $this->risks);
     }
 
     public function goBack()
     {
 
         return redirect()->route('filament.admin.resources.dependent-users.index', [
-            'conditions_id' => $this->conditions_id,
+            // 'conditions_id' => $this->conditions_id,
+            'conditions_multiple' => $this->conditions_multiple,
             'risks' => $this->risks,
             'organizations_id' => $this->organizations_id,
             // 'users_id' => $this->req_users_id,
