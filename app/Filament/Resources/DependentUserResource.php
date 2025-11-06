@@ -473,7 +473,7 @@ class DependentUserResource extends Resource
                             ->schema([
                                 Forms\Components\ToggleButtons::make('tipo')
                                     ->boolean()
-                                    ->default(Request::query('conditions_multiple.tipo'))
+                                    ->default(Request::query('tipo'))
                                     ->label('Tipo')
                                     ->inline()
                                     // ->columnSpanFull()
@@ -496,7 +496,7 @@ class DependentUserResource extends Resource
                                     ->label('Condición')
                                     ->preload()
                                     ->hidden(fn(Get $get) => $get('tipo') == null)
-                                    ->default(Request::query('conditions_multiple.conditions'))
+                                    ->default(Request::query('conditions'))
                                     ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
                             ])
                     ])

@@ -30,7 +30,7 @@ class MapDependentUsers extends Page
     public $organizationTypes;
     public $conditionTypes;
 
-    public $data = [];
+    // public $data = [];
 
 
     // public $conditions_id = null;
@@ -84,6 +84,7 @@ class MapDependentUsers extends Page
                             ->boolean()
                             ->label('')
                             ->inline()
+                            ->reactive()
                             ->options([
                                 'u' => 'Unión',
                                 'v' => 'Disyunción',
@@ -99,7 +100,7 @@ class MapDependentUsers extends Page
                             // ->relationship('conditions', 'name')
                             ->placeholder('Seleccionar')
                             ->multiple()
-                            // ->reactive()
+                            ->reactive()
                             // ->live()
                             ->label('')
                             ->preload()
@@ -129,7 +130,7 @@ class MapDependentUsers extends Page
                     ->columnSpan(1)
                     ->reactive()
                     ->afterStateUpdated(fn($state) => $this->organizations_id = $state),
-            ])->columns(3)->statePath('data');
+            ])->columns(3);
     }
 
     protected function getHeaderActions(): array

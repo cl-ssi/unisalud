@@ -84,8 +84,8 @@ class MapWidget extends Widget
             ->get();
 
         $this->markers = $dependentUsers->map(function ($p) {
-            $lat = $p->user->address->location->latitude;
-            $lng = $p->user->address->location->longitude;
+            $lat = $p->user->address?->location?->latitude;
+            $lng = $p->user->address?->location?->longitude;
             if (!is_numeric($lat) || !is_numeric($lng)) {
                 return null;
             }
