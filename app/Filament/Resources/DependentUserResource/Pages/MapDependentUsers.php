@@ -34,7 +34,9 @@ class MapDependentUsers extends Page
 
 
     // public $conditions_id = null;
-    // public $conditions_multiple = null;
+    public $conditions_multiple = null;
+    public $tipo = null;
+    public $conditions = null;
     public $req_users_id = null;
     public $organizations_id = null;
     public $search = null;
@@ -54,24 +56,19 @@ class MapDependentUsers extends Page
             ->pluck('alias', 'id');
 
         //Obtener datos de solicitud con filtros y/o seleccion
-        // $this->conditions_id = request('conditions_id') ?? null;
-        $condiciones = request('conditions_multiple') ?? null;
+        $conditions_multiple = request('conditions_multiple') ?? null;
+        $this->tipo = $conditions_multiple['tipo'] ?? null;
+        $this->conditions = $conditions_multiple['conditions'] ?? null;
         $this->req_users_id = request('users_id') ?? null;
         $this->organizations_id = request('organizations_id') ?? null;
         $this->risks = request('risks') ?? null;
-        // dd($this->conditions_multiple);
         $this->form->fill([
-            // 'conditions_id' => $this->conditions_id,
-            'conditions_multiple' => $condiciones,
-            // 'conditions_multiple' => [
-            //     'tipo' => $this->conditions_multiple['tipo'] ?? null,
-            //     'conditions' => $this->conditions_multiple['conditions'] ?? null,
-            // ],
+            'tipo' => $this->tipo,
+            'conditions' => $this->conditions,
             'organizations_id' => $this->organizations_id,
             'users_id' => $this->req_users_id,
             'risks' => $this->risks,
         ]);
-        // dd($this->data);
     }
 
 
@@ -97,7 +94,7 @@ class MapDependentUsers extends Page
                                 'true' => 'primary',
                             ])
                             ->live()
-                            ->afterStateUpdated(fn($state) => $this->conditions_multiple['tipo'] = $state),
+                            ->afterStateUpdated(fn($state) => $this->tipo = $state),
                         Forms\Components\Select::make('conditions')
                             // ->relationship('conditions', 'name')
                             ->placeholder('Seleccionar')
@@ -109,7 +106,7 @@ class MapDependentUsers extends Page
                             ->options(fn(Condition $query) => $query->orderByRaw('COALESCE(condition.parent_id, condition.id), condition.parent_id IS NOT NULL, condition.id')->pluck('name', 'id'))
                             // ->hidden(fn(Get $get) => $conditions_multiple['tipo'] ? false : true)                            
                             // ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
-                            ->afterStateUpdated(fn($state) => $this->conditions_multiple['conditions'] = $state),
+                            ->afterStateUpdated(fn($state) => $this->conditions = $state),
                     ])
                     ->columnSpan(1)
                     ->reactive(),
@@ -158,8 +155,8 @@ class MapDependentUsers extends Page
     {
         return [
             'map' => \App\Filament\Resources\DependentUserResource\Widgets\MapWidget::make([
-                // 'conditions_id' => $this->conditions_id,
-                'conditions_multiple' => $this->conditions_multiple,
+                'tipo' => $this->tipo,
+                'conditions' => $this->conditions,
                 'organizations_id' => $this->organizations_id,
                 'users_id' => $this->req_users_id,
                 'risks' => $this->risks,
@@ -169,18 +166,18 @@ class MapDependentUsers extends Page
 
     public function updated($name)
     {
-        $this->dispatch('changeFilters', $this->conditions_multiple, $this->organizations_id, $this->req_users_id, $this->risks);
+        $this->dispatch('changeFilters', $this->tipo, $this->conditions, $this->organizations_id, $this->req_users_id, $this->risks);
     }
 
     public function goBack()
     {
 
         return redirect()->route('filament.admin.resources.dependent-users.index', [
-            // 'conditions_id' => $this->conditions_id,
-            'conditions_multiple' => $this->conditions_multiple,
-            'risks' => $this->risks,
+            'tipo' => $this->tipo,
+            'conditions' => $this->conditions,
             'organizations_id' => $this->organizations_id,
-            // 'users_id' => $this->req_users_id,
+            'users_id' => $this->req_users_id,
+            'risks' => $this->risks,
         ]);
     }
 }

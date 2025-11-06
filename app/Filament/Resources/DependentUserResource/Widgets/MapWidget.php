@@ -22,22 +22,18 @@ class MapWidget extends Widget
     // public ?array $conditions_id = [];
     // public ?array $conditions_multiple = [];
     public ?string $conditions_type = null;
-    public ?array $conditions_ids = [];
-    public ?array $users_id      = [];
-    public ?array $risks      = [];
-    public ?array $organizations_id      = [];
+    public ?array $conditions_ids   = [];
+    public ?array $organizations_id = [];
+    public ?array $users_id         = [];
+    public ?array $risks            = [];
+    public array $patients          = [];
+    public array $markers           = [];
 
-    public array $patients    = [];
-    public array $markers     = [];
-
-    public function mount(?array $conditions_multiple = [], ?array $organizations_id = [], ?array $risks = [], ?array $users_id = []): void
+    public function mount(?string $tipo = null, ?array $conditions = [], ?array $organizations_id = [], ?array $risks = [], ?array $users_id = []): void
     {
-
         $this->baseUrl          = env('APP_URL', 'https://uni.saludtarapaca.gob.cl/');
-        // $this->conditions_ids    = $conditions_id;
-        $this->conditions_type    = $conditions_multiple['tipo'];
-        $this->conditions_ids    = array_values($conditions_multiple['conditions']);
-        // dd($this->conditions_ids);
+        $this->conditions_type    = $tipo;
+        $this->conditions_ids    = array_values($conditions);
         $this->organizations_id = $organizations_id;
         $this->users_id = $users_id;
         $this->risks = $risks;
@@ -107,11 +103,10 @@ class MapWidget extends Widget
     }
 
     #[On('changeFilters')]
-    public function changeFilters(?array $conditions_multiple = [], ?array $organizations_id = [], ?array $users_id = null, ?array $risks = []): void
+    public function changeFilters(?string $tipo = null, ?array $conditions = [], ?array $organizations_id = [], ?array $users_id = null, ?array $risks = []): void
     {
-        // $this->conditions_ids = $conditions_id ?? $this->conditions_id;
-        $this->conditions_type    = $conditions_multiple['tipo'];
-        $this->conditions_ids    = $conditions_multiple['conditions'];
+        $this->conditions_type    = $tipo ?? $this->conditions_type;
+        $this->conditions_ids    = array_values($conditions) ?? $this->conditions_ids;
         $this->organizations_id = $organizations_id ?? $this->organizations_id;
         $this->users_id      = $users_id ?? $this->users_id;
         $this->risks      = $risks ?? $this->risks;
