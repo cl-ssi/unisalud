@@ -10,6 +10,7 @@
             </span>
         </button>
     </div>
+    {{var_dump($this->data);}}
     <div class="space-y-4">
         {{ $this->form }}
     </div>

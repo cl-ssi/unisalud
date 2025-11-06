@@ -30,9 +30,11 @@ class MapDependentUsers extends Page
     public $organizationTypes;
     public $conditionTypes;
 
+    public $data = [];
+
 
     // public $conditions_id = null;
-    public $conditions_multiple = null;
+    // public $conditions_multiple = null;
     public $req_users_id = null;
     public $organizations_id = null;
     public $search = null;
@@ -53,15 +55,14 @@ class MapDependentUsers extends Page
 
         //Obtener datos de solicitud con filtros y/o seleccion
         // $this->conditions_id = request('conditions_id') ?? null;
-        $this->conditions_multiple = request('conditions_multiple') ?? null;
-        // dd($this->conditions_multiple['tipo']);
+        $condiciones = request('conditions_multiple') ?? null;
         $this->req_users_id = request('users_id') ?? null;
         $this->organizations_id = request('organizations_id') ?? null;
         $this->risks = request('risks') ?? null;
         // dd($this->conditions_multiple);
         $this->form->fill([
             // 'conditions_id' => $this->conditions_id,
-            'conditions_multiple' => $this->conditions_multiple,
+            'conditions_multiple' => $condiciones,
             // 'conditions_multiple' => [
             //     'tipo' => $this->conditions_multiple['tipo'] ?? null,
             //     'conditions' => $this->conditions_multiple['conditions'] ?? null,
@@ -70,6 +71,7 @@ class MapDependentUsers extends Page
             'users_id' => $this->req_users_id,
             'risks' => $this->risks,
         ]);
+        // dd($this->data);
     }
 
 
@@ -130,7 +132,7 @@ class MapDependentUsers extends Page
                     ->columnSpan(1)
                     ->reactive()
                     ->afterStateUpdated(fn($state) => $this->organizations_id = $state),
-            ])->columns(3);
+            ])->columns(3)->statePath('data');
     }
 
     protected function getHeaderActions(): array

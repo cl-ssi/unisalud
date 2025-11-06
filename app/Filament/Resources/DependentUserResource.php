@@ -552,13 +552,11 @@ class DependentUserResource extends Resource
                     ->query(function ($query, $data) {
                         if (! empty($data["values"])) {
                             $query->whereJsonLength('risks', '>', 0);
-                            dd($data["values"]);
                             foreach ($data["values"] as $risk) {
                                 // $query->whereIn('risks', [$risk]);
                                 // dd($risk);
-                                // $query->whereJsonContains('risks', [$risk]);
-                                $query->whereJsonContains('risks', ['1' => 'Zona de Aluvion']);
-                                dd($query->get('risks'));
+                                $query->whereJsonContains('risks', [$risk]);
+                                // $query->whereJsonContains('risks', ['1' => 'Zona de Aluvion']);
                             }
                         }
                     }),
