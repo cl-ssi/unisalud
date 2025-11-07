@@ -20,6 +20,7 @@ use App\Services\GeocodingService;
 
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\ImportColumn;
+use Filament\Notifications\Notification;
 use Filament\Actions\Imports\Models\Import;
 use Illuminate\Contracts\Queue\ShouldQueue; // Para la cola
 use Maatwebsite\Excel\Concerns\WithChunkReading; // Para leer en trozos
@@ -27,10 +28,13 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\ToModel;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterImport;
+
 // use Maatwebsite\Excel\Concerns\WithValidation;
 
 
-class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, ShouldQueue //, WithValidation
+class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, ShouldQueue, WithEvents //, WithValidation
 {
     private $date_format = 'Y-m-d';
 
@@ -38,6 +42,8 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
     protected static int $insertedCount = 0;
     protected static int $updatedCount = 0;
     protected static int $skippedCount = 0;
+
+
 
 
     /**
@@ -128,7 +134,7 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
         }
     }
 
-    public static function getCompletedNotificationBody(Import $import): string
+    public static function getCompletedNotificationBody(): string
     {
         $body = 'La importación de usuarios dependientes ha finalizado. ';
         $body .= self::$insertedCount . ' ' . str('fila')->plural(self::$insertedCount) . ' insertada(s), ';
@@ -486,5 +492,20 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
     public function chunkSize(): int
     {
         return 10;
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            // Define your event listeners here
+        ];
+    }
+
+    public static function afterImport(AfterImport $event)
+    {
+        Notification::make('importado')
+            ->title('Archivo Importado')
+            ->success()
+            ->body(self::getCompletedNotificationBody());
     }
 }

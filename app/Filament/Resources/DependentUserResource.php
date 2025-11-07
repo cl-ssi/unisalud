@@ -618,7 +618,8 @@ class DependentUserResource extends Resource
                             return redirect()->route(
                                 'filament.admin.resources.dependent-users.map',
                                 [
-                                    'conditions_id' => $livewire->getTable()->getFilters()['conditions']->getState('name')['values'] ?? null,
+                                    'conditions_multiple' => $livewire->getTableFilterState('conditions_multiple') ?? null, // INFO: NEW BEST WAY 
+                                    // 'conditions_id' => $livewire->getTable()->getFilters()['conditions']->getState('name')['values'] ?? null,
                                     'search' => $livewire->getTable()->getFilters()['user']->getForm()->getState()['name'] ?? null,
                                     'organizations_id' => $livewire->getTable()->getFilters()['user.mobileContactPoint.organization']->getState()['values'] ?? null,
                                     'risks' => $livewire->getTable()->getFilters()['riesgos']->getState()['values'] ?? null,

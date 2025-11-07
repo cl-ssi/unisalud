@@ -25,6 +25,7 @@ use App\Models\Country;
 use App\Models\Organization;
 use DateTime;
 use Carbon\Carbon;
+use Filament\Forms\Get;
 
 class CreateDependentUser extends CreateRecord
 {
@@ -37,7 +38,7 @@ class CreateDependentUser extends CreateRecord
         return $form
             ->schema([
 
-                Forms\Components\Section::make('Datos del Paciente')
+                Forms\Components\Section::make('Datos Personales')
                     ->schema([
                         // 1. Datos personales básicos
                         Forms\Components\TextInput::make('nombre')
@@ -111,6 +112,9 @@ class CreateDependentUser extends CreateRecord
                             ->label('Teléfono')
                             ->required()
                             ->columnSpan(1),
+                    ])->columns(2),
+                Forms\Components\Section::make('Datos Sanitarios')
+                    ->schema([
                         Forms\Components\Select::make('establecimiento')
                             ->label('Establecimiento')
                             ->options(Organization::whereService(3)->whereNotNull('code_deis')->pluck('alias', 'code_deis'))
@@ -229,7 +233,8 @@ class CreateDependentUser extends CreateRecord
                             ->columnSpan(1),
                         Forms\Components\Textarea::make('extra_info')
                             ->label('Información Extra')
-                            ->columnSpan(1),
+                            ->columnSpan(2)
+                            ->rows(8),
                     ])->columns(2),
                 Forms\Components\Section::make('Condiciones del Paciente')
                     ->schema([
@@ -239,32 +244,50 @@ class CreateDependentUser extends CreateRecord
                             ->options(Condition::pluck('name', 'id'))
                             ->multiple()
                             ->columnSpan(2),
-                    ])->columns(2),
+                    ])->columns(2)->hidden(),
                 Forms\Components\Section::make('Datos del Cuidador')
                     ->schema([
+                        Forms\Components\Radio::make('caregiver')
+                            ->label('Tiene Cuidador')
+                            ->boolean()
+                            ->options([
+                                false => 'No',
+                                true => 'Si',
+                            ])
+                            ->default(false)
+                            ->columnSpan(2)
+                            ->live()
+                            ->inline()
+                            ->required(),
                         Forms\Components\TextInput::make('nombre_cuidador')
                             ->label('Nombre Cuidador')
-                            ->required()
+                            ->required(fn(Get $get) => $get('caregiver'))
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\TextInput::make('apellido_paterno_cuidador')
                             ->label('Apellido Paterno Cuidador')
-                            ->required()
+                            ->required(fn(Get $get) => $get('caregiver'))
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\TextInput::make('apellido_materno_cuidador')
                             ->label('Apellido Materno Cuidador')
-                            ->required()
+                            ->required(fn(Get $get) => $get('caregiver'))
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\DatePicker::make('fecha_nacimiento_cuidador')
                             ->label('Fecha de Nacimiento Cuidador')
-                            ->required()
+                            ->required(fn(Get $get) => $get('caregiver'))
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\TextInput::make('run_cuidador')
                             ->label('RUN Cuidador')
-                            ->required()
+                            ->required(fn(Get $get) => $get('caregiver'))
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\TextInput::make('dv_cuidador')
                             ->label('DV Cuidador')
-                            ->required()
+                            ->required(fn(Get $get) => $get('caregiver'))
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\Select::make('sexo_cuidador')
                             ->label('Sexo Cuidador')
@@ -274,7 +297,8 @@ class CreateDependentUser extends CreateRecord
                                 'other' => 'Otro',
                                 'unknown' => 'Desconocido',
                             ])
-                            ->required()
+                            ->required(fn(Get $get) => $get('caregiver'))
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\Select::make('genero_cuidador')
                             ->label('Género Cuidador')
@@ -287,11 +311,13 @@ class CreateDependentUser extends CreateRecord
                                 'other' => 'Otro',
                                 'non-disclose' => 'No revelar',
                             ])
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\Select::make('nacionalidad_cuidador')
                             ->label('Nacionalidad Cuidador')
                             ->options(Country::pluck('name', 'id'))
-                            ->required()
+                            ->required(fn(Get $get) => $get('caregiver'))
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\Select::make('parentesco_cuidador')
                             ->label('Parentesco Cuidador')
@@ -302,7 +328,8 @@ class CreateDependentUser extends CreateRecord
                                 'PAGADO' => 'Cuidador Pagado',
                                 'OTRO' => 'Otro',
                             ])
-                            ->required()
+                            ->required(fn(Get $get) => $get('caregiver'))
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\Select::make('prevision_cuidador')
                             ->label('Previsión Cuidador')
@@ -314,27 +341,35 @@ class CreateDependentUser extends CreateRecord
                                 'ISAPRE'    => 'Isapre',
                                 'PRAIS'     => 'PRAIS'
                             ])
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\Toggle::make('empam_cuidador')
                             ->label('EMPAM Cuidador')
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\Toggle::make('zarit_cuidador')
                             ->label('Zarit Cuidador')
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\TextInput::make('inmunizaciones_cuidador')
                             ->label('Inmunizaciones Cuidador')
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\Toggle::make('plan_elaborado_cuidador')
                             ->label('Plan Elaborado Cuidador')
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\Toggle::make('plan_evaluado_cuidador')
                             ->label('Plan Evaluado Cuidador')
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\Toggle::make('capacitacion_cuidador')
                             ->label('Capacitación Cuidador')
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                         Forms\Components\Toggle::make('estipendio_cuidador')
                             ->label('Estipendio Cuidador')
+                            ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
                     ])->columns(2),
             ]);
@@ -408,15 +443,18 @@ class CreateDependentUser extends CreateRecord
         foreach ($data as $name => $value) {
             $input[$name] = $value ?? null;
         }
-        // Upsert an User, Address, ContactPoint, for Upsert a DependentUser and Attach Conditions
-        $dependentUser = $this->getDependentUser($data);
-
-        // Upsert an User, Address, ContactPoint, for Upsert a DependentCaregiver        
-        $this->getCaregiver($data, $dependentUser);
-
-        return $dependentUser;
+        if (isset($row['run']) && isset($row['dv'])) {
+            // Upsert an User, Address, ContactPoint, for Upsert a DependentUser and Attach Conditions
+            $dependentUser = $this->getDependentUser($row);
+            if (isset($row['run_cuidador']) && isset($row['dv_cuidador'])) {
+                // Upsert an User, Address, ContactPoint, for Upsert a DependentCaregiver        
+                $this->getCaregiver($row, $dependentUser);
+            }
+            return $dependentUser;
+        } else {
+            $this->halt();
+        }
     }
-
 
 
     public function getUser($row, $cuidador = false)
@@ -430,13 +468,19 @@ class CreateDependentUser extends CreateRecord
         $nombre = $row['nombre' . $cuidador];
         $apellido_paterno = $row['apellido_paterno' . $cuidador];
         $apellido_materno = $row['apellido_materno' . $cuidador];
-        $fecha_nacimiento = $this->formatField($row['fecha_nacimiento' . $cuidador], 'date');
+        $fecha_nacimiento = $row['fecha_nacimiento' . $cuidador];
+
+        // $fecha_nacimiento = $fecha_nacimiento?date('Y-m-d', Carbon::createFromFormat('d/m/Y', $fecha_nacimiento)->getTimestamp()):null;
+        // $fecha_nacimiento = $fecha_nacimiento ? Date::excelToDateTimeObject($fecha_nacimiento)->format($this->date_format) : null;
+
 
         // Check if user exists
         $user = User::whereHas('identifiers', function ($query) use ($run) {
             $query->where('value', $run)
                 ->where('cod_con_identifier_type_id', 1);
         })->first();
+
+        self::$skippedCount = $user?->id ? true : false;
 
         // Obtain possible values
         $sex = Sex::where('text', $sexo)->first()?->value;
@@ -456,7 +500,7 @@ class CreateDependentUser extends CreateRecord
                 'mothers_family'        => $apellido_materno,
                 'sex'                   => $sex,
                 'gender'                => $gender,
-                'birthday'              => $fecha_nacimiento ? Carbon::parse($fecha_nacimiento)->format('d-m-Y') : null,
+                'birthday'              => $this->formatField($fecha_nacimiento, 'date'),
                 // 'cod_con_marital_id'    => $row['estado_civil'],
                 'nationality_id'        => $nationality,
             ]
@@ -486,7 +530,9 @@ class CreateDependentUser extends CreateRecord
                 ]
             );
         }
-        $this->getAddress($row, $userOut);
+        if (isset($row['calle'])) {
+            $this->getAddress($row, $userOut);
+        }
         return $userOut;
     }
 
@@ -496,7 +542,7 @@ class CreateDependentUser extends CreateRecord
         $calle = $row['calle'];
         $numero = $row['numero'];
         $departamento = $row['departamento'];
-        $comuna = $row['comuna'];
+        $comuna = ucfirst($row['comuna']);
 
         // Check if user has home address
         $addressExist = null;
@@ -523,11 +569,12 @@ class CreateDependentUser extends CreateRecord
                 'apartment'     => $departamento,
                 'suburb'        => null,
                 'city'          => null,
-                'commune_id'    => $commune,
+                'commune_id'    => $commune->id ?? null,
                 'postal_code'   => null,
-                'region_id'     => null,
+                'region_id'     => $commune->region_id ?? null,
             ]
         );
+
 
         // Get coordinates and create location
         if ($calle && $numero && $comuna) {
@@ -586,7 +633,11 @@ class CreateDependentUser extends CreateRecord
     public function getDependentUser($row)
     {
         $user = $this->getUser($row);
-
+        if (Self::$rowNew) {
+            self::$insertedCount++;
+        } else {
+            self::$updatedCount++;
+        }
         // Create or update DependentUser
         $dependentUser = DependentUser::updateOrCreate(
             [
@@ -621,7 +672,21 @@ class CreateDependentUser extends CreateRecord
             ]
         );
 
-        $attachIds = array_keys($row['condiciones']);
+        // Attach conditions optimally
+        $conditions = Condition::parentsOnly()->pluck('id', 'name')->all();
+        $childs = Condition::childsOnly()->pluck('id', 'code')->all();
+        $electro = strtoupper($row['electrodependencia'] ?? '');
+        $attachIds = [];
+
+        foreach ($conditions as $name => $id) {
+            $val = $this->formatField($row[str_replace(" ", "_", $name)] ?? null, 'boolean');
+            if ($val === true) {
+                $attachIds[] = $id;
+            } elseif ($name === 'electrodependencia' && array_key_exists($electro, $childs) && $val != false) {
+                $attachIds[] = $id;
+                $attachIds[] = $childs[$electro];
+            }
+        }
         if (!empty($attachIds)) {
             $dependentUser->conditions()->syncWithoutDetaching($attachIds);
         }
@@ -675,7 +740,7 @@ class CreateDependentUser extends CreateRecord
                 }
                 $value = intval(trim($value));
                 // $date = DateTime::createFromFormat('d/m/Y', $value)->format($this->date_format);
-                $date = DateTime::createFromFormat($this->date_format, $value);
+                $date = Date::excelToDateTimeObject($value)->format($this->date_format);
 
                 return $date ?? null;
 
