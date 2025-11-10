@@ -194,6 +194,16 @@ class DependentUserResource extends Resource
         return $table
             ->description(new HtmlString('Georreferenciación <br>
              Programa de Atención Domiciliaria para personas con Dependencia Severa y Cuidadores'))
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = auth()->user();
+                if ($user->hasRole('geopadds_user')) {
+                    if ($user->exists('organizations')) {
+                        $query->whereHas('user', fn($query) => $query->whereHas('mobileContactPoint', fn($query) => $query->whereIn('organization_id', $user->organizations->pluck('id')->toArray())));
+                    } else {
+                        $query->whereNull('id');
+                    }
+                }
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('user.mobileContactPoint.organization.alias')
                     ->wrap()
@@ -519,12 +529,6 @@ class DependentUserResource extends Resource
                                 }
                             );
                     }),
-                /* Tables\Filters\SelectFilter::make('user2')
-                    ->relationship('user', 'text')
-                    ->searchable()
-                    ->multiple()
-                    ->getSearchResultsUsing(fn(string $search) => strlen($search > 3) ? (User::has('dependentUser')->where('text', 'like', '%' . $search . '%')->pluck('text', 'id')) : [])
-                    ->optionsLimit(20), */
                 Tables\Filters\Filter::make('user')
                     ->columnSpan(1)
                     ->form([
@@ -553,15 +557,11 @@ class DependentUserResource extends Resource
                         if (! empty($data["values"])) {
                             $query->whereJsonLength('risks', '>', 0);
                             foreach ($data["values"] as $risk) {
-                                // $query->whereIn('risks', [$risk]);
-                                // dd($risk);
                                 $query->whereJsonContains('risks', [$risk]);
-                                // $query->whereJsonContains('risks', ['1' => 'Zona de Aluvion']);
                             }
                         }
                     }),
                 Tables\Filters\SelectFilter::make('user.mobileContactPoint.organization')
-                    // ->relationship('user.mobileContactPoint.organization', 'alias')
                     ->label('Organizacion')
                     ->multiple()
                     ->columnSpan(1)
@@ -656,6 +656,6 @@ class DependentUserResource extends Resource
 
     public static function canAccess(): bool
     {
-        return auth()->user()->hasRole('dependecy_user') || auth()->user()->can('be god');
+        return auth()->user()->hasRole('geopadds_user') || auth()->user()->hasRole('geopadds_admin') || auth()->user()->can('be god');
     }
 }
