@@ -34,7 +34,7 @@ use Maatwebsite\Excel\Events\AfterImport;
 // use Maatwebsite\Excel\Concerns\WithValidation;
 
 
-class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, WithEvents // , ShouldQueue, WithValidation
+class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, WithEvents, ShouldQueue //, WithValidation
 {
     private $date_format = 'Y-m-d';
 
@@ -492,7 +492,7 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
 
     public function chunkSize(): int
     {
-        return 10;
+        return 50;
     }
 
     public function registerEvents(): array
