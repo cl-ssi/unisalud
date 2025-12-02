@@ -18,42 +18,62 @@ use App\Models\Sex;
 use App\Models\User;
 use App\Services\GeocodingService;
 
-use Filament\Actions\Imports\Importer;
-use Filament\Actions\Imports\ImportColumn;
-use Filament\Notifications\Notification;
-use Filament\Actions\Imports\Models\Import;
-use Illuminate\Contracts\Queue\ShouldQueue; // Para la cola
-use Maatwebsite\Excel\Concerns\WithChunkReading; // Para leer en trozos
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\ToModel;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Events\BeforeImport;
+use Filament\Notifications\Notification;
 
-// use Maatwebsite\Excel\Concerns\WithValidation;
-
-
-class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, WithEvents, ShouldQueue //, WithValidation
+class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, WithEvents, ShouldQueue
 {
     private $date_format = 'Y-m-d';
 
-    protected static bool $rowNew = false;
+    // Cachés para evitar queries repetidas
+    private static $sexCache = null;
+    private static $genderCache = null;
+    private static $countriesCache = null;
+    private static $communesCache = null;
+    private static $organizationsCache = null;
+    private static $conditionsParents = null;
+    private static $conditionsChilds = null;
+
     protected static int $insertedCount = 0;
     protected static int $updatedCount = 0;
     protected static int $skippedCount = 0;
 
+    public function __construct()
+    {
+        Log::info('=== DependentUserImport CONSTRUCTOR ===');
 
+        // Cargar todos los datos una sola vez
+        if (self::$sexCache === null) {
+            self::$sexCache = Sex::pluck('value', 'text')->toArray();
+            self::$genderCache = Gender::pluck('value', 'text')->toArray();
+            self::$countriesCache = Country::pluck('id', 'name')->toArray();
+            self::$communesCache = Commune::with('region')->get()->keyBy('name');
+            self::$organizationsCache = Organization::pluck('id', 'code_deis')->toArray();
+            self::$conditionsParents = Condition::parentsOnly()->pluck('id', 'name')->toArray();
+            self::$conditionsChilds = Condition::childsOnly()->pluck('id', 'code')->toArray();
 
+            Log::info('Cachés cargados', [
+                'sexos' => count(self::$sexCache),
+                'generos' => count(self::$genderCache),
+                'paises' => count(self::$countriesCache),
+                'comunas' => count(self::$communesCache),
+                'organizaciones' => count(self::$organizationsCache)
+            ]);
+        }
+    }
 
-    /**
-     * @param array $row
-     *
-     * @return \Illuminate\Database\Eloquent\Model|null
-     */
     public function model(array $row)
     {
-        self::$rowNew = false;
+        Log::info('=== PROCESANDO FILA ===', ['run' => $row['run'] ?? 'sin run']);
+
         $headings = [
             'establecimiento',
             'nombre',
@@ -112,68 +132,40 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
             'plan_elaborado_cuidador',
             'plan_evaluado_cuidador',
             'capacitacion_cuidador',
-            'estipendio_cuidador'
+            'estipendio_cuidador',
+            'electrodependencia'
         ];
-        // $row = array_change_key_case($row, CASE_LOWER);
+
         foreach ($headings as $heading) {
             $row[$heading] = $row[$heading] ?? null;
         }
 
-        if (isset($row['run']) && isset($row['dv'])) {
+        if (empty($row['run']) || empty($row['dv'])) {
+            self::$skippedCount++;
+            Log::warning('Fila sin RUN, saltando');
+            return null;
+        }
 
-            // Upsert an User, Address, ContactPoint, for Upsert a DependentUser and Attach Conditions
+        try {
             $dependentUser = $this->getDependentUser($row);
-            if (isset($row['run_cuidador']) && isset($row['dv_cuidador'])) {
-                // Upsert an User, Address, ContactPoint, for Upsert a DependentCaregiver        
+
+            if (!empty($row['run_cuidador']) && !empty($row['dv_cuidador'])) {
                 $this->getCaregiver($row, $dependentUser);
             }
-            self::$insertedCount++;
+
+            Log::info('Fila procesada exitosamente', ['user_id' => $dependentUser->user_id]);
             return $dependentUser;
-        } else {
+        } catch (\Exception $e) {
             self::$skippedCount++;
+            Log::error('Error procesando fila', [
+                'run' => $row['run'],
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
             return null;
         }
     }
-
-    public static function getCompletedNotificationBody(): string
-    {
-        $body = 'La importación de usuarios dependientes ha finalizado. ';
-        $body .= self::$insertedCount . ' ' . str('fila')->plural(self::$insertedCount) . ' insertada(s), ';
-        $body .= self::$updatedCount . ' ' . str('fila')->plural(self::$updatedCount) . ' actualizada(s) y ';
-        $body .= self::$skippedCount . ' ' . str('fila')->plural(self::$skippedCount) . ' omitida(s).';
-
-        // Es crucial reiniciar los contadores para la próxima importación que se ejecute.
-        self::$insertedCount = 0;
-        self::$updatedCount = 0;
-        self::$skippedCount = 0;
-        Log::info($body);
-        return $body;
-    }
-
-    /*
-    public function rules(): array
-    {
-        return [
-            // // Datos para model User del DependentUser
-            // 'nombre' => 'required',
-            // 'apellido_paterno' => 'required',
-            // 'apellido_materno' => 'required', 
-            // 'run' => 'required',
-            // 'prevision' => 'required',
-            // 'sexo' => 'required',
-
-            // // Datos para la tabla Conditions
-
-            // 'movilidad_reducida' => ['nullable', Rule::in(['SI', 'NO'])],
-            // 'oxigeno_dependiente' => ['required', Rule::in(['SI', 'NO'])],
-            // 'alimentacion_enteral' => ['required', Rule::in(['SI', 'NO'])],
-            // 'demencia' => ['required', Rule::in(['SI', 'NO'])],
-            // 'oncologicos' => ['required', Rule::in(['SI', 'NO'])],
-            // 'cuidados_paliativos_universales' => ['required', Rule::in(['SI', 'NO'])],
-            // 'naneas' => ['required', Rule::in(['SI', 'NO'])]
-        ];
-    }
-    */
 
     public function getUser($row, $cuidador = false)
     {
@@ -188,134 +180,111 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
         $apellido_materno = $row['apellido_materno' . $cuidador];
         $fecha_nacimiento = $row['fecha_nacimiento' . $cuidador];
 
-        // $fecha_nacimiento = $fecha_nacimiento?date('Y-m-d', Carbon::createFromFormat('d/m/Y', $fecha_nacimiento)->getTimestamp()):null;
-        // $fecha_nacimiento = $fecha_nacimiento ? Date::excelToDateTimeObject($fecha_nacimiento)->format($this->date_format) : null;
-
+        // Usar caché en lugar de queries
+        $sex = self::$sexCache[$sexo] ?? null;
+        $gender = self::$genderCache[$genero] ?? null;
+        $nationality = self::$countriesCache[$nacionalidad] ?? null;
 
         // Check if user exists
         $user = User::whereHas('identifiers', function ($query) use ($run) {
-            $query->where('value', $run)
-                ->where('cod_con_identifier_type_id', 1);
+            $query->where('value', $run)->where('cod_con_identifier_type_id', 1);
         })->first();
 
-        self::$skippedCount = $user?->id ? true : false;
+        $isNew = !$user;
 
-        // Obtain possible values
-        $sex = Sex::where('text', $sexo)->first()?->value;
-        $gender = Gender::where('text', $genero)->first()?->value;
-        $nationality = Country::where('name', $nacionalidad)->first()?->id;
+        if ($isNew) {
+            self::$insertedCount++;
+        } else {
+            self::$updatedCount++;
+        }
 
-        // If the user does not exist, create a new one
+        // Create or update user
         $userOut = User::updateOrCreate(
+            ['id' => $user?->id],
             [
-                'id'    => $user ? $user->id : null
-            ],
-            [
-                'active'                => 1,
-                'text'                  => $nombre . ' ' . $apellido_paterno . ' ' . $apellido_materno,
-                'given'                 => $nombre,
-                'fathers_family'        => $apellido_paterno,
-                'mothers_family'        => $apellido_materno,
-                'sex'                   => $sex,
-                'gender'                => $gender,
-                'birthday'              => $this->formatField($fecha_nacimiento, 'date'),
-                // 'cod_con_marital_id'    => $row['estado_civil'],
-                'nationality_id'        => $nationality,
+                'active' => 1,
+                'text' => trim($nombre . ' ' . $apellido_paterno . ' ' . $apellido_materno),
+                'given' => $nombre,
+                'fathers_family' => $apellido_paterno,
+                'mothers_family' => $apellido_materno,
+                'sex' => $sex,
+                'gender' => $gender,
+                'birthday' => $this->formatField($fecha_nacimiento, 'date'),
+                'nationality_id' => $nationality,
             ]
         );
 
-        if ($user == null) {
-            // SE CREA IDENTIFIER
-            Identifier::create(
-                [
-                    'user_id'                       => $userOut->id,
-                    'use'                           => 'official',
-                    'cod_con_identifier_type_id'    => 1,
-                    'value'                         => $run,
-                    'dv'                            => $dv
-                ]
-            );
+        if ($isNew) {
+            Identifier::create([
+                'user_id' => $userOut->id,
+                'use' => 'official',
+                'cod_con_identifier_type_id' => 1,
+                'value' => $run,
+                'dv' => $dv
+            ]);
 
-            //SE CREA HUMAN NAME
-            HumanName::create(
-                [
-                    'use'               => 'official',
-                    'given'             => $nombre,
-                    'fathers_family'    => $apellido_paterno,
-                    'mothers_family'    => $apellido_materno,
-                    'period_start'      => now(),
-                    'user_id'           => $userOut->id
-                ]
-            );
+            HumanName::create([
+                'use' => 'official',
+                'given' => $nombre,
+                'fathers_family' => $apellido_paterno,
+                'mothers_family' => $apellido_materno,
+                'period_start' => now(),
+                'user_id' => $userOut->id
+            ]);
         }
-        if (isset($row['calle'])) {
+
+        if (!empty($row['calle']) && !$cuidador) {
             $this->getAddress($row, $userOut);
         }
+
         return $userOut;
     }
 
     public function getAddress($row, $user)
     {
-
         $calle = $row['calle'];
         $numero = $row['numero'];
         $departamento = $row['departamento'];
         $comuna = ucfirst($row['comuna']);
 
-        // Check if user has home address
-        $addressExist = null;
-        foreach ($user->addresses as $address) {
-            if ($address->use == 'home') {
-                $addressExist = $address;
-            }
-        }
+        $addressExist = $user->addresses()->where('use', 'home')->first();
 
-        // Get commune id from name
-        $commune = Commune::where('name', $comuna)->first()?->id;
+        // Usar caché
+        $communeData = self::$communesCache[$comuna] ?? null;
 
-        // Create or update address
         $address = Address::updateOrCreate(
+            ['id' => $addressExist?->id],
             [
-                'id' => $addressExist ? $addressExist->id : null
-            ],
-            [
-                'user_id'       => $user->id,
-                'use'           => 'home',
-                'type'          => 'physical',
-                'text'          => $calle,
-                'line'          => $numero,
-                'apartment'     => $departamento,
-                'suburb'        => null,
-                'city'          => null,
-                'commune_id'    => $commune->id ?? null,
-                'postal_code'   => null,
-                'region_id'     => $commune->region_id ?? null,
+                'user_id' => $user->id,
+                'use' => 'home',
+                'type' => 'physical',
+                'text' => $calle,
+                'line' => $numero,
+                'apartment' => $departamento,
+                'commune_id' => $communeData?->id,
+                'region_id' => $communeData?->region_id,
             ]
         );
 
+        // Geocoding solo si hay datos completos
+        if ($calle && $numero && $comuna && !$address->location) {
+            try {
+                $geocodingService = app(GeocodingService::class);
+                $coordinates = $geocodingService->getCoordinates($calle . '+' . $numero . '+' . $comuna);
 
-        // Get coordinates and create location
-        if ($calle && $numero && $comuna) {
-            $geocodingService = app(GeocodingService::class);
-            $coordinates = $geocodingService->getCoordinates($calle . '+' . $numero . '+' . $comuna);
-
-            $latitude = $coordinates['lat'] ?? null;
-            $longitude = $coordinates['lng'] ?? null;
-
-            Location::updateOrCreate(
-                [
-                    'id' => $address->location?->id ?? null
-                ],
-                [
-                    'address_id' => $address->id,
-                    'longitude'  => $longitude,
-                    'latitude'   => $latitude
-                ]
-            );
+                if (!empty($coordinates['lat']) && !empty($coordinates['lng'])) {
+                    Location::create([
+                        'address_id' => $address->id,
+                        'longitude' => $coordinates['lng'],
+                        'latitude' => $coordinates['lat']
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::warning('Error obteniendo coordenadas', ['address' => $address->id]);
+            }
         }
 
         $this->getContactPoint($row, $user, $address);
-
         return $address;
     }
 
@@ -324,26 +293,21 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
         $telefono = $row['telefono'];
         $establecimiento = $row['establecimiento'];
 
-        // Get organization_id from code_deis
         $organization_id = preg_replace("/[^0-9]/", '', $establecimiento);
-        $organization_id = Organization::where('code_deis', '=', $organization_id)->first()?->id;
+        $organization_id = self::$organizationsCache[$organization_id] ?? null;
 
-        // Check if user has a contact point
-        $contactPoint = ContactPoint::where('user_id', $user->id)->latest()->first();
+        $contactPoint = $user->contactPoints()->latest()->first();
 
-        // Create or update contact point
         return ContactPoint::updateOrCreate(
+            ['id' => $contactPoint?->id],
             [
-                'id' => $contactPoint ? $contactPoint->id : null
-            ],
-            [
-                'system'            => 'phone',
-                'user_id'           => $user->id,
-                'location_id'       => $address?->location?->id,
-                'value'             => $telefono,
-                'organization_id'   => $organization_id,
-                'use'              => 'mobile',
-                'actually'         => 0
+                'system' => 'phone',
+                'user_id' => $user->id,
+                'location_id' => $address?->location?->id,
+                'value' => $telefono,
+                'organization_id' => $organization_id,
+                'use' => 'mobile',
+                'actually' => 0
             ]
         );
     }
@@ -351,16 +315,9 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
     public function getDependentUser($row)
     {
         $user = $this->getUser($row);
-        if (Self::$rowNew) {
-            self::$insertedCount++;
-        } else {
-            self::$updatedCount++;
-        }
-        // Create or update DependentUser
+
         $dependentUser = DependentUser::updateOrCreate(
-            [
-                'user_id' => $user->id
-            ],
+            ['user_id' => $user->id],
             [
                 'diagnosis' => $this->formatField($row['diagnostico'], 'text'),
                 'healthcare_type' => $this->formatField($row['prevision'], 'healthcare'),
@@ -390,59 +347,57 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
             ]
         );
 
-        // Attach conditions optimally
-        $conditions = Condition::parentsOnly()->pluck('id', 'name')->all();
-        $childs = Condition::childsOnly()->pluck('id', 'code')->all();
+        // Attach conditions usando caché
         $electro = strtoupper($row['electrodependencia'] ?? '');
         $attachIds = [];
 
-        foreach ($conditions as $name => $id) {
-            $val = $this->formatField($row[str_replace(" ", "_", $name)] ?? null, 'boolean');
+        foreach (self::$conditionsParents as $name => $id) {
+            $val = $this->formatField($row[str_replace(" ", "_", strtolower($name))] ?? null, 'boolean');
             if ($val === true) {
                 $attachIds[] = $id;
-            } elseif ($name === 'electrodependencia' && array_key_exists($electro, $childs) && $val != false) {
+            } elseif ($name === 'electrodependencia' && array_key_exists($electro, self::$conditionsChilds) && $val != false) {
                 $attachIds[] = $id;
-                $attachIds[] = $childs[$electro];
+                $attachIds[] = self::$conditionsChilds[$electro];
             }
         }
+
         if (!empty($attachIds)) {
             $dependentUser->conditions()->syncWithoutDetaching($attachIds);
         }
+
         return $dependentUser;
     }
 
     public function getCaregiver($row, $dependentUser)
     {
         $caregiverUser = $this->getUser($row, true);
-        // Check if caregiver exists
-        $caregiver = DependentCaregiver::whereHas('user', function ($query) use ($caregiverUser) {
-            $query->where('id', $caregiverUser->id);
-        })->first();
 
-        // Create or update caregiver
-        $dependentCaregiver = DependentCaregiver::updateOrCreate(
-            [
-                'id' => $caregiver ? $caregiver->id : null
-            ],
+        $caregiver = DependentCaregiver::where('user_id', $caregiverUser->id)->first();
+
+        return DependentCaregiver::updateOrCreate(
+            ['id' => $caregiver?->id],
             [
                 'dependent_user_id' => $dependentUser->id,
-                'user_id'          => $caregiverUser->id,
-                'relative'         => $row['parentesco_cuidador'],
-                'healthcare_type'  => $this->formatField($row['prevision_cuidador'], 'healthcare'),
-                'empam'           => $this->formatField($row['empam_cuidador'], 'boolean'),
-                'zarit'           => $this->formatField($row['zarit_cuidador'], 'boolean'),
-                'immunizations'    => $row['inmunizaciones_cuidador'],
+                'user_id' => $caregiverUser->id,
+                'relative' => $row['parentesco_cuidador'],
+                'healthcare_type' => $this->formatField($row['prevision_cuidador'], 'healthcare'),
+                'empam' => $this->formatField($row['empam_cuidador'], 'boolean'),
+                'zarit' => $this->formatField($row['zarit_cuidador'], 'boolean'),
+                'immunizations' => $row['inmunizaciones_cuidador'],
                 'elaborated_plan' => $this->formatField($row['plan_elaborado_cuidador'], 'boolean'),
-                'evaluated_plan'  => $this->formatField($row['plan_evaluado_cuidador'], 'boolean'),
-                'trained'         => $this->formatField($row['capacitacion_cuidador'], 'boolean'),
-                'stipend'         => $this->formatField($row['estipendio_cuidador'], 'boolean')
+                'evaluated_plan' => $this->formatField($row['plan_evaluado_cuidador'], 'boolean'),
+                'trained' => $this->formatField($row['capacitacion_cuidador'], 'boolean'),
+                'stipend' => $this->formatField($row['estipendio_cuidador'], 'boolean')
             ]
         );
-        return $dependentCaregiver;
     }
 
     public function formatField($value, $type)
     {
+        if (is_null($value) || $value === '') {
+            return null;
+        }
+
         switch ($type) {
             case 'boolean':
                 $value = strtolower(trim($value));
@@ -453,14 +408,14 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
                 return $clean != 0 ? strval($clean) : null;
 
             case 'date':
-                if (is_null($value)) {
+                try {
+                    $value = intval(trim($value));
+                    if ($value == 0) return null;
+                    return Date::excelToDateTimeObject($value)->format($this->date_format);
+                } catch (\Exception $e) {
+                    Log::warning('Error parseando fecha', ['value' => $value]);
                     return null;
                 }
-                $value = intval(trim($value));
-                // $date = DateTime::createFromFormat('d/m/Y', $value)->format($this->date_format);
-                $date = Date::excelToDateTimeObject($value)->format($this->date_format);
-
-                return $date ?? null;
 
             case 'barthel':
                 $map = [
@@ -485,8 +440,10 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
                     'prais' => 'PRAIS'
                 ];
                 return $map[$value] ?? null;
+
+            case 'text':
             default:
-                return $value;
+                return trim($value);
         }
     }
 
@@ -498,15 +455,38 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
     public function registerEvents(): array
     {
         return [
-            // Define your event listeners here
+            BeforeImport::class => function () {
+                Log::info('=== INICIO IMPORTACIÓN DEPENDENT USERS ===');
+            },
+            AfterImport::class => function () {
+                Log::info('=== FIN IMPORTACIÓN ===', [
+                    'insertados' => self::$insertedCount,
+                    'actualizados' => self::$updatedCount,
+                    'omitidos' => self::$skippedCount
+                ]);
+
+                Notification::make()
+                    ->title('Importación Completada')
+                    ->success()
+                    ->body(self::getCompletedNotificationBody())
+                    ->send();
+            },
         ];
     }
 
-    public static function afterImport(AfterImport $event)
+    public static function getCompletedNotificationBody(): string
     {
-        Notification::make('importado')
-            ->title('Archivo Importado')
-            ->success()
-            ->body(self::getCompletedNotificationBody());
+        $body = 'La importación de usuarios dependientes ha finalizado. ';
+        $body .= self::$insertedCount . ' insertada(s), ';
+        $body .= self::$updatedCount . ' actualizada(s), ';
+        $body .= self::$skippedCount . ' omitida(s).';
+
+        $message = $body;
+
+        self::$insertedCount = 0;
+        self::$updatedCount = 0;
+        self::$skippedCount = 0;
+
+        return $message;
     }
 }
