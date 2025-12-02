@@ -55,7 +55,7 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
             self::$sexCache = Sex::pluck('value', 'text')->toArray();
             self::$genderCache = Gender::pluck('value', 'text')->toArray();
             self::$countriesCache = Country::pluck('id', 'name')->toArray();
-            self::$communesCache = Commune::with('region')->get()->keyBy('name');
+            self::$communesCache = Commune::get()->keyBy('name'); // SIN with('region')
             self::$organizationsCache = Organization::pluck('id', 'code_deis')->toArray();
             self::$conditionsParents = Condition::parentsOnly()->pluck('id', 'name')->toArray();
             self::$conditionsChilds = Condition::childsOnly()->pluck('id', 'code')->toArray();
@@ -69,6 +69,7 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
             ]);
         }
     }
+
 
     public function model(array $row)
     {
