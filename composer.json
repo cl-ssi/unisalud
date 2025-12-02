@@ -14,6 +14,7 @@
         "barryvdh/laravel-dompdf": "^3.0",
         "blade-ui-kit/blade-icons": "^1.8",
         "calebporzio/sushi": "^2.4",
+        "cheesegrits/filament-google-maps": "^3.0",
         "filament/filament": "^3.3.34",
         "hasnayeen/themes": "^3.0",
         "laravel/framework": "^11.45",
@@ -71,12 +72,6 @@
             "@php artisan migrate --graceful --ansi"
         ]
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/laravel-shift/laravel-google-static-map.git"
-        }
-    ],
     "extra": {
         "laravel": {
             "dont-discover": []

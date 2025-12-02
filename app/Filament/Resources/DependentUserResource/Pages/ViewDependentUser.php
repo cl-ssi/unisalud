@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\DependentUserResource\Pages;
 
 use App\Filament\Resources\DependentUserResource;
+use App\Models\DependentUser;
 use App\Models\User;
 use Carbon\Carbon;
 use Doctrine\DBAL\Schema\View;
@@ -13,6 +14,7 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
+use Cheesegrits\FilamentGoogleMaps\Infolists\MapEntry;
 
 class ViewDependentUser extends ViewRecord
 {
@@ -30,23 +32,28 @@ class ViewDependentUser extends ViewRecord
                                     ->columns(['sm' => 3, 'xl' => 6])
                                     ->schema([
                                         Components\Fieldset::make('Información Personal')
-                                            ->columns(1)
+                                            ->columns(2)
                                             ->columnSpan(['sm' => 3, 'xl' => 2])
                                             ->schema([
                                                 Components\TextEntry::make('user.text')
                                                     ->label('Nombre Completo')
+                                                    ->columnSpan(2)
                                                     ->getStateUsing(fn($record) => $record->user->text ?? "{$record->user->given} {$record->user->fathers_family} {$record->user->mothers_family}"),
                                                 Components\TextEntry::make('user.sex')
+                                                    ->columnSpan(1)
                                                     ->label('Sexo'),
                                                 Components\TextEntry::make('user.gender')
+                                                    ->columnSpan(1)
                                                     ->label('Género'),
-                                                Components\Split::make([
-                                                    Components\TextEntry::make('user.birthday')
-                                                        ->label('Fecha Nacimiento')
-                                                        ->date('Y-m-d'),
-                                                    Components\TextEntry::make('user.age')
-                                                        ->label('Edad'),
-                                                ]),
+
+                                                Components\TextEntry::make('user.birthday')
+                                                    ->label('Fecha Nacimiento')
+                                                    ->columnSpan(1)
+                                                    ->date('Y-m-d'),
+                                                Components\TextEntry::make('user.age')
+                                                    ->label('Edad')
+                                                    ->columnSpan(1),
+
                                             ]),
 
                                         Components\Fieldset::make('Contacto')
@@ -85,36 +92,38 @@ class ViewDependentUser extends ViewRecord
                                     ->columns(['sm' => 3, 'xl' => 6])
                                     ->schema([
                                         Components\Fieldset::make('Ubicación')
-                                            ->columns(2)
-                                            ->columnSpan(['sm' => 3, 'xl' => 3])
+                                            ->columns(4)
+                                            ->columnSpan('full')
                                             ->schema([
                                                 Components\TextEntry::make('user.address.use')
                                                     ->label('Tipo Dirección'),
                                                 Components\TextEntry::make('user.address.commune.name')
                                                     ->label('Comuna'),
                                                 Components\TextEntry::make('user.address.text')
-                                                    ->label('Calle')
-                                                    ->columnSpan(2),
+                                                    ->label('Calle'),
                                                 Components\TextEntry::make('user.address.line')
                                                     ->label('Número'),
-                                            ]),
-
-                                        Components\Fieldset::make('Coordenadas')
-                                            ->columns(2)
-                                            ->columnSpan(['sm' => 3, 'xl' => 3])
-                                            ->schema([
                                                 Components\TextEntry::make('user.address.location.latitude')
                                                     ->label('Latitud'),
                                                 Components\TextEntry::make('user.address.location.longitude')
                                                     ->label('Longitud'),
-                                                Components\TextEntry::make('location_map')
-                                                    // ->view('components.location-map')
-                                                    ->columnSpan(2),
                                             ]),
+                                        Components\Section::make('Mapa')
+                                            ->columns(4)
+                                            ->columnSpan('full')
+                                            ->schema([
+                                                MapEntry::make('user.address.location.location')
+                                                    ->label('')
+                                                    ->geoJson(env('APP_URL') .   '/json/cota_30_tarapaca.geojson')
+                                                    ->columnSpan('full')
+                                                    ->defaultZoom(16),
+                                            ])
                                     ]),
                             ]),
 
                         Components\Tabs\Tab::make('Cuidador')
+                            // ->hidden(fn(Model $record) => !$record->has('caregiver'))
+                            ->visible(fn(Model $record) => $record->dependentCaregiver?->exists())
                             ->schema([
                                 Components\Section::make()
                                     ->columns(['sm' => 3, 'xl' => 6])
@@ -161,26 +170,38 @@ class ViewDependentUser extends ViewRecord
                                     ->columns(['sm' => 2, 'xl' => 4])
                                     ->schema([
                                         Components\Fieldset::make('Visitas Integrales')
+                                            ->columns(2)
+                                            ->columnSpan(1)
                                             ->schema([
                                                 Components\TextEntry::make('integral_visits')
                                                     ->label('Cantidad')
+                                                    // ->columnSpan(1)
                                                     ->numeric(),
                                                 Components\TextEntry::make('last_integral_visit')
                                                     ->label('Última Visita')
+                                                    ->color(fn(string $state): string => $state ? (Carbon::parse($state)->diffInYears(Carbon::now()) >= 1 ? 'danger' : 'primary') : 'primary')
+                                                    ->badge()
+                                                    // ->columnSpan(1)
                                                     ->date(),
                                             ]),
 
                                         Components\Fieldset::make('Visitas de Tratamiento')
+                                            ->columns(2)
+                                            ->columnSpan(1)
                                             ->schema([
                                                 Components\TextEntry::make('treatment_visits')
                                                     ->label('Cantidad')
                                                     ->numeric(),
                                                 Components\TextEntry::make('last_treatment_visit')
                                                     ->label('Última Visita')
+                                                    ->color(fn(string $state): string => $state ? (Carbon::parse($state)->diffInYears(Carbon::now()) >= 1 ? 'danger' : 'primary') : 'primary')
+                                                    ->badge()
                                                     ->date(),
                                             ]),
 
                                         Components\Fieldset::make('Evaluaciones')
+                                            ->columns(2)
+                                            ->columnSpan(['sm' => 2, 'xl' => 1])
                                             ->schema([
                                                 Components\TextEntry::make('barthel')
                                                     ->label('Barthel'),
