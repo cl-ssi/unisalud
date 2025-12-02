@@ -359,7 +359,6 @@ return [
         */
         'remote_disk'         => 'gcs',
         'remote_prefix'       => 'laravel-excel-temp',
-        'force_resync' => false,
 
         /*
         |--------------------------------------------------------------------------
@@ -376,6 +375,6 @@ return [
         | processed it.
         |
         */
-        'force_resync_remote' => null,
+        'force_resync_remote' => true,
     ],
 ];
