@@ -34,7 +34,7 @@ use Maatwebsite\Excel\Events\AfterImport;
 // use Maatwebsite\Excel\Concerns\WithValidation;
 
 
-class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, ShouldQueue, WithEvents //, WithValidation
+class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, WithEvents // , ShouldQueue, WithValidation
 {
     private $date_format = 'Y-m-d';
 
