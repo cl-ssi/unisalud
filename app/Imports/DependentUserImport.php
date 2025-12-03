@@ -82,7 +82,7 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
 
         Log::info('=== PROCESANDO FILA ' . $excelRowNumber . ' ===', [
             'run' => $row['run'] ?? 'sin run',
-            'datos' => $row['run'] . ' ' . ($row['nombre'] ?? '') . ' ' . ($row['apellido_paterno'] ?? '')
+            'datos' => ($row['nombre'] ?? '') . ' ' . ($row['apellido_paterno'] ?? '')
         ]);
 
         // Limpiar todos los valores del array eliminando espacios en blanco
