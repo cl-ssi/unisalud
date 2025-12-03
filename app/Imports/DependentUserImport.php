@@ -165,14 +165,17 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
             $row[$heading] = $row[$heading] ?? null;
         }
 
-        if (empty($row['run']) || empty($row['dv'])) {
+        if (($row['run'] ?? '') === '' || ($row['dv'] ?? '') === '') {
             self::$skippedCount++;
-            Log::warning('Fila ' . $excelRowNumber . ' sin RUN/DV, saltando', [
-                'contenido_completo' => $row,
-                'nombre' => $row['nombre'] ?? 'N/A',
-                'apellido_paterno' => $row['apellido_paterno'] ?? 'N/A',
-                'establecimiento' => $row['establecimiento'] ?? 'N/A'
-            ]);
+            $filaVacia = empty($row['nombre']) && empty($row['apellido_paterno']);
+            if (!$filaVacia) {
+                Log::warning('Fila ' . $excelRowNumber . ' sin RUN/DV, saltando', [
+                    'contenido_completo' => $row,
+                    'nombre' => $row['nombre'] ?? 'N/A',
+                    'apellido_paterno' => $row['apellido_paterno'] ?? 'N/A',
+                    'establecimiento' => $row['establecimiento'] ?? 'N/A'
+                ]);
+            }
             return null;
         }
 
