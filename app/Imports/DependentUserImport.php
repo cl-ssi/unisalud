@@ -45,17 +45,21 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
     protected static int $insertedCount = 0;
     protected static int $updatedCount = 0;
     protected static int $skippedCount = 0;
+    protected static int $currentRow = 0; // Contador de filas
 
     public function __construct()
     {
         Log::info('=== DependentUserImport CONSTRUCTOR ===');
+
+        // Resetear contador de filas
+        self::$currentRow = 0;
 
         // Cargar todos los datos una sola vez
         if (self::$sexCache === null) {
             self::$sexCache = Sex::pluck('value', 'text')->toArray();
             self::$genderCache = Gender::pluck('value', 'text')->toArray();
             self::$countriesCache = Country::pluck('id', 'name')->toArray();
-            self::$communesCache = Commune::get()->keyBy('name'); // SIN with('region')
+            self::$communesCache = Commune::get()->keyBy('name');
             self::$organizationsCache = Organization::pluck('id', 'code_deis')->toArray();
             self::$conditionsParents = Condition::parentsOnly()->pluck('id', 'name')->toArray();
             self::$conditionsChilds = Condition::childsOnly()->pluck('id', 'code')->toArray();
@@ -70,13 +74,32 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
         }
     }
 
-
     public function model(array $row)
     {
-        Log::info('=== PROCESANDO FILA ===', ['run' => $row['run'] ?? 'sin run']);
+        // Incrementar contador de fila (suma 2 porque la fila 1 es el encabezado en Excel)
+        self::$currentRow++;
+        $excelRowNumber = self::$currentRow + 1;
+
+        Log::info('=== PROCESANDO FILA ' . $excelRowNumber . ' ===', [
+            'run' => $row['run'] ?? 'sin run',
+            'datos' => $row['run'] . ' ' . ($row['nombre'] ?? '') . ' ' . ($row['apellido_paterno'] ?? '')
+        ]);
+
+        // Limpiar todos los valores del array eliminando espacios en blanco
+        $row = array_map(function ($value) {
+            return is_string($value) ? trim($value) : $value;
+        }, $row);
 
         $headings = [
             'establecimiento',
+            'electrodependencia',
+            'movilidad_reducida',
+            'oxigeno_dependiente',
+            'alimentacion_enteral',
+            'demencia',
+            'oncologicos',
+            'cuidados_paliativos_universales',
+            'naneas',
             'nombre',
             'apellido_paterno',
             'apellido_materno',
@@ -122,8 +145,10 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
             'fecha_nacimiento_cuidador',
             'run_cuidador',
             'dv_cuidador',
+            'prevision_cuidador',
             'sexo_cuidador',
             'genero_cuidador',
+            'fecha_nacimiento_cuidador',
             'nacionalidad_cuidador',
             'parentesco_cuidador',
             'prevision_cuidador',
@@ -134,7 +159,6 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
             'plan_evaluado_cuidador',
             'capacitacion_cuidador',
             'estipendio_cuidador',
-            'electrodependencia'
         ];
 
         foreach ($headings as $heading) {
@@ -143,7 +167,12 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
 
         if (empty($row['run']) || empty($row['dv'])) {
             self::$skippedCount++;
-            Log::warning('Fila sin RUN, saltando');
+            Log::warning('Fila ' . $excelRowNumber . ' sin RUN/DV, saltando', [
+                'contenido_completo' => $row,
+                'nombre' => $row['nombre'] ?? 'N/A',
+                'apellido_paterno' => $row['apellido_paterno'] ?? 'N/A',
+                'establecimiento' => $row['establecimiento'] ?? 'N/A'
+            ]);
             return null;
         }
 
@@ -154,15 +183,20 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
                 $this->getCaregiver($row, $dependentUser);
             }
 
-            Log::info('Fila procesada exitosamente', ['user_id' => $dependentUser->user_id]);
+            Log::info('Fila ' . $excelRowNumber . ' procesada exitosamente', [
+                'user_id' => $dependentUser->user_id,
+                'run' => $row['run']
+            ]);
             return $dependentUser;
         } catch (\Exception $e) {
             self::$skippedCount++;
-            Log::error('Error procesando fila', [
-                'run' => $row['run'],
+            Log::error('Error procesando fila ' . $excelRowNumber, [
+                'run' => $row['run'] ?? 'N/A',
+                'nombre' => ($row['nombre'] ?? '') . ' ' . ($row['apellido_paterno'] ?? ''),
                 'error' => $e->getMessage(),
                 'line' => $e->getLine(),
-                'file' => $e->getFile()
+                'file' => basename($e->getFile()),
+                'trace' => $e->getTraceAsString()
             ]);
             return null;
         }
@@ -458,9 +492,11 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
         return [
             BeforeImport::class => function () {
                 Log::info('=== INICIO IMPORTACIÓN DEPENDENT USERS ===');
+                self::$currentRow = 0; // Reset contador
             },
             AfterImport::class => function () {
                 Log::info('=== FIN IMPORTACIÓN ===', [
+                    'total_filas_procesadas' => self::$currentRow,
                     'insertados' => self::$insertedCount,
                     'actualizados' => self::$updatedCount,
                     'omitidos' => self::$skippedCount
@@ -478,6 +514,7 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
     public static function getCompletedNotificationBody(): string
     {
         $body = 'La importación de usuarios dependientes ha finalizado. ';
+        $body .= self::$currentRow . ' filas procesadas. ';
         $body .= self::$insertedCount . ' insertada(s), ';
         $body .= self::$updatedCount . ' actualizada(s), ';
         $body .= self::$skippedCount . ' omitida(s).';
@@ -487,6 +524,7 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
         self::$insertedCount = 0;
         self::$updatedCount = 0;
         self::$skippedCount = 0;
+        self::$currentRow = 0;
 
         return $message;
     }
