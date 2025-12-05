@@ -38,7 +38,9 @@ class Address extends Model
         'region_id',
         'actually',
         'organization_id',
-        'practitioner_id'
+        'practitioner_id',
+        'is_rural',
+        'via'
     ];
 
     protected $casts = [
