@@ -360,6 +360,12 @@ class OdontologyWaitlistResource extends Resource
                     ->exporter(OdontologyWaitlistExporter::class)
                     ->label('Exportar')
                     ->columnMapping(false),
+                Tables\Actions\Action::make('stats')
+                    ->label('Estadísticas')
+                    ->icon('heroicon-o-chart-bar')
+                    ->color('info')
+                    ->url(fn() => OdontologyWaitlistResource::getUrl('stats'))
+                    ->openUrlInNewTab(),
             ])
             ->columns([
                 Tables\Columns\BadgeColumn::make('status')
@@ -474,6 +480,7 @@ class OdontologyWaitlistResource extends Resource
             'index' => Pages\ListOdontologyWaitlists::route('/'),
             'create' => Pages\CreateOdontologyWaitlist::route('/create'),
             'edit' => Pages\EditOdontologyWaitlist::route('/{record}/edit'),
+            'stats'  => Pages\OdontologyStats::route('/stats'),
         ];
     }
 }
