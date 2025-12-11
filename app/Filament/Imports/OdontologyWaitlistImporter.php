@@ -18,409 +18,350 @@ use App\Models\Sex;
 use App\Models\User;
 use App\Models\WaitlistEntryType;
 use App\Models\OdontologyMedicalBenefit;
-use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class OdontologyWaitlistImporter extends Importer
 {
     protected static ?string $model = OdontologyWaitlist::class;
 
-    public static function getColumns(): array
+    protected static array $healthCareServiceCache = [];
+    protected static array $specialtyCache = [];
+    protected static array $medicalBenefitCache = [];
+    protected static array $communeCodeCache = [];
+    protected static array $organizationCodeCache = [];
+    protected static array $organizationAliasCache = [];
+    protected static array $healthcareTypeCache = [];
+    protected static array $minsalSpecialtyCache = [];
+    protected static array $entryTypeCache = [];
+    protected static array $regionCache = [];
+    protected static array $sexCache = [];
+    protected static array $originCommuneNameCache = [];
+
+
+    protected int $chunkSize = 100;
+
+    protected static function initialize(): void
     {
-        return [
-            //
-        ];
+        self::$communeCodeCache = Commune::query()
+            ->select('id', 'code_deis')
+            ->get()
+            ->pluck('id', 'code_deis')
+            ->mapWithKeys(fn($id, $code) => [strtolower(trim($code)) => $id])
+            ->toArray();
+
+        $organizations = Organization::query()
+            ->select('id', 'code_deis', 'alias')
+            ->get();
+
+        self::$organizationCodeCache = $organizations->pluck('id', 'code_deis')
+            ->filter()
+            ->mapWithKeys(fn($id, $code) => [strtolower(trim($code)) => $id])
+            ->toArray();
+
+        self::$organizationAliasCache = $organizations->pluck('id', 'alias')
+            ->filter()
+            ->mapWithKeys(fn($id, $alias) => [strtolower(trim($alias)) => $id])
+            ->toArray();
+
+        self::$healthCareServiceCache = OdontologyHealthCareService::all()->pluck('id', 'text')->mapWithKeys(fn($id, $text) => [strtolower(trim($text)) => $id])->toArray();
+        self::$specialtyCache = OdontologySpeciality::all()->pluck('id', 'text')->mapWithKeys(fn($id, $text) => [strtolower(trim($text)) => $id])->toArray();
+        self::$medicalBenefitCache = OdontologyMedicalBenefit::all()->pluck('id', 'text')->mapWithKeys(fn($id, $text) => [strtolower(trim($text)) => $id])->toArray();
+        self::$healthcareTypeCache = HealthcareType::all()->pluck('id', 'code')->mapWithKeys(fn($id, $code) => [strtolower(trim($code)) => $id])->toArray();
+        self::$minsalSpecialtyCache = MinsalSpecialty::all()->pluck('id', 'code')->mapWithKeys(fn($id, $code) => [strtolower(trim($code)) => $id])->toArray();
+        self::$entryTypeCache = WaitlistEntryType::all()->pluck('id', 'code')->mapWithKeys(fn($id, $code) => [strtolower(trim($code)) => $id])->toArray();
+        self::$regionCache = Region::all()->pluck('id', 'id')->mapWithKeys(fn($id, $regionId) => [strtolower(trim($regionId)) => $id])->toArray();
+        self::$sexCache = Sex::all()->pluck('id', 'value')->mapWithKeys(fn($value, $id) => [strtolower(trim($value)) => $id])->toArray(); // Fix mapping: pluck('id', 'value')
+
+        self::$originCommuneNameCache = Commune::query()
+            ->select('id', 'name')
+            ->get()
+            ->pluck('id', 'name')
+            ->mapWithKeys(fn($id, $name) => [strtolower(trim($name)) => $id])
+            ->toArray();
     }
+
 
     public function resolveRecord(): ?OdontologyWaitlist
     {
-        $text = strtolower(trim($this->originalData['PRESTA_EST']));
-        $healthCareService = OdontologyHealthCareService::firstOrCreate(['text' => $text]);
 
-        // CONSULTO SI EXISTE EL IDENTIFIER ESTA REGISTRADO
-        $user = User::whereHas('identifiers', function ($query) {
-            $query->where('value', $this->originalData['RUN'])
-                ->Where('cod_con_identifier_type_id', 1);
-        })
-            ->first();
+        return DB::transaction(function () {
+            // --- 0. Helper for data access ---
+            $val = function ($key, $default = null) {
+                return $this->originalData[$key] ?? $default;
+            };
 
-        // SEXO
-        $sexValue = Sex::where('id', $this->originalData['SEXO'])->first()->value ?? null;
-
-        $userCreatedOrUpdated = User::updateOrCreate(
-            [
-                'id'    => $user ? $user->id : null
-            ],
-            [
-                'active'            => 1,
-                'text'              => $this->originalData['NOMBRES'] . ' ' . $this->originalData['PRIMER_APELLIDO'] . ' ' . $this->originalData['SEGUNDO_APELLIDO'],
-                'given'             => $this->originalData['NOMBRES'],
-                'fathers_family'    => $this->originalData['PRIMER_APELLIDO'],
-                'mothers_family'    => $this->originalData['SEGUNDO_APELLIDO'],
-                'birthday'          => !empty($this->originalData['FECHA_NAC'])
-                    ? \Carbon\Carbon::createFromFormat('d/m/Y', $this->originalData['FECHA_NAC'])->format('Y-m-d')
-                    : null,
-                'sex'               => $sexValue,
-            ]
-        );
-
-        if ($user == null) {
-            // SE CREA IDENTIFIER
-            $identifierCreate = Identifier::create(
-                [
-                    'user_id'                       => $userCreatedOrUpdated->id,
-                    'use'                           => 'official',
-                    'cod_con_identifier_type_id'    => 1,
-                    'value'                         => $this->originalData['RUN'],
-                    'dv'                            => $this->originalData['DV']
-                ]
-            );
-
-            //SE CREA HUMAN NAME
-            $humanName = HumanName::create(
-                [
-                    'use'               => 'official',
-                    'given'             => $this->originalData['NOMBRES'],
-                    'fathers_family'    => $this->originalData['PRIMER_APELLIDO'],
-                    'mothers_family'    => $this->originalData['SEGUNDO_APELLIDO'],
-                    'period_start'      => now(),
-                    'user_id'           => $userCreatedOrUpdated->id
-                ]
-            );
-        }
-
-        //COMUNA DE ORIGEN L.E.
-        $commune = Commune::whereRaw('LOWER(code_deis) = ?', [strtolower($this->originalData['COMUNA'])])->first();
-        $communeId = $commune ? $commune->id : null;
-        //ESTABLECIMIENTO ORIGEN L.E.
-        $organization = Organization::whereRaw('LOWER(code_deis) = ?', [strtolower($this->originalData['ESTAB_ORIG'])])->first()->id;
-
-        //DIRECCIONES
-        $addressExist = new Address();
-        foreach ($userCreatedOrUpdated->addresses as $address) {
-            if ($address->use->value == 'home') {
-                $addressExist = $address;
+            $text = strtolower(trim($val('PRESTA_EST', '')));
+            $healthCareServiceId = self::$healthCareServiceCache[$text] ?? null;
+            if (is_null($healthCareServiceId) && !empty($text)) {
+                $healthCareService = OdontologyHealthCareService::firstOrCreate(['text' => $text]);
+                self::$healthCareServiceCache[$text] = $healthCareService->id;
+                $healthCareServiceId = $healthCareService->id;
             }
-        }
 
-        $newAddress = Address::updateOrCreate(
-            [
-                'id'    => $addressExist ? $addressExist->id : null
-            ],
-            [
+            $runValue = $val('RUN');
+            $user = null;
+            if (!empty($runValue)) {
+                $user = User::whereHas(
+                    'identifiers',
+                    fn($query) =>
+                    $query->where('value', $runValue)->where('cod_con_identifier_type_id', 1)
+                )->first();
+            }
 
-                'user_id'       => $userCreatedOrUpdated->id,
-                'use'           => 'home',
-                'type'          => 'physical',
-                'text'          => $this->originalData['NOM_CALLE'],
-                'line'          => $this->originalData['NUM_DIRECCION'],
-                'apartment'     => null,
-                'suburb'        => $this->originalData['RESTO_DIRECCION'],
-                'city'          => $this->originalData['CIUDAD'],
-                'commune_id'    => $communeId,
-                'postal_code'   => null,
-                'region_id'     => null,
-                'is_rural' => match ($this->originalData['COND_RURALIDAD'] ?? null) {
-                    '1' => false,
-                    '2' => true,
-                    default => null,
-                },
-                'via' => match ($this->originalData['VIA_DIRECCION'] ?? null) {
-                    '1' => 'calle',
-                    '2' => 'pasaje',
-                    '3' => 'avenida',
-                    '4' => 'otro',
-                    default => null,
-                },
-            ]
-        );
+            $sexValue = self::$sexCache[strtolower(trim($val('SEXO')))] ?? null;
+            $isNewUser = is_null($user);
 
-        //CONTACT POINTS HOME
-        $contactPointHome = $userCreatedOrUpdated->homeContactPoint;
+            $userCreatedOrUpdated = User::updateOrCreate(
+                ['id' => optional($user)->id],
+                [
+                    'active'            => 1,
+                    'text'              => $val('NOMBRES') . ' ' . $val('PRIMER_APELLIDO') . ' ' . $val('SEGUNDO_APELLIDO'),
+                    'given'             => $val('NOMBRES'),
+                    'fathers_family'    => $val('PRIMER_APELLIDO'),
+                    'mothers_family'    => $val('SEGUNDO_APELLIDO'),
+                    'birthday'          => !empty($val('FECHA_NAC'))
+                        ? Carbon::createFromFormat('d/m/Y', $val('FECHA_NAC'))->format('Y-m-d')
+                        : null,
+                    'sex'               => $sexValue,
+                ]
+            );
 
-        $contactPointHome = ContactPoint::updateOrCreate(
-            [
-                'id'    => $contactPointHome ? $contactPointHome->id : null
-            ],
-            [
+            if ($isNewUser && !empty($runValue)) {
+                // SE CREA IDENTIFIER
+                Identifier::create([
+                    'user_id'                 => $userCreatedOrUpdated->id,
+                    'use'                     => 'official',
+                    'cod_con_identifier_type_id'  => 1,
+                    'value'                   => $runValue,
+                    'dv'                      => $val('DV')
+                ]);
 
-                'system'                => 'phone',
-                'contact_point_id'      => null,
-                'user_id'               => $userCreatedOrUpdated->id,
-                'location_id'           => null,
-                'emergency_contact_id'  => null,
-                'value'                 => $this->originalData['FONO_FIJO'],
-                'organization_id'       => null,
-                'use'                   => 'home',
-                'rank'                  => null,
-                'actually'              => 0,
-            ]
-        );
+                //SE CREA HUMAN NAME
+                HumanName::create([
+                    'use'              => 'official',
+                    'given'            => $val('NOMBRES'),
+                    'fathers_family'   => $val('PRIMER_APELLIDO'),
+                    'mothers_family'   => $val('SEGUNDO_APELLIDO'),
+                    'period_start'     => now(),
+                    'user_id'          => $userCreatedOrUpdated->id
+                ]);
+            }
 
-        //CONTACT POINTS MOBILE
-        $contactPointMobile = $userCreatedOrUpdated->mobileContactPoint;
+            $communeId = self::$communeCodeCache[strtolower(trim($val('COMUNA', '')))] ?? null;
+            $originOrganizationId = self::$organizationCodeCache[strtolower(trim($val('ESTAB_ORIG', '')))] ?? null;
+            $destinyOrganizationId = self::$organizationCodeCache[strtolower(trim($val('ESTAB_DEST', '')))] ?? null;
 
-        $contactPointMobile = ContactPoint::updateOrCreate(
-            [
-                'id'    => $contactPointMobile ? $contactPointMobile->id : null
-            ],
-            [
-                'system'                => 'phone',
-                'contact_point_id'      => null,
-                'user_id'               => $userCreatedOrUpdated->id,
-                'location_id'           => null,
-                'emergency_contact_id'  => null,
-                'value'                 => $this->originalData['FONO_MOVIL'],
-                'organization_id'       => null,
-                'use'                   => 'mobile',
-                'rank'                  => null,
-                'actually'              => 0,
-            ]
-        );
+            $alias = strtolower(trim($val('ESTABLECIMIENTO', 'sin establecimiento')));
+            $organizationId = self::$organizationAliasCache[$alias] ?? null;
 
-        //CONTACT POINTS MAIL
-        $contactPointEmail = $userCreatedOrUpdated->emailContactPoint;
-        $contactPointEmail = ContactPoint::updateOrCreate(
-            [
-                'id'    => $contactPointEmail ? $contactPointEmail->id : null
-            ],
-            [
-                'system'                => 'email',
-                'contact_point_id'      => null,
-                'user_id'               => $userCreatedOrUpdated->id,
-                'location_id'           => null,
-                'emergency_contact_id'  => null,
-                'value'                 => $this->originalData['EMAIL'],
-                'organization_id'       => null,
-                'use'                   => 'work',
-                'rank'                  => null,
-                'actually'              => 0,
-            ]
-        );
+            $previsionCode = strtolower(trim($val('PREVISION', '')));
+            $previsionValue = self::$healthcareTypeCache[$previsionCode] ?? null;
 
-        // ESPECIALIDAD
-        $textSpecialty = strtolower(trim($this->val('ESPECIALIDAD', 'sin especialidad')));
-        $specialty = OdontologySpeciality::firstOrCreate(['text' => $textSpecialty]);
+            $minsalSpecialty = self::$minsalSpecialtyCache[strtolower(trim($val('PRESTA_MIN', '')))] ?? null;
+            $minsalExitSpecialty = self::$minsalSpecialtyCache[strtolower(trim($val('PRESTA_MIN_SALIDA', '')))] ?? null;
 
-        // ORGANIZACION DE ORIGEN
-        $originOrganization = Organization::whereRaw('LOWER(code_deis) = ?', [strtolower($this->originalData['ESTAB_ORIG'])])->first()->id;
+            $entryType = self::$entryTypeCache[strtolower(trim($val('TIPO_PREST', '')))] ?? null;
 
-        // ORGANIZACION DE DESTINO 
-        $destinyOrganization = Organization::whereRaw('LOWER(code_deis) = ?', [strtolower($this->originalData['ESTAB_DEST'])])->first()->id;
-
-        // ESTABLECIMIENTO
-        $alias = strtolower(trim($this->val('ESTABLECIMIENTO', 'sin establecimiento')));
-        $organization = Organization::whereRaw("LOWER(alias) = ?", [$alias])->value('id');
-
-        // PREVISION
-        $prevision = strtolower(trim($this->originalData['PREVISION']));
-        $previsionValue = HealthcareType::whereRaw("LOWER(code) = ?", [$prevision])->value('id');
-
-        // PRESTA_MIN
-        $minsalSpecialty = MinsalSpecialty::whereRaw('LOWER(code) = ?', [strtolower($this->originalData['PRESTA_MIN'])])->value('id');
-
-        // PRESTA_MIN_SALIDA
-        $minsalExitSpecialty = !empty($this->originalData['PRESTA_MIN_SALIDA']) ? optional(
-            MinsalSpecialty::whereRaw('LOWER(code) = ?', [strtolower(trim($this->originalData['PRESTA_MIN_SALIDA']))])->first()
-        )->id : null;
-
-        // PRESTA_EST
-        $establishmentHealthCareService = OdontologyHealthCareService::whereRaw('LOWER(text) = ?', [strtolower($this->originalData['PRESTA_EST'])])->first()->id;
-
-        // TIPO_PREST
-        $entryType = WaitlistEntryType::whereRaw('LOWER(code) = ?', [strtolower($this->originalData['TIPO_PREST'])])->first()->id;
-
-        // REGION
-        $region = Region::whereRaw('LOWER(id) = ?', [strtolower($this->originalData['REGION'])])->first()->id;
-
-        // RUN_PROF_SOL
-        $profSol = User::whereHas('identifiers', function ($query) {
-            $query->where('value', $this->originalData['RUN_PROF_SOL'])
-                ->where('cod_con_identifier_type_id', 1);
-        })
-            ->first();
-
-        if ($profSol) {
-            $profSol->update(['active' => 1,]);
-
-            $profSolCreatedOrUpdated = $profSol;
-        } else {
-            // Create new user
-            $profSolCreatedOrUpdated = User::create([
-                'active' => 1,
-            ]);
-
-            Identifier::create([
-                'user_id'                    => $profSolCreatedOrUpdated->id,
-                'use'                        => 'official',
-                'cod_con_identifier_type_id' => 1,
-                'value'                      => $this->originalData['RUN_PROF_SOL'],
-                'dv'                         => $this->originalData['DV_PROF_SOL'],
-            ]);
-        }
-
-        // RUN_PROF_RESOL
-        $profResol = User::whereHas('identifiers', function ($query) {
-            $query->where('value', $this->originalData['RUN_PROF_RESOL'])
-                ->where('cod_con_identifier_type_id', 1);
-        })
-            ->first();
-
-        if ($profResol) {
-            $profResol->update(['active' => 1,]);
-
-            $profResolCreatedOrUpdated = $profResol;
-        } else {
-            // Create new user
-            $profResolCreatedOrUpdated = User::create([
-                'active' => 1,
-            ]);
-
-            Identifier::create([
-                'user_id'                    => $profResolCreatedOrUpdated->id,
-                'use'                        => 'official',
-                'cod_con_identifier_type_id' => 1,
-                'value'                      => $this->originalData['RUN_PROF_RESOL'],
-                'dv'                         => $this->originalData['DV_PROF_RESOL'],
-            ]);
-        }
+            $region = self::$regionCache[strtolower(trim($val('REGION', '')))] ?? null;
 
 
-        $waitlistCreatedOrUpdated = OdontologyWaitlist::updateOrCreate(
-            [
-                'user_id'                       => $userCreatedOrUpdated->id,
-                'sigte_id'                      => $this->originalData['SIGTE_ID'],
-            ],
-            [
-                'specialty_id'                  => $specialty->id,
-                'origin_establishment_id'       => $originOrganization,
-                'wait_health_care_service_id'   => $establishmentHealthCareService,
-                'commune_id'                    => $communeId,
+            $address = $userCreatedOrUpdated->addresses()->where('use', 'home')->first();
 
-                'status' => $this->val('ESTADO') !== null
-                    ? strtolower(trim($this->val('ESTADO')))
-                    : null,
+            Address::updateOrCreate(
+                ['id' => optional($address)->id, 'user_id' => $userCreatedOrUpdated->id],
+                [
+                    'use'           => 'home',
+                    'type'          => 'physical',
+                    'text'          => $val('NOM_CALLE'),
+                    'line'          => $val('NUM_DIRECCION'),
+                    'suburb'        => $val('RESTO_DIRECCION'),
+                    'city'          => $val('CIUDAD'),
+                    'commune_id'    => $communeId,
+                    'is_rural'      => match ($val('COND_RURALIDAD') ?? null) {
+                        '1' => false,
+                        '2' => true,
+                        default => null,
+                    },
+                    'via'           => match ($val('VIA_DIRECCION') ?? null) {
+                        '1' => 'calle',
+                        '2' => 'pasaje',
+                        '3' => 'avenida',
+                        '4' => 'otro',
+                        default => null,
+                    },
+                ]
+            );
 
-                'destiny_establishment_id'      => $destinyOrganization,
+            $contactPointHome = $userCreatedOrUpdated->contactPoints()->where('use', 'home')->first();
+            ContactPoint::updateOrCreate(
+                ['id' => optional($contactPointHome)->id, 'user_id' => $userCreatedOrUpdated->id, 'system' => 'phone', 'use' => 'home'],
+                ['value' => $val('FONO_FIJO'), 'actually' => 0]
+            );
 
-                'suspected_diagnosis' => $this->val('SOSPECHA_DIAG') !== null
-                    ? strtolower(trim($this->val('SOSPECHA_DIAG')))
-                    : null,
+            $contactPointMobile = $userCreatedOrUpdated->contactPoints()->where('use', 'mobile')->first();
+            ContactPoint::updateOrCreate(
+                ['id' => optional($contactPointMobile)->id, 'user_id' => $userCreatedOrUpdated->id, 'system' => 'phone', 'use' => 'mobile'],
+                ['value' => $val('FONO_MOVIL'), 'actually' => 0]
+            );
 
-                'establishment_id' => $organization,
+            $contactPointEmail = $userCreatedOrUpdated->contactPoints()->where('use', 'work')->first();
+            ContactPoint::updateOrCreate(
+                ['id' => optional($contactPointEmail)->id, 'user_id' => $userCreatedOrUpdated->id, 'system' => 'email', 'use' => 'work'],
+                ['value' => $val('EMAIL'), 'actually' => 0]
+            );
 
-                'entry_date' => $this->val('F_ENTRADA')
-                    ? \Carbon\Carbon::createFromFormat('d/m/Y', $this->val('F_ENTRADA'))->format('Y-m-d')
-                    : null,
 
-                'exit_date' => $this->val('F_SALIDA')
-                    ? \Carbon\Carbon::createFromFormat('d/m/Y', $this->val('F_SALIDA'))->format('Y-m-d')
-                    : null,
+            $textSpecialty = strtolower(trim($val('ESPECIALIDAD', 'sin especialidad')));
+            $specialtyId = self::$specialtyCache[$textSpecialty] ?? null;
+            if (is_null($specialtyId)) {
+                $specialty = OdontologySpeciality::firstOrCreate(['text' => $textSpecialty]);
+                self::$specialtyCache[$textSpecialty] = $specialty->id;
+                $specialtyId = $specialty->id;
+            }
 
-                'healthcare_type_id'            => $previsionValue,
-                'minsal_specialty_id'           => $minsalSpecialty,
-                'exit_minsal_specialty_id'      => $minsalExitSpecialty,
+            $profSolCreatedOrUpdated = $this->findOrCreateProfessional($val('RUN_PROF_SOL'), $val('DV_PROF_SOL'));
+            $profResolCreatedOrUpdated = $this->findOrCreateProfessional($val('RUN_PROF_RESOL'), $val('DV_PROF_RESOL'));
 
-                'plano' => $this->val('PLANO') !== null
-                    ? strtolower(trim($this->val('PLANO')))
-                    : null,
 
-                'extremity' => $this->val('EXTREMIDAD') !== null
-                    ? strtolower(trim($this->val('EXTREMIDAD')))
-                    : null,
+            $textMedicalBenefits = strtolower(trim($val('TIPO PRESTACION', '')));
+            $medicalBenefitId = self::$medicalBenefitCache[$textMedicalBenefits] ?? null;
+            if (is_null($medicalBenefitId)) {
+                $medicalBenefits = OdontologyMedicalBenefit::firstOrCreate(['text' => $textMedicalBenefits]);
+                self::$medicalBenefitCache[$textMedicalBenefits] = $medicalBenefits->id;
+                $medicalBenefitId = $medicalBenefits->id;
+            }
 
-                'prais' => $this->val('PRAIS') !== null
-                    ? strtolower(trim($this->val('PRAIS')))
-                    : null,
+            $originCommuneId = self::$originCommuneNameCache[strtolower(trim($val('Comuna Origen', '')))] ?? null;
 
-                'region_id' => $region,
+            $waitlistCreatedOrUpdated = OdontologyWaitlist::updateOrCreate(
+                [
+                    'user_id'                => $userCreatedOrUpdated->id,
+                    'sigte_id'               => $val('SIGTE_ID'),
+                ],
+                [
+                    'specialty_id'              => $specialtyId,
+                    'origin_establishment_id'   => $originOrganizationId,
+                    'wait_health_care_service_id' => $healthCareServiceId,
+                    'commune_id'                => $communeId,
+                    'status'                    => ($val('ESTADO') !== null) ? strtolower(trim($val('ESTADO'))) : null,
+                    'destiny_establishment_id'  => $destinyOrganizationId,
+                    'suspected_diagnosis'       => ($val('SOSPECHA_DIAG') !== null) ? strtolower(trim($val('SOSPECHA_DIAG'))) : null,
+                    'establishment_id'          => $organizationId,
+                    'entry_date'                => $val('F_ENTRADA') ? Carbon::createFromFormat('d/m/Y', $val('F_ENTRADA'))->format('Y-m-d') : null,
+                    'exit_date'                 => $val('F_SALIDA') ? Carbon::createFromFormat('d/m/Y', $val('F_SALIDA'))->format('Y-m-d') : null,
+                    'healthcare_type_id'        => $previsionValue,
+                    'minsal_specialty_id'       => $minsalSpecialty,
+                    'exit_minsal_specialty_id'  => $minsalExitSpecialty,
+                    'plano'                     => ($val('PLANO') !== null) ? strtolower(trim($val('PLANO'))) : null,
+                    'extremity'                 => ($val('EXTREMIDAD') !== null) ? strtolower(trim($val('EXTREMIDAD'))) : null,
+                    'prais'                     => ($val('PRAIS') !== null) ? strtolower(trim($val('PRAIS'))) : null,
+                    'region_id'                 => $region,
+                    'pediatric'                 => $val('PEDIATRICO'),
+                    'lb'                        => ($val('LB') !== null) ? strtolower(trim($val('LB'))) : null,
+                    'requesting_professional_id' => optional($profSolCreatedOrUpdated)->id, // Use optional() for safety
+                    'resolving_professional_id' => optional($profResolCreatedOrUpdated)->id, // Use optional() for safety
+                    'waitlist_entry_type_id'    => $entryType,
+                    'local_id'                  => $val('ID_LOCAL'),
+                    'result'                    => $val('RESULTADO'),
+                    'waitlistAge'               => $val('EDAD') ? floatval(str_replace(',', '.', $val('EDAD'))) : null,
+                    'waitlistYear'              => $val('AÑO'),
+                    'health_service_id'         => $val('SERV_SALUD'),
+                    'appointment_date'          => $val('F_CITACION') ? date("Y-m-d H:i:s", strtotime($val('F_CITACION'))) : null,
+                    'worker'                    => $val('FUNCIONARIO'),
+                    'iqType'                    => $val('Tipo de IQ'),
+                    'oncologic'                 => $val('Oncologico'),
+                    'origin_commune_id'         => $originCommuneId,
+                    'fonasa'                    => $val('FONASA'),
+                    'praisUser'                 => $val('Usuario PRAIS'),
+                    'lbPrais'                   => $val('LB PRAIS'),
+                    'lbUrinary'                 => $val('LB INCONTINENCIA URINARIA'),
+                    'exitError'                 => $val('Error Egreso'),
+                    'lbIqOdonto'                => $val('LB IQ ODONTO'),
+                    'procedureType'             => $val('Tipo Procedimiento'),
+                    'sename'                    => $val('SENAME'),
+                    'exit_code'                 => $val('C_SALIDA'),
+                    'referring_specialty'       => $val('E_OTOR_AT'),
+                    'wait_medical_benefit_id'   => $medicalBenefitId,
+                    'elapsed_days'              => $val('DIAS_PASADOS'),
+                ]
+            );
 
-                'pediatric' => $this->val('PEDIATRICO'),
+            if ($waitlistCreatedOrUpdated->events()->count() == 0) {
+                $waitlistCreatedOrUpdated->events()->create([
+                    'status'            => ($val('ESTADO') ?? null) ? strtolower(trim($val('ESTADO'))) : null,
+                    'registered_at'     => now(),
+                    'text'              => 'Registrado a través de carga masiva',
+                    'discharge'         => strtolower(trim($val('CAUSAL_EGRESO') ?? '')),
+                    'appointment_at'    => !empty($val('FECHA_ATENCION')) ? date("Y-m-d H:i:s", strtotime($val('FECHA_ATENCION'))) : null,
+                    'register_user_id'  => auth()->id() ?? User::first()?->id // Fallback if no user is authenticated
+                ]);
+            }
 
-                'lb' => $this->val('LB') !== null
-                    ? strtolower(trim($this->val('LB')))
-                    : null,
-
-                'requesting_professional_id'    => $profSolCreatedOrUpdated->id,
-                'resolving_professional_id'     => $profResolCreatedOrUpdated->id,
-                'waitlist_entry_type_id'        => $entryType,
-
-                'local_id'      => $this->val('ID_LOCAL'),
-                'result'        => $this->val('RESULTADO'),
-
-                'waitlistAge' => $this->val('EDAD')
-                    ? floatval(str_replace(',', '.', $this->val('EDAD')))
-                    : null,
-
-                'waitlistYear'      => $this->val('AÑO'),
-                'health_service_id' => $this->val('SERV_SALUD'),
-
-                'appointment_date' => $this->val('F_CITACION')
-                    ? date("Y-m-d H:i:s", strtotime($this->val('F_CITACION')))
-                    : null,
-
-                'worker'            => $this->val('FUNCIONARIO'),
-                'iqType'            => $this->val('Tipo de IQ'),
-                'oncologic'         => $this->val('Oncologico'),
-
-                'origin_commune_id' => Commune::whereRaw(
-                    'LOWER(name) = ?',
-                    [strtolower($this->val('Comuna Origen', ''))]
-                )->value('id'),
-
-                'fonasa'            => $this->val('FONASA'),
-                'praisUser'         => $this->val('Usuario PRAIS'),
-                'lbPrais'           => $this->val('LB PRAIS'),
-                'lbUrinary'         => $this->val('LB INCONTINENCIA URINARIA'),
-                'exitError'         => $this->val('Error Egreso'),
-                'lbIqOdonto'        => $this->val('LB IQ ODONTO'),
-                'procedureType'     => $this->val('Tipo Procedimiento'),
-                'sename'            => $this->val('SENAME'),
-                'exit_code'         => $this->val('C_SALIDA'),
-                'referring_specialty' => $this->val('E_OTOR_AT'),
-
-                'wait_medical_benefit_id' => OdontologyMedicalBenefit::whereRaw(
-                    'LOWER(text) = ?',
-                    [strtolower($this->val('TIPO PRESTACION', ''))]
-                )->value('id'),
-
-                'elapsed_days' => $this->val('DIAS_PASADOS'),
-            ]
-        );
-
-        // EVENTOS
-        if ($waitlistCreatedOrUpdated->events->count() == 0) {
-            $save = $waitlistCreatedOrUpdated->events()->create([
-                'status'            => ($this->originalData['ESTADO'] ?? null) ? strtolower(trim($this->originalData['ESTADO'])) : null,
-                'registered_at'     => now(),
-                'text'              => 'Registrado a través de carga masiva',
-                'discharge'         => strtolower(trim($this->originalData['CAUSAL_EGRESO'] ?? '')),
-                'appointment_at'    => !empty($this->originalData['FECHA_ATENCION']) ? date("Y-m-d H:i:s", strtotime($this->originalData['FECHA_ATENCION'])) : null,
-                'register_user_id'  => auth()->user()->id
-            ]);
-        }
-
-        // CONTACTOS
-        if ($waitlistCreatedOrUpdated->contacts->count() == 0) {
-            if (in_array(strtolower(trim($this->originalData['ESTADO'])), ['citado', 'atendido', 'inasistente', 'egresado'])) {
-                $statusContact = 'si';
-            } else if (strtolower(trim($this->originalData['ESTADO'])) == 'incontactable') {
-                $statusContact = 'no';
-            } else {
+            if ($waitlistCreatedOrUpdated->contacts()->count() == 0) {
+                $estado = strtolower(trim($val('ESTADO', '')));
                 $statusContact = null;
+
+                if (in_array($estado, ['citado', 'atendido', 'inasistente', 'egresado'])) {
+                    $statusContact = 'si';
+                } elseif ($estado == 'incontactable') {
+                    $statusContact = 'no';
+                }
+
+                $waitlistCreatedOrUpdated->contacts()->create([
+                    'type'              => 'telefonico',
+                    'status'            => $statusContact,
+                    'contacted_at'      => now(),
+                    'text'              => 'Registrado a través de carga masiva',
+                    'register_user_id'  => auth()->id() ?? User::first()?->id // Fallback if no user is authenticated
+                ]);
             }
 
-            $waitlistCreatedOrUpdated->contacts()->create([
-                'type'              => 'telefonico',
-                'status'            => $statusContact,
-                'contacted_at'      => now(),
-                'text'              => 'Registrado a través de carga masiva',
-                'register_user_id'  => auth()->user()->id,
+            return $waitlistCreatedOrUpdated;
+        }); 
+    }
+
+
+    protected function findOrCreateProfessional(?string $run, ?string $dv): ?User
+    {
+        $run = trim($run);
+        if (empty($run)) {
+            return null;
+        }
+
+        $user = User::whereHas(
+            'identifiers',
+            fn($query) =>
+            $query->where('value', $run)->where('cod_con_identifier_type_id', 1)
+        )->first();
+
+        if ($user) {
+            $user->update(['active' => 1]);
+        } else {
+            // Create new user
+            $user = User::create(['active' => 1]);
+            Identifier::create([
+                'user_id'                  => $user->id,
+                'use'                      => 'official',
+                'cod_con_identifier_type_id' => 1,
+                'value'                    => $run,
+                'dv'                       => $dv,
             ]);
         }
 
-        return $waitlistCreatedOrUpdated;
+        return $user;
+    }
+
+    public static function getColumns(): array
+    {
+        return [];
+    }
+
+    public function getChunkSize(): int
+    {
+        return $this->chunkSize; // Use the property $chunkSize
     }
 
     public static function getCompletedNotificationBody(Import $import): string
@@ -434,13 +375,8 @@ class OdontologyWaitlistImporter extends Importer
         return $body;
     }
 
-    public static function getChunkSize(): int
+    public static function shouldQueueEachRow(): bool
     {
-        return 200;
-    }
-
-    private function val($key, $default = null)
-    {
-        return $this->originalData[$key] ?? $default;
+        return true;
     }
 }
