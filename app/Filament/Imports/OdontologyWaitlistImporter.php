@@ -46,7 +46,7 @@ class OdontologyWaitlistImporter extends Importer
             ->first();
 
         // SEXO
-        $sexValue = Sex::where('code', $this->originalData['SEXO'])->first()->value ?? null;
+        $sexValue = Sex::where('id', $this->originalData['SEXO'])->first()->value ?? null;
 
         $userCreatedOrUpdated = User::updateOrCreate(
             [
@@ -200,7 +200,7 @@ class OdontologyWaitlistImporter extends Importer
         );
 
         // ESPECIALIDAD
-        $textSpecialty = strtolower(trim($this->originalData['ESPECIALIDAD']));
+        $textSpecialty = strtolower(trim($this->val('ESPECIALIDAD', 'sin especialidad')));
         $specialty = OdontologySpeciality::firstOrCreate(['text' => $textSpecialty]);
 
         // ORGANIZACION DE ORIGEN
@@ -210,7 +210,7 @@ class OdontologyWaitlistImporter extends Importer
         $destinyOrganization = Organization::whereRaw('LOWER(code_deis) = ?', [strtolower($this->originalData['ESTAB_DEST'])])->first()->id;
 
         // ESTABLECIMIENTO
-        $alias = strtolower(trim($this->originalData['ESTABLECIMIENTO']));
+        $alias = strtolower(trim($this->val('ESTABLECIMIENTO', 'sin establecimiento')));
         $organization = Organization::whereRaw("LOWER(alias) = ?", [$alias])->value('id');
 
         // PREVISION
@@ -218,7 +218,7 @@ class OdontologyWaitlistImporter extends Importer
         $previsionValue = HealthcareType::whereRaw("LOWER(code) = ?", [$prevision])->value('id');
 
         // PRESTA_MIN
-        $minsalSpecialty = MinsalSpecialty::whereRaw('LOWER(code) = ?', [strtolower($this->originalData['PRESTA_MIN'])])->first()->id;
+        $minsalSpecialty = MinsalSpecialty::whereRaw('LOWER(code) = ?', [strtolower($this->originalData['PRESTA_MIN'])])->value('id');
 
         // PRESTA_MIN_SALIDA
         $minsalExitSpecialty = !empty($this->originalData['PRESTA_MIN_SALIDA']) ? optional(
@@ -297,51 +297,96 @@ class OdontologyWaitlistImporter extends Importer
                 'origin_establishment_id'       => $originOrganization,
                 'wait_health_care_service_id'   => $establishmentHealthCareService,
                 'commune_id'                    => $communeId,
-                'status'                        => ($this->originalData['ESTADO'] ?? null) ? strtolower(trim($this->originalData['ESTADO'])) : null,
+
+                'status' => $this->val('ESTADO') !== null
+                    ? strtolower(trim($this->val('ESTADO')))
+                    : null,
+
                 'destiny_establishment_id'      => $destinyOrganization,
-                'suspected_diagnosis'           => strtolower(trim($this->originalData['SOSPECHA_DIAG'])),
-                'establishment_id'              => $organization,
-                'entry_date'                    => !empty($this->originalData['F_ENTRADA'])
-                    ? \Carbon\Carbon::createFromFormat('d/m/Y', $this->originalData['F_ENTRADA'])->format('Y-m-d')
+
+                'suspected_diagnosis' => $this->val('SOSPECHA_DIAG') !== null
+                    ? strtolower(trim($this->val('SOSPECHA_DIAG')))
                     : null,
-                'exit_date'                     => !empty($this->originalData['F_SALIDA'])
-                    ? \Carbon\Carbon::createFromFormat('d/m/Y', $this->originalData['F_SALIDA'])->format('Y-m-d')
+
+                'establishment_id' => $organization,
+
+                'entry_date' => $this->val('F_ENTRADA')
+                    ? \Carbon\Carbon::createFromFormat('d/m/Y', $this->val('F_ENTRADA'))->format('Y-m-d')
                     : null,
+
+                'exit_date' => $this->val('F_SALIDA')
+                    ? \Carbon\Carbon::createFromFormat('d/m/Y', $this->val('F_SALIDA'))->format('Y-m-d')
+                    : null,
+
                 'healthcare_type_id'            => $previsionValue,
                 'minsal_specialty_id'           => $minsalSpecialty,
                 'exit_minsal_specialty_id'      => $minsalExitSpecialty,
-                'plano'                         => ($this->originalData['PLANO'] ?? null) ? strtolower(trim($this->originalData['PLANO'])) : null,
-                'extremity'                     => ($this->originalData['EXTREMIDAD'] ?? null) ? strtolower(trim($this->originalData['EXTREMIDAD'])) : null,
-                'prais'                         => strtolower(trim($this->originalData['PRAIS'])),
-                'region_id'                     => $region,
-                'pediatric'                     => $this->originalData['PEDIATRICO'],
-                'lb'                            => $this->originalData['LB'],
+
+                'plano' => $this->val('PLANO') !== null
+                    ? strtolower(trim($this->val('PLANO')))
+                    : null,
+
+                'extremity' => $this->val('EXTREMIDAD') !== null
+                    ? strtolower(trim($this->val('EXTREMIDAD')))
+                    : null,
+
+                'prais' => $this->val('PRAIS') !== null
+                    ? strtolower(trim($this->val('PRAIS')))
+                    : null,
+
+                'region_id' => $region,
+
+                'pediatric' => $this->val('PEDIATRICO'),
+
+                'lb' => $this->val('LB') !== null
+                    ? strtolower(trim($this->val('LB')))
+                    : null,
+
                 'requesting_professional_id'    => $profSolCreatedOrUpdated->id,
                 'resolving_professional_id'     => $profResolCreatedOrUpdated->id,
                 'waitlist_entry_type_id'        => $entryType,
-                'local_id'                      => $this->originalData['ID_LOCAL'],
-                'result'                        => $this->originalData['RESULTADO'],
-                'waitlistAge'                   => $this->originalData['EDAD'] ? floatval(str_replace(',', '.', $this->originalData['EDAD'])) : null,
-                'waitlistYear'                  => $this->originalData['AÑO'],
-                'health_service_id'             => $this->originalData['SERV_SALUD'],
-                'appointment_date'              => !empty($this->originalData['F_CITACION']) ? date("Y-m-d H:i:s", strtotime($this->originalData['F_CITACION'])) : null,
-                'worker'                        => $this->originalData['FUNCIONARIO'] ?? null,
-                'iqType'                        => $this->originalData['Tipo de IQ'] ?? null,
-                'oncologic'                     => $this->originalData['Oncologico'] ?? null,
-                'origin_commune_id'             => Commune::whereRaw('LOWER(name) = ?', [strtolower($this->originalData['Comuna Origen'])])->first()->id ?? null,
-                'fonasa'                        => $this->originalData['FONASA'] ?? null,
-                'praisUser'                     => $this->originalData['Usuario PRAIS'] ?? null,
-                'lbPrais'                       => $this->originalData['LB PRAIS'] ?? null,
-                'lbUrinary'                     => $this->originalData['LB INCONTINENCIA URINARIA'] ?? null,
-                'exitError'                     => $this->originalData['Error Egreso'] ?? null,
-                'lbIqOdonto'                    => $this->originalData['LB IQ ODONTO'] ?? null,
-                'procedureType'                 => $this->originalData['Tipo Procedimiento'] ?? null,
-                'sename'                        => $this->originalData['SENAME'] ?? null,
-                'exit_code'                     => $this->originalData['C_SALIDA'] ?? null,
-                'referring_specialty'           => $this->originalData['E_OTOR_AT'] ?? null,
-                'wait_medical_benefit_id'       => OdontologyMedicalBenefit::whereRaw('LOWER(text) = ?', [strtolower($this->originalData['TIPO PRESTACION'])])->first()->id ?? null,
-                'elapsed_days'                  => $this->originalData['DIAS_PASADOS'] ?? null,
-                ]
+
+                'local_id'      => $this->val('ID_LOCAL'),
+                'result'        => $this->val('RESULTADO'),
+
+                'waitlistAge' => $this->val('EDAD')
+                    ? floatval(str_replace(',', '.', $this->val('EDAD')))
+                    : null,
+
+                'waitlistYear'      => $this->val('AÑO'),
+                'health_service_id' => $this->val('SERV_SALUD'),
+
+                'appointment_date' => $this->val('F_CITACION')
+                    ? date("Y-m-d H:i:s", strtotime($this->val('F_CITACION')))
+                    : null,
+
+                'worker'            => $this->val('FUNCIONARIO'),
+                'iqType'            => $this->val('Tipo de IQ'),
+                'oncologic'         => $this->val('Oncologico'),
+
+                'origin_commune_id' => Commune::whereRaw(
+                    'LOWER(name) = ?',
+                    [strtolower($this->val('Comuna Origen', ''))]
+                )->value('id'),
+
+                'fonasa'            => $this->val('FONASA'),
+                'praisUser'         => $this->val('Usuario PRAIS'),
+                'lbPrais'           => $this->val('LB PRAIS'),
+                'lbUrinary'         => $this->val('LB INCONTINENCIA URINARIA'),
+                'exitError'         => $this->val('Error Egreso'),
+                'lbIqOdonto'        => $this->val('LB IQ ODONTO'),
+                'procedureType'     => $this->val('Tipo Procedimiento'),
+                'sename'            => $this->val('SENAME'),
+                'exit_code'         => $this->val('C_SALIDA'),
+                'referring_specialty' => $this->val('E_OTOR_AT'),
+
+                'wait_medical_benefit_id' => OdontologyMedicalBenefit::whereRaw(
+                    'LOWER(text) = ?',
+                    [strtolower($this->val('TIPO PRESTACION', ''))]
+                )->value('id'),
+
+                'elapsed_days' => $this->val('DIAS_PASADOS'),
+            ]
         );
 
         // EVENTOS
@@ -387,5 +432,15 @@ class OdontologyWaitlistImporter extends Importer
         }
 
         return $body;
+    }
+
+    public static function getChunkSize(): int
+    {
+        return 200;
+    }
+
+    private function val($key, $default = null)
+    {
+        return $this->originalData[$key] ?? $default;
     }
 }

@@ -22,5 +22,5 @@ class OdontologySpeciality extends Model
         'text'
     ];
 
-    protected $table = 'odontology_specialties';
+    protected $table = 'odontology_specialities';
 }
