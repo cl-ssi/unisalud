@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\DependentUser;
+use App\Enums\ConditionDependency;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -28,6 +29,10 @@ class Condition extends Model
         'type',
         'risk',
         'parent_id'
+    ];
+
+    protected $casts = [
+        'name' => ConditionDependency::class
     ];
 
     public function dependentUser(): BelongsToMany
