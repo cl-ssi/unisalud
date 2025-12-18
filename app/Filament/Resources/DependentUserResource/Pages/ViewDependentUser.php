@@ -15,6 +15,7 @@ use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 use Cheesegrits\FilamentGoogleMaps\Infolists\MapEntry;
+use Livewire\Component;
 
 class ViewDependentUser extends ViewRecord
 {
@@ -82,6 +83,9 @@ class ViewDependentUser extends ViewRecord
                                                         ->label('Egreso')
                                                         ->date(),
                                                 ]),
+                                                Components\TextEntry::make('conditions.name')
+                                                    ->badge()
+                                                    ->label('Condiciones')
                                             ]),
                                     ]),
                             ]),
@@ -107,6 +111,17 @@ class ViewDependentUser extends ViewRecord
                                                     ->label('Latitud'),
                                                 Components\TextEntry::make('user.address.location.longitude')
                                                     ->label('Longitud'),
+                                                Components\TextEntry::make('risks')
+                                                    ->label('Zonas de Riesgo')
+                                                    ->badge()
+                                                    ->columnSpan(2)
+                                                    ->separator(',')
+                                                    ->listWithLineBreaks(false)
+                                                    ->color(fn(string $state): string => match ($state) {
+                                                        'Zona de Inundacion'    => 'danger',
+                                                        'Zona de Aluvion'       => 'warning',
+                                                        default                 => 'primary',
+                                                    }),
                                             ]),
                                         Components\Section::make('Mapa')
                                             ->columns(4)
@@ -213,14 +228,23 @@ class ViewDependentUser extends ViewRecord
                     ->columnSpanFull(),
             ]);
     }
-
+    /* 
     public function hasCombinedRelationManagerTabsWithContent(): bool
     {
         return true;
     }
 
+
+
     public function getContentTabLabel(): ?string
     {
         return 'Informacion Sanitaria';
+    }
+ */
+    public function getRelationManagers(): array
+    {
+        return [
+            // Return an empty array to hide all relation managers from the view page
+        ];
     }
 }

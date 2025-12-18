@@ -73,6 +73,7 @@ class ListDependentUsers extends ListRecords
             FilamentExcel\Actions\Pages\ExportAction::make()
                 ->label('Exportar')
                 ->icon('heroicon-o-arrow-up-tray')
+                ->visible(auth()->user()->hasRole('geopadds_user') || auth()->user()->hasRole('geopadds_admin') || auth()->user()->can('be god'))
                 ->exports([
                     FilamentExcel\Exports\ExcelExport::make()
                         ->withFilename(fn($resource) => $resource::getModelLabel() . '-' . date('Y-m-d_H-s'))
