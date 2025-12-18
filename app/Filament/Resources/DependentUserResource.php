@@ -7,17 +7,26 @@ use App\Models\Condition;
 use App\Models\Organization;
 use App\Models\DependentUser;
 use App\Models\DependentCaregiver;
+use App\Models\User;
+use App\Enums\ConditionDependency;
+
+use App\Services\GeocodingService;
+use Carbon\Carbon;
 
 use App\Filament\Resources\DependentUserResource\Pages;
 use App\Filament\Resources\DependentUserResource\RelationManagers;
-use App\Models\User;
+
+
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Actions;
 use Filament\Tables\Table;
 use Filament\Support\Enums\MaxWidth;
+use Filament\Notifications\Notification;
+use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
+use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -113,6 +122,80 @@ class DependentUserResource extends Resource
                                 Forms\Components\Select::make('commune')
                                     ->relationship(titleAttribute: 'name')
                                     ->label('Ciudad'),
+                                Forms\Components\Group::make()
+                                    ->columnSpan('full')
+                                    ->relationship('location')
+                                    ->schema([
+                                        Forms\Components\Actions::make([
+                                            Forms\Components\Actions\Action::make('georreferenciar')
+                                                ->label('Buscar Coordenadas')
+                                                ->icon('heroicon-m-map-pin')
+                                                ->color('primary')
+                                                ->action(function (Forms\Get $get, Forms\Set $set) {
+                                                    $calle = $get('../text');
+                                                    $numero = $get('../line');
+                                                    $communeId = $get('../commune');
+
+                                                    if (!$calle || !$numero || !$communeId) {
+                                                        Notification::make()
+                                                            ->title('Datos incompletos')
+                                                            ->body('Debes ingresar calle, número y seleccionar la ciudad.')
+                                                            ->warning()
+                                                            ->send();
+                                                        return;
+                                                    }
+
+                                                    try {
+                                                        $nombreComuna = \App\Models\Commune::find($communeId)?->name;
+
+                                                        if (!$nombreComuna) {
+                                                            throw new \Exception("Comuna no encontrada");
+                                                        }
+                                                        $geocodingService = app(GeocodingService::class);
+                                                        $queryString = $calle . '+' . $numero . '+' . $nombreComuna;
+                                                        $coordinates = $geocodingService->getCoordinates($queryString);
+                                                        if (!empty($coordinates['lat']) && !empty($coordinates['lng'])) {
+                                                            $set('location', [
+                                                                'lat' => (float) $coordinates['lat'],
+                                                                'lng' => (float) $coordinates['lng'],
+                                                            ]);
+
+                                                            Notification::make()
+                                                                ->title('Ubicación encontrada')
+                                                                ->success()
+                                                                ->send();
+                                                        } else {
+                                                            Notification::make()
+                                                                ->title('Sin resultados')
+                                                                ->body('No se pudieron obtener coordenadas para esa dirección.')
+                                                                ->danger()
+                                                                ->send();
+                                                        }
+                                                    } catch (\Exception $e) {
+                                                        Notification::make()
+                                                            ->title('Error')
+                                                            ->body('Error al geocodificar: ' . $e->getMessage())
+                                                            ->danger()
+                                                            ->send();
+                                                    }
+                                                })
+                                        ])->columnSpanFull()->alignCenter(),
+                                        Map::make('location')
+                                            ->label('Ubicación Exacta')
+                                            ->helperText('Si la ubicación automática no es exacta, arrastra el marcador para corregirla.')
+                                            ->columnSpanFull()
+                                            ->defaultLocation([-20.216700, -70.14222])
+                                            ->defaultZoom(15)
+                                            ->clickable(false) // Opcional: evita clics accidentales que muevan el pin
+                                            ->mapControls([
+                                                'zoomControl' => true,
+                                                'mapTypeControl' => true,
+                                                'scaleControl' => true,
+                                                'streetViewControl' => false,
+                                                'rotateControl' => false,
+                                                'fullscreenControl' => true,
+                                            ]),
+                                    ]),
                             ]),
                     ]),
                 Forms\Components\Toggle::make('flood_zone')
@@ -256,21 +339,7 @@ class DependentUserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('conditions.name')
                     ->label('Condiciones')
-                    ->badge()
-                    ->formatStateUsing(fn(string $state) => Str::ucwords($state))
-                    ->color(fn(string $state): string => match (true) {
-                        Str::contains($state, 'electrodependencia')          => 'fuchsia',
-                        Str::contains($state, 'movilidad reducida')            => 'amber',
-                        Str::contains($state, 'oxigeno dependient')            => 'sky',
-                        Str::contains($state, 'alimentacion enteral')              => 'violet',
-                        Str::contains($state, 'oncologicos')  => 'lime',
-                        Str::contains($state, 'cuidados paliativos universales')   => 'teal',
-                        Str::contains($state, 'naneas')        => 'orange',
-                        Str::contains($state, 'asistencia ventilatoria no invasiva')        => 'stone',
-                        Str::contains($state, 'asistencia ventilatoria invasiva')         => 'slate',
-                        Str::contains($state, 'concentradores de oxigeno')         => 'neutral',
-                        default                                                           => 'primary',
-                    }),
+                    ->badge(),
                 Tables\Columns\TextColumn::make('user.address.full_address')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label('Dirección'),
@@ -311,7 +380,9 @@ class DependentUserResource extends Resource
                 Tables\Columns\TextColumn::make('last_integral_visit')
                     ->label('Última Visita Integral')
                     ->date('d/m/Y')
-                    ->sortable(),
+                    ->sortable()
+                    ->color(fn(string $state): string => $state ? (Carbon::parse($state)->diffInYears(Carbon::now()) >= 1 ? 'danger' : 'primary') : 'primary')
+                    ->badge(),
                 Tables\Columns\TextColumn::make('treatment_visits')
                     ->label('Visitas de Tratamiento')
                     ->numeric()
@@ -319,7 +390,9 @@ class DependentUserResource extends Resource
                 Tables\Columns\TextColumn::make('last_treatment_visit')
                     ->label('Última Visita de Tratamiento')
                     ->date('d/m/Y')
-                    ->sortable(),
+                    ->sortable()
+                    ->color(fn(string $state): string => $state ? (Carbon::parse($state)->diffInYears(Carbon::now()) >= 1 ? 'danger' : 'primary') : 'primary')
+                    ->badge(),
                 Tables\Columns\TextColumn::make('risks')
                     ->label('Zonas de Riesgo')
                     ->badge()
@@ -505,7 +578,7 @@ class DependentUserResource extends Resource
                                     // ->columnSpanFull()
                                     ->label('Condición')
                                     ->preload()
-                                    ->hidden(fn(Get $get) => $get('tipo') == null)
+                                    ->hidden(fn(Forms\Get $get) => $get('tipo') == null)
                                     ->default(Request::query('conditions'))
                                     ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
                             ])
@@ -650,12 +723,13 @@ class DependentUserResource extends Resource
             'map' => Pages\MapDependentUsers::route('/map'),
             'create' => Pages\CreateDependentUser::route('/create'),
             'view' => Pages\ViewDependentUser::route('/{record}'),
-            'edit' => Pages\EditDependentUser::route('/{record}/edit')
+            'edit' => Pages\EditDependentUser::route('/{record}/edit'),
         ];
     }
-
+    /* 
     public static function canAccess(): bool
     {
         return auth()->user()->hasRole('geopadds_user') || auth()->user()->hasRole('geopadds_admin') || auth()->user()->can('be god');
     }
+*/
 }
