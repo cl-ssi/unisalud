@@ -229,6 +229,7 @@ class WaitlistImporter extends Importer
                 'commune_id'                    => $communeId,
                 'status'                        => strtolower(trim($this->originalData['ESTADO'])),
                 'destiny_organization_id'       => $organizationId,
+                'exit_code_id'	                => $this->originalData['C_SALIDA'],
             ]
         );
 
