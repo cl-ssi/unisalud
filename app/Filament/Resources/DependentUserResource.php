@@ -2,41 +2,30 @@
 
 namespace App\Filament\Resources;
 
-
-use App\Models\Condition;
-use App\Models\Organization;
-use App\Models\DependentUser;
-use App\Models\DependentCaregiver;
-use App\Models\User;
-use App\Enums\ConditionDependency;
-
-use App\Services\GeocodingService;
-use Carbon\Carbon;
-
 use App\Filament\Resources\DependentUserResource\Pages;
 use App\Filament\Resources\DependentUserResource\RelationManagers;
-
-
+use App\Models\Condition;
+use App\Models\DependentCaregiver;
+use App\Models\DependentUser;
+use App\Models\Organization;
+use App\Models\User;
+use App\Services\GeocodingService;
+use Carbon\Carbon;
+use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Actions;
-use Filament\Tables\Table;
-use Filament\Support\Enums\MaxWidth;
 use Filament\Notifications\Notification;
-use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
-use Cheesegrits\FilamentGoogleMaps\Fields\Map;
-
+use Filament\Resources\Resource;
+use Filament\Support\Enums\MaxWidth;
+use Filament\Tables;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Collection;
-use Illuminate\Support\HtmlString;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
-
-
 
 class DependentUserResource extends Resource
 {
@@ -136,25 +125,26 @@ class DependentUserResource extends Resource
                                                     $numero = $get('../line');
                                                     $communeId = $get('../commune');
 
-                                                    if (!$calle || !$numero || !$communeId) {
+                                                    if (! $calle || ! $numero || ! $communeId) {
                                                         Notification::make()
                                                             ->title('Datos incompletos')
                                                             ->body('Debes ingresar calle, número y seleccionar la ciudad.')
                                                             ->warning()
                                                             ->send();
+
                                                         return;
                                                     }
 
                                                     try {
                                                         $nombreComuna = \App\Models\Commune::find($communeId)?->name;
 
-                                                        if (!$nombreComuna) {
-                                                            throw new \Exception("Comuna no encontrada");
+                                                        if (! $nombreComuna) {
+                                                            throw new \Exception('Comuna no encontrada');
                                                         }
                                                         $geocodingService = app(GeocodingService::class);
-                                                        $queryString = $calle . '+' . $numero . '+' . $nombreComuna;
+                                                        $queryString = $calle.'+'.$numero.'+'.$nombreComuna;
                                                         $coordinates = $geocodingService->getCoordinates($queryString);
-                                                        if (!empty($coordinates['lat']) && !empty($coordinates['lng'])) {
+                                                        if (! empty($coordinates['lat']) && ! empty($coordinates['lng'])) {
                                                             $set('location', [
                                                                 'lat' => (float) $coordinates['lat'],
                                                                 'lng' => (float) $coordinates['lng'],
@@ -174,11 +164,11 @@ class DependentUserResource extends Resource
                                                     } catch (\Exception $e) {
                                                         Notification::make()
                                                             ->title('Error')
-                                                            ->body('Error al geocodificar: ' . $e->getMessage())
+                                                            ->body('Error al geocodificar: '.$e->getMessage())
                                                             ->danger()
                                                             ->send();
                                                     }
-                                                })
+                                                }),
                                         ])->columnSpanFull()->alignCenter(),
                                         Map::make('location')
                                             ->label('Ubicación Exacta')
@@ -210,7 +200,7 @@ class DependentUserResource extends Resource
                 Forms\Components\TextInput::make('integral_visits')
                     ->label('Vistas Integrales')
                     ->numeric()
-                    ->extraAttributes(fn(Model $record) => ($record->integral_visits == null) ? ['class' => 'bg-danger-300 dark:bg-danger-600'] : []),
+                    ->extraAttributes(fn (Model $record) => ($record->integral_visits == null) ? ['class' => 'bg-danger-300 dark:bg-danger-600'] : []),
                 Forms\Components\DatePicker::make('last_integral_visit')
                     ->label('Última Visita Integral'),
                 Forms\Components\TextInput::make('treatment_visits')
@@ -281,7 +271,7 @@ class DependentUserResource extends Resource
                 $user = auth()->user();
                 if ($user->hasRole('geopadds_user')) {
                     if ($user->exists('organizations')) {
-                        $query->whereHas('user', fn($query) => $query->whereHas('mobileContactPoint', fn($query) => $query->whereIn('organization_id', $user->organizations->pluck('id')->toArray())));
+                        $query->whereHas('user', fn ($query) => $query->whereHas('mobileContactPoint', fn ($query) => $query->whereIn('organization_id', $user->organizations->pluck('id')->toArray())));
                     } else {
                         $query->whereNull('id');
                     }
@@ -331,7 +321,7 @@ class DependentUserResource extends Resource
                     ->label('Nacionalidad'),
                 Tables\Columns\TextColumn::make('diagnosis')
                     ->label('Diagnostico')
-                    // ->listWithLineBreaks()
+                    ->getStateUsing(fn ($record) => str_replace(['/', ',', '-'], ' / ', $record->diagnosis ?? ''))
                     ->bulleted()
                     ->separator('/')
                     ->limitList(3)
@@ -381,7 +371,7 @@ class DependentUserResource extends Resource
                     ->label('Última Visita Integral')
                     ->date('d/m/Y')
                     ->sortable()
-                    ->color(fn(string $state): string => $state ? (Carbon::parse($state)->diffInYears(Carbon::now()) >= 1 ? 'danger' : 'primary') : 'primary')
+                    ->color(fn (string $state): string => $state ? (Carbon::parse($state)->diffInYears(Carbon::now()) >= 1 ? 'danger' : 'primary') : 'primary')
                     ->badge(),
                 Tables\Columns\TextColumn::make('treatment_visits')
                     ->label('Visitas de Tratamiento')
@@ -391,32 +381,32 @@ class DependentUserResource extends Resource
                     ->label('Última Visita de Tratamiento')
                     ->date('d/m/Y')
                     ->sortable()
-                    ->color(fn(string $state): string => $state ? (Carbon::parse($state)->diffInYears(Carbon::now()) >= 1 ? 'danger' : 'primary') : 'primary')
+                    ->color(fn (string $state): string => $state ? (Carbon::parse($state)->diffInYears(Carbon::now()) >= 1 ? 'danger' : 'primary') : 'primary')
                     ->badge(),
                 Tables\Columns\TextColumn::make('risks')
                     ->label('Zonas de Riesgo')
                     ->badge()
                     ->separator(',')
-                    ->color(fn(string $state): string => match ($state) {
-                        'Zona de Inundacion'    => 'danger',
-                        'Zona de Aluvion'       => 'warning',
-                        default                 => 'primary',
+                    ->color(fn (string $state): string => match ($state) {
+                        'Zona de Inundacion' => 'danger',
+                        'Zona de Aluvion' => 'warning',
+                        default => 'primary',
                     }),
                 Tables\Columns\TextColumn::make('controls')
                     ->label('Controles')
                     ->badge()
                     ->separator(',')
-                    ->color(fn(string $state): string => match (true) {
-                        Str::contains($state, DependentUser::getLabel('barthel'))          => 'fuchsia',
-                        Str::contains($state, DependentUser::getLabel('empam'))            => 'amber',
-                        Str::contains($state, DependentUser::getLabel('eleam'))            => 'sky',
-                        Str::contains($state, DependentUser::getLabel('upp'))              => 'violet',
-                        Str::contains($state, DependentUser::getLabel('elaborated_plan'))  => 'lime',
-                        Str::contains($state, DependentUser::getLabel('evaluated_plan'))   => 'teal',
-                        Str::contains($state, DependentUser::getLabel('pneumonia'))        => 'orange',
-                        Str::contains($state, DependentUser::getLabel('influenza'))        => 'stone',
-                        Str::contains($state, DependentUser::getLabel('covid-19'))         => 'slate',
-                        default                                                           => 'primary',
+                    ->color(fn (string $state): string => match (true) {
+                        Str::contains($state, DependentUser::getLabel('barthel')) => 'fuchsia',
+                        Str::contains($state, DependentUser::getLabel('empam')) => 'amber',
+                        Str::contains($state, DependentUser::getLabel('eleam')) => 'sky',
+                        Str::contains($state, DependentUser::getLabel('upp')) => 'violet',
+                        Str::contains($state, DependentUser::getLabel('elaborated_plan')) => 'lime',
+                        Str::contains($state, DependentUser::getLabel('evaluated_plan')) => 'teal',
+                        Str::contains($state, DependentUser::getLabel('pneumonia')) => 'orange',
+                        Str::contains($state, DependentUser::getLabel('influenza')) => 'stone',
+                        Str::contains($state, DependentUser::getLabel('covid-19')) => 'slate',
+                        default => 'primary',
                     }),
                 Tables\Columns\TextColumn::make('barthel')
                     ->hidden()
@@ -536,15 +526,15 @@ class DependentUserResource extends Resource
                     ->label(new HtmlString('Controles <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->badge()
                     ->separator(',')
-                    ->color(fn(string $state): string => match (true) {
-                        Str::contains($state, DependentCaregiver::getLabel('empam'))             => 'fuchsia',
-                        Str::contains($state, DependentCaregiver::getLabel('zarit'))             => 'amber',
-                        Str::contains($state, DependentCaregiver::getLabel('elaborated_plan'))   => 'sky',
-                        Str::contains($state, DependentCaregiver::getLabel('evaluated_plan'))    => 'violet',
-                        Str::contains($state, DependentCaregiver::getLabel('trained'))           => 'lime',
-                        Str::contains($state, DependentCaregiver::getLabel('stipend'))           => 'teal',
-                        Str::contains($state, DependentCaregiver::getLabel('immunizations'))           => 'orange',
-                        default                                                                 => 'primary',
+                    ->color(fn (string $state): string => match (true) {
+                        Str::contains($state, DependentCaregiver::getLabel('empam')) => 'fuchsia',
+                        Str::contains($state, DependentCaregiver::getLabel('zarit')) => 'amber',
+                        Str::contains($state, DependentCaregiver::getLabel('elaborated_plan')) => 'sky',
+                        Str::contains($state, DependentCaregiver::getLabel('evaluated_plan')) => 'violet',
+                        Str::contains($state, DependentCaregiver::getLabel('trained')) => 'lime',
+                        Str::contains($state, DependentCaregiver::getLabel('stipend')) => 'teal',
+                        Str::contains($state, DependentCaregiver::getLabel('immunizations')) => 'orange',
+                        default => 'primary',
                     }),
             ])->striped()->paginationPageOptions([10, 25, 50])->defaultPaginationPageOption(25)
             ->filters([
@@ -562,7 +552,7 @@ class DependentUserResource extends Resource
                                     // ->columnSpanFull()
                                     ->options([
                                         'u' => 'Union',
-                                        'v' => 'Disyunción'
+                                        'v' => 'Disyunción',
                                     ])
                                     ->grouped()
                                     ->colors([
@@ -579,10 +569,10 @@ class DependentUserResource extends Resource
                                     // ->columnSpanFull()
                                     ->label('Condición')
                                     ->preload()
-                                    ->hidden(fn(Forms\Get $get) => $get('tipo') == null)
-                                    ->default(Request::query('conditions'))
-                                    // ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
-                            ])
+                                    ->hidden(fn (Forms\Get $get) => $get('tipo') == null)
+                                    ->default(Request::query('conditions')),
+                                // ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
+                            ]),
                     ])
                     ->columnSpan(2)
                     ->query(function (Builder $query, array $data): Builder {
@@ -592,13 +582,13 @@ class DependentUserResource extends Resource
                                 $data,
                                 function (Builder $query, $data) {
                                     if ($data['tipo'] == 'u' && $data['conditions']) {
-                                        $query->whereHas('conditions', fn($q) => $q->whereIn('condition_id', $data['conditions']));
-                                    } else if ($data['tipo'] == 'v' && $data['conditions']) {
+                                        $query->whereHas('conditions', fn ($q) => $q->whereIn('condition_id', $data['conditions']));
+                                    } elseif ($data['tipo'] == 'v' && $data['conditions']) {
                                         foreach ($data['conditions'] as $condition_id) {
-                                            $query->whereHas('conditions', fn($q) => $q->where('condition_id', $condition_id));
+                                            $query->whereHas('conditions', fn ($q) => $q->where('condition_id', $condition_id));
                                         }
                                     } else {
-                                        $query;
+
                                     }
                                 }
                             );
@@ -614,7 +604,7 @@ class DependentUserResource extends Resource
                         return $query
                             ->when(
                                 $data['name'],
-                                fn(Builder $query, $name): Builder => $query->whereHas('user', fn(Builder $query): Builder => $query->where('text', 'like', '%' . $name . '%')),
+                                fn (Builder $query, $name): Builder => $query->whereHas('user', fn (Builder $query): Builder => $query->where('text', 'like', '%'.$name.'%')),
                             );
                     }),
 
@@ -623,14 +613,14 @@ class DependentUserResource extends Resource
                     ->columnSpan(1)
                     ->options([
                         'Zona de Inundacion' => 'Zona de Inundación',
-                        'Zona de Aluvion' => 'Zona de Aluvión'
+                        'Zona de Aluvion' => 'Zona de Aluvión',
                     ])
                     ->multiple()
                     ->default(Request::query('risks'))
                     ->query(function ($query, $data) {
-                        if (! empty($data["values"])) {
+                        if (! empty($data['values'])) {
                             $query->whereJsonLength('risks', '>', 0);
-                            foreach ($data["values"] as $risk) {
+                            foreach ($data['values'] as $risk) {
                                 $query->whereJsonContains('risks', [$risk]);
                             }
                         }
@@ -642,7 +632,7 @@ class DependentUserResource extends Resource
                     ->preload()
                     ->default(Request::query('organizations_id'))
                     ->modifyQueryUsing(function ($query, $data) {
-                        if (! empty($data["values"])) {
+                        if (! empty($data['values'])) {
                             $query->whereHas('user', function ($query) use ($data) {
                                 $query->whereHas('mobileContactPoint', function ($query) use ($data) {
                                     $query->whereHas('organization', function ($query) use ($data) {
@@ -668,7 +658,7 @@ class DependentUserResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('map')
-                    ->url(fn(Model $record): string => route('filament.admin.resources.dependent-users.map', [
+                    ->url(fn (Model $record): string => route('filament.admin.resources.dependent-users.map', [
                         'users_id' => [$record->user?->id],
                     ]))
                     ->icon('heroicon-o-map')
@@ -689,10 +679,11 @@ class DependentUserResource extends Resource
                         // ))
                         ->action(function (\Livewire\Component $livewire, Collection $records) {
                             $ids = $records->pluck('user_id')->toArray();
+
                             return redirect()->route(
                                 'filament.admin.resources.dependent-users.map',
                                 [
-                                    'conditions_multiple' => $livewire->getTableFilterState('conditions_multiple') ?? null, // INFO: NEW BEST WAY 
+                                    'conditions_multiple' => $livewire->getTableFilterState('conditions_multiple') ?? null, // INFO: NEW BEST WAY
                                     // 'conditions_id' => $livewire->getTable()->getFilters()['conditions']->getState('name')['values'] ?? null,
                                     'search' => $livewire->getTable()->getFilters()['user']->getForm()->getState()['name'] ?? null,
                                     'organizations_id' => $livewire->getTable()->getFilters()['user.mobileContactPoint.organization']->getState()['values'] ?? null,
@@ -706,7 +697,6 @@ class DependentUserResource extends Resource
                 ]),
             ]);
     }
-
 
     public static function getRelations(): array
     {
@@ -727,7 +717,7 @@ class DependentUserResource extends Resource
             'edit' => Pages\EditDependentUser::route('/{record}/edit'),
         ];
     }
-    /* 
+    /*
     public static function canAccess(): bool
     {
         return auth()->user()->hasRole('geopadds_user') || auth()->user()->hasRole('geopadds_admin') || auth()->user()->can('be god');
