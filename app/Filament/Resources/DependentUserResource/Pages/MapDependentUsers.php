@@ -7,6 +7,7 @@ use App\Models\Condition;
 use App\Models\DependentUser;
 use App\Models\Organization;
 use App\Models\User;
+use App\Enums\ConditionDependency;
 
 use Filament\Actions;
 use Filament\Forms;
@@ -97,16 +98,18 @@ class MapDependentUsers extends Page
                             ->live()
                             ->afterStateUpdated(fn($state) => $this->tipo = $state),
                         Forms\Components\Select::make('conditions')
-                            // ->relationship('conditions', 'name')
+                            // ->options(Condition::pluck('name', 'id')->map(fn ($item) => $item->getLabel())->all())
+                            ->options(Condition::orderedOptions())
                             ->placeholder('Seleccionar')
                             ->multiple()
                             ->reactive()
-                            // ->live()
-                            ->label('')
                             ->preload()
-                            ->options(fn(Condition $query) => $query->orderByRaw('COALESCE(condition.parent_id, condition.id), condition.parent_id IS NOT NULL, condition.id')->pluck('name', 'id'))
-                            // ->hidden(fn(Get $get) => $conditions_multiple['tipo'] ? false : true)                            
+                            // ->getOptionLabelFromRecordUsing(fn (Condition $model) => $model::orderedOptions())
+                            // ->live()
+                            // ->options(fn(Condition $query) => $query->orderByRaw('COALESCE(condition.parent_id, condition.id), condition.parent_id IS NOT NULL, condition.id')->pluck('name', 'id'))
+                            // ->hidden(fn(Get $get) => $conditions_multiple['tipo'] ? false : true)
                             // ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
+                            ->disabled(fn(Get $get) => $this->tipo ? false : true)                            
                             ->afterStateUpdated(fn($state) => $this->conditions = $state),
                     ])
                     ->columnSpan(1)
