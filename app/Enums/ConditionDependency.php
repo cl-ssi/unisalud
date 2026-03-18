@@ -36,7 +36,7 @@ enum ConditionDependency: string implements HasColor, HasLabel
         };
     }
 
-    public function getColor(): ?string
+    public function getColor(): string | array | null
     {
         return match ($this) {
             self::ELECTRO   => 'fuchsia',
