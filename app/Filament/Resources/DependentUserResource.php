@@ -572,7 +572,8 @@ class DependentUserResource extends Resource
                                     ->live(), // Crucial for making the server filter react to changes
 
                                 Forms\Components\Select::make('conditions')
-                                    ->relationship('conditions', 'name', fn(Builder $query) => $query->orderByRaw('COALESCE(condition.parent_id, condition.id), condition.parent_id IS NOT NULL, condition.id'))
+                                    ->relationship('conditions', 'name')
+                                    ->options(Condition::orderedOptions())
                                     ->placeholder('Seleccionar')
                                     ->multiple()
                                     // ->columnSpanFull()
@@ -580,7 +581,7 @@ class DependentUserResource extends Resource
                                     ->preload()
                                     ->hidden(fn(Forms\Get $get) => $get('tipo') == null)
                                     ->default(Request::query('conditions'))
-                                    ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
+                                    // ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
                             ])
                     ])
                     ->columnSpan(2)
