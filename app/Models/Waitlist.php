@@ -29,6 +29,7 @@ class Waitlist extends Model
         'wait_health_care_service_id', //PRESTA_EST: Fondo de Ojo
         'cie10_id',
         'sigte_id', // SIGTE_ID	
+        'prevision_id',
 
         'wait_medical_benefit_id', //TIPO PRESTACION'
         'wait_specialty_id', // ESPECIALIDAD
@@ -106,6 +107,11 @@ class Waitlist extends Model
     public function messages(): HasMany
     {
         return $this->hasMany(WaitlistMessage::class, 'waitlist_id');
+    }
+
+    public function prevision(): BelongsTo
+    {
+        return $this->belongsTo(Prevision::class, 'prevision_id');
     }
 
     protected $table = 'wait_waitlists';
