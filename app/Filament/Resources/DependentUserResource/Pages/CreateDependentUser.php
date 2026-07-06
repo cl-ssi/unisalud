@@ -122,12 +122,12 @@ class CreateDependentUser extends CreateRecord
                         Forms\Components\Select::make('prevision')
                             ->label('Previsión')
                             ->options([
-                                'FONASA A'  => 'Fonasa A',
-                                'FONASA B'  => 'Fonasa B',
-                                'FONASA C'  => 'Fonasa C',
-                                'FONASA D'  => 'Fonasa D',
-                                'ISAPRE'    => 'Isapre',
-                                'PRAIS'     => 'PRAIS'
+                                'FONASA A' => 'Fonasa A',
+                                'FONASA B' => 'Fonasa B',
+                                'FONASA C' => 'Fonasa C',
+                                'FONASA D' => 'Fonasa D',
+                                'ISAPRE' => 'Isapre',
+                                'PRAIS' => 'PRAIS'
                             ])
                             ->required()
                             ->columnSpan(1),
@@ -158,7 +158,7 @@ class CreateDependentUser extends CreateRecord
                             ->columnSpan(1)
                             ->options([
                                 'independent' => 'Independiente',
-                                'slight'  => 'Leve',
+                                'slight' => 'Leve',
                                 'moderate' => 'Moderado',
                                 'severe' => 'Severo',
                                 'total' => 'Total',
@@ -205,7 +205,8 @@ class CreateDependentUser extends CreateRecord
                         Forms\Components\Select::make('condiciones')
                             ->label('Condiciones')
                             ->required()
-                            ->options(Condition::pluck('name', 'id'))
+                            // ->options(Condition::pluck('name', 'id'))
+                            ->options(Condition::orderedOptions())
                             ->multiple()
                             ->columnSpan(2),
                         Forms\Components\Select::make('sonda_sng')
@@ -334,12 +335,12 @@ class CreateDependentUser extends CreateRecord
                         Forms\Components\Select::make('prevision_cuidador')
                             ->label('Previsión Cuidador')
                             ->options([
-                                'FONASA A'  => 'Fonasa A',
-                                'FONASA B'  => 'Fonasa B',
-                                'FONASA C'  => 'Fonasa C',
-                                'FONASA D'  => 'Fonasa D',
-                                'ISAPRE'    => 'Isapre',
-                                'PRAIS'     => 'PRAIS'
+                                'FONASA A' => 'Fonasa A',
+                                'FONASA B' => 'Fonasa B',
+                                'FONASA C' => 'Fonasa C',
+                                'FONASA D' => 'Fonasa D',
+                                'ISAPRE' => 'Isapre',
+                                'PRAIS' => 'PRAIS'
                             ])
                             ->hidden(fn(Get $get) => !$get('caregiver'))
                             ->columnSpan(1),
@@ -490,19 +491,19 @@ class CreateDependentUser extends CreateRecord
         // If the user does not exist, create a new one
         $userOut = User::updateOrCreate(
             [
-                'id'    => $user ? $user->id : null
+                'id' => $user ? $user->id : null
             ],
             [
-                'active'                => 1,
-                'text'                  => $nombre . ' ' . $apellido_paterno . ' ' . $apellido_materno,
-                'given'                 => $nombre,
-                'fathers_family'        => $apellido_paterno,
-                'mothers_family'        => $apellido_materno,
-                'sex'                   => $sex,
-                'gender'                => $gender,
-                'birthday'              => $this->formatField($fecha_nacimiento, 'date'),
+                'active' => 1,
+                'text' => $nombre . ' ' . $apellido_paterno . ' ' . $apellido_materno,
+                'given' => $nombre,
+                'fathers_family' => $apellido_paterno,
+                'mothers_family' => $apellido_materno,
+                'sex' => $sex,
+                'gender' => $gender,
+                'birthday' => $this->formatField($fecha_nacimiento, 'date'),
                 // 'cod_con_marital_id'    => $row['estado_civil'],
-                'nationality_id'        => $nationality,
+                'nationality_id' => $nationality,
             ]
         );
 
@@ -510,23 +511,23 @@ class CreateDependentUser extends CreateRecord
             // SE CREA IDENTIFIER
             Identifier::create(
                 [
-                    'user_id'                       => $userOut->id,
-                    'use'                           => 'official',
-                    'cod_con_identifier_type_id'    => 1,
-                    'value'                         => $run,
-                    'dv'                            => $dv
+                    'user_id' => $userOut->id,
+                    'use' => 'official',
+                    'cod_con_identifier_type_id' => 1,
+                    'value' => $run,
+                    'dv' => $dv
                 ]
             );
 
             //SE CREA HUMAN NAME
             HumanName::create(
                 [
-                    'use'               => 'official',
-                    'given'             => $nombre,
-                    'fathers_family'    => $apellido_paterno,
-                    'mothers_family'    => $apellido_materno,
-                    'period_start'      => now(),
-                    'user_id'           => $userOut->id
+                    'use' => 'official',
+                    'given' => $nombre,
+                    'fathers_family' => $apellido_paterno,
+                    'mothers_family' => $apellido_materno,
+                    'period_start' => now(),
+                    'user_id' => $userOut->id
                 ]
             );
         }
@@ -561,17 +562,17 @@ class CreateDependentUser extends CreateRecord
                 'id' => $addressExist ? $addressExist->id : null
             ],
             [
-                'user_id'       => $user->id,
-                'use'           => 'home',
-                'type'          => 'physical',
-                'text'          => $calle,
-                'line'          => $numero,
-                'apartment'     => $departamento,
-                'suburb'        => null,
-                'city'          => null,
-                'commune_id'    => $commune->id ?? null,
-                'postal_code'   => null,
-                'region_id'     => $commune->region_id ?? null,
+                'user_id' => $user->id,
+                'use' => 'home',
+                'type' => 'physical',
+                'text' => $calle,
+                'line' => $numero,
+                'apartment' => $departamento,
+                'suburb' => null,
+                'city' => null,
+                'commune_id' => $commune->id ?? null,
+                'postal_code' => null,
+                'region_id' => $commune->region_id ?? null,
             ]
         );
 
@@ -590,8 +591,8 @@ class CreateDependentUser extends CreateRecord
                 ],
                 [
                     'address_id' => $address->id,
-                    'longitude'  => $longitude,
-                    'latitude'   => $latitude
+                    'longitude' => $longitude,
+                    'latitude' => $latitude
                 ]
             );
         }
@@ -619,13 +620,13 @@ class CreateDependentUser extends CreateRecord
                 'id' => $contactPoint ? $contactPoint->id : null
             ],
             [
-                'system'            => 'phone',
-                'user_id'           => $user->id,
-                'location_id'       => $address?->location?->id,
-                'value'             => $telefono,
-                'organization_id'   => $organization_id,
-                'use'              => 'mobile',
-                'actually'         => 0
+                'system' => 'phone',
+                'user_id' => $user->id,
+                'location_id' => $address?->location?->id,
+                'value' => $telefono,
+                'organization_id' => $organization_id,
+                'use' => 'mobile',
+                'actually' => 0
             ]
         );
     }
@@ -633,7 +634,7 @@ class CreateDependentUser extends CreateRecord
     public function getDependentUser($row)
     {
         $user = $this->getUser($row);
-        if (Self::$rowNew) {
+        if (self::$rowNew) {
             self::$insertedCount++;
         } else {
             self::$updatedCount++;
@@ -708,16 +709,16 @@ class CreateDependentUser extends CreateRecord
             ],
             [
                 'dependent_user_id' => $dependentUser->id,
-                'user_id'          => $caregiverUser->id,
-                'relative'         => $row['parentesco_cuidador'],
-                'healthcare_type'  => $this->formatField($row['prevision_cuidador'], 'healthcare'),
-                'empam'           => $this->formatField($row['empam_cuidador'], 'boolean'),
-                'zarit'           => $this->formatField($row['zarit_cuidador'], 'boolean'),
-                'immunizations'    => $row['inmunizaciones_cuidador'],
+                'user_id' => $caregiverUser->id,
+                'relative' => $row['parentesco_cuidador'],
+                'healthcare_type' => $this->formatField($row['prevision_cuidador'], 'healthcare'),
+                'empam' => $this->formatField($row['empam_cuidador'], 'boolean'),
+                'zarit' => $this->formatField($row['zarit_cuidador'], 'boolean'),
+                'immunizations' => $row['inmunizaciones_cuidador'],
                 'elaborated_plan' => $this->formatField($row['plan_elaborado_cuidador'], 'boolean'),
-                'evaluated_plan'  => $this->formatField($row['plan_evaluado_cuidador'], 'boolean'),
-                'trained'         => $this->formatField($row['capacitacion_cuidador'], 'boolean'),
-                'stipend'         => $this->formatField($row['estipendio_cuidador'], 'boolean')
+                'evaluated_plan' => $this->formatField($row['plan_evaluado_cuidador'], 'boolean'),
+                'trained' => $this->formatField($row['capacitacion_cuidador'], 'boolean'),
+                'stipend' => $this->formatField($row['estipendio_cuidador'], 'boolean')
             ]
         );
         return $dependentCaregiver;
