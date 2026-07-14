@@ -56,6 +56,9 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label('Parámetros')
                     ->collapsed(),
+                NavigationGroup::make()
+                    ->label('SIGTE')
+                    ->collapsed(),
             ])
             ->pages([
                 Pages\Dashboard::class,
