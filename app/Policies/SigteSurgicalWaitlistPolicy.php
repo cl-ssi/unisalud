@@ -12,7 +12,7 @@ class SigteSurgicalWaitlistPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('SIGTE LE QX: listado');
+        return $user->can('SIGTE LE QX: listado') || $user->can('be god');
     }
 
     /**
@@ -20,7 +20,7 @@ class SigteSurgicalWaitlistPolicy
      */
     public function view(User $user, SigteSurgicalWaitlist $sigteSurgicalWaitlist): bool
     {
-        return $user->can('SIGTE LE QX: listado');
+        return $user->can('SIGTE LE QX: listado') || $user->can('be god');
     }
 
     /**
@@ -28,7 +28,7 @@ class SigteSurgicalWaitlistPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('SIGTE LE QX: ingresar paciente');
+        return $user->can('SIGTE LE QX: ingresar paciente') || $user->can('be god');
     }
 
     /**
@@ -36,7 +36,7 @@ class SigteSurgicalWaitlistPolicy
      */
     public function update(User $user, SigteSurgicalWaitlist $sigteSurgicalWaitlist): bool
     {
-        return $user->can('SIGTE LE QX: listado') && is_null($sigteSurgicalWaitlist->exported_at);
+        return ($user->can('SIGTE LE QX: listado') || $user->can('be god')) && is_null($sigteSurgicalWaitlist->exported_at);
     }
 
     /**

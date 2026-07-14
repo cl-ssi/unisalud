@@ -28,6 +28,12 @@ class SigteSurgicalEntryResource extends Resource
 
     protected static ?string $pluralLabel = 'Lista de Espera Quirúrgica';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('SIGTE LE QX: listado')
+            || auth()->user()?->can('be god');
+    }
+
     public static function form(Form $form): Form
     {
         return $form
