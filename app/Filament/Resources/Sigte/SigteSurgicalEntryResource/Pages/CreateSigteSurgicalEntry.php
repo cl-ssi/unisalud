@@ -42,7 +42,7 @@ class CreateSigteSurgicalEntry extends CreateRecord
 
     public function create(bool $another = false): void
     {
-        if (! $this->searched || $this->alreadyExists || $this->leqxDuplicate) {
+        if (! $this->searched || $this->alreadyExists) {
             return;
         }
 
@@ -216,13 +216,13 @@ class CreateSigteSurgicalEntry extends CreateRecord
 
                 ])
                     ->columnSpanFull()
-                    ->visible(fn ($livewire) => $livewire->searched && ! $livewire->alreadyExists && ! $livewire->leqxDuplicate),
+                    ->visible(fn ($livewire) => $livewire->searched && ! $livewire->alreadyExists),
             ]);
     }
 
     protected function getFormActions(): array
     {
-        if (! $this->searched || $this->alreadyExists || $this->leqxDuplicate) {
+        if (! $this->searched || $this->alreadyExists) {
             return [];
         }
 

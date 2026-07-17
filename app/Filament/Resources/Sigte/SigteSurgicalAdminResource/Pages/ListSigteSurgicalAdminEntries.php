@@ -7,13 +7,19 @@ use App\Exports\SigteSurgicalExport;
 use App\Filament\Resources\Sigte\SigteSurgicalAdminResource;
 use App\Filament\Widgets\SigteSurgicalStatsWidget;
 use App\Models\SigteSurgicalExportBatch;
+use App\Models\SigteSurgicalProcedureCode;
 use App\Models\SigteSurgicalWaitlist;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ListSigteSurgicalAdminEntries extends ListRecords
 {
@@ -105,6 +111,91 @@ class ListSigteSurgicalAdminEntries extends ListRecords
                         'SIGTE_LEQx' . $suffix . '.xlsx'
                     );
                 }),
+
+            Action::make('cargarCodigosFonasa')
+                ->label('Cargar Códigos FONASA')
+                ->icon('heroicon-o-arrow-up-tray')
+                ->color('gray')
+                ->modalHeading('Cargar Códigos FONASA')
+                ->modalDescription('Suba un archivo .xlsx con columnas: CODIGO, NOMBRE, Complejidad Nueva (además de otras columnas que se ignoran: Base REM, Tipo de Prestación, Código SIGTE, Especialidad, Temporabilidad, Vigencia Entrada, Vigencia Salida). Los códigos existentes (misma complejidad y código) se actualizan; el resto se crea.')
+                ->form([
+                    FileUpload::make('file')
+                        ->label('Archivo Códigos FONASA (.xlsx)')
+                        ->acceptedFileTypes([
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            'application/vnd.ms-excel',
+                        ])
+                        ->disk('local')
+                        ->directory('sigte-uploads')
+                        ->visibility('private')
+                        ->required(),
+                ])
+                ->modalSubmitActionLabel('Importar')
+                ->action(fn (array $data) => $this->processCodigosFonasa($data['file'])),
         ];
+    }
+
+    private function processCodigosFonasa(string $filePath): void
+    {
+        try {
+            $fullPath = Storage::disk('local')->path($filePath);
+            $spreadsheet = IOFactory::load($fullPath);
+            $rows = $spreadsheet->getActiveSheet()->toArray(null, true, true, false);
+
+            if (empty($rows)) {
+                Notification::make()->title('El archivo está vacío')->danger()->send();
+                return;
+            }
+
+            $headers = array_map(fn ($h) => Str::of($h)->trim()->upper()->toString(), array_shift($rows));
+            $complexityMap = collect(SurgicalComplexity::cases())->flatMap(fn ($c) => [
+                $c->value                                                          => $c->value,
+                Str::of($c->getLabel())->lower()->ascii()->replace(' ', '_')->toString() => $c->value,
+            ]);
+
+            $nuevos = $actualizados = $errores = 0;
+
+            foreach ($rows as $rowData) {
+                if (! array_filter($rowData, fn ($v) => $v !== null && $v !== '')) {
+                    continue;
+                }
+                if (count($rowData) < count($headers)) {
+                    continue;
+                }
+
+                $data = array_combine($headers, array_map(fn ($v) => trim((string) ($v ?? '')), $rowData));
+                $code = $data['CODIGO'] ?? '';
+                $text = $data['NOMBRE'] ?? '';
+                $complexityRaw = Str::of($data['COMPLEJIDAD NUEVA'] ?? '')->lower()->ascii()->replace(' ', '_')->toString();
+                $complexity = $complexityMap[$complexityRaw] ?? null;
+
+                if (! $code || ! $complexity) {
+                    $errores++;
+                    continue;
+                }
+
+                $procedureCode = SigteSurgicalProcedureCode::updateOrCreate(
+                    ['complexity' => $complexity, 'code' => $code],
+                    ['text' => $text ?: null]
+                );
+
+                $procedureCode->wasRecentlyCreated ? $nuevos++ : $actualizados++;
+            }
+
+            Storage::disk('local')->delete($filePath);
+
+            $total = $nuevos + $actualizados;
+            Notification::make()
+                ->title("{$total} códigos FONASA procesados")
+                ->body("{$nuevos} nuevos · {$actualizados} actualizados" . ($errores ? " · {$errores} errores" : ''))
+                ->success()
+                ->send();
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Error al procesar el archivo')
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
     }
 }
