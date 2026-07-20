@@ -12,6 +12,11 @@ class SigteExternalWaitlistRun extends Model
     protected $fillable = [
         'sigte_external_waitlist_import_id',
         'run',
+        'data',
+    ];
+
+    protected $casts = [
+        'data' => 'array',
     ];
 
     public function import(): BelongsTo

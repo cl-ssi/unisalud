@@ -17,6 +17,7 @@ use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Reader\Csv;
 
 class SigteBaseDeDatos extends Page
 {
@@ -89,13 +90,16 @@ class SigteBaseDeDatos extends Page
                 ->icon('heroicon-o-arrow-up-tray')
                 ->color('gray')
                 ->modalHeading('Cargar Base de Datos LE Quirúrgica')
-                ->modalDescription('Suba un archivo .xlsx en formato SIGTE con el listado actual de la Lista de Espera Quirúrgica, utilizado para detección de duplicados entre especialidades.')
+                ->modalDescription('Suba un archivo .xlsx o .csv (delimitado por ";") en formato SIGTE con el listado actual de la Lista de Espera Quirúrgica, utilizado para detección de duplicados entre especialidades.')
                 ->form([
                     FileUpload::make('file')
-                        ->label('Archivo LE Quirúrgica (.xlsx)')
+                        ->label('Archivo LE Quirúrgica (.xlsx o .csv)')
                         ->acceptedFileTypes([
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                             'application/vnd.ms-excel',
+                            'text/csv',
+                            'text/plain',
+                            'application/csv',
                         ])
                         ->disk('local')
                         ->directory('sigte-uploads')
@@ -107,12 +111,36 @@ class SigteBaseDeDatos extends Page
         ];
     }
 
+    /**
+     * Loads a spreadsheet's rows, supporting both .xlsx/.xls and .csv
+     * (semicolon-delimited, as commonly exported locally) uploads.
+     */
+    private function loadRows(string $filePath): array
+    {
+        $fullPath = Storage::disk('local')->path($filePath);
+
+        if (strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) === 'csv') {
+            $reader = new Csv();
+            $reader->setDelimiter(';');
+            $reader->setEnclosure('"');
+
+            $contents = file_get_contents($fullPath);
+            if ($contents !== false && ! mb_check_encoding($contents, 'UTF-8')) {
+                $reader->setInputEncoding('Windows-1252');
+            }
+
+            $spreadsheet = $reader->load($fullPath);
+        } else {
+            $spreadsheet = IOFactory::load($fullPath);
+        }
+
+        return $spreadsheet->getActiveSheet()->toArray(null, true, true, false);
+    }
+
     private function processLeCne(string $filePath): void
     {
         try {
-            $fullPath = Storage::disk('local')->path($filePath);
-            $spreadsheet = IOFactory::load($fullPath);
-            $rows = $spreadsheet->getActiveSheet()->toArray(null, true, true, false);
+            $rows = $this->loadRows($filePath);
 
             if (empty($rows)) {
                 Notification::make()->title('El archivo está vacío')->danger()->send();
@@ -173,9 +201,7 @@ class SigteBaseDeDatos extends Page
     private function processLeQx(string $filePath): void
     {
         try {
-            $fullPath = Storage::disk('local')->path($filePath);
-            $spreadsheet = IOFactory::load($fullPath);
-            $rows = $spreadsheet->getActiveSheet()->toArray(null, true, true, false);
+            $rows = $this->loadRows($filePath);
 
             if (empty($rows)) {
                 Notification::make()->title('El archivo está vacío')->danger()->send();
@@ -183,7 +209,7 @@ class SigteBaseDeDatos extends Page
             }
 
             $headers = array_map('trim', array_shift($rows));
-            $runs = [];
+            $records = [];
 
             foreach ($rows as $rowData) {
                 if (!array_filter($rowData, fn ($v) => $v !== null && $v !== '')) {
@@ -196,14 +222,14 @@ class SigteBaseDeDatos extends Page
                 $data = array_combine($headers, array_map(fn ($v) => trim((string) ($v ?? '')), $rowData));
                 $run = preg_replace('/[^0-9]/', '', $data['RUN'] ?? '');
                 if ($run) {
-                    $runs[] = $run;
+                    // Later rows for the same RUN overwrite earlier ones.
+                    $records[$run] = $data;
                 }
             }
 
-            $runs = array_values(array_unique($runs));
-            $total = count($runs);
+            $total = count($records);
 
-            DB::transaction(function () use ($runs, $total, $filePath) {
+            DB::transaction(function () use ($records, $total, $filePath) {
                 // A new upload fully replaces the previous one: this is a
                 // point-in-time snapshot of another specialty's waitlist,
                 // not a cumulative record, so stale entries shouldn't linger.
@@ -216,12 +242,13 @@ class SigteBaseDeDatos extends Page
                 ]);
 
                 $now = now();
-                foreach (array_chunk($runs, 500) as $chunk) {
-                    SigteExternalWaitlistRun::insert(array_map(fn ($run) => [
+                foreach (array_chunk($records, 500, true) as $chunk) {
+                    SigteExternalWaitlistRun::insert(array_map(fn ($run, $data) => [
                         'sigte_external_waitlist_import_id' => $import->id,
                         'run'                                => $run,
+                        'data'                               => json_encode($data),
                         'created_at'                         => $now,
-                    ], $chunk));
+                    ], array_keys($chunk), $chunk));
                 }
             });
 
@@ -252,7 +279,8 @@ class SigteBaseDeDatos extends Page
         $birthday = null;
         if (!empty($data['FECHA_NAC'])) {
             try {
-                $birthday = Carbon::createFromFormat('d-m-Y', $data['FECHA_NAC'])->format('Y-m-d');
+                // The export stores dates as US-style m/d/Y, e.g. "1/25/2004".
+                $birthday = Carbon::createFromFormat('n/j/Y', $data['FECHA_NAC'])->format('Y-m-d');
             } catch (\Exception) {}
         }
 
@@ -361,6 +389,16 @@ class SigteBaseDeDatos extends Page
     public static function isRunInLeqxList(string $run): bool
     {
         return SigteExternalWaitlistRun::where('run', $run)->exists();
+    }
+
+    /**
+     * Full row (all spreadsheet columns) for $run from the most recently
+     * uploaded "LE Quirúrgica" file, used to pre-fill the entry form when a
+     * cross-specialty duplicate is found.
+     */
+    public static function getLeqxRowData(string $run): ?array
+    {
+        return SigteExternalWaitlistRun::where('run', $run)->value('data');
     }
 
     public static function getLeqxUploadMeta(): array

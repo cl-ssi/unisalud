@@ -195,12 +195,14 @@ class SigteSurgicalEntryResource extends Resource
 
             Forms\Components\Section::make('Profesional')
                 ->schema([
-                    Forms\Components\Placeholder::make('requesting_professional_display')
+                    Forms\Components\Select::make('requesting_professional_id')
                         ->label('Prof. Solicitante')
-                        ->content(fn () => auth()->user()?->text ?: trim(auth()->user()->given . ' ' . auth()->user()->fathers_family)),
-                    Forms\Components\Hidden::make('requesting_professional_id')
+                        ->placeholder('Seleccione profesional')
+                        ->relationship('requestingProfessional', 'text')
+                        ->getOptionLabelFromRecordUsing(fn ($record) => $record->text ?: trim("{$record->given} {$record->fathers_family}"))
                         ->default(fn () => auth()->id())
-                        ->dehydrated(),
+                        ->searchable()
+                        ->required(),
                     Forms\Components\Select::make('resolving_professional_id')
                         ->label('Prof. Resuelve')
                         ->placeholder('Seleccione profesional')

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('sigte_external_waitlist_runs', function (Blueprint $table) {
-            //
+            $table->json('data')->nullable()->after('run');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('sigte_external_waitlist_runs', function (Blueprint $table) {
-            //
+            $table->dropColumn('data');
         });
     }
 };

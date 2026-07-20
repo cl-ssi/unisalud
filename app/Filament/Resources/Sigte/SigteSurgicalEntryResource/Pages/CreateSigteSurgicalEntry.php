@@ -3,14 +3,21 @@
 namespace App\Filament\Resources\Sigte\SigteSurgicalEntryResource\Pages;
 
 use App\Enums\Sex;
+use App\Enums\SurgicalComplexity;
 use App\Filament\Pages\Sigte\SigteBaseDeDatos;
 use App\Filament\Resources\Sigte\SigteSurgicalEntryResource;
 use App\Models\Address;
+use App\Models\Commune;
 use App\Models\ContactPoint;
+use App\Models\HealthcareType;
 use App\Models\Identifier;
+use App\Models\Organization;
+use App\Models\Region;
+use App\Models\SigteSurgicalProcedureCode;
 use App\Models\SigteSurgicalWaitlist;
 use App\Models\User;
 use App\Models\WaitlistEntryType;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -85,26 +92,152 @@ class CreateSigteSurgicalEntry extends CreateRecord
         $phoneMobile = $user ? ContactPoint::where('user_id', $user->id)->where('system', 'phone')->where('use', 'mobile')->first()?->value : null;
         $email       = $user ? ContactPoint::where('user_id', $user->id)->where('system', 'email')->where('use', 'work')->first()?->value : null;
 
-        $this->form->fill([
-            'rut'            => $rut,
-            'run'            => $identifier?->value ?? $rut,
-            'dv'             => $identifier?->dv,
-            'given'          => $user?->given,
-            'fathers_family' => $user?->fathers_family,
-            'mothers_family' => $user?->mothers_family,
-            'birthday'       => $user?->birthday?->format('Y-m-d'),
-            'sex'            => $user?->sex?->value,
-            'entry_date'     => now()->format('Y-m-d'),
-            'address_city'   => $address?->city,
-            'is_rural'       => (bool) ($address?->is_rural),
-            'via'            => $address?->via,
-            'address_street' => $address?->text,
-            'address_number' => $address?->line,
-            'address_extra'  => $address?->suburb,
-            'phone_home'     => $phoneHome,
-            'phone_mobile'   => $phoneMobile,
-            'email'          => $email,
-        ]);
+        // When the RUN matches the uploaded "LE Quirúrgica" file, use that row
+        // to pre-fill everything the form can use; data already on file for
+        // this user (address, contact info, identity — e.g. from a prior "LE
+        // CNE" upload) takes precedence.
+        $leqxRow = $this->leqxDuplicate ? SigteBaseDeDatos::getLeqxRowData($rut) : null;
+
+        $fillData = array_merge(
+            $leqxRow ? $this->leqxFillData($leqxRow) : [],
+            [
+                'rut'            => $rut,
+                'run'            => $identifier?->value ?? $rut,
+            ],
+            array_filter([
+                'dv'             => $identifier?->dv,
+                'given'          => $user?->given,
+                'fathers_family' => $user?->fathers_family,
+                'mothers_family' => $user?->mothers_family,
+                'birthday'       => $user?->birthday?->format('Y-m-d'),
+                'sex'            => $user?->sex?->value,
+                'address_city'   => $address?->city,
+                'is_rural'       => $address ? (bool) $address->is_rural : null,
+                'via'            => $address?->via,
+                'address_street' => $address?->text,
+                'address_number' => $address?->line,
+                'address_extra'  => $address?->suburb,
+                'phone_home'     => $phoneHome,
+                'phone_mobile'   => $phoneMobile,
+                'email'          => $email,
+            ], fn ($v) => $v !== null)
+        );
+
+        // Default to today only when the LE Quirúrgica row didn't supply
+        // F_ENTRADA — otherwise that's the value "Fecha Entrada LE QX" should show.
+        $fillData['entry_date'] ??= now()->format('Y-m-d');
+
+        $this->form->fill($fillData);
+    }
+
+    private function leqxFillData(array $row): array
+    {
+        $val = fn (string $key) => trim((string) ($row[$key] ?? ''));
+
+        $sexMap = ['1' => 'male', '2' => 'female', '3' => 'other', '9' => 'unknown'];
+        $viaMap = ['1' => 'calle', '2' => 'pasaje', '3' => 'avenida', '4' => 'otro'];
+        $complexityMap = [
+            'cirugia mayor' => SurgicalComplexity::CirugiaMayor->value,
+            'cirugia menor' => SurgicalComplexity::CirugiaMenor->value,
+            'procedimiento' => SurgicalComplexity::Procedimiento->value,
+        ];
+        $normalize = fn (string $v) => strtr(strtolower($v), ['á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u']);
+
+        $parseDate = function (string $value): ?string {
+            if ($value === '') {
+                return null;
+            }
+
+            try {
+                // The export stores dates as US-style m/d/Y, e.g. "1/25/2004".
+                return Carbon::createFromFormat('n/j/Y', $value)->format('Y-m-d');
+            } catch (\Exception) {
+                return null;
+            }
+        };
+
+        $procedureCode = $val('PRESTA_MIN') !== ''
+            ? SigteSurgicalProcedureCode::whereRaw('LOWER(code) = ?', [strtolower($val('PRESTA_MIN'))])->first()
+            : null;
+
+        $healthcareType = $val('PREVISION') !== ''
+            ? HealthcareType::whereRaw('LOWER(code) = ?', [strtolower($val('PREVISION'))])->first()
+            : null;
+
+        $originEstablishment = $this->findLeqxOrganization($val('ESTAB_ORIG'));
+        $destinyEstablishment = $this->findLeqxOrganization($val('ESTAB_DEST'));
+
+        // The export's REGION code is the MINSAL region number (1 = Tarapacá,
+        // 2 = Antofagasta, ...), which matches this table's primary key order;
+        // id_minsal isn't populated, so match against id directly.
+        $region = ctype_digit($val('REGION')) ? Region::find((int) $val('REGION')) : null;
+
+        $commune = $val('COMUNA') !== ''
+            ? Commune::whereRaw('LOWER(code_deis) = ?', [strtolower($val('COMUNA'))])
+                ->orWhereRaw('LOWER(name) = ?', [strtolower($val('COMUNA'))])
+                ->first()
+            : null;
+
+        $findProfessional = function (string $run): ?User {
+            $run = preg_replace('/[^0-9]/', '', $run);
+
+            return $run
+                ? User::whereHas(
+                    'identifiers',
+                    fn ($q) => $q->where('value', $run)->where('cod_con_identifier_type_id', 1)
+                )->first()
+                : null;
+        };
+
+        $requestingProfessional = $findProfessional($val('RUN_PROF_SOL'));
+        $resolvingProfessional = $findProfessional($val('RUN_PROF_RESOL'));
+
+        return array_filter([
+            'dv'                               => $val('DV') ?: null,
+            'given'                            => $val('NOMBRES') ?: null,
+            'fathers_family'                   => $val('PRIMER_APELLIDO') ?: null,
+            'mothers_family'                   => $val('SEGUNDO_APELLIDO') ?: null,
+            'birthday'                         => $parseDate($val('FECHA_NAC')),
+            'sex'                              => $sexMap[$val('SEXO')] ?? null,
+            'health_service_id'                => $val('SERV_SALUD') ?: null,
+            'healthcare_type_id'               => $healthcareType?->id,
+            'complexity'                       => $complexityMap[$normalize($val('Tipo de IQ'))] ?? null,
+            'sigte_surgical_procedure_code_id' => $procedureCode?->id,
+            'plano'                            => $val('PLANO') ?: null,
+            'extremity'                        => $val('EXTREMIDAD') ?: null,
+            'entry_date'                       => $parseDate($val('F_ENTRADA')),
+            'origin_establishment_id'          => $originEstablishment?->id,
+            'destiny_establishment_id'         => $destinyEstablishment?->id,
+            'referring_specialty'              => $val('E_OTOR_AT') ?: null,
+            'suspected_diagnosis'              => $val('SOSPECHA_DIAG') ?: null,
+            'confirmed_diagnosis'              => $val('CONFIR_DIAG') ?: null,
+            'prais'                            => $val('PRAIS') === '2',
+            'region_id'                        => $region?->id,
+            'commune_id'                       => $commune?->id,
+            'address_city'                     => $val('CIUDAD') ?: null,
+            'is_rural'                         => $val('COND_RURALIDAD') === '2',
+            'via'                              => $viaMap[$val('VIA_DIRECCION')] ?? null,
+            'address_street'                   => $val('NOM_CALLE') ?: null,
+            'address_number'                   => $val('NUM_DIRECCION') ?: null,
+            'address_extra'                    => $val('RESTO_DIRECCION') ?: null,
+            'phone_home'                       => $val('FONO_FIJO') ?: null,
+            'phone_mobile'                     => $val('FONO_MOVIL') ?: null,
+            'email'                            => $val('EMAIL') ?: null,
+            'requesting_professional_id'       => $requestingProfessional?->id,
+            'resolving_professional_id'        => $resolvingProfessional?->id,
+            'sigte_id'                         => $val('SIGTE_ID') ?: null,
+        ], fn ($v) => $v !== null);
+    }
+
+    private function findLeqxOrganization(string $code): ?Organization
+    {
+        if ($code === '') {
+            return null;
+        }
+
+        return Organization::whereRaw('LOWER(code_deis) = ?', [strtolower($code)])
+            ->orWhereRaw('LOWER(alias) = ?', [strtolower($code)])
+            ->first();
     }
 
     public function form(Form $form): Form
