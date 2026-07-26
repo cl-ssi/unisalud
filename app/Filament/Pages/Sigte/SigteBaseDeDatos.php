@@ -13,7 +13,6 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Illuminate\Support\Facades\Storage;
 
 class SigteBaseDeDatos extends Page
 {
@@ -33,7 +32,7 @@ class SigteBaseDeDatos extends Page
     {
         return [
             'lecneMeta'  => $this->getMeta('lecne'),
-            'leqxMeta'   => static::getLeqxUploadMeta(),
+            'leqxMeta'   => $this->getMeta('leqx'),
             'lastExport' => $this->getLastExportInfo(),
         ];
     }
@@ -109,22 +108,26 @@ class SigteBaseDeDatos extends Page
 
     private function dispatchLeCneImport(string $filePath): void
     {
-        ImportSigteLeCneJob::dispatch($filePath);
+        app(SigteImportService::class)->markProcessing('lecne', basename($filePath));
+
+        ImportSigteLeCneJob::dispatch($filePath, auth()->id());
 
         Notification::make()
             ->title('Archivo recibido')
-            ->body('Se está procesando en segundo plano. Actualice esta página en unos minutos para ver el resultado.')
+            ->body('Se está procesando en segundo plano — esta página se actualizará sola cuando termine.')
             ->success()
             ->send();
     }
 
     private function dispatchLeQxImport(string $filePath): void
     {
+        app(SigteImportService::class)->markProcessing('leqx', basename($filePath));
+
         ImportSigteLeQxJob::dispatch($filePath, auth()->id());
 
         Notification::make()
             ->title('Archivo recibido')
-            ->body('Se está procesando en segundo plano. Actualice esta página en unos minutos para ver el resultado.')
+            ->body('Se está procesando en segundo plano — esta página se actualizará sola cuando termine.')
             ->success()
             ->send();
     }

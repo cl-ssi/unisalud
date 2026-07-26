@@ -1,4 +1,4 @@
-<x-filament-panels::page>
+<x-filament-panels::page wire:poll.5s>
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
 
         {{-- LE CNE --}}
@@ -7,7 +7,11 @@
                 <div class="flex items-center gap-2">
                     <x-filament::icon icon="heroicon-o-users" class="h-5 w-5 text-primary-500" />
                     <span>Base de Datos LE CNE</span>
-                    @if(!empty($lecneMeta))
+                    @if(($lecneMeta['estado'] ?? null) === 'procesando')
+                        <x-filament::badge color="info" size="sm">Procesando…</x-filament::badge>
+                    @elseif(($lecneMeta['estado'] ?? null) === 'error')
+                        <x-filament::badge color="danger" size="sm">Error</x-filament::badge>
+                    @elseif(!empty($lecneMeta))
                         <x-filament::badge color="success" size="sm">Cargada</x-filament::badge>
                     @else
                         <x-filament::badge color="warning" size="sm">Sin cargar</x-filament::badge>
@@ -16,7 +20,19 @@
             </x-slot>
             <x-slot name="description">Lista de Espera Consulta Nueva — utilizada para autocompletar datos del paciente al ingresar</x-slot>
 
-            @if(empty($lecneMeta))
+            @if(($lecneMeta['estado'] ?? null) === 'procesando')
+                <div class="mb-4 flex items-center gap-3 rounded-lg bg-info-50 p-4 text-info-700 dark:bg-info-400/10 dark:text-info-400">
+                    <x-filament::loading-indicator class="h-5 w-5 flex-shrink-0" />
+                    <p class="text-sm">Procesando <span class="font-mono">{{ $lecneMeta['archivo'] ?? '' }}</span> (iniciado {{ $lecneMeta['fecha_inicio'] ?? '' }}). Esta página se actualiza sola.</p>
+                </div>
+            @elseif(($lecneMeta['estado'] ?? null) === 'error')
+                <div class="mb-4 flex items-center gap-3 rounded-lg bg-danger-50 p-4 text-danger-700 dark:bg-danger-400/10 dark:text-danger-400">
+                    <x-filament::icon icon="heroicon-o-x-circle" class="h-5 w-5 flex-shrink-0" />
+                    <p class="text-sm">La última carga ({{ $lecneMeta['fecha_error'] ?? '' }}) falló: {{ $lecneMeta['mensaje'] ?? 'error desconocido' }}</p>
+                </div>
+            @endif
+
+            @if(empty($lecneMeta) || (($lecneMeta['estado'] ?? null) === 'procesando' && !isset($lecneMeta['total'])))
                 <div class="flex items-center gap-3 rounded-lg bg-warning-50 p-4 text-warning-700 dark:bg-warning-400/10 dark:text-warning-400">
                     <x-filament::icon icon="heroicon-o-exclamation-triangle" class="h-5 w-5 flex-shrink-0" />
                     <p class="text-sm">La base de datos LE CNE no ha sido cargada. Utilice el botón <strong>Cargar LE CNE</strong> para importar el archivo.</p>
@@ -56,7 +72,11 @@
                 <div class="flex items-center gap-2">
                     <x-filament::icon icon="heroicon-o-clipboard-document-list" class="h-5 w-5 text-gray-500" />
                     <span>Base de Datos LE Quirúrgica</span>
-                    @if(!empty($leqxMeta))
+                    @if(($leqxMeta['estado'] ?? null) === 'procesando')
+                        <x-filament::badge color="info" size="sm">Procesando…</x-filament::badge>
+                    @elseif(($leqxMeta['estado'] ?? null) === 'error')
+                        <x-filament::badge color="danger" size="sm">Error</x-filament::badge>
+                    @elseif(!empty($leqxMeta))
                         <x-filament::badge color="success" size="sm">Cargada</x-filament::badge>
                     @else
                         <x-filament::badge color="warning" size="sm">Sin cargar</x-filament::badge>
@@ -65,7 +85,19 @@
             </x-slot>
             <x-slot name="description">Utilizada para detección de duplicados entre especialidades al momento de ingresar un paciente</x-slot>
 
-            @if(empty($leqxMeta))
+            @if(($leqxMeta['estado'] ?? null) === 'procesando')
+                <div class="mb-4 flex items-center gap-3 rounded-lg bg-info-50 p-4 text-info-700 dark:bg-info-400/10 dark:text-info-400">
+                    <x-filament::loading-indicator class="h-5 w-5 flex-shrink-0" />
+                    <p class="text-sm">Procesando <span class="font-mono">{{ $leqxMeta['archivo'] ?? '' }}</span> (iniciado {{ $leqxMeta['fecha_inicio'] ?? '' }}). Esta página se actualiza sola.</p>
+                </div>
+            @elseif(($leqxMeta['estado'] ?? null) === 'error')
+                <div class="mb-4 flex items-center gap-3 rounded-lg bg-danger-50 p-4 text-danger-700 dark:bg-danger-400/10 dark:text-danger-400">
+                    <x-filament::icon icon="heroicon-o-x-circle" class="h-5 w-5 flex-shrink-0" />
+                    <p class="text-sm">La última carga ({{ $leqxMeta['fecha_error'] ?? '' }}) falló: {{ $leqxMeta['mensaje'] ?? 'error desconocido' }}</p>
+                </div>
+            @endif
+
+            @if(empty($leqxMeta) || (($leqxMeta['estado'] ?? null) === 'procesando' && !isset($leqxMeta['total'])))
                 <div class="flex items-center gap-3 rounded-lg bg-warning-50 p-4 text-warning-700 dark:bg-warning-400/10 dark:text-warning-400">
                     <x-filament::icon icon="heroicon-o-exclamation-triangle" class="h-5 w-5 flex-shrink-0" />
                     <p class="text-sm">La base de datos LE Quirúrgica no ha sido cargada. Utilice el botón <strong>Cargar LE Quirúrgica</strong> para importar el archivo.</p>

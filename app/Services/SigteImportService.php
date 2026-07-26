@@ -38,11 +38,16 @@ class SigteImportService
             if ($contents !== false && ! mb_check_encoding($contents, 'UTF-8')) {
                 $reader->setInputEncoding('Windows-1252');
             }
-
-            $spreadsheet = $reader->load($fullPath);
         } else {
-            $spreadsheet = IOFactory::load($fullPath);
+            $reader = IOFactory::createReaderForFile($fullPath);
         }
+
+        // We only read raw cell values into an array below — skip loading
+        // styles/formatting/rich text, which is what makes large .xlsx
+        // uploads (thousands of rows) blow past the PHP memory limit.
+        $reader->setReadDataOnly(true);
+
+        $spreadsheet = $reader->load($fullPath);
 
         return $spreadsheet->getActiveSheet()->toArray(null, true, true, false);
     }
@@ -83,6 +88,7 @@ class SigteImportService
         $total = $nuevos + $actualizados;
 
         $this->saveMeta('lecne', [
+            'estado'       => 'listo',
             'total'        => $total,
             'nuevos'       => $nuevos,
             'actualizados' => $actualizados,
@@ -145,6 +151,13 @@ class SigteImportService
                 ], array_keys($chunk), $chunk));
             }
         });
+
+        $this->saveMeta('leqx', [
+            'estado'  => 'listo',
+            'total'   => $total,
+            'fecha'   => now()->format('d-m-Y H:i'),
+            'archivo' => basename($filePath),
+        ]);
 
         return compact('total');
     }
@@ -245,6 +258,33 @@ class SigteImportService
         }
 
         return [$isNew, $user];
+    }
+
+    /**
+     * Marks $key as currently being imported, keeping the previous run's
+     * totals in place so the page can still show them alongside the
+     * "processing" banner until the new run finishes (or fails).
+     */
+    public function markProcessing(string $key, string $filename): void
+    {
+        $this->saveMeta($key, array_merge($this->readMeta($key), [
+            'estado'       => 'procesando',
+            'archivo'      => $filename,
+            'fecha_inicio' => now()->format('d-m-Y H:i'),
+        ]));
+    }
+
+    /**
+     * Marks $key's most recent import attempt as failed, without discarding
+     * the last successful run's totals.
+     */
+    public function markFailed(string $key, string $message): void
+    {
+        $this->saveMeta($key, array_merge($this->readMeta($key), [
+            'estado'      => 'error',
+            'mensaje'     => $message,
+            'fecha_error' => now()->format('d-m-Y H:i'),
+        ]));
     }
 
     public function saveMeta(string $key, array $data): void
