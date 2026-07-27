@@ -26,6 +26,7 @@ use App\Models\Organization;
 use DateTime;
 use Carbon\Carbon;
 use Filament\Forms\Get;
+use Illuminate\Support\Facades\Log;
 
 class CreateDependentUser extends CreateRecord
 {
@@ -64,6 +65,7 @@ class CreateDependentUser extends CreateRecord
                         Forms\Components\DatePicker::make('fecha_nacimiento')
                             ->label('Fecha de Nacimiento')
                             ->required()
+                            ->date()
                             ->columnSpan(1),
                         Forms\Components\Select::make('sexo')
                             ->label('Sexo')
@@ -444,15 +446,16 @@ class CreateDependentUser extends CreateRecord
         foreach ($data as $name => $value) {
             $input[$name] = $value ?? null;
         }
-        if (isset($row['run']) && isset($row['dv'])) {
+        if (isset($input['run']) && isset($input['dv'])) {
             // Upsert an User, Address, ContactPoint, for Upsert a DependentUser and Attach Conditions
-            $dependentUser = $this->getDependentUser($row);
-            if (isset($row['run_cuidador']) && isset($row['dv_cuidador'])) {
+            $dependentUser = $this->getDependentUser($input);
+            if (isset($input['run_cuidador']) && isset($input['dv_cuidador'])) {
                 // Upsert an User, Address, ContactPoint, for Upsert a DependentCaregiver        
-                $this->getCaregiver($row, $dependentUser);
+                $this->getCaregiver($input, $dependentUser);
             }
             return $dependentUser;
         } else {
+            Log::error('Mising patient run and/or dv data');
             $this->halt();
         }
     }
@@ -474,14 +477,11 @@ class CreateDependentUser extends CreateRecord
         // $fecha_nacimiento = $fecha_nacimiento?date('Y-m-d', Carbon::createFromFormat('d/m/Y', $fecha_nacimiento)->getTimestamp()):null;
         // $fecha_nacimiento = $fecha_nacimiento ? Date::excelToDateTimeObject($fecha_nacimiento)->format($this->date_format) : null;
 
-
         // Check if user exists
         $user = User::whereHas('identifiers', function ($query) use ($run) {
             $query->where('value', $run)
                 ->where('cod_con_identifier_type_id', 1);
         })->first();
-
-        self::$skippedCount = $user?->id ? true : false;
 
         // Obtain possible values
         $sex = Sex::where('text', $sexo)->first()?->value;
@@ -634,11 +634,6 @@ class CreateDependentUser extends CreateRecord
     public function getDependentUser($row)
     {
         $user = $this->getUser($row);
-        if (self::$rowNew) {
-            self::$insertedCount++;
-        } else {
-            self::$updatedCount++;
-        }
         // Create or update DependentUser
         $dependentUser = DependentUser::updateOrCreate(
             [
@@ -739,10 +734,7 @@ class CreateDependentUser extends CreateRecord
                 if (is_null($value)) {
                     return null;
                 }
-                $value = intval(trim($value));
-                // $date = DateTime::createFromFormat('d/m/Y', $value)->format($this->date_format);
-                $date = Date::excelToDateTimeObject($value)->format($this->date_format);
-
+                $date = Carbon::createFromFormat('Y-m-d', $value)->format($this->date_format);
                 return $date ?? null;
 
             case 'barthel':

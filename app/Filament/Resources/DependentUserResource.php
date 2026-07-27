@@ -46,6 +46,9 @@ class DependentUserResource extends Resource
                 Forms\Components\Fieldset::make('Usuario Dependiente')
                     ->relationship('User')
                     ->schema([
+                        Forms\Components\TextInput::make('active')
+                            ->hidden()
+                            ->default(1),
                         Forms\Components\TextInput::make('text')
                             ->label('Nombre')
                             ->disabled(),
@@ -125,7 +128,7 @@ class DependentUserResource extends Resource
                                                     $numero = $get('../line');
                                                     $communeId = $get('../commune');
 
-                                                    if (! $calle || ! $numero || ! $communeId) {
+                                                    if (!$calle || !$numero || !$communeId) {
                                                         Notification::make()
                                                             ->title('Datos incompletos')
                                                             ->body('Debes ingresar calle, número y seleccionar la ciudad.')
@@ -138,13 +141,13 @@ class DependentUserResource extends Resource
                                                     try {
                                                         $nombreComuna = \App\Models\Commune::find($communeId)?->name;
 
-                                                        if (! $nombreComuna) {
+                                                        if (!$nombreComuna) {
                                                             throw new \Exception('Comuna no encontrada');
                                                         }
                                                         $geocodingService = app(GeocodingService::class);
-                                                        $queryString = $calle.'+'.$numero.'+'.$nombreComuna;
+                                                        $queryString = $calle . '+' . $numero . '+' . $nombreComuna;
                                                         $coordinates = $geocodingService->getCoordinates($queryString);
-                                                        if (! empty($coordinates['lat']) && ! empty($coordinates['lng'])) {
+                                                        if (!empty($coordinates['lat']) && !empty($coordinates['lng'])) {
                                                             $set('location', [
                                                                 'lat' => (float) $coordinates['lat'],
                                                                 'lng' => (float) $coordinates['lng'],
@@ -164,7 +167,7 @@ class DependentUserResource extends Resource
                                                     } catch (\Exception $e) {
                                                         Notification::make()
                                                             ->title('Error')
-                                                            ->body('Error al geocodificar: '.$e->getMessage())
+                                                            ->body('Error al geocodificar: ' . $e->getMessage())
                                                             ->danger()
                                                             ->send();
                                                     }
@@ -200,7 +203,7 @@ class DependentUserResource extends Resource
                 Forms\Components\TextInput::make('integral_visits')
                     ->label('Vistas Integrales')
                     ->numeric()
-                    ->extraAttributes(fn (Model $record) => ($record->integral_visits == null) ? ['class' => 'bg-danger-300 dark:bg-danger-600'] : []),
+                    ->extraAttributes(fn(Model $record) => ($record->integral_visits == null) ? ['class' => 'bg-danger-300 dark:bg-danger-600'] : []),
                 Forms\Components\DatePicker::make('last_integral_visit')
                     ->label('Última Visita Integral'),
                 Forms\Components\TextInput::make('treatment_visits')
@@ -271,7 +274,7 @@ class DependentUserResource extends Resource
                 $user = auth()->user();
                 if ($user->hasRole('geopadds_user')) {
                     if ($user->exists('organizations')) {
-                        $query->whereHas('user', fn ($query) => $query->whereHas('mobileContactPoint', fn ($query) => $query->whereIn('organization_id', $user->organizations->pluck('id')->toArray())));
+                        $query->whereHas('user', fn($query) => $query->whereHas('mobileContactPoint', fn($query) => $query->whereIn('organization_id', $user->organizations->pluck('id')->toArray())));
                     } else {
                         $query->whereNull('id');
                     }
@@ -321,7 +324,7 @@ class DependentUserResource extends Resource
                     ->label('Nacionalidad'),
                 Tables\Columns\TextColumn::make('diagnosis')
                     ->label('Diagnostico')
-                    ->getStateUsing(fn ($record) => str_replace(['/', ',', '-'], ' / ', $record->diagnosis ?? ''))
+                    ->getStateUsing(fn($record) => str_replace(['/', ',', '-'], ' / ', $record->diagnosis ?? ''))
                     ->bulleted()
                     ->separator('/')
                     ->limitList(3)
@@ -371,7 +374,7 @@ class DependentUserResource extends Resource
                     ->label('Última Visita Integral')
                     ->date('d/m/Y')
                     ->sortable()
-                    ->color(fn (string $state): string => $state ? (Carbon::parse($state)->diffInYears(Carbon::now()) >= 1 ? 'danger' : 'primary') : 'primary')
+                    ->color(fn(string $state): string => $state ? (Carbon::parse($state)->diffInYears(Carbon::now()) >= 1 ? 'danger' : 'primary') : 'primary')
                     ->badge(),
                 Tables\Columns\TextColumn::make('treatment_visits')
                     ->label('Visitas de Tratamiento')
@@ -381,13 +384,13 @@ class DependentUserResource extends Resource
                     ->label('Última Visita de Tratamiento')
                     ->date('d/m/Y')
                     ->sortable()
-                    ->color(fn (string $state): string => $state ? (Carbon::parse($state)->diffInYears(Carbon::now()) >= 1 ? 'danger' : 'primary') : 'primary')
+                    ->color(fn(string $state): string => $state ? (Carbon::parse($state)->diffInYears(Carbon::now()) >= 1 ? 'danger' : 'primary') : 'primary')
                     ->badge(),
                 Tables\Columns\TextColumn::make('risks')
                     ->label('Zonas de Riesgo')
                     ->badge()
                     ->separator(',')
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'Zona de Inundacion' => 'danger',
                         'Zona de Aluvion' => 'warning',
                         default => 'primary',
@@ -396,7 +399,7 @@ class DependentUserResource extends Resource
                     ->label('Controles')
                     ->badge()
                     ->separator(',')
-                    ->color(fn (string $state): string => match (true) {
+                    ->color(fn(string $state): string => match (true) {
                         Str::contains($state, DependentUser::getLabel('barthel')) => 'fuchsia',
                         Str::contains($state, DependentUser::getLabel('empam')) => 'amber',
                         Str::contains($state, DependentUser::getLabel('eleam')) => 'sky',
@@ -526,7 +529,7 @@ class DependentUserResource extends Resource
                     ->label(new HtmlString('Controles <br /> <a class="font-medium text-gray-700">Cuidador</a> '))
                     ->badge()
                     ->separator(',')
-                    ->color(fn (string $state): string => match (true) {
+                    ->color(fn(string $state): string => match (true) {
                         Str::contains($state, DependentCaregiver::getLabel('empam')) => 'fuchsia',
                         Str::contains($state, DependentCaregiver::getLabel('zarit')) => 'amber',
                         Str::contains($state, DependentCaregiver::getLabel('elaborated_plan')) => 'sky',
@@ -569,7 +572,7 @@ class DependentUserResource extends Resource
                                     // ->columnSpanFull()
                                     ->label('Condición')
                                     ->preload()
-                                    ->hidden(fn (Forms\Get $get) => $get('tipo') == null)
+                                    ->hidden(fn(Forms\Get $get) => $get('tipo') == null)
                                     ->default(Request::query('conditions')),
                                 // ->getOptionLabelFromRecordUsing(fn(Model $record) => is_null($record->parent_id) ? Str::ucwords($record->name) : "——" . Str::ucwords($record->name))
                             ]),
@@ -582,10 +585,10 @@ class DependentUserResource extends Resource
                                 $data,
                                 function (Builder $query, $data) {
                                     if ($data['tipo'] == 'u' && $data['conditions']) {
-                                        $query->whereHas('conditions', fn ($q) => $q->whereIn('condition_id', $data['conditions']));
+                                        $query->whereHas('conditions', fn($q) => $q->whereIn('condition_id', $data['conditions']));
                                     } elseif ($data['tipo'] == 'v' && $data['conditions']) {
                                         foreach ($data['conditions'] as $condition_id) {
-                                            $query->whereHas('conditions', fn ($q) => $q->where('condition_id', $condition_id));
+                                            $query->whereHas('conditions', fn($q) => $q->where('condition_id', $condition_id));
                                         }
                                     } else {
 
@@ -604,7 +607,7 @@ class DependentUserResource extends Resource
                         return $query
                             ->when(
                                 $data['name'],
-                                fn (Builder $query, $name): Builder => $query->whereHas('user', fn (Builder $query): Builder => $query->where('text', 'like', '%'.$name.'%')),
+                                fn(Builder $query, $name): Builder => $query->whereHas('user', fn(Builder $query): Builder => $query->where('text', 'like', '%' . $name . '%')),
                             );
                     }),
 
@@ -618,7 +621,7 @@ class DependentUserResource extends Resource
                     ->multiple()
                     ->default(Request::query('risks'))
                     ->query(function ($query, $data) {
-                        if (! empty($data['values'])) {
+                        if (!empty($data['values'])) {
                             $query->whereJsonLength('risks', '>', 0);
                             foreach ($data['values'] as $risk) {
                                 $query->whereJsonContains('risks', [$risk]);
@@ -632,7 +635,7 @@ class DependentUserResource extends Resource
                     ->preload()
                     ->default(Request::query('organizations_id'))
                     ->modifyQueryUsing(function ($query, $data) {
-                        if (! empty($data['values'])) {
+                        if (!empty($data['values'])) {
                             $query->whereHas('user', function ($query) use ($data) {
                                 $query->whereHas('mobileContactPoint', function ($query) use ($data) {
                                     $query->whereHas('organization', function ($query) use ($data) {
@@ -645,11 +648,14 @@ class DependentUserResource extends Resource
                     ->options(function () {
                         return Organization::whereHas('contactPoint', function ($query) {
                             $query->whereNotNull('id');
-                        })->with(['contactPoint' => function ($query) {
-                            $query->has('user')->whereNotNull('contactPoint.id');
-                        }, 'contactPoint.user' => function ($query) {
-                            $query->has('dependentUser')->whereNotNull('contactPoint.user.id');
-                        }])->pluck('alias', 'id');
+                        })->with([
+                                    'contactPoint' => function ($query) {
+                                        $query->has('user')->whereNotNull('contactPoint.id');
+                                    },
+                                    'contactPoint.user' => function ($query) {
+                                        $query->has('dependentUser')->whereNotNull('contactPoint.user.id');
+                                    }
+                                ])->pluck('alias', 'id');
                     }),
             ], layout: Tables\Enums\FiltersLayout::AboveContent)
             ->filtersFormColumns(5)
@@ -658,7 +664,7 @@ class DependentUserResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('map')
-                    ->url(fn (Model $record): string => route('filament.admin.resources.dependent-users.map', [
+                    ->url(fn(Model $record): string => route('filament.admin.resources.dependent-users.map', [
                         'users_id' => [$record->user?->id],
                     ]))
                     ->icon('heroicon-o-map')
