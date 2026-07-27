@@ -40,7 +40,9 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('user_id')
                     ->numeric(),
                 Forms\Components\Toggle::make('active')
-                    ->required(),
+                    // ->required()
+                    ->hidden()
+                    ->default(1),
                 Forms\Components\TextInput::make('text')
                     ->label('Nombre Completo')
                     ->maxLength(255),
@@ -99,14 +101,14 @@ class UserResource extends Resource
                     ->modalHeading('Importar Condición de Usuarios')
                     // ->modalDescription('Subir archivo CSV')
                     ->modalSubmitActionLabel('Importar'),
-                    // ->options([])
+                // ->options([])
                 ImportAction::make()
                     ->importer(WaitlistImporter::class)
                     ->label('Importar Lista de Espera')
                     ->modalHeading('Importar Lista de Espera')
                     // ->modalDescription('Subir archivo CSV')
                     ->modalSubmitActionLabel('Importar')
-                    // ->options([])
+                // ->options([])
             ])
             ->columns([
                 Tables\Columns\TextColumn::make('id')
