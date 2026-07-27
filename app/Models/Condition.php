@@ -31,7 +31,7 @@ class Condition extends Model
     protected function casts(): array
     {
         return [
-            'name' => ConditionDependency::class,
+            // 'name' => ConditionDependency::class,
         ];
     }
 
@@ -78,11 +78,11 @@ class Condition extends Model
         return Condition::whereIn('id', $ids)->orderByRaw('FIELD(id, ' . implode(',', $ids) . ')');
     }
 
-    public static function orderedOptions(): Collection | array
+    public static function orderedOptions(): Collection|array
     {
         $out = [];
-        foreach(self::order()->get(['name', 'id', 'parent_id']) as $condition){
-            $out[$condition->id] =  (($condition->parent_id ? '---' : '') . $condition->name->getLabel());
+        foreach (self::order()->get(['name', 'id', 'parent_id']) as $condition) {
+            $out[$condition->id] = (($condition->parent_id ? '---' : '') . ConditionDependency::from($condition->name)->getLabel());
         }
         // return self::order()->get(['name', 'id', 'parent_id'])->map(fn($record) => [$record->id, (($record->parent_id ? '---' : '') . $record->name->getLabel())]);
         return $out;
