@@ -48,7 +48,7 @@ class DependentUserResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('active')
                             ->hidden()
-                            ->default(true),
+                            ->default(1),
                         Forms\Components\TextInput::make('text')
                             ->label('Nombre')
                             ->disabled(),
