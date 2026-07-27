@@ -11,8 +11,9 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Reader\Csv;
+use OpenSpout\Reader\CSV\Options as CsvOptions;
+use OpenSpout\Reader\CSV\Reader as CsvReader;
+use OpenSpout\Reader\XLSX\Reader as XlsxReader;
 
 /**
  * Parses and imports the SIGTE "LE CNE" / "LE Quirúrgica" spreadsheet
@@ -22,59 +23,124 @@ use PhpOffice\PhpSpreadsheet\Reader\Csv;
 class SigteImportService
 {
     /**
-     * Loads a spreadsheet's rows, supporting both .xlsx/.xls and .csv
-     * (semicolon-delimited, as commonly exported locally) uploads.
+     * Streams a spreadsheet's rows one at a time via $onRow($headers, $rowValues),
+     * supporting both .xlsx/.xls and .csv (semicolon-delimited, as commonly
+     * exported locally) uploads.
+     *
+     * We use OpenSpout rather than PhpSpreadsheet here specifically because it
+     * reads the file forward in a single pass and never materializes the whole
+     * sheet in memory — PhpSpreadsheet builds a full in-memory object graph for
+     * the entire file on load() (even with setReadDataOnly), which is what
+     * pushed a 5000-row upload past the container's memory limit.
+     *
+     * The upload lives on the "gcs" disk rather than local storage: this runs
+     * inside a queued job, in an HTTP request separate from (and potentially on
+     * a different container instance than) the one that received the upload,
+     * so the file has to be somewhere durable and shared, not on whichever
+     * instance's local disk happened to write it. Both readers need a real
+     * local path though, so we stream it down to a temp file first.
      */
-    public function loadRows(string $filePath): array
+    public function eachRow(string $filePath, callable $onRow): void
     {
-        $fullPath = Storage::disk('local')->path($filePath);
+        $isCsv = strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) === 'csv';
+        $tempPath = tempnam(sys_get_temp_dir(), 'sigte_');
 
-        if (strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) === 'csv') {
-            $reader = new Csv();
-            $reader->setDelimiter(';');
-            $reader->setEnclosure('"');
-
-            $contents = file_get_contents($fullPath);
-            if ($contents !== false && ! mb_check_encoding($contents, 'UTF-8')) {
-                $reader->setInputEncoding('Windows-1252');
+        try {
+            $stream = Storage::disk('gcs')->readStream($filePath);
+            file_put_contents($tempPath, $stream);
+            if (is_resource($stream)) {
+                fclose($stream);
             }
-        } else {
-            $reader = IOFactory::createReaderForFile($fullPath);
+
+            $reader = $isCsv ? new CsvReader($this->csvOptions($tempPath)) : new XlsxReader();
+            $reader->open($tempPath);
+
+            $headers = null;
+
+            foreach ($reader->getSheetIterator() as $sheet) {
+                foreach ($sheet->getRowIterator() as $row) {
+                    $values = array_map($this->normalizeCellValue(...), $row->toArray());
+
+                    if ($headers === null) {
+                        $headers = array_map('trim', $values);
+
+                        continue;
+                    }
+
+                    $onRow($headers, $values);
+                }
+
+                break; // SIGTE uploads only ever have one relevant sheet.
+            }
+
+            $reader->close();
+        } finally {
+            @unlink($tempPath);
+        }
+    }
+
+    /**
+     * The export is usually semicolon-delimited and sometimes Windows-1252
+     * encoded (as commonly produced by local exports); sniff a small prefix
+     * of the file rather than reading it all just to detect the encoding.
+     */
+    private function csvOptions(string $tempPath): CsvOptions
+    {
+        $options = new CsvOptions();
+        $options->FIELD_DELIMITER = ';';
+        $options->FIELD_ENCLOSURE = '"';
+
+        $handle = fopen($tempPath, 'r');
+        $sample = $handle !== false ? fread($handle, 65536) : '';
+        if ($handle !== false) {
+            fclose($handle);
         }
 
-        // We only read raw cell values into an array below — skip loading
-        // styles/formatting/rich text, which is what makes large .xlsx
-        // uploads (thousands of rows) blow past the PHP memory limit.
-        $reader->setReadDataOnly(true);
+        if ($sample !== '' && $sample !== false && ! mb_check_encoding($sample, 'UTF-8')) {
+            $options->ENCODING = 'Windows-1252';
+        }
 
-        $spreadsheet = $reader->load($fullPath);
+        return $options;
+    }
 
-        return $spreadsheet->getActiveSheet()->toArray(null, true, true, false);
+    private function normalizeCellValue(mixed $value): string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            // The export stores dates as US-style m/d/Y text (e.g. "1/25/2004");
+            // match that format in the rare case a cell is a native date type.
+            return $value->format('n/j/Y');
+        }
+
+        return trim((string) ($value ?? ''));
+    }
+
+    /**
+     * Pads/truncates a row to exactly match the header count. XLSX rows are
+     * always already this width, but a short CSV line (fewer trailing fields
+     * than the header row) is common in these exports and should still be
+     * imported with the missing fields blank, not dropped entirely.
+     */
+    private function alignRowToHeaders(array $rowData, array $headers): array
+    {
+        return array_slice(array_pad($rowData, count($headers), ''), 0, count($headers));
     }
 
     public function processLeCne(string $filePath): array
     {
-        $rows = $this->loadRows($filePath);
-
-        if (empty($rows)) {
-            return ['empty' => true];
-        }
-
-        $headers = array_map('trim', array_shift($rows));
         $nuevos = $actualizados = $errores = 0;
+        $sawDataRow = false;
 
-        foreach ($rows as $rowData) {
-            if (! array_filter($rowData, fn ($v) => $v !== null && $v !== '')) {
-                continue;
-            }
-            if (count($rowData) < count($headers)) {
-                continue;
+        $this->eachRow($filePath, function (array $headers, array $rowData) use (&$nuevos, &$actualizados, &$errores, &$sawDataRow) {
+            $sawDataRow = true;
+
+            if (! array_filter($rowData, fn ($v) => $v !== '')) {
+                return;
             }
 
-            $data = array_combine($headers, array_map(fn ($v) => trim((string) ($v ?? '')), $rowData));
+            $data = array_combine($headers, $this->alignRowToHeaders($rowData, $headers));
             $run = preg_replace('/[^0-9]/', '', $data['RUN'] ?? '');
             if (! $run) {
-                continue;
+                return;
             }
 
             try {
@@ -83,6 +149,10 @@ class SigteImportService
             } catch (\Exception) {
                 $errores++;
             }
+        });
+
+        if (! $sawDataRow) {
+            return ['empty' => true];
         }
 
         $total = $nuevos + $actualizados;
@@ -102,29 +172,26 @@ class SigteImportService
 
     public function processLeQx(string $filePath, ?int $uploadedBy): array
     {
-        $rows = $this->loadRows($filePath);
-
-        if (empty($rows)) {
-            return ['empty' => true];
-        }
-
-        $headers = array_map('trim', array_shift($rows));
         $records = [];
+        $sawDataRow = false;
 
-        foreach ($rows as $rowData) {
-            if (! array_filter($rowData, fn ($v) => $v !== null && $v !== '')) {
-                continue;
-            }
-            if (count($rowData) < count($headers)) {
-                continue;
+        $this->eachRow($filePath, function (array $headers, array $rowData) use (&$records, &$sawDataRow) {
+            $sawDataRow = true;
+
+            if (! array_filter($rowData, fn ($v) => $v !== '')) {
+                return;
             }
 
-            $data = array_combine($headers, array_map(fn ($v) => trim((string) ($v ?? '')), $rowData));
+            $data = array_combine($headers, $this->alignRowToHeaders($rowData, $headers));
             $run = preg_replace('/[^0-9]/', '', $data['RUN'] ?? '');
             if ($run) {
                 // Later rows for the same RUN overwrite earlier ones.
                 $records[$run] = $data;
             }
+        });
+
+        if (! $sawDataRow) {
+            return ['empty' => true];
         }
 
         $total = count($records);

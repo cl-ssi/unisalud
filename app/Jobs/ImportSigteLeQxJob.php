@@ -38,7 +38,7 @@ class ImportSigteLeQxJob implements ShouldQueue
                     ->title('Carga LE Quirúrgica completada')
                     ->body("{$stats['total']} registros cargados"));
         } finally {
-            Storage::disk('local')->delete($this->filePath);
+            Storage::disk('gcs')->delete($this->filePath);
         }
     }
 
@@ -55,7 +55,7 @@ class ImportSigteLeQxJob implements ShouldQueue
 
         Log::error('LE Quirúrgica import failed', ['file' => $this->filePath, 'exception' => $e]);
 
-        Storage::disk('local')->delete($this->filePath);
+        Storage::disk('gcs')->delete($this->filePath);
     }
 
     private function notifyUploader(\Closure $makeNotification): void
