@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Exports\SigteDuplicatesExport;
 use App\Models\Address;
 use App\Models\ContactPoint;
 use App\Models\Identifier;
@@ -12,10 +11,12 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Maatwebsite\Excel\Facades\Excel;
+use OpenSpout\Common\Entity\Row;
+use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Reader\CSV\Options as CsvOptions;
 use OpenSpout\Reader\CSV\Reader as CsvReader;
 use OpenSpout\Reader\XLSX\Reader as XlsxReader;
+use OpenSpout\Writer\XLSX\Writer as XlsxWriter;
 
 /**
  * Parses and imports the SIGTE "LE CNE" / "LE Quirúrgica" spreadsheet
@@ -24,6 +25,18 @@ use OpenSpout\Reader\XLSX\Reader as XlsxReader;
  */
 class SigteImportService
 {
+    /**
+     * Disk used to stage SIGTE uploads between the web request that receives
+     * them and the queued job that processes them. Falls back to the local
+     * disk in local development, where GCS credentials generally aren't
+     * configured, so uploads don't silently fail writing to storage they
+     * can't reach.
+     */
+    public static function uploadsDisk(): string
+    {
+        return app()->environment('local') ? 'local' : 'gcs';
+    }
+
     /**
      * Streams a spreadsheet's rows one at a time via $onRow($headers, $rowValues),
      * supporting both .xlsx/.xls and .csv (semicolon-delimited, as commonly
@@ -48,7 +61,7 @@ class SigteImportService
         $tempPath = tempnam(sys_get_temp_dir(), 'sigte_');
 
         try {
-            $stream = Storage::disk('gcs')->readStream($filePath);
+            $stream = Storage::disk(self::uploadsDisk())->readStream($filePath);
             file_put_contents($tempPath, $stream);
             if (is_resource($stream)) {
                 fclose($stream);
@@ -181,7 +194,10 @@ class SigteImportService
 
         $total = $nuevos + $actualizados;
 
-        $dup = $this->saveDuplicatesFile('lecne', $fileHeaders, $inFileDuplicates, $preExisting);
+        $this->saveDuplicatesFile('lecne', [
+            ['title' => 'Duplicados en archivo', 'headers' => $fileHeaders, 'rows' => $inFileDuplicates],
+            ['title' => 'Ya existian antes', 'headers' => $fileHeaders, 'rows' => $preExisting],
+        ]);
 
         $this->saveMeta('lecne', [
             'estado'             => 'listo',
@@ -189,8 +205,8 @@ class SigteImportService
             'nuevos'             => $nuevos,
             'actualizados'       => $actualizados,
             'errores'            => $errores,
-            'duplicados_archivo' => $dup['duplicados_archivo'],
-            'duplicados_previos' => $dup['duplicados_previos'],
+            'duplicados_archivo' => count($inFileDuplicates),
+            'duplicados_previos' => count($preExisting),
             'fecha'              => now()->format('d-m-Y H:i'),
             'archivo'            => basename($filePath),
         ]);
@@ -204,9 +220,8 @@ class SigteImportService
         $sawDataRow = false;
         $fileHeaders = [];
         $runCounts = [];
-        $allRows = [];
 
-        $this->eachRow($filePath, function (array $headers, array $rowData) use (&$records, &$sawDataRow, &$fileHeaders, &$runCounts, &$allRows) {
+        $this->eachRow($filePath, function (array $headers, array $rowData) use (&$records, &$sawDataRow, &$fileHeaders, &$runCounts) {
             $sawDataRow = true;
             $fileHeaders = $headers;
 
@@ -217,10 +232,12 @@ class SigteImportService
             $data = array_combine($headers, $this->alignRowToHeaders($rowData, $headers));
             $run = preg_replace('/[^0-9]/', '', $data['RUN'] ?? '');
             if ($run) {
-                // Later rows for the same RUN overwrite earlier ones.
+                // Later rows for the same RUN overwrite earlier ones. We
+                // deliberately don't keep every raw row around to build the
+                // duplicates report — on a file with a large repeated RUN,
+                // that doubled memory use enough to OOM the queue worker.
                 $records[$run] = $data;
                 $runCounts[$run] = ($runCounts[$run] ?? 0) + 1;
-                $allRows[] = ['run' => $run, 'data' => $data];
             }
         });
 
@@ -230,17 +247,25 @@ class SigteImportService
 
         $total = count($records);
 
-        $inFileDuplicates = array_column(
-            array_filter($allRows, fn (array $r) => $runCounts[$r['run']] > 1),
-            'data'
-        );
+        // One row per duplicated RUN (the last value that actually gets
+        // saved below), annotated with how many times it repeated.
+        $countHeader = 'VECES_EN_ARCHIVO';
+        $inFileDuplicates = [];
+        foreach ($runCounts as $run => $count) {
+            if ($count > 1) {
+                $inFileDuplicates[] = $records[$run] + [$countHeader => (string) $count];
+            }
+        }
 
         // RUNs from the previous LE Quirúrgica upload that also appear in
         // this one, captured before that previous snapshot gets replaced.
         $preExistingRuns = SigteExternalWaitlistRun::whereIn('run', array_keys($records))->pluck('run')->all();
         $preExisting = array_values(array_intersect_key($records, array_flip($preExistingRuns)));
 
-        $dup = $this->saveDuplicatesFile('leqx', $fileHeaders, $inFileDuplicates, $preExisting);
+        $this->saveDuplicatesFile('leqx', [
+            ['title' => 'Duplicados en archivo', 'headers' => [...$fileHeaders, $countHeader], 'rows' => $inFileDuplicates],
+            ['title' => 'Ya existian antes', 'headers' => $fileHeaders, 'rows' => $preExisting],
+        ]);
 
         DB::transaction(function () use ($records, $total, $filePath, $uploadedBy) {
             // A new upload fully replaces the previous one: this is a
@@ -268,8 +293,8 @@ class SigteImportService
         $this->saveMeta('leqx', [
             'estado'             => 'listo',
             'total'              => $total,
-            'duplicados_archivo' => $dup['duplicados_archivo'],
-            'duplicados_previos' => $dup['duplicados_previos'],
+            'duplicados_archivo' => count($inFileDuplicates),
+            'duplicados_previos' => count($preExisting),
             'fecha'              => now()->format('d-m-Y H:i'),
             'archivo'            => basename($filePath),
         ]);
@@ -426,25 +451,57 @@ class SigteImportService
     }
 
     /**
-     * @param  array<string>  $headers
-     * @param  array<int, array<string, string>>  $inFileDuplicates
-     * @param  array<int, array<string, string>>  $preExisting
-     * @return array{duplicados_archivo: int, duplicados_previos: int}
+     * @param  array<int, array{title: string, headers: array<string>, rows: array<int, array<string, string>>}>  $sheets
      */
-    private function saveDuplicatesFile(string $key, array $headers, array $inFileDuplicates, array $preExisting): array
+    private function saveDuplicatesFile(string $key, array $sheets): void
     {
         $path = $this->duplicatesPath($key);
+        $disk = Storage::disk('local');
 
-        if (! $inFileDuplicates && ! $preExisting) {
-            Storage::disk('local')->delete($path);
-        } else {
-            Storage::disk('local')->makeDirectory('sigte');
-            Excel::store(new SigteDuplicatesExport($headers, $inFileDuplicates, $preExisting), $path, 'local');
+        $hasRows = array_sum(array_map(fn (array $s) => count($s['rows']), $sheets)) > 0;
+
+        if (! $hasRows) {
+            $disk->delete($path);
+
+            return;
         }
 
-        return [
-            'duplicados_archivo' => count($inFileDuplicates),
-            'duplicados_previos' => count($preExisting),
-        ];
+        $disk->makeDirectory('sigte');
+        $this->writeDuplicatesWorkbook($disk->path($path), $sheets);
+    }
+
+    /**
+     * Writes the duplicates report with OpenSpout rather than Maatwebsite
+     * Excel/PhpSpreadsheet: PhpSpreadsheet builds a full in-memory cell
+     * object graph per sheet, which is what OOM'd the queue worker on a LE
+     * Quirúrgica file with a large duplicate set. OpenSpout streams rows
+     * straight to disk, matching the memory-conscious approach eachRow()
+     * already uses for reading.
+     *
+     * @param  array<int, array{title: string, headers: array<string>, rows: array<int, array<string, string>>}>  $sheets
+     */
+    private function writeDuplicatesWorkbook(string $absolutePath, array $sheets): void
+    {
+        $writer = new XlsxWriter();
+        $writer->openToFile($absolutePath);
+
+        $boldStyle = (new Style())->setFontBold();
+
+        foreach ($sheets as $index => $sheet) {
+            if ($index > 0) {
+                $writer->addNewSheetAndMakeItCurrent();
+            }
+
+            $writer->getCurrentSheet()->setName($sheet['title']);
+            $writer->addRow(Row::fromValues($sheet['headers'], $boldStyle));
+
+            foreach ($sheet['rows'] as $row) {
+                $writer->addRow(Row::fromValues(
+                    array_map(fn (string $h) => (string) ($row[$h] ?? ''), $sheet['headers'])
+                ));
+            }
+        }
+
+        $writer->close();
     }
 }

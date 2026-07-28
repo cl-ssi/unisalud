@@ -74,7 +74,7 @@ class SigteBaseDeDatos extends Page
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                             'application/vnd.ms-excel',
                         ])
-                        ->disk('gcs')
+                        ->disk(SigteImportService::uploadsDisk())
                         ->directory('sigte-uploads')
                         ->visibility('private')
                         ->required(),
@@ -98,7 +98,7 @@ class SigteBaseDeDatos extends Page
                             'text/plain',
                             'application/csv',
                         ])
-                        ->disk('gcs')
+                        ->disk(SigteImportService::uploadsDisk())
                         ->directory('sigte-uploads')
                         ->visibility('private')
                         ->required(),

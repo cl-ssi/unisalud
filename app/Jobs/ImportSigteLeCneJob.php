@@ -48,7 +48,7 @@ class ImportSigteLeCneJob implements ShouldQueue
                     );
             });
         } finally {
-            Storage::disk('gcs')->delete($this->filePath);
+            Storage::disk(SigteImportService::uploadsDisk())->delete($this->filePath);
         }
     }
 
@@ -65,7 +65,7 @@ class ImportSigteLeCneJob implements ShouldQueue
 
         Log::error('LE CNE import failed', ['file' => $this->filePath, 'exception' => $e]);
 
-        Storage::disk('gcs')->delete($this->filePath);
+        Storage::disk(SigteImportService::uploadsDisk())->delete($this->filePath);
     }
 
     private function notifyUploader(\Closure $makeNotification): void
