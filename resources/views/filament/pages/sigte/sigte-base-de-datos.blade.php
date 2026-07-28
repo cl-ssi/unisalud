@@ -54,6 +54,14 @@
                         </dd>
                     </div>
                     @endif
+                    @if((($lecneMeta['duplicados_archivo'] ?? 0) + ($lecneMeta['duplicados_previos'] ?? 0)) > 0)
+                    <div class="flex justify-between py-2">
+                        <dt class="text-sm text-gray-500 dark:text-gray-400">Duplicados detectados</dt>
+                        <dd class="text-sm text-gray-900 dark:text-white">
+                            {{ $lecneMeta['duplicados_archivo'] }} en archivo · {{ $lecneMeta['duplicados_previos'] }} ya existían
+                        </dd>
+                    </div>
+                    @endif
                     <div class="flex justify-between py-2">
                         <dt class="text-sm text-gray-500 dark:text-gray-400">Última carga</dt>
                         <dd class="text-sm text-gray-900 dark:text-white">{{ $lecneMeta['fecha'] ?? '-' }}</dd>
@@ -108,6 +116,14 @@
                         <dt class="text-sm text-gray-500 dark:text-gray-400">Total registros</dt>
                         <dd class="text-sm font-semibold text-gray-900 dark:text-white">{{ number_format($leqxMeta['total']) }}</dd>
                     </div>
+                    @if((($leqxMeta['duplicados_archivo'] ?? 0) + ($leqxMeta['duplicados_previos'] ?? 0)) > 0)
+                    <div class="flex justify-between py-2">
+                        <dt class="text-sm text-gray-500 dark:text-gray-400">Duplicados detectados</dt>
+                        <dd class="text-sm text-gray-900 dark:text-white">
+                            {{ $leqxMeta['duplicados_archivo'] }} en archivo · {{ $leqxMeta['duplicados_previos'] }} ya existían
+                        </dd>
+                    </div>
+                    @endif
                     <div class="flex justify-between py-2">
                         <dt class="text-sm text-gray-500 dark:text-gray-400">Última carga</dt>
                         <dd class="text-sm text-gray-900 dark:text-white">{{ $leqxMeta['fecha'] ?? '-' }}</dd>

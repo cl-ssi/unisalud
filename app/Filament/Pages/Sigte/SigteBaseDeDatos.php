@@ -13,6 +13,8 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SigteBaseDeDatos extends Page
 {
@@ -103,7 +105,43 @@ class SigteBaseDeDatos extends Page
                 ])
                 ->modalSubmitActionLabel('Importar')
                 ->action(fn (array $data) => $this->dispatchLeQxImport($data['file'])),
+
+            Action::make('descargarDuplicadosLeCne')
+                ->label('Duplicados LE CNE')
+                ->icon('heroicon-o-document-arrow-down')
+                ->color('gray')
+                ->visible(fn () => $this->hasDuplicates('lecne'))
+                ->action(fn () => $this->downloadDuplicates('lecne')),
+
+            Action::make('descargarDuplicadosLeQx')
+                ->label('Duplicados LE Quirúrgica')
+                ->icon('heroicon-o-document-arrow-down')
+                ->color('gray')
+                ->visible(fn () => $this->hasDuplicates('leqx'))
+                ->action(fn () => $this->downloadDuplicates('leqx')),
         ];
+    }
+
+    /**
+     * Whether $key's most recent import flagged any duplicate RUNs — either
+     * repeated within the uploaded file or already present before the
+     * upload — worth surfacing a download button for.
+     */
+    private function hasDuplicates(string $key): bool
+    {
+        $meta = $this->getMeta($key);
+
+        return (($meta['duplicados_archivo'] ?? 0) + ($meta['duplicados_previos'] ?? 0)) > 0;
+    }
+
+    private function downloadDuplicates(string $key): StreamedResponse
+    {
+        $service = app(SigteImportService::class);
+
+        return Storage::disk('local')->download(
+            $service->duplicatesPath($key),
+            "SIGTE_{$key}_duplicados.xlsx"
+        );
     }
 
     private function dispatchLeCneImport(string $filePath): void

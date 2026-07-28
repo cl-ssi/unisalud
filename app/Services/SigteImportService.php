@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exports\SigteDuplicatesExport;
 use App\Models\Address;
 use App\Models\ContactPoint;
 use App\Models\Identifier;
@@ -11,6 +12,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 use OpenSpout\Reader\CSV\Options as CsvOptions;
 use OpenSpout\Reader\CSV\Reader as CsvReader;
 use OpenSpout\Reader\XLSX\Reader as XlsxReader;
@@ -129,9 +131,17 @@ class SigteImportService
     {
         $nuevos = $actualizados = $errores = 0;
         $sawDataRow = false;
+        $fileHeaders = [];
+        $seenRuns = [];
+        $inFileDuplicates = [];
+        $preExisting = [];
 
-        $this->eachRow($filePath, function (array $headers, array $rowData) use (&$nuevos, &$actualizados, &$errores, &$sawDataRow) {
+        $this->eachRow($filePath, function (array $headers, array $rowData) use (
+            &$nuevos, &$actualizados, &$errores, &$sawDataRow,
+            &$fileHeaders, &$seenRuns, &$inFileDuplicates, &$preExisting
+        ) {
             $sawDataRow = true;
+            $fileHeaders = $headers;
 
             if (! array_filter($rowData, fn ($v) => $v !== '')) {
                 return;
@@ -145,10 +155,24 @@ class SigteImportService
 
             try {
                 [$isNew] = $this->upsertPatient($run, $data);
-                $isNew ? $nuevos++ : $actualizados++;
+                if ($isNew) {
+                    $nuevos++;
+                } else {
+                    $actualizados++;
+                    // Already had an identifier: either this RUN repeats
+                    // earlier in this same file, or it was already a patient
+                    // before this upload started.
+                    if (isset($seenRuns[$run])) {
+                        $inFileDuplicates[] = $data;
+                    } else {
+                        $preExisting[] = $data;
+                    }
+                }
             } catch (\Exception) {
                 $errores++;
             }
+
+            $seenRuns[$run] = true;
         });
 
         if (! $sawDataRow) {
@@ -157,14 +181,18 @@ class SigteImportService
 
         $total = $nuevos + $actualizados;
 
+        $dup = $this->saveDuplicatesFile('lecne', $fileHeaders, $inFileDuplicates, $preExisting);
+
         $this->saveMeta('lecne', [
-            'estado'       => 'listo',
-            'total'        => $total,
-            'nuevos'       => $nuevos,
-            'actualizados' => $actualizados,
-            'errores'      => $errores,
-            'fecha'        => now()->format('d-m-Y H:i'),
-            'archivo'      => basename($filePath),
+            'estado'             => 'listo',
+            'total'              => $total,
+            'nuevos'             => $nuevos,
+            'actualizados'       => $actualizados,
+            'errores'            => $errores,
+            'duplicados_archivo' => $dup['duplicados_archivo'],
+            'duplicados_previos' => $dup['duplicados_previos'],
+            'fecha'              => now()->format('d-m-Y H:i'),
+            'archivo'            => basename($filePath),
         ]);
 
         return compact('total', 'nuevos', 'actualizados', 'errores');
@@ -174,9 +202,13 @@ class SigteImportService
     {
         $records = [];
         $sawDataRow = false;
+        $fileHeaders = [];
+        $runCounts = [];
+        $allRows = [];
 
-        $this->eachRow($filePath, function (array $headers, array $rowData) use (&$records, &$sawDataRow) {
+        $this->eachRow($filePath, function (array $headers, array $rowData) use (&$records, &$sawDataRow, &$fileHeaders, &$runCounts, &$allRows) {
             $sawDataRow = true;
+            $fileHeaders = $headers;
 
             if (! array_filter($rowData, fn ($v) => $v !== '')) {
                 return;
@@ -187,6 +219,8 @@ class SigteImportService
             if ($run) {
                 // Later rows for the same RUN overwrite earlier ones.
                 $records[$run] = $data;
+                $runCounts[$run] = ($runCounts[$run] ?? 0) + 1;
+                $allRows[] = ['run' => $run, 'data' => $data];
             }
         });
 
@@ -195,6 +229,18 @@ class SigteImportService
         }
 
         $total = count($records);
+
+        $inFileDuplicates = array_column(
+            array_filter($allRows, fn (array $r) => $runCounts[$r['run']] > 1),
+            'data'
+        );
+
+        // RUNs from the previous LE Quirúrgica upload that also appear in
+        // this one, captured before that previous snapshot gets replaced.
+        $preExistingRuns = SigteExternalWaitlistRun::whereIn('run', array_keys($records))->pluck('run')->all();
+        $preExisting = array_values(array_intersect_key($records, array_flip($preExistingRuns)));
+
+        $dup = $this->saveDuplicatesFile('leqx', $fileHeaders, $inFileDuplicates, $preExisting);
 
         DB::transaction(function () use ($records, $total, $filePath, $uploadedBy) {
             // A new upload fully replaces the previous one: this is a
@@ -220,10 +266,12 @@ class SigteImportService
         });
 
         $this->saveMeta('leqx', [
-            'estado'  => 'listo',
-            'total'   => $total,
-            'fecha'   => now()->format('d-m-Y H:i'),
-            'archivo' => basename($filePath),
+            'estado'             => 'listo',
+            'total'              => $total,
+            'duplicados_archivo' => $dup['duplicados_archivo'],
+            'duplicados_previos' => $dup['duplicados_previos'],
+            'fecha'              => now()->format('d-m-Y H:i'),
+            'archivo'            => basename($filePath),
         ]);
 
         return compact('total');
@@ -365,5 +413,38 @@ class SigteImportService
         $raw = Storage::disk('local')->get("sigte/{$key}-meta.json");
 
         return $raw ? (json_decode($raw, true) ?? []) : [];
+    }
+
+    /**
+     * Path (on the "local" disk) of the duplicates report for $key's most
+     * recent import — a two-sheet Excel of rows whose RUN repeats within the
+     * uploaded file, and rows whose RUN already existed before the upload.
+     */
+    public function duplicatesPath(string $key): string
+    {
+        return "sigte/{$key}-duplicados.xlsx";
+    }
+
+    /**
+     * @param  array<string>  $headers
+     * @param  array<int, array<string, string>>  $inFileDuplicates
+     * @param  array<int, array<string, string>>  $preExisting
+     * @return array{duplicados_archivo: int, duplicados_previos: int}
+     */
+    private function saveDuplicatesFile(string $key, array $headers, array $inFileDuplicates, array $preExisting): array
+    {
+        $path = $this->duplicatesPath($key);
+
+        if (! $inFileDuplicates && ! $preExisting) {
+            Storage::disk('local')->delete($path);
+        } else {
+            Storage::disk('local')->makeDirectory('sigte');
+            Excel::store(new SigteDuplicatesExport($headers, $inFileDuplicates, $preExisting), $path, 'local');
+        }
+
+        return [
+            'duplicados_archivo' => count($inFileDuplicates),
+            'duplicados_previos' => count($preExisting),
+        ];
     }
 }
