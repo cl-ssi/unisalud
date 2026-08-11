@@ -36,6 +36,7 @@ class Waitlist extends Model
 
         'commune_id', // COMUNA
         'confirmation_diagnosis', // CONFIR_DIAG
+        'exit_code_id',
 
         // CITA
         'status', // NO DERIVADO - DERIVADO - CITADO - ATENDIDO - INASISTENTE - INCONTACTABLE - EGRESADO
@@ -107,6 +108,12 @@ class Waitlist extends Model
     {
         return $this->hasMany(WaitlistMessage::class, 'waitlist_id');
     }
+
+    public function exitCode(): BelongsTo
+    {
+        return $this->belongsTo(ExitCode::class, 'exit_code_id');
+    }
+
 
     protected $table = 'wait_waitlists';
 }
