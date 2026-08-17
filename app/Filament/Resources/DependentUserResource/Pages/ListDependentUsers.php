@@ -4,9 +4,11 @@ namespace App\Filament\Resources\DependentUserResource\Pages;
 
 use App\Filament\Resources\DependentUserResource;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Notifications\Notification;
 use Filament\Actions;
+use Filament\Forms;
 
-use YOS\FilamentExcel\Actions\Import;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\DependentUserImport;
 use pxlrbt\FilamentExcel;
 use pxlrbt\FilamentExcel\Columns\Column;
@@ -63,13 +65,35 @@ class ListDependentUsers extends ListRecords
                 ))
                 ->icon('heroicon-o-map')
                 ->label('Mapa'),
-            Import::make()
-                ->import(DependentUserImport::class)
-                ->type(\Maatwebsite\Excel\Excel::XLSX)
-                ->label('Importar')
+            Actions\Action::make('import')
+                ->modalHeading('Importar')
+                ->modalDescription('Subir archivo de tipo xlsx')
+                ->icon('heroicon-o-arrow-down-tray')
+                // ->color('success')
                 ->visible(auth()->user()->can('be god'))
-                ->hint('Subir archivo de tipo xlsx')
-                ->icon('heroicon-o-arrow-down-tray'),
+                ->form([
+                    Forms\Components\FileUpload::make('attachment')
+                        ->required()
+                        ->label('Excel File')
+                        ->acceptedFileTypes([
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            'application/vnd.ms-excel',
+                            'text/csv',
+                        ])
+                        ->storeFiles(false), // Keeps file in temporary memory during request
+                ])
+                ->action(function (array $data) {
+                    // $data['attachment'] is a TemporaryUploadedFile instance
+                    Excel::import(
+                        new DependentUserImport,
+                        $data['attachment']->getRealPath(),
+                        readerType: \Maatwebsite\Excel\Excel::XLSX
+                    );
+                    Notification::make()
+                        ->title('Import completed successfully!')
+                        ->success()
+                        ->send();
+                }),
             FilamentExcel\Actions\Pages\ExportAction::make()
                 ->label('Exportar')
                 ->icon('heroicon-o-arrow-up-tray')
