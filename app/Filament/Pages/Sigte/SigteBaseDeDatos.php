@@ -26,6 +26,7 @@ class SigteBaseDeDatos extends Page
 
     public static function canAccess(): bool
     {
+        // SIGTE
         return auth()->user()?->can('SIGTE LE QX: administrador')
             || auth()->user()?->can('be god');
     }
