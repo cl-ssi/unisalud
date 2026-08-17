@@ -18,7 +18,7 @@ class SigteSurgicalExportResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
 
-    protected static ?string $navigationGroup = 'SIGTE';
+    protected static ?string $navigationGroup = 'Ingreso LEQ';
 
     protected static ?string $navigationLabel = 'Exportaciones';
 

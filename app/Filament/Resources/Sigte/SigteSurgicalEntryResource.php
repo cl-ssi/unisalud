@@ -20,7 +20,7 @@ class SigteSurgicalEntryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationGroup = 'SIGTE';
+    protected static ?string $navigationGroup = 'Ingreso LEQ';
 
     protected static ?string $navigationLabel = 'Mis Ingresos';
 

@@ -24,7 +24,7 @@ class SigteSurgicalAdminResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-queue-list';
 
-    protected static ?string $navigationGroup = 'SIGTE';
+    protected static ?string $navigationGroup = 'Ingreso LEQ';
 
     protected static ?string $navigationLabel = 'Todos los Ingresos';
 
@@ -189,8 +189,13 @@ class SigteSurgicalAdminResource extends Resource
             ->filtersLayout(Tables\Enums\FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
-            ->bulkActions([]);
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
     }
 
     public static function getPages(): array

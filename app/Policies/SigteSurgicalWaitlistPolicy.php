@@ -44,7 +44,15 @@ class SigteSurgicalWaitlistPolicy
      */
     public function delete(User $user, SigteSurgicalWaitlist $sigteSurgicalWaitlist): bool
     {
-        return false;
+        return $user->can('SIGTE LE QX: administrador') || $user->can('be god');
+    }
+
+    /**
+     * Determine whether the user can bulk delete models.
+     */
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('SIGTE LE QX: administrador') || $user->can('be god');
     }
 
     /**

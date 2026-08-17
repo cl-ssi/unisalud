@@ -9,7 +9,7 @@ class ListSigteSurgicalExports extends ListRecords
 {
     protected static string $resource = SigteSurgicalExportResource::class;
 
-    protected static ?string $title = 'Exportaciones SIGTE';
+    protected static ?string $title = 'Exportaciones Ingreso LEQ';
 
     protected function getHeaderActions(): array
     {

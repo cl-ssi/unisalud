@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SigteBaseDeDatos extends Page
 {
-    protected static ?string $navigationGroup = 'SIGTE';
+    protected static ?string $navigationGroup = 'Ingreso LEQ';
     protected static ?string $navigationLabel = 'Base de Datos';
     protected static ?string $navigationIcon = 'heroicon-o-circle-stack';
     protected static ?int $navigationSort = 3;
