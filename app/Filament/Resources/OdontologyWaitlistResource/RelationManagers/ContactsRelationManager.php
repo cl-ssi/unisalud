@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\OdontologyWaitlistResource\RelationManagers;
 
 use App\Filament\Resources\OdontologyWaitlistResource;
+use App\Models\OdontologyWaitlist;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -26,6 +27,7 @@ class ContactsRelationManager extends RelationManager
                 Forms\Components\Select::make('status')
                     ->label('Estado')
                     ->required()
+                    ->live()
                     ->options([
                         'primer llamado'         => 'Primer Llamado',
                         'segundo llamado'        => 'Segundo Llamado',
@@ -42,6 +44,16 @@ class ContactsRelationManager extends RelationManager
                     ->disableOptionWhen(function ($value) {
                         return $this->ownerRecord->events()->where('status', $value)->exists();
                     }),
+                Forms\Components\DatePicker::make('exit_date')
+                    ->label('Fecha Egreso')
+                    ->native(false)
+                    ->displayFormat('d-m-Y')
+                    ->visible(fn (callable $get) => $get('status') === 'egresado'),
+                Forms\Components\Select::make('exit_code')
+                    ->label('Causal Salida')
+                    ->options(OdontologyWaitlist::EXIT_CODE_LABELS)
+                    ->searchable()
+                    ->visible(fn (callable $get) => $get('status') === 'egresado'),
                 Forms\Components\FileUpload::make('file')
                     ->label('Adjuntar Archivo')
                     ->directory('ionline/odontology/events')
@@ -85,9 +97,14 @@ class ContactsRelationManager extends RelationManager
                         return $data;
                     })
                     ->after(function ($record, $data, $livewire) {
-                        $livewire->ownerRecord->update([
-                            'status' => $data['status'],
-                        ]);
+                        $waitlistData = ['status' => $data['status']];
+
+                        if ($data['status'] === 'egresado') {
+                            $waitlistData['exit_date'] = $data['exit_date'] ?? null;
+                            $waitlistData['exit_code'] = $data['exit_code'] ?? null;
+                        }
+
+                        $livewire->ownerRecord->update($waitlistData);
                     })
                     ->visible(fn () => ! auth()->user()->hasRole(OdontologyWaitlistResource::MUNICIPALITY_ROLE)),
             ])

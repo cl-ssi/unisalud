@@ -219,7 +219,7 @@ class OdontologyWaitlist extends Model
 
     public function contacts(): HasMany
     {
-        return $this->hasMany(WaitlistContact::class, 'waitlist_id');
+        return $this->hasMany(OdontologyContact::class, 'waitlist_id');
     }
 
     public function events(): HasMany
