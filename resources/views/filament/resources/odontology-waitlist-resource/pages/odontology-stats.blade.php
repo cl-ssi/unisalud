@@ -30,11 +30,18 @@
             <div class="text-xl font-bold text-yellow-500">{{ $this->stats['citado'] }}</div>
         </div>
 
-        {{-- Atendidos --}}
+        {{-- Atendido PRAPS --}}
         <div class="min-w-[180px] p-3 bg-white rounded-lg shadow flex flex-col items-center text-center">
             <x-heroicon-o-check-circle class="w-6 h-6 text-green-600 mb-1" />
-            <div class="text-xs text-gray-500">Atendidos</div>
-            <div class="text-xl font-bold text-green-600">{{ $this->stats['atendidos'] }}</div>
+            <div class="text-xs text-gray-500">Atendido PRAPS</div>
+            <div class="text-xl font-bold text-green-600">{{ $this->stats['atendido_praps'] }}</div>
+        </div>
+
+        {{-- Atendido HETG/SST/HAH --}}
+        <div class="min-w-[180px] p-3 bg-white rounded-lg shadow flex flex-col items-center text-center">
+            <x-heroicon-o-check-circle class="w-6 h-6 text-teal-600 mb-1" />
+            <div class="text-xs text-gray-500">Atendido HETG/SST/HAH</div>
+            <div class="text-xl font-bold text-teal-600">{{ $this->stats['atendido_hetg_sst_hah'] }}</div>
         </div>
 
         {{-- Fallecidos --}}
@@ -44,6 +51,46 @@
             <div class="text-xl font-bold text-red-700">{{ $this->stats['fallecidos'] }}</div>
         </div>
 
+        {{-- Egresados --}}
+        <div class="min-w-[180px] p-3 bg-white rounded-lg shadow flex flex-col items-center text-center">
+            <x-heroicon-o-arrow-right-on-rectangle class="w-6 h-6 text-orange-600 mb-1" />
+            <div class="text-xs text-gray-500">Egresados</div>
+            <div class="text-xl font-bold text-orange-600">{{ $this->stats['egresados'] }}</div>
+        </div>
+
+        {{-- Sin Estado --}}
+        <div class="min-w-[180px] p-3 bg-white rounded-lg shadow flex flex-col items-center text-center">
+            <x-heroicon-o-question-mark-circle class="w-6 h-6 text-gray-400 mb-1" />
+            <div class="text-xs text-gray-500">Sin Estado</div>
+            <div class="text-xl font-bold text-gray-400">{{ $this->stats['sin_estado'] }}</div>
+        </div>
+
+    </div>
+
+    {{-- ===================== --}}
+    {{-- DETALLE POR ESTADO --}}
+    {{-- ===================== --}}
+
+    <div class="bg-white p-4 rounded-xl shadow mt-8 overflow-x-auto">
+        <h2 class="text-lg font-bold mb-3">Detalle por Estado</h2>
+        <table class="min-w-full text-sm">
+            <thead>
+                <tr class="text-left text-gray-500 border-b">
+                    <th class="py-2 pr-4">Estado</th>
+                    <th class="py-2 pr-4">Cantidad</th>
+                    <th class="py-2 pr-4">Porcentaje</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($this->estadoBreakdown as $row)
+                    <tr class="border-b last:border-0">
+                        <td class="py-2 pr-4">{{ $row['estado'] }}</td>
+                        <td class="py-2 pr-4">{{ $row['cantidad'] }}</td>
+                        <td class="py-2 pr-4">{{ $row['porcentaje'] }}%</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 
     {{-- ===================== --}}

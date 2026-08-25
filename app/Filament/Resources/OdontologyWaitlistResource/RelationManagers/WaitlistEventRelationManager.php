@@ -14,7 +14,7 @@ class WaitlistEventRelationManager extends RelationManager
 {
     protected static string $relationship = 'events';
 
-    protected static ?string $title = 'Evoluciones';
+    protected static ?string $title = 'Cargas';
 
     public function form(Form $form): Form
     {
@@ -85,22 +85,7 @@ class WaitlistEventRelationManager extends RelationManager
             ->filters([
                 //
             ])
-            ->headerActions([
-                Tables\Actions\CreateAction::make('add_event')
-                    ->label('Nuevo Evento')
-                    ->icon('heroicon-o-plus')
-                    ->modalHeading('Crear Nuevo Evento')
-                    ->mutateFormDataUsing(function (array $data): array {
-                        $data['register_user_id'] = auth()->user()->id;
-                        return $data;
-                    })->after(
-                        function ($record, $data, $livewire) {
-                            $livewire->ownerRecord->update([
-                                'status' => $data['status'],
-                            ]);
-                        }
-                    ),
-            ])
+            ->headerActions([])
             ->actions([
             ])
             ->bulkActions([

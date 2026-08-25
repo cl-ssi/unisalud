@@ -15,6 +15,24 @@ class OdontologyStats extends Page
     /** 👇 ESTA PROPIEDAD ES OBLIGATORIA */
     public array $stats = [];
 
+    public array $chartStats = [];
+
+    public array $estadoBreakdown = [];
+
+    private const ESTADO_LABELS = [
+        'primer llamado'         => 'Primer Llamado',
+        'segundo llamado'        => 'Segundo Llamado',
+        'tercer llamado'         => 'Tercer Llamado',
+        'en visita domiciliaria' => 'En Visita Domiciliaria',
+        'citado'                 => 'Citado',
+        'atendido praps'         => 'Atendido PRAPS',
+        'atendido hetg'          => 'Atendido HETG',
+        'atendido sst'           => 'Atendido SST',
+        'atendido hah'           => 'Atendido HAH',
+        'fallecido'              => 'Fallecido',
+        'egresado'               => 'Egresado',
+    ];
+
     public function mount(): void
 {
     $this->stats = [
@@ -22,11 +40,27 @@ class OdontologyStats extends Page
         'primer_llamado' => OdontologyWaitlist::where('status', 'primer llamado')->count(),
         'segundo_llamado'=> OdontologyWaitlist::where('status', 'segundo llamado')->count(),
         'citado'         => OdontologyWaitlist::where('status', 'citado')->count(),
-        'atendidos'      => OdontologyWaitlist::whereIn('status', [
-            'atendido praps', 'atendido hetg', 'atendido hah'
+        'atendido_praps' => OdontologyWaitlist::where('status', 'atendido praps')->count(),
+        'atendido_hetg_sst_hah' => OdontologyWaitlist::whereIn('status', [
+            'atendido hetg', 'atendido sst', 'atendido hah'
         ])->count(),
         'fallecidos'     => OdontologyWaitlist::where('status', 'fallecido')->count(),
+        'egresados'      => OdontologyWaitlist::where('status', 'egresado')->count(),
+        'sin_estado'     => OdontologyWaitlist::whereNull('status')->orWhere('status', '')->count(),
     ];
+
+    $total = max($this->stats['total'], 1);
+
+    $this->estadoBreakdown = OdontologyWaitlist::selectRaw('status, COUNT(*) as total')
+        ->groupBy('status')
+        ->orderByDesc('total')
+        ->get()
+        ->map(fn ($row) => [
+            'estado'     => self::ESTADO_LABELS[$row->status] ?? ($row->status ? ucfirst($row->status) : 'Sin Estado'),
+            'cantidad'   => $row->total,
+            'porcentaje' => round(($row->total / $total) * 100, 1),
+        ])
+        ->all();
 
     // Estadísticas adicionales para gráficos
     $this->chartStats = [

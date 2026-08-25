@@ -16,6 +16,76 @@ class OdontologyWaitlist extends Model
     use SoftDeletes;
 
     /**
+     * PLANO codes from the SIGTE export's DEIS codification.
+     */
+    public const PLANO_LABELS = [
+        '1' => 'Izquierdo',
+        '2' => 'Derecho',
+        '3' => 'Superior',
+        '4' => 'Inferior',
+        '5' => 'Medio',
+    ];
+
+    /**
+     * EXTREMIDAD codes from the SIGTE export's DEIS codification.
+     */
+    public const EXTREMITY_LABELS = [
+        '1'  => 'Dedo',
+        '2'  => 'Mano',
+        '3'  => 'Brazo',
+        '4'  => 'Codo',
+        '5'  => 'Muñeca',
+        '6'  => 'Antebrazo',
+        '7'  => 'Hombro',
+        '8'  => 'Pie',
+        '9'  => 'Tobillo',
+        '10' => 'Rodilla',
+        '11' => 'Muslo',
+        '12' => 'Sacroilíaca',
+        '13' => 'Cadera',
+        '14' => 'Pierna',
+        '15' => 'Acromio-clavicular',
+        '16' => 'Esterno-clavicular',
+        '17' => 'Cúbito',
+        '18' => 'Radio',
+        '19' => 'Cervical',
+        '20' => 'Dorsal',
+        '21' => 'Lumbar',
+        '22' => 'Párpado superior',
+        '23' => 'Párpado inferior',
+        '24' => 'Pulgar',
+        '25' => 'Columna',
+    ];
+
+    /**
+     * C_SALIDA (causal de egreso) codes from the SIGTE export.
+     */
+    public const EXIT_CODE_LABELS = [
+        '0'  => 'GES',
+        '1'  => 'Atención realizada',
+        '2'  => 'Procedimiento informado',
+        '3'  => 'Indicación médica para reevaluación',
+        '4'  => 'Atención otorgada en el extra-sistema',
+        '5'  => 'Cambio de asegurador',
+        '6'  => 'Renuncia o rechazo voluntario del usuario',
+        '7'  => 'Recuperación espontánea',
+        '8'  => 'Dos inasistencias',
+        '9'  => 'Fallecimiento',
+        '10' => 'Solicitud de indicación duplicada',
+        '11' => 'Contacto no corresponde',
+        '12' => 'No corresponde realizar cirugía',
+        '13' => 'Traslado coordinado',
+        '14' => 'No pertinencia',
+        '15' => 'Error de Registro',
+        '16' => 'Atención por Resolutividad',
+        '17' => 'Atención por Telemedicina',
+        '18' => 'Modificación de la condición clínico-diagnóstica',
+        '19' => 'Hospital Digital',
+        '20' => 'Suspensión Transitoria',
+        '99' => 'Técnico Administrativo Nivel Central',
+    ];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
@@ -36,6 +106,8 @@ class OdontologyWaitlist extends Model
         'referring_specialty',              // E_OTOR_AT 
         'exit_minsal_specialty_id',         // PRESTA_MIN_SALIDA
         'prais',                            // PRAIS
+        'pase_odontologico',
+        'visible_municipality',
         'region_id',                        // REGION
         'commune_id',                       // COMUNA
         'suspected_diagnosis',              // SOSPECHA_DIAG
@@ -72,9 +144,11 @@ class OdontologyWaitlist extends Model
     ];
 
     protected $casts = [
-        'entry_date'       => 'date',
-        'exit_date'        => 'date',
-        'appointment_date' => 'date',
+        'entry_date'        => 'date',
+        'exit_date'         => 'date',
+        'appointment_date'  => 'date',
+        'pase_odontologico' => 'boolean',
+        'visible_municipality' => 'boolean',
     ];
 
 

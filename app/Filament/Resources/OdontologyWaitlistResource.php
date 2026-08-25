@@ -21,6 +21,8 @@ use Filament\Actions\Action;
 
 class OdontologyWaitlistResource extends Resource
 {
+    public const MUNICIPALITY_ROLE = 'Odontología Municipalidad';
+
     protected static ?string $model = OdontologyWaitlist::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -81,9 +83,7 @@ class OdontologyWaitlistResource extends Resource
                     ->label('Sexo')
                     ->disabled()
                     ->afterStateHydrated(function ($component, $state, $record) {
-                        if ($record && $record->user->sex->getLabel() && $record->user->sex->getLabel()) {
-                            $component->state($record->user->sex->getLabel());
-                        }
+                        $component->state($record?->user?->sex?->getLabel());
                     }),
                 Forms\Components\TextInput::make('healthcare_type')
                     ->label('Previsión')
@@ -105,10 +105,16 @@ class OdontologyWaitlistResource extends Resource
                     }),
                 Forms\Components\TextInput::make('plano')
                     ->label('Plano')
-                    ->disabled(),
+                    ->disabled()
+                    ->afterStateHydrated(function ($component, $state) {
+                        $component->state(OdontologyWaitlist::PLANO_LABELS[$state] ?? $state);
+                    }),
                 Forms\Components\TextInput::make('extremity')
                     ->label('Extremidad')
-                    ->disabled(),
+                    ->disabled()
+                    ->afterStateHydrated(function ($component, $state) {
+                        $component->state(OdontologyWaitlist::EXTREMITY_LABELS[$state] ?? $state);
+                    }),
                 Forms\Components\TextInput::make('establishmentHealthCareService')
                     ->label('Prestación Establecimiento')
                     ->disabled()
@@ -138,7 +144,10 @@ class OdontologyWaitlistResource extends Resource
                     ->disabled(),
                 Forms\Components\TextInput::make('exit_code')
                     ->label('Codigo Salida')
-                    ->disabled(),
+                    ->disabled()
+                    ->afterStateHydrated(function ($component, $state) {
+                        $component->state(OdontologyWaitlist::EXIT_CODE_LABELS[$state] ?? $state);
+                    }),
                 Forms\Components\TextInput::make('minsalExitSpecialty')
                     ->label('Prestación MINSAL Salida')
                     ->disabled()
@@ -216,8 +225,8 @@ class OdontologyWaitlistResource extends Resource
                     ->label('Email')
                     ->disabled()
                     ->afterStateHydrated(function ($component, $state, $record) {
-                        if ($record && $record->user && $record->user->contactPointEmail) {
-                            $component->state($record->user->contactPointEmail->value);
+                        if ($record && $record->user && $record->user->emailContactPoint) {
+                            $component->state($record->user->emailContactPoint->value);
                         }
                     }),
                 Forms\Components\TextInput::make('local_id')
@@ -344,6 +353,11 @@ class OdontologyWaitlistResource extends Resource
                 Forms\Components\TextInput::make('elapsed_days')
                     ->label('Días Pasados')
                     ->disabled(),
+                Forms\Components\Toggle::make('pase_odontologico')
+                    ->label('Pase Odontológico'),
+                Forms\Components\Toggle::make('visible_municipality')
+                    ->label('Visible para Municipalidad')
+                    ->helperText('Permite que este caso sea visto por usuarios con el rol Odontología Municipalidad.'),
             ]);
     }
 
@@ -355,17 +369,20 @@ class OdontologyWaitlistResource extends Resource
                     ->importer(OdontologyWaitlistImporter::class)
                     ->label('Importar Lista de Espera')
                     ->modalHeading('Importar Lista de Espera')
-                    ->modalSubmitActionLabel('Importar'),
+                    ->modalSubmitActionLabel('Importar')
+                    ->visible(fn() => ! auth()->user()->hasRole(self::MUNICIPALITY_ROLE)),
                 Tables\Actions\ExportAction::make()
                     ->exporter(OdontologyWaitlistExporter::class)
                     ->label('Exportar')
-                    ->columnMapping(false),
+                    ->columnMapping(false)
+                    ->visible(fn() => ! auth()->user()->hasRole(self::MUNICIPALITY_ROLE)),
                 Tables\Actions\Action::make('stats')
                     ->label('Estadísticas')
                     ->icon('heroicon-o-chart-bar')
                     ->color('info')
                     ->url(fn() => OdontologyWaitlistResource::getUrl('stats'))
-                    ->openUrlInNewTab(),
+                    ->openUrlInNewTab()
+                    ->visible(fn() => ! auth()->user()->hasRole(self::MUNICIPALITY_ROLE)),
             ])
             ->columns([
                 Tables\Columns\BadgeColumn::make('status')
@@ -378,11 +395,15 @@ class OdontologyWaitlistResource extends Resource
                         'gray'      => 'tercer llamado',
                         'info'      => 'en visita domiciliaria',
                         'danger'    => 'citado',
+                        'warning'   => 'egresado',
                     ])
                     ->formatStateUsing(function ($state) {
                         return ucfirst($state);
                     })
                     ->sortable(),
+                Tables\Columns\IconColumn::make('pase_odontologico')
+                    ->label('Pase Odontológico')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('user.officialIdentifier.value')
                     ->label('RUN')
                     ->searchable(),
@@ -397,7 +418,8 @@ class OdontologyWaitlistResource extends Resource
                     ->formatStateUsing(function ($state) {
                         return \Carbon\Carbon::parse($state)->format('d-m-Y');
                     })
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('entry_date')
                     ->label('Fecha Entrada')
                     ->formatStateUsing(function ($state) {
@@ -410,9 +432,20 @@ class OdontologyWaitlistResource extends Resource
                 Tables\Columns\TextColumn::make('destinyEstablishment.alias')
                     ->label('Establecimiento Destino')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('exit_date')
+                    ->label('Fecha Egreso')
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->format('d-m-Y') : null)
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('exit_code')
+                    ->label('Causal Egreso')
+                    ->formatStateUsing(fn ($state) => OdontologyWaitlist::EXIT_CODE_LABELS[$state] ?? $state)
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('suspected_diagnosis')
                     ->label('Sospecha Diagnostico')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('sigte_id')
                     ->label('ID SIGTE')
                     ->searchable(),
@@ -421,9 +454,19 @@ class OdontologyWaitlistResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('establishment.alias')
                     ->label('Establecimiento')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\IconColumn::make('visible_municipality')
+                    ->label('Visible Municipalidad')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                Tables\Filters\TernaryFilter::make('visible_municipality')
+                    ->label('Visible Municipalidad')
+                    ->placeholder('Todos')
+                    ->trueLabel('Visible')
+                    ->falseLabel('No visible'),
                 Tables\Filters\SelectFilter::make('waitlistSpecialty')
                     ->label('Especialidad')
                     ->relationship('waitlistSpecialty', 'text')
@@ -452,9 +495,12 @@ class OdontologyWaitlistResource extends Resource
 
                         'atendido praps'         => 'Atendido PRAPS',
                         'atendido hetg'          => 'Atendido HETG',
+                        'atendido sst'           => 'Atendido SST',
                         'atendido hah'           => 'Atendido HAH',
                         'fallecido'              => 'Fallecido',
+                        'egresado'               => 'Egresado',
                     ])
+                    ->multiple()
                     ->placeholder('Todos')
                     ->searchable()
             ],  layout: FiltersLayout::AboveContent)
@@ -467,10 +513,20 @@ class OdontologyWaitlistResource extends Resource
             ]);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->when(
+                auth()->user()->hasRole(self::MUNICIPALITY_ROLE),
+                fn (Builder $query) => $query->where('visible_municipality', true)
+            );
+    }
+
     public static function getRelations(): array
     {
         return [
             RelationManagers\WaitlistEventRelationManager::class,
+            RelationManagers\ContactsRelationManager::class,
         ];
     }
 

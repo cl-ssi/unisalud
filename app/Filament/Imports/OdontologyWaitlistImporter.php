@@ -14,8 +14,8 @@ use App\Models\OdontologySpeciality;
 use App\Models\OdontologyWaitlist;
 use App\Models\Organization;
 use App\Models\Region;
-use App\Models\Sex;
 use App\Models\User;
+use App\Enums\Sex;
 use App\Models\WaitlistEntryType;
 use App\Models\OdontologyMedicalBenefit;
 use Filament\Actions\Imports\Importer;
@@ -37,8 +37,32 @@ class OdontologyWaitlistImporter extends Importer
     protected static array $minsalSpecialtyCache = [];
     protected static array $entryTypeCache = [];
     protected static array $regionCache = [];
-    protected static array $sexCache = [];
     protected static array $originCommuneNameCache = [];
+
+    /**
+     * Filament's Importer never calls initialize() itself — it's purely a
+     * convention some other importers in this codebase adopted, but nothing
+     * in vendor/filament/actions actually invokes it. Without this guard the
+     * lookup caches below stay empty for every real import (verified via
+     * `grep -rn initialize vendor/filament/actions/` — zero matches), so
+     * every code-based field (PREVISION, TIPO_PREST, COMUNA, establishments,
+     * region, PRESTA_MIN) silently resolved to null. Populate the caches
+     * lazily on first use instead of relying on an unfired hook.
+     */
+    protected static bool $initialized = false;
+
+    /**
+     * SEXO in the SIGTE export uses the DEIS "sexo biológico" codification,
+     * not free text — map it directly instead of resolving through the
+     * sexes lookup table (whose autoincrement ids don't correspond to these codes).
+     */
+    public const SEX_CODE_MAP = [
+        '1'  => Sex::Male->value,
+        '2'  => Sex::Female->value,
+        '3'  => Sex::Intersex->value,
+        '93' => Sex::NotInformed->value,
+        '99' => Sex::Unknown->value,
+    ];
 
 
     protected int $chunkSize = 100;
@@ -73,7 +97,6 @@ class OdontologyWaitlistImporter extends Importer
         self::$minsalSpecialtyCache = MinsalSpecialty::all()->pluck('id', 'code')->mapWithKeys(fn($id, $code) => [strtolower(trim($code)) => $id])->toArray();
         self::$entryTypeCache = WaitlistEntryType::all()->pluck('id', 'code')->mapWithKeys(fn($id, $code) => [strtolower(trim($code)) => $id])->toArray();
         self::$regionCache = Region::all()->pluck('id', 'id')->mapWithKeys(fn($id, $regionId) => [strtolower(trim($regionId)) => $id])->toArray();
-        self::$sexCache = Sex::all()->pluck('id', 'value')->mapWithKeys(fn($value, $id) => [strtolower(trim($value)) => $id])->toArray(); // Fix mapping: pluck('id', 'value')
 
         self::$originCommuneNameCache = Commune::query()
             ->select('id', 'name')
@@ -86,6 +109,10 @@ class OdontologyWaitlistImporter extends Importer
 
     public function resolveRecord(): ?OdontologyWaitlist
     {
+        if (! self::$initialized) {
+            self::initialize();
+            self::$initialized = true;
+        }
 
         return DB::transaction(function () {
             // --- 0. Helper for data access ---
@@ -111,7 +138,9 @@ class OdontologyWaitlistImporter extends Importer
                 )->first();
             }
 
-            $sexValue = self::$sexCache[strtolower(trim($val('SEXO')))] ?? null;
+            $sexoRaw = trim((string) $val('SEXO', ''));
+            $sexoCode = is_numeric($sexoRaw) ? (string) intval($sexoRaw) : $sexoRaw;
+            $sexValue = self::SEX_CODE_MAP[$sexoCode] ?? null;
             $isNewUser = is_null($user);
 
             $userCreatedOrUpdated = User::updateOrCreate(
@@ -122,9 +151,7 @@ class OdontologyWaitlistImporter extends Importer
                     'given'             => $val('NOMBRES'),
                     'fathers_family'    => $val('PRIMER_APELLIDO'),
                     'mothers_family'    => $val('SEGUNDO_APELLIDO'),
-                    'birthday'          => !empty($val('FECHA_NAC'))
-                        ? Carbon::createFromFormat('d/m/Y', $val('FECHA_NAC'))->format('Y-m-d')
-                        : null,
+                    'birthday'          => $this->parseFlexibleDate($val('FECHA_NAC')),
                     'sex'               => $sexValue,
                 ]
             );
@@ -250,8 +277,8 @@ class OdontologyWaitlistImporter extends Importer
                     'destiny_establishment_id'  => $destinyOrganizationId,
                     'suspected_diagnosis'       => ($val('SOSPECHA_DIAG') !== null) ? strtolower(trim($val('SOSPECHA_DIAG'))) : null,
                     'establishment_id'          => $organizationId,
-                    'entry_date'                => $val('F_ENTRADA') ? Carbon::createFromFormat('d/m/Y', $val('F_ENTRADA'))->format('Y-m-d') : null,
-                    'exit_date'                 => $val('F_SALIDA') ? Carbon::createFromFormat('d/m/Y', $val('F_SALIDA'))->format('Y-m-d') : null,
+                    'entry_date'                => $this->parseFlexibleDate($val('F_ENTRADA')),
+                    'exit_date'                 => $this->parseFlexibleDate($val('F_SALIDA')),
                     'healthcare_type_id'        => $previsionValue,
                     'minsal_specialty_id'       => $minsalSpecialty,
                     'exit_minsal_specialty_id'  => $minsalExitSpecialty,
@@ -282,7 +309,7 @@ class OdontologyWaitlistImporter extends Importer
                     'lbIqOdonto'                => $val('LB IQ ODONTO'),
                     'procedureType'             => $val('Tipo Procedimiento'),
                     'sename'                    => $val('SENAME'),
-                    'exit_code'                 => $val('C_SALIDA'),
+                    'exit_code'                 => filled($val('C_SALIDA')) ? trim($val('C_SALIDA')) : null,
                     'referring_specialty'       => $val('E_OTOR_AT'),
                     'wait_medical_benefit_id'   => $medicalBenefitId,
                     'elapsed_days'              => $val('DIAS_PASADOS'),
@@ -352,6 +379,27 @@ class OdontologyWaitlistImporter extends Importer
         }
 
         return $user;
+    }
+
+    /**
+     * SIGTE exports have used both "d/m/Y" and "d-m-Y" for date columns
+     * depending on the source; detect the separator actually present rather
+     * than assuming one, and return null instead of throwing on an
+     * unparseable value so one bad date doesn't fail the whole row.
+     */
+    protected function parseFlexibleDate(?string $value): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        $format = str_contains($value, '/') ? 'd/m/Y' : 'd-m-Y';
+
+        try {
+            return Carbon::createFromFormat($format, trim($value))->format('Y-m-d');
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     public static function getColumns(): array
