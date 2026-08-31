@@ -8,6 +8,7 @@ use Filament\Notifications\Notification;
 use Filament\Actions;
 use Filament\Forms;
 
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\DependentUserImport;
 use pxlrbt\FilamentExcel;
@@ -65,40 +66,39 @@ class ListDependentUsers extends ListRecords
                 ))
                 ->icon('heroicon-o-map')
                 ->label('Mapa'),
-            Actions\Action::make('import')
-                ->modalHeading('Importar')
-                ->modalDescription('Subir archivo de tipo xlsx')
+            Actions\Action::make('importar')
+                ->label('Importar')
                 ->icon('heroicon-o-arrow-down-tray')
-                // ->color('success')
+                ->color('warning')
                 ->visible(auth()->user()->can('be god'))
+                ->modalHeading('Importar Usuarios Dependientes')
+                ->modalDescription('Sube el archivo .xlsx para procesar los registros.')
+                ->modalSubmitActionLabel('Iniciar Importación')
                 ->form([
-                    Forms\Components\FileUpload::make('attachment')
-                        ->required()
-                        ->label('Excel File')
-                        // ->storeFiles(false) // Keeps file in temporary memory during request
+                    Forms\Components\FileUpload::make('archivo')
+                        ->label('Archivo Excel')
+                        ->disk('local') // O el disco que prefieras
+                        ->directory('temp-imports')
                         ->acceptedFileTypes([
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                             'application/vnd.ms-excel',
-                            'text/csv',
-                        ]),
+                            'text/csv'
+                        ])
+                        ->required(),
                 ])
-                ->action(function (array $data, Forms\Components\FileUpload $component) {
-                    // $data['attachment'] is a TemporaryUploadedFile instance
+                ->action(function (array $data) {
                     try {
-                        // Obtenemos el archivo temporal directamente del componente FileUpload
-                        $uploadedFiles = $component->getUploadedFiles();
-                        $temporaryFile = reset($uploadedFiles); // Tomamos el primer archivo subido
-        
-                        if (!$temporaryFile) {
-                            throw new \Exception('No se pudo procesar el archivo subido.');
-                        }
-                        Excel::import(
-                            new DependentUserImport,
-                            $temporaryFile->getRealPath(),
-                        );
+                        // El componente FileUpload devuelve la ruta relativa dentro del disco
+                        $filePath = Storage::disk('local')->path($data['archivo']);
+
+                        // Ejecutamos la importación con tu clase ya existente
+                        Excel::import(new DependentUserImport, $filePath);
+
+                        // Opcional: Eliminar el archivo después de importar
+                        Storage::disk('local')->delete($data['archivo']);
                     } catch (\Exception $e) {
                         Notification::make()
-                            ->title('Error en la importación')
+                            ->title('Error durante la importación')
                             ->body($e->getMessage())
                             ->danger()
                             ->send();
