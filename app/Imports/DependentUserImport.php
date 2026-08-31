@@ -169,9 +169,9 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
 
         if (($row['run'] ?? '') === '' || ($row['dv'] ?? '') === '') {
             self::$skippedCount++;
-            $filaVacia = empty($row['nombre']) && empty($row['apellido_paterno']);
+            $filaVacia = empty($row['nombre']) && empty($row['apellido_paterno']) && empty($row['establecimiento']);
             if (!$filaVacia) {
-                Log::warning('Fila ' . $excelRowNumber . ' sin RUN/DV, saltando', [
+                Log::error('Fila ' . $excelRowNumber . ' sin RUN/DV, saltando', [
                     'contenido_completo' => $row,
                     'nombre' => $row['nombre'] ?? 'N/A',
                     'apellido_paterno' => $row['apellido_paterno'] ?? 'N/A',
