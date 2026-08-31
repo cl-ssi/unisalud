@@ -75,24 +75,34 @@ class ListDependentUsers extends ListRecords
                     Forms\Components\FileUpload::make('attachment')
                         ->required()
                         ->label('Excel File')
+                        // ->storeFiles(false) // Keeps file in temporary memory during request
                         ->acceptedFileTypes([
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                             'application/vnd.ms-excel',
                             'text/csv',
-                        ])
-                        ->storeFiles(false), // Keeps file in temporary memory during request
+                        ]),
                 ])
-                ->action(function (array $data) {
+                ->action(function (array $data, Forms\Components\FileUpload $component) {
                     // $data['attachment'] is a TemporaryUploadedFile instance
-                    Excel::import(
-                        new DependentUserImport,
-                        $data['attachment']->getRealPath(),
-                        readerType: \Maatwebsite\Excel\Excel::XLSX
-                    );
-                    /* Notification::make()
-                        ->title('Import completed successfully!')
-                        ->success()
-                        ->send(); */
+                    try {
+                        // Obtenemos el archivo temporal directamente del componente FileUpload
+                        $uploadedFiles = $component->getUploadedFiles();
+                        $temporaryFile = reset($uploadedFiles); // Tomamos el primer archivo subido
+        
+                        if (!$temporaryFile) {
+                            throw new \Exception('No se pudo procesar el archivo subido.');
+                        }
+                        Excel::import(
+                            new DependentUserImport,
+                            $temporaryFile->getRealPath(),
+                        );
+                    } catch (\Exception $e) {
+                        Notification::make()
+                            ->title('Error en la importación')
+                            ->body($e->getMessage())
+                            ->danger()
+                            ->send();
+                    }
                 }),
             FilamentExcel\Actions\Pages\ExportAction::make()
                 ->label('Exportar')
