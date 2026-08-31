@@ -89,10 +89,10 @@ class ListDependentUsers extends ListRecords
                         $data['attachment']->getRealPath(),
                         readerType: \Maatwebsite\Excel\Excel::XLSX
                     );
-                    Notification::make()
+                    /* Notification::make()
                         ->title('Import completed successfully!')
                         ->success()
-                        ->send();
+                        ->send(); */
                 }),
             FilamentExcel\Actions\Pages\ExportAction::make()
                 ->label('Exportar')

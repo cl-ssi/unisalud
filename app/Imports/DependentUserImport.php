@@ -45,6 +45,7 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
     protected static int $insertedCount = 0;
     protected static int $updatedCount = 0;
     protected static int $skippedCount = 0;
+    protected static int $errorCount = 0;
     protected static int $currentRow = 0; // Contador de filas
 
     public function __construct()
@@ -53,6 +54,7 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
 
         // Resetear contador de filas
         self::$currentRow = 0;
+        self::$errorCount = 0;
 
         // Cargar todos los datos una sola vez
         if (self::$sexCache === null) {
@@ -193,6 +195,7 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
             return $dependentUser;
         } catch (\Exception $e) {
             self::$skippedCount++;
+            self::$errorCount++;
             Log::error('Error procesando fila ' . $excelRowNumber, [
                 'run' => $row['run'] ?? 'N/A',
                 'nombre' => ($row['nombre'] ?? '') . ' ' . ($row['apellido_paterno'] ?? ''),
@@ -448,7 +451,8 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
             case 'date':
                 try {
                     $value = intval(trim($value));
-                    if ($value == 0) return null;
+                    if ($value == 0)
+                        return null;
                     return Date::excelToDateTimeObject($value)->format($this->date_format);
                 } catch (\Exception $e) {
                     Log::warning('Error parseando fecha', ['value' => $value]);
@@ -502,14 +506,23 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
                     'total_filas_procesadas' => self::$currentRow,
                     'insertados' => self::$insertedCount,
                     'actualizados' => self::$updatedCount,
-                    'omitidos' => self::$skippedCount
+                    'omitidos' => self::$skippedCount,
+                    'errores' => self::$errorCount
                 ]);
 
-                Notification::make()
-                    ->title('Importación Completada')
-                    ->success()
-                    ->body(self::getCompletedNotificationBody())
-                    ->send();
+                if (self::$errorCount > 0) {
+                    Notification::make()
+                        ->title('Importación Completada con Errores')
+                        ->warning()
+                        ->body(self::getCompletedNotificationBody())
+                        ->send();
+                } else {
+                    Notification::make()
+                        ->title('Importación Completada')
+                        ->success()
+                        ->body(self::getCompletedNotificationBody())
+                        ->send();
+                }
             },
         ];
     }
@@ -520,13 +533,20 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
         $body .= self::$currentRow . ' filas procesadas. ';
         $body .= self::$insertedCount . ' insertada(s), ';
         $body .= self::$updatedCount . ' actualizada(s), ';
-        $body .= self::$skippedCount . ' omitida(s).';
+        $body .= self::$skippedCount . ' omitida(s)';
+
+        if (self::$errorCount > 0) {
+            $body .= ', ' . self::$errorCount . ' error(es).';
+        } else {
+            $body .= '.';
+        }
 
         $message = $body;
 
         self::$insertedCount = 0;
         self::$updatedCount = 0;
         self::$skippedCount = 0;
+        self::$errorCount = 0;
         self::$currentRow = 0;
 
         return $message;
