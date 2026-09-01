@@ -25,6 +25,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 use pxlrbt\FilamentEnvironmentIndicator\EnvironmentIndicatorPlugin;
+use Saade\FilamentLaravelLog\FilamentLaravelLogPlugin;
 use Awcodes\FilamentGravatar\GravatarProvider;
 use Awcodes\FilamentGravatar\GravatarPlugin;
 use Hasnayeen\Themes\ThemesPlugin;
@@ -94,6 +95,15 @@ class AdminPanelProvider extends PanelProvider
                 GravatarPlugin::make(),
                 EnvironmentIndicatorPlugin::make()
                     ->visible(fn() => auth()->user()?->can('be god')),
+                FilamentLaravelLogPlugin::make()
+                    ->authorize(
+                        fn() => auth()->user()?->can('be god')
+                    )
+                    ->navigationGroup('Parámetros')
+                    ->navigationLabel('Logs')
+                    ->navigationIcon('heroicon-o-cpu-chip')
+                    ->navigationSort(1)
+                    ->slug('logs'),
             ]);
     }
 }
