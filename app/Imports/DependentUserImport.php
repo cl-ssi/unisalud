@@ -50,36 +50,30 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
 
     public function __construct()
     {
-        Log::info('=== DependentUserImport CONSTRUCTOR ===');
+        // El constructor puede quedarse vacío o con logs básicos
+        // No confíes en que esto se ejecutará en el Worker de la misma forma que en el Web
+        Log::info('=== DependentUserImport INSTANCIADO ===');
+    }
 
-        // Resetear contador de filas
-        self::$currentRow = 0;
-        self::$errorCount = 0;
-
-        // Cargar todos los datos una sola vez
-        if (self::$sexCache === null) {
-            self::$sexCache = Sex::pluck('value', 'text')->toArray();
-            self::$genderCache = Gender::pluck('value', 'text')->toArray();
-            self::$countriesCache = Country::pluck('id', 'name')->toArray();
-            self::$communesCache = Commune::get()->keyBy('name');
-            self::$organizationsCache = Organization::pluck('id', 'code_deis')->toArray();
-            self::$conditionsParents = Condition::parentsOnly()->pluck('id', 'name')->toArray();
-            self::$conditionsChilds = Condition::childsOnly()->pluck('id', 'code')->toArray();
-
-            Log::info('Cachés cargados', [
-                'sexos' => count(self::$sexCache),
-                'generos' => count(self::$genderCache),
-                'paises' => count(self::$countriesCache),
-                'comunas' => count(self::$communesCache),
-                'organizaciones' => count(self::$organizationsCache),
-                'condiciones' => count(self::$conditionsParents),
-                'subcondiciones' => count(self::$conditionsChilds)
-            ]);
+    public function ensureCachesAreLoaded()
+    {
+        if (self::$sexCache !== null) {
+            return; // Ya están cargados en este proceso
         }
+        Log::info('Cargando cachés en el Worker...');
+        self::$sexCache = Sex::pluck('value', 'text')->toArray();
+        self::$genderCache = Gender::pluck('value', 'text')->toArray();
+        self::$countriesCache = Country::pluck('id', 'name')->toArray();
+        self::$communesCache = Commune::get()->keyBy('name');
+        self::$organizationsCache = Organization::pluck('id', 'code_deis')->toArray();
+        self::$conditionsParents = Condition::parentsOnly()->pluck('id', 'name')->toArray();
+        self::$conditionsChilds = Condition::childsOnly()->pluck('id', 'code')->toArray();
     }
 
     public function model(array $row)
     {
+        // 1. IMPORTANTE: Cargar cachés al inicio del procesamiento de la fila
+        $this->ensureCachesAreLoaded();
         // Incrementar contador de fila (suma 2 porque la fila 1 es el encabezado en Excel)
         self::$currentRow++;
         $excelRowNumber = self::$currentRow + 1;
@@ -391,15 +385,16 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
             ]
         );
 
-        // Attach conditions usando caché
+        // Asegurarnos que conditionsParents sea un array antes del foreach
+        $parents = self::$conditionsParents ?? [];
         $electro = strtoupper($row['electrodependencia'] ?? '');
         $attachIds = [];
-        Log::debug(var_dump(self::$conditionsParents));
-        foreach (self::$conditionsParents as $name => $id) {
-            $val = $this->formatField($row[str_replace(" ", "_", strtolower($name))] ?? null, 'boolean');
+        foreach ($parents as $name => $id) {
+            $columnName = str_replace(" ", "_", strtolower($name));
+            $val = $this->formatField($row[$columnName] ?? null, 'boolean');
             if ($val === true) {
                 $attachIds[] = $id;
-            } elseif ($name === 'electrodependencia' && array_key_exists($electro, self::$conditionsChilds) && $val != false) {
+            } elseif ($name === 'electrodependencia' && array_key_exists($electro, self::$conditionsChilds ?? []) && $val != false) {
                 $attachIds[] = $id;
                 $attachIds[] = self::$conditionsChilds[$electro];
             }
