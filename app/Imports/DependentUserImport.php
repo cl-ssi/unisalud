@@ -71,7 +71,9 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
                 'generos' => count(self::$genderCache),
                 'paises' => count(self::$countriesCache),
                 'comunas' => count(self::$communesCache),
-                'organizaciones' => count(self::$organizationsCache)
+                'organizaciones' => count(self::$organizationsCache),
+                'condiciones' => count(self::$conditionsParents),
+                'subcondiciones' => count(self::$conditionsChilds)
             ]);
         }
     }
@@ -199,6 +201,7 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
             Log::error('Error procesando fila ' . $excelRowNumber, [
                 'run' => $row['run'] ?? 'N/A',
                 'nombre' => ($row['nombre'] ?? '') . ' ' . ($row['apellido_paterno'] ?? ''),
+                'establecimiento' => $row['establecimiento'],
                 'error' => $e->getMessage(),
                 'line' => $e->getLine(),
                 'file' => basename($e->getFile()),
@@ -391,7 +394,7 @@ class DependentUserImport implements ToModel, WithHeadingRow, WithChunkReading, 
         // Attach conditions usando caché
         $electro = strtoupper($row['electrodependencia'] ?? '');
         $attachIds = [];
-
+        Log::debug(var_dump(self::$conditionsParents));
         foreach (self::$conditionsParents as $name => $id) {
             $val = $this->formatField($row[str_replace(" ", "_", strtolower($name))] ?? null, 'boolean');
             if ($val === true) {
