@@ -14,9 +14,11 @@ class EditUser extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()
+                ->hidden(auth()->user()->cannot('be god')),
             Impersonate::make()
                 ->record($this->getRecord())
+                ->hidden(auth()->user()->cannot('be god')),
         ];
     }
 }

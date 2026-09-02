@@ -38,24 +38,29 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('user_id')
-                    ->numeric(),
+                    ->numeric()
+                    ->hidden(auth()->user()->cannot('be god')),
                 Forms\Components\Toggle::make('active')
                     // ->required()
-                    ->hidden()
+                    ->hidden(auth()->user()->cannot('be god'))
                     ->default(1),
                 Forms\Components\TextInput::make('text')
                     ->label('Nombre Completo')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('given')
                     ->label('Nombre')
+                    ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('fathers_family')
+                    ->required()
                     ->label('Apellido Paterno')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('mothers_family')
+                    ->required()
                     ->label('Apellido Materno')
                     ->maxLength(255),
                 Forms\Components\Select::make('sex')
+                    ->required()
                     ->label('Sexo')
                     ->options(Sex::class),
                 Forms\Components\Select::make('gender')
@@ -64,6 +69,7 @@ class UserResource extends Resource
                 Forms\Components\DatePicker::make('birthday')
                     ->label('Fecha Nacimiento'),
                 Forms\Components\DateTimePicker::make('deceased_datetime')
+                    ->hidden(auth()->user()->cannot('be god'))
                     ->label('Fecha Deceso'),
                 Forms\Components\Select::make('cod_con_marital_id')
                     ->label('Estado Civil')
@@ -76,12 +82,18 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->maxLength(255),
-                Forms\Components\Toggle::make('claveunica'),
+                Forms\Components\Toggle::make('claveunica')
+                    ->hidden(auth()->user()->cannot('be god'))
+                    ->default(1),
                 Forms\Components\Toggle::make('external') // Añadir el campo 'external' como switch
-                    ->label('Usuario Externo'),
+                    ->hidden(auth()->user()->cannot('be god'))
+                    ->label('Usuario Externo')
+                    ->hidden(),
                 Forms\Components\TextInput::make('fhir_id')
+                    ->hidden(auth()->user()->cannot('be god'))
                     ->maxLength(255),
                 Forms\Components\DateTimePicker::make('email_verified_at')
+                    ->hidden(auth()->user()->cannot('be god'))
                     ->label('Fecha de Verificación Email'),
             ]);
     }
@@ -99,6 +111,7 @@ class UserResource extends Resource
                     ->importer(ConditionImporter::class)
                     ->label('Importar Condición de Usuarios')
                     ->modalHeading('Importar Condición de Usuarios')
+                    ->hidden(auth()->user()->cannot('be god'))
                     // ->modalDescription('Subir archivo CSV')
                     ->modalSubmitActionLabel('Importar'),
                 // ->options([])
@@ -177,12 +190,15 @@ class UserResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+
                 \STS\FilamentImpersonate\Tables\Actions\Impersonate::make()
-                    ->redirectTo(route('filament.admin.pages.dashboard')),
+                    ->redirectTo(route('filament.admin.pages.dashboard'))
+                    ->hidden(auth()->user()->cannot('be god')),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->hidden(auth()->user()->cannot('be god')),
                 ]),
             ]);
     }
