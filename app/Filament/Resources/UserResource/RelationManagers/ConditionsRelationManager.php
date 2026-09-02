@@ -17,6 +17,8 @@ use App\Models\Coding;
 class ConditionsRelationManager extends RelationManager
 {
     protected static string $relationship = 'conditions';
+    protected static ?string $label = 'Condiciones';
+    protected static ?string $title = 'Condiciones';
 
     public function form(Form $form): Form
     {

@@ -78,8 +78,10 @@ class UserResource extends Resource
                     ->label('Nacionalidad')
                     ->relationship('nationality', 'name'),
                 Forms\Components\TextInput::make('team')
+                    ->hidden(auth()->user()->cannot('be god'))
                     ->maxLength(255),
                 Forms\Components\TextInput::make('password')
+                    ->hidden(auth()->user()->cannot('be god'))
                     ->password()
                     ->maxLength(255),
                 Forms\Components\Toggle::make('claveunica')

@@ -14,6 +14,9 @@ use App\Enums\IdentifierUse;
 class IdentifiersRelationManager extends RelationManager
 {
     protected static string $relationship = 'identifiers';
+    protected static ?string $label = 'Identificación';
+    protected static ?string $title = 'Identificación';
+
 
     public function form(Form $form): Form
     {

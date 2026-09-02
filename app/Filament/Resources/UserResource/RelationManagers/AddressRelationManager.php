@@ -24,6 +24,8 @@ use Illuminate\Database\Eloquent\Model;
 class AddressRelationManager extends RelationManager
 {
     protected static string $relationship = 'address';
+    protected static ?string $label = 'Dirección';
+    protected static ?string $title = 'Dirección';
 
     public $setLatitude = null;
 
@@ -43,43 +45,43 @@ class AddressRelationManager extends RelationManager
                     ->label('Calle')->reactive()
                     ->reactive()
                     ->debounce(2000)
-                    ->afterStateUpdated(fn ($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
+                    ->afterStateUpdated(fn($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
                 Forms\Components\TextInput::make('line')
                     ->label('Número')
                     ->maxLength(255)
                     ->reactive()
                     ->debounce(2000)
-                    ->afterStateUpdated(fn ($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
+                    ->afterStateUpdated(fn($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
                 Forms\Components\TextInput::make('apartment')
                     ->label('Tipo')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('suburb')
                     ->label('Villa / Población')
                     ->maxLength(255)
-                    ->afterStateUpdated(fn ($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
+                    ->afterStateUpdated(fn($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
                 Forms\Components\TextInput::make('city')
                     ->label('Ciudad')
                     ->maxLength(255),
                 Forms\Components\Select::make('country_id')
                     ->label('País')
-                    ->relationship('country','name'),
+                    ->relationship('country', 'name'),
                 Forms\Components\Select::make('commune_id')
                     ->label('Comuna')
                     ->debounce(2000)
                     ->reactive()
-                    ->relationship('commune','name')
-                    ->afterStateUpdated(fn ($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
+                    ->relationship('commune', 'name')
+                    ->afterStateUpdated(fn($state, callable $get, callable $set) => self::calculateCoordinates($get, $set)),
                 Forms\Components\TextInput::make('postal_code')
                     ->label('Código Postal')
                     ->maxLength(255),
                 Forms\Components\Select::make('region_id')
                     ->label('Región')
-                    ->relationship('region','name'),
+                    ->relationship('region', 'name'),
                 Forms\Components\TextInput::make('latitude')
                     ->label('Latitud')
                     ->default($this->setLatitude),
-                    // ->relationship('address.location.latitude')
-                    // ->readonly(),
+                // ->relationship('address.location.latitude')
+                // ->readonly(),
                 Forms\Components\TextInput::make('longitude')
                     ->label('Longitud'),
                 Forms\Components\Toggle::make('actually')
@@ -97,15 +99,15 @@ class AddressRelationManager extends RelationManager
 
     public static function calculateCoordinates(callable $get, callable $set)
     {
-        $address    = $get('text');
-        $number     = $get('line');
+        $address = $get('text');
+        $number = $get('line');
         $commune_id = $get('commune_id');
 
         if ($address && $number && $commune_id) {
             $commune = Commune::find($commune_id)->name;
 
             $geocodingService = app(GeocodingService::class);
-            $coordinates = $geocodingService->getCoordinates($address.'+'.$number.'+'.$commune);
+            $coordinates = $geocodingService->getCoordinates($address . '+' . $number . '+' . $commune);
 
             if ($coordinates) {
                 $set('latitude', $coordinates['lat']);
@@ -154,32 +156,32 @@ class AddressRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\CreateAction::make()
                     ->using(function (array $data): Model {
-                        $address                    = new Address();
-                        $address->user_id           = $this->ownerRecord->id;
-                        $address->use               = $data['use'];
-                        $address->type              = $data['type'];
-                        $address->text              = $data['text'];
-                        $address->line              = $data['line'];
-                        $address->apartment         = $data['apartment'];
-                        $address->suburb            = $data['suburb'];
-                        $address->city              = $data['city'];
-                        $address->country_id        = $data['country_id'];
-                        $address->commune_id        = $data['commune_id'];
-                        $address->postal_code       = $data['postal_code'];
-                        $address->region_id         = $data['region_id'];
-                        $address->actually          = $data['actually'];
-                        $address->organization_id   = $data['organization_id'];
-                        $address->practitioner_id   = $data['practitioner_id'];
+                        $address = new Address();
+                        $address->user_id = $this->ownerRecord->id;
+                        $address->use = $data['use'];
+                        $address->type = $data['type'];
+                        $address->text = $data['text'];
+                        $address->line = $data['line'];
+                        $address->apartment = $data['apartment'];
+                        $address->suburb = $data['suburb'];
+                        $address->city = $data['city'];
+                        $address->country_id = $data['country_id'];
+                        $address->commune_id = $data['commune_id'];
+                        $address->postal_code = $data['postal_code'];
+                        $address->region_id = $data['region_id'];
+                        $address->actually = $data['actually'];
+                        $address->organization_id = $data['organization_id'];
+                        $address->practitioner_id = $data['practitioner_id'];
 
                         $address->save();
 
                         $address->location()->updateOrCreate(
                             [
-                                'latitude'      => $data['latitude'],
-                                'longitude'     => $data['longitude'],
-                                'address_id'    => $address->id
+                                'latitude' => $data['latitude'],
+                                'longitude' => $data['longitude'],
+                                'address_id' => $address->id
                             ]
-                            
+
                         );
 
                         return $address;
@@ -195,24 +197,24 @@ class AddressRelationManager extends RelationManager
                             ]
                             ,
                             [
-                                'use'               => $data['use'],
-                                'type'              => $data['type'],
-                                'text'              => $data['text'],
-                                'line'              => $data['line'],
-                                'apartment'         => $data['apartment'],
-                                'suburb'            => $data['suburb'],
-                                'city'              => $data['city'],
-                                'country_id'        => $data['country_id'],
-                                'commune_id'        => $data['commune_id'],
-                                'postal_code'       => $data['postal_code'],
-                                'region_id'         => $data['region_id'],
-                                
+                                'use' => $data['use'],
+                                'type' => $data['type'],
+                                'text' => $data['text'],
+                                'line' => $data['line'],
+                                'apartment' => $data['apartment'],
+                                'suburb' => $data['suburb'],
+                                'city' => $data['city'],
+                                'country_id' => $data['country_id'],
+                                'commune_id' => $data['commune_id'],
+                                'postal_code' => $data['postal_code'],
+                                'region_id' => $data['region_id'],
+
                                 //'latitude'      => $data['latitude'],
                                 //'longitude'     => $data['longitude'],
-                                
-                                'actually'          => $data['actually'],
-                                'organization_id'   => $data['organization_id'],
-                                'practitioner_id'   => $data['practitioner_id']
+            
+                                'actually' => $data['actually'],
+                                'organization_id' => $data['organization_id'],
+                                'practitioner_id' => $data['practitioner_id']
                             ]
                         );
 
@@ -221,13 +223,13 @@ class AddressRelationManager extends RelationManager
                                 'id' => $record->location->id ?? null
                             ],
                             [
-                                'latitude'      => $data['latitude'],
-                                'longitude'     => $data['longitude'],
-                                'address_id'    => $record->id
+                                'latitude' => $data['latitude'],
+                                'longitude' => $data['longitude'],
+                                'address_id' => $record->id
                             ]
-                            
+
                         );
-                
+
                         return $record;
                     })
                     /*
@@ -236,7 +238,7 @@ class AddressRelationManager extends RelationManager
                     }),
                     */
                     ->beforeFormFilled(function (Model $record, array $data) {
-                        if($record->location){
+                        if ($record->location) {
                             $this->setLatitude = $record->location->latitude;
                         }
                     }),

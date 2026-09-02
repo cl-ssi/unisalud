@@ -14,7 +14,8 @@ class OrganizationsRelationManager extends RelationManager
 {
     protected static string $relationship = 'organizations';
 
-    protected static ?string $title = 'Organizaciones';
+    protected static ?string $title = 'Organización';
+    protected static ?string $label = 'Organización';
 
     public function form(Form $form): Form
     {

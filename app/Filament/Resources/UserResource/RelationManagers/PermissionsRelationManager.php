@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class PermissionsRelationManager extends RelationManager
 {
     protected static string $relationship = 'permissions';
+    protected static ?string $label = 'Permisos';
+    protected static ?string $title = 'Permisos';
 
     public function form(Form $form): Form
     {
