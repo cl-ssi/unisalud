@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Filament\Imports;
+namespace App\Imports;
 
+use App\Enums\Sex;
 use App\Models\Address;
 use App\Models\Commune;
 use App\Models\ContactPoint;
@@ -10,47 +11,31 @@ use App\Models\HumanName;
 use App\Models\Identifier;
 use App\Models\MinsalSpecialty;
 use App\Models\OdontologyHealthCareService;
+use App\Models\OdontologyMedicalBenefit;
 use App\Models\OdontologySpeciality;
 use App\Models\OdontologyWaitlist;
 use App\Models\Organization;
 use App\Models\Region;
 use App\Models\User;
-use App\Enums\Sex;
 use App\Models\WaitlistEntryType;
-use App\Models\OdontologyMedicalBenefit;
-use Filament\Actions\Imports\Importer;
-use Filament\Actions\Imports\Models\Import;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Concerns\OnEachRow;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Row;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-class OdontologyWaitlistImporter extends Importer
+/**
+ * Imports the SIGTE odontology waitlist template ("Libro1.xlsx").
+ *
+ * Runs synchronously (no ShouldQueue) like the other maatwebsite imports
+ * triggered from the panel, so it doesn't depend on a queue worker.
+ */
+class OdontologyWaitlistImport implements OnEachRow, WithHeadingRow, WithChunkReading
 {
-    protected static ?string $model = OdontologyWaitlist::class;
-
-    protected static array $healthCareServiceCache = [];
-    protected static array $specialtyCache = [];
-    protected static array $medicalBenefitCache = [];
-    protected static array $communeCodeCache = [];
-    protected static array $organizationCodeCache = [];
-    protected static array $organizationAliasCache = [];
-    protected static array $healthcareTypeCache = [];
-    protected static array $minsalSpecialtyCache = [];
-    protected static array $entryTypeCache = [];
-    protected static array $regionCache = [];
-    protected static array $originCommuneNameCache = [];
-
-    /**
-     * Filament's Importer never calls initialize() itself — it's purely a
-     * convention some other importers in this codebase adopted, but nothing
-     * in vendor/filament/actions actually invokes it. Without this guard the
-     * lookup caches below stay empty for every real import (verified via
-     * `grep -rn initialize vendor/filament/actions/` — zero matches), so
-     * every code-based field (PREVISION, TIPO_PREST, COMUNA, establishments,
-     * region, PRESTA_MIN) silently resolved to null. Populate the caches
-     * lazily on first use instead of relying on an unfired hook.
-     */
-    protected static bool $initialized = false;
-
     /**
      * SEXO in the SIGTE export uses the DEIS "sexo biológico" codification,
      * not free text — map it directly instead of resolving through the
@@ -64,11 +49,28 @@ class OdontologyWaitlistImporter extends Importer
         '99' => Sex::Unknown->value,
     ];
 
+    protected static array $healthCareServiceCache = [];
+    protected static array $specialtyCache = [];
+    protected static array $medicalBenefitCache = [];
+    protected static array $communeCodeCache = [];
+    protected static array $organizationCodeCache = [];
+    protected static array $organizationAliasCache = [];
+    protected static array $healthcareTypeCache = [];
+    protected static array $minsalSpecialtyCache = [];
+    protected static array $entryTypeCache = [];
+    protected static array $regionCache = [];
+    protected static array $originCommuneNameCache = [];
+    protected static bool $initialized = false;
 
-    protected int $chunkSize = 100;
+    public int $successfulRows = 0;
+    public array $failedRows = [];
 
-    protected static function initialize(): void
+    protected static function ensureCachesAreLoaded(): void
     {
+        if (self::$initialized) {
+            return;
+        }
+
         self::$communeCodeCache = Commune::query()
             ->select('id', 'code_deis')
             ->get()
@@ -104,20 +106,43 @@ class OdontologyWaitlistImporter extends Importer
             ->pluck('id', 'name')
             ->mapWithKeys(fn($id, $name) => [strtolower(trim($name)) => $id])
             ->toArray();
+
+        self::$initialized = true;
     }
 
-
-    public function resolveRecord(): ?OdontologyWaitlist
+    public function onRow(Row $row): void
     {
-        if (! self::$initialized) {
-            self::initialize();
-            self::$initialized = true;
+        self::ensureCachesAreLoaded();
+
+        $data = array_map(fn($value) => is_string($value) ? trim($value) : $value, $row->toArray());
+
+        // Skip fully empty rows (trailing formatted rows in the template).
+        if (collect($data)->filter(fn($value) => filled($value))->isEmpty()) {
+            return;
         }
 
-        return DB::transaction(function () {
-            // --- 0. Helper for data access ---
-            $val = function ($key, $default = null) {
-                return $this->originalData[$key] ?? $default;
+        try {
+            $this->importRow($data);
+            $this->successfulRows++;
+        } catch (\Throwable $e) {
+            $this->failedRows[] = ['row' => $row->getIndex(), 'error' => $e->getMessage()];
+            Log::error('OdontologyWaitlistImport: error en fila ' . $row->getIndex(), [
+                'sigte_id' => $data['sigte_id'] ?? null,
+                'run'      => $data['run'] ?? null,
+                'error'    => $e->getMessage(),
+            ]);
+        }
+    }
+
+    protected function importRow(array $data): OdontologyWaitlist
+    {
+        return DB::transaction(function () use ($data) {
+            // Headings arrive slugged by WithHeadingRow ("TIPO PRESTACION" → "tipo_prestacion",
+            // "AÑO" → "ano"), so look keys up by the template's original header name.
+            $val = function ($key, $default = null) use ($data) {
+                $value = $data[Str::slug($key, '_')] ?? null;
+
+                return ($value === null || $value === '') ? $default : $value;
             };
 
             $text = strtolower(trim($val('PRESTA_EST', '')));
@@ -207,12 +232,12 @@ class OdontologyWaitlistImporter extends Importer
                     'suburb'        => $val('RESTO_DIRECCION'),
                     'city'          => $val('CIUDAD'),
                     'commune_id'    => $communeId,
-                    'is_rural'      => match ($val('COND_RURALIDAD') ?? null) {
+                    'is_rural'      => match ((string) $val('COND_RURALIDAD')) {
                         '1' => false,
                         '2' => true,
                         default => null,
                     },
-                    'via'           => match ($val('VIA_DIRECCION') ?? null) {
+                    'via'           => match ((string) $val('VIA_DIRECCION')) {
                         '1' => 'calle',
                         '2' => 'pasaje',
                         '3' => 'avenida',
@@ -288,15 +313,15 @@ class OdontologyWaitlistImporter extends Importer
                     'region_id'                 => $region,
                     'pediatric'                 => $val('PEDIATRICO'),
                     'lb'                        => ($val('LB') !== null) ? strtolower(trim($val('LB'))) : null,
-                    'requesting_professional_id' => optional($profSolCreatedOrUpdated)->id, // Use optional() for safety
-                    'resolving_professional_id' => optional($profResolCreatedOrUpdated)->id, // Use optional() for safety
+                    'requesting_professional_id' => optional($profSolCreatedOrUpdated)->id,
+                    'resolving_professional_id' => optional($profResolCreatedOrUpdated)->id,
                     'waitlist_entry_type_id'    => $entryType,
                     'local_id'                  => $val('ID_LOCAL'),
                     'result'                    => $val('RESULTADO'),
                     'waitlistAge'               => $val('EDAD') ? floatval(str_replace(',', '.', $val('EDAD'))) : null,
                     'waitlistYear'              => $val('AÑO'),
                     'health_service_id'         => $val('SERV_SALUD'),
-                    'appointment_date'          => $val('F_CITACION') ? date("Y-m-d H:i:s", strtotime($val('F_CITACION'))) : null,
+                    'appointment_date'          => $this->parseDateTime($val('F_CITACION')),
                     'worker'                    => $val('FUNCIONARIO'),
                     'iqType'                    => $val('Tipo de IQ'),
                     'oncologic'                 => $val('Oncologico'),
@@ -322,7 +347,7 @@ class OdontologyWaitlistImporter extends Importer
                     'registered_at'     => now(),
                     'text'              => 'Registrado a través de carga masiva',
                     'discharge'         => strtolower(trim($val('CAUSAL_EGRESO') ?? '')),
-                    'appointment_at'    => !empty($val('FECHA_ATENCION')) ? date("Y-m-d H:i:s", strtotime($val('FECHA_ATENCION'))) : null,
+                    'appointment_at'    => $this->parseDateTime($val('FECHA_ATENCION')),
                     'register_user_id'  => auth()->id() ?? User::first()?->id // Fallback if no user is authenticated
                 ]);
             }
@@ -347,13 +372,12 @@ class OdontologyWaitlistImporter extends Importer
             }
 
             return $waitlistCreatedOrUpdated;
-        }); 
+        });
     }
 
-
-    protected function findOrCreateProfessional(?string $run, ?string $dv): ?User
+    protected function findOrCreateProfessional($run, $dv): ?User
     {
-        $run = trim($run);
+        $run = trim((string) $run);
         if (empty($run)) {
             return null;
         }
@@ -367,7 +391,6 @@ class OdontologyWaitlistImporter extends Importer
         if ($user) {
             $user->update(['active' => 1]);
         } else {
-            // Create new user
             $user = User::create(['active' => 1]);
             Identifier::create([
                 'user_id'                  => $user->id,
@@ -383,48 +406,47 @@ class OdontologyWaitlistImporter extends Importer
 
     /**
      * SIGTE exports have used both "d/m/Y" and "d-m-Y" for date columns
-     * depending on the source; detect the separator actually present rather
-     * than assuming one, and return null instead of throwing on an
+     * depending on the source, and .xlsx files may hold real date cells
+     * (Excel serial numbers). Return null instead of throwing on an
      * unparseable value so one bad date doesn't fail the whole row.
      */
-    protected function parseFlexibleDate(?string $value): ?string
+    protected function parseFlexibleDate($value): ?string
     {
-        if (empty($value)) {
+        if (blank($value)) {
             return null;
         }
 
+        if (is_numeric($value)) {
+            return Carbon::instance(Date::excelToDateTimeObject($value))->format('Y-m-d');
+        }
+
+        $value = trim((string) $value);
         $format = str_contains($value, '/') ? 'd/m/Y' : 'd-m-Y';
 
         try {
-            return Carbon::createFromFormat($format, trim($value))->format('Y-m-d');
+            return Carbon::createFromFormat($format, $value)->format('Y-m-d');
         } catch (\Exception $e) {
             return null;
         }
     }
 
-    public static function getColumns(): array
+    protected function parseDateTime($value): ?string
     {
-        return [];
-    }
-
-    public function getChunkSize(): int
-    {
-        return $this->chunkSize; // Use the property $chunkSize
-    }
-
-    public static function getCompletedNotificationBody(Import $import): string
-    {
-        $body = 'Your waitlist import has completed and ' . number_format($import->successful_rows) . ' ' . str('row')->plural($import->successful_rows) . ' imported.';
-
-        if ($failedRowsCount = $import->getFailedRowsCount()) {
-            $body .= ' ' . number_format($failedRowsCount) . ' ' . str('row')->plural($failedRowsCount) . ' failed to import.';
+        if (blank($value)) {
+            return null;
         }
 
-        return $body;
+        if (is_numeric($value)) {
+            return Carbon::instance(Date::excelToDateTimeObject($value))->format('Y-m-d H:i:s');
+        }
+
+        $timestamp = strtotime((string) $value);
+
+        return $timestamp ? date('Y-m-d H:i:s', $timestamp) : null;
     }
 
-    public static function shouldQueueEachRow(): bool
+    public function chunkSize(): int
     {
-        return true;
+        return 500;
     }
 }

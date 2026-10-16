@@ -2,8 +2,12 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Imports\OdontologyWaitlistImporter;
-use App\Filament\Exports\OdontologyWaitlistExporter;
+use App\Exports\OdontologyWaitlistExport;
+use App\Imports\OdontologyWaitlistImport;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use pxlrbt\FilamentExcel;
 use App\Filament\Resources\OdontologyWaitlistResource\Pages;
 use App\Filament\Resources\OdontologyWaitlistResource\RelationManagers;
 use App\Models\OdontologyWaitlist;
@@ -365,17 +369,70 @@ class OdontologyWaitlistResource extends Resource
     {
         return $table
             ->headerActions([
-                Tables\Actions\ImportAction::make()
-                    ->importer(OdontologyWaitlistImporter::class)
+                Tables\Actions\Action::make('importar')
                     ->label('Importar Lista de Espera')
+                    ->icon('heroicon-o-arrow-down-tray')
                     ->modalHeading('Importar Lista de Espera')
+                    ->modalDescription('Sube el archivo .xlsx o .csv para procesar los registros.')
                     ->modalSubmitActionLabel('Importar')
-                    ->visible(fn() => ! auth()->user()->hasRole(self::MUNICIPALITY_ROLE)),
-                Tables\Actions\ExportAction::make()
-                    ->exporter(OdontologyWaitlistExporter::class)
+                    ->visible(fn() => ! auth()->user()->hasRole(self::MUNICIPALITY_ROLE))
+                    ->form([
+                        Forms\Components\FileUpload::make('archivo')
+                            ->label('Archivo Excel')
+                            ->disk('local')
+                            ->directory('temp-imports')
+                            ->acceptedFileTypes([
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                'application/vnd.ms-excel',
+                                'text/csv',
+                                'text/plain',
+                            ])
+                            ->required(),
+                    ])
+                    ->action(function (array $data) {
+                        $import = new OdontologyWaitlistImport();
+
+                        try {
+                            Excel::import($import, Storage::disk('local')->path($data['archivo']));
+                        } catch (\Throwable $e) {
+                            Notification::make()
+                                ->title('Error durante la importación')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+
+                            return;
+                        } finally {
+                            Storage::disk('local')->delete($data['archivo']);
+                        }
+
+                        $failed = count($import->failedRows);
+                        $body = number_format($import->successfulRows) . ' filas importadas.';
+                        if ($failed) {
+                            $body .= ' ' . number_format($failed) . ' filas con error (filas: '
+                                . collect($import->failedRows)->pluck('row')->take(20)->implode(', ')
+                                . ($failed > 20 ? '…' : '') . '). Revisa el log para el detalle.';
+                        }
+
+                        Notification::make()
+                            ->title('Importación finalizada')
+                            ->body($body)
+                            ->{$failed ? 'warning' : 'success'}()
+                            ->persistent()
+                            ->send();
+                    }),
+                FilamentExcel\Actions\Tables\ExportAction::make()
                     ->label('Exportar')
-                    ->columnMapping(false)
-                    ->visible(fn() => ! auth()->user()->hasRole(self::MUNICIPALITY_ROLE)),
+                    ->icon('heroicon-o-arrow-up-tray')
+                    ->visible(fn() => ! auth()->user()->hasRole(self::MUNICIPALITY_ROLE))
+                    ->exports([
+                        FilamentExcel\Exports\ExcelExport::make()
+                            ->withFilename(fn() => 'lista-espera-odontologia-' . date('Y-m-d_H-i-s'))
+                            ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
+                            ->useTableQuery()
+                            ->modifyQueryUsing(fn(Builder $query) => $query->with(OdontologyWaitlistExport::RELATIONS))
+                            ->withColumns(OdontologyWaitlistExport::columns()),
+                    ]),
                 Tables\Actions\Action::make('stats')
                     ->label('Estadísticas')
                     ->icon('heroicon-o-chart-bar')
