@@ -175,7 +175,7 @@ class DependentUserResource extends Resource
                                         ])->columnSpanFull()->alignCenter(),
                                         Map::make('location')
                                             ->label('Ubicación Exacta')
-                                            ->helperText('Si la ubicación automática no es exacta, arrastra el marcador para corregirla.')
+                                            ->helperText('Si la ubicación automática no es exacta, arrastra el marcador para modificar.')
                                             ->columnSpanFull()
                                             ->defaultLocation([-20.216700, -70.14222])
                                             ->defaultZoom(15)
