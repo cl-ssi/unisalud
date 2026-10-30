@@ -3,14 +3,25 @@
 namespace App\Exports;
 
 use App\Imports\OdontologyWaitlistImport;
+use BackedEnum;
 use Carbon\Carbon;
-use pxlrbt\FilamentExcel\Columns\Column;
+use Closure;
+use Filament\Support\Contracts\HasLabel;
+use Illuminate\Database\Eloquent\Builder;
+use OpenSpout\Common\Entity\Row;
+use OpenSpout\Writer\XLSX\Options;
+use OpenSpout\Writer\XLSX\Writer;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
- * Column definitions for the odontology waitlist filament-excel export.
+ * Odontology waitlist XLSX export.
  *
  * Column order/labels mirror the SIGTE template ("Libro1.xlsx") that
  * OdontologyWaitlistImport consumes on re-upload — keep the two in sync.
+ *
+ * Written with OpenSpout instead of filament-excel: filament-excel resolves
+ * every cell through the container and PhpSpreadsheet holds the whole sheet
+ * in memory, which made large exports exceed max_execution_time.
  */
 class OdontologyWaitlistExport
 {
@@ -39,6 +50,71 @@ class OdontologyWaitlistExport
         'waitlistSpecialty',
         'establishment',
     ];
+
+    /**
+     * Rows fetched per query; each chunk re-runs every eager load in RELATIONS.
+     */
+    public const CHUNK_SIZE = 1000;
+
+    /**
+     * Writes every row of $query (the table's filtered/sorted query) to an
+     * XLSX file and returns it as a download.
+     */
+    public static function download(Builder $query): BinaryFileResponse
+    {
+        $columns = self::columns();
+        $path = tempnam(sys_get_temp_dir(), 'odontology-export-');
+
+        // Shared strings, like the files OdontologyWaitlistImport reads back.
+        $options = new Options();
+        $options->SHOULD_USE_INLINE_STRINGS = false;
+
+        $writer = new Writer($options);
+        $writer->openToFile($path);
+        $writer->getCurrentSheet()->setName('Export');
+        $writer->addRow(Row::fromValues(array_keys($columns)));
+
+        $query->with(self::RELATIONS)->chunk(self::CHUNK_SIZE, function ($records) use ($writer, $columns) {
+            foreach ($records as $record) {
+                $writer->addRow(Row::fromValues(array_map(
+                    fn (Closure $state) => self::cellValue($state($record)),
+                    array_values($columns),
+                )));
+            }
+        });
+
+        $writer->close();
+
+        return response()
+            ->download($path, 'lista-espera-odontologia-' . date('Y-m-d_H-i-s') . '.xlsx')
+            ->deleteFileAfterSend();
+    }
+
+    /**
+     * Matches the cells the previous filament-excel/PhpSpreadsheet export
+     * produced: enums by label, empty values as blank cells, and numeric
+     * strings as numbers unless they have a leading zero.
+     */
+    private static function cellValue(mixed $state): int|float|string|null
+    {
+        if ($state instanceof HasLabel) {
+            $state = $state->getLabel();
+        } elseif ($state instanceof BackedEnum) {
+            $state = $state->value;
+        }
+
+        $state = (string) $state;
+
+        if ($state === '') {
+            return null;
+        }
+
+        if (is_numeric($state) && ! preg_match('/^[+-]?0\d/', $state)) {
+            return $state + 0;
+        }
+
+        return $state;
+    }
 
     /**
      * Reverse of OdontologyWaitlistImport::SEX_CODE_MAP. "other" predates
@@ -91,106 +167,96 @@ class OdontologyWaitlistExport
         return filled($state) ? str_replace('.', ',', (string) $state) : null;
     }
 
-    private static function date(string $name, string $heading): Column
+    private static function value(string $name): Closure
     {
-        return Column::make($name)
-            ->heading($heading)
-            ->getStateUsing(fn ($record) => self::formatDate(data_get($record, $name)));
+        return fn ($record) => data_get($record, $name);
     }
 
-    private static function yesNo(string $name, string $heading): Column
+    private static function date(string $name): Closure
     {
-        return Column::make($name)
-            ->heading($heading)
-            ->getStateUsing(fn ($record) => $record->{$name} ? 'Sí' : 'No');
+        return fn ($record) => self::formatDate(data_get($record, $name));
     }
 
+    private static function yesNo(string $name): Closure
+    {
+        return fn ($record) => $record->{$name} ? 'Sí' : 'No';
+    }
+
+    /**
+     * @return array<string, Closure> heading => fn ($record) => cell state
+     */
     public static function columns(): array
     {
         return [
-            Column::make('health_service_id')->heading('SERV_SALUD'),
-            Column::make('user.officialIdentifier.value')->heading('RUN'),
-            Column::make('user.officialIdentifier.dv')->heading('DV'),
-            Column::make('user.given')->heading('NOMBRES'),
-            Column::make('user.fathers_family')->heading('PRIMER_APELLIDO'),
-            Column::make('user.mothers_family')->heading('SEGUNDO_APELLIDO'),
-            self::date('user.birthday', 'FECHA_NAC'),
-            Column::make('user.sex')
-                ->heading('SEXO')
-                ->getStateUsing(fn ($record) => self::sexCode($record->user?->sex?->value)),
-            Column::make('healthcareType.code')->heading('PREVISION'),
-            Column::make('entryType.code')->heading('TIPO_PREST'),
-            Column::make('minsalSpecialty.code')->heading('PRESTA_MIN'),
-            Column::make('plano')->heading('PLANO'),
-            Column::make('extremity')->heading('EXTREMIDAD'),
-            Column::make('establishmentHealthCareService.text')->heading('PRESTA_EST'),
-            self::date('entry_date', 'F_ENTRADA'),
-            Column::make('originEstablishment.code_deis')->heading('ESTAB_ORIG'),
-            Column::make('destinyEstablishment.code_deis')->heading('ESTAB_DEST'),
-            self::date('exit_date', 'F_SALIDA'),
-            Column::make('exit_code')->heading('C_SALIDA'),
-            Column::make('referring_specialty')->heading('E_OTOR_AT'),
-            Column::make('minsalExitSpecialty.code')->heading('PRESTA_MIN_SALIDA'),
-            Column::make('prais')->heading('PRAIS'),
-            Column::make('region_id')->heading('REGION'),
-            Column::make('commune.code_deis')->heading('COMUNA'),
-            Column::make('suspected_diagnosis')->heading('SOSPECHA_DIAG'),
-            Column::make('confirmed_diagnosis')->heading('CONFIR_DIAG'),
-            Column::make('user.address.city')->heading('CIUDAD'),
-            Column::make('user.address.is_rural')
-                ->heading('COND_RURALIDAD')
-                ->getStateUsing(fn ($record) => self::ruralCode($record->user?->address?->is_rural)),
-            Column::make('user.address.via')
-                ->heading('VIA_DIRECCION')
-                ->getStateUsing(fn ($record) => self::viaCode($record->user?->address?->via)),
-            Column::make('user.address.text')->heading('NOM_CALLE'),
-            Column::make('user.address.line')->heading('NUM_DIRECCION'),
-            Column::make('user.address.suburb')->heading('RESTO_DIRECCION'),
-            Column::make('user.homeContactPoint.value')->heading('FONO_FIJO'),
-            Column::make('user.mobileContactPoint.value')->heading('FONO_MOVIL'),
-            Column::make('user.emailContactPoint.value')->heading('EMAIL'),
-            self::date('appointment_date', 'F_CITACION'),
-            Column::make('requestingProfessional.officialIdentifier.value')->heading('RUN_PROF_SOL'),
-            Column::make('requestingProfessional.officialIdentifier.dv')->heading('DV_PROF_SOL'),
-            Column::make('resolvingProfessional.officialIdentifier.value')->heading('RUN_PROF_RESOL'),
-            Column::make('resolvingProfessional.officialIdentifier.dv')->heading('DV_PROF_RESOL'),
-            Column::make('local_id')->heading('ID_LOCAL'),
-            Column::make('result')->heading('RESULTADO'),
-            Column::make('sigte_id')->heading('SIGTE_ID'),
-            Column::make('elapsed_days')->heading('DIAS_PASADOS'),
-            Column::make('waitlistAge')
-                ->heading('EDAD')
-                ->getStateUsing(fn ($record) => self::formatAge($record->waitlistAge)),
-            Column::make('waitlistYear')->heading('AÑO'),
-            Column::make('medicalBenefit.text')->heading('TIPO PRESTACION'),
-            Column::make('waitlistSpecialty.text')->heading('ESPECIALIDAD'),
-            Column::make('establishment.alias')->heading('ESTABLECIMIENTO'),
-            Column::make('worker')->heading('FUNCIONARIO'),
-            Column::make('pediatric')->heading('PEDIATRICO'),
-            Column::make('lb')->heading('LB'),
-            Column::make('iqType')->heading('Tipo de IQ'),
-            Column::make('originCommune.name')->heading('Comuna Origen'),
-            Column::make('praisUser')->heading('Usuario PRAIS'),
-            Column::make('lbPrais')->heading('LB PRAIS'),
-            Column::make('lbUrinary')->heading('LB INCONTINENCIA URINARIA'),
-            Column::make('exitError')->heading('Error Egreso'),
-            Column::make('procedureType')->heading('Tipo Procedimiento'),
-            Column::make('sename')->heading('SENAME '),
+            'SERV_SALUD' => self::value('health_service_id'),
+            'RUN' => self::value('user.officialIdentifier.value'),
+            'DV' => self::value('user.officialIdentifier.dv'),
+            'NOMBRES' => self::value('user.given'),
+            'PRIMER_APELLIDO' => self::value('user.fathers_family'),
+            'SEGUNDO_APELLIDO' => self::value('user.mothers_family'),
+            'FECHA_NAC' => self::date('user.birthday'),
+            'SEXO' => fn ($record) => self::sexCode($record->user?->sex?->value),
+            'PREVISION' => self::value('healthcareType.code'),
+            'TIPO_PREST' => self::value('entryType.code'),
+            'PRESTA_MIN' => self::value('minsalSpecialty.code'),
+            'PLANO' => self::value('plano'),
+            'EXTREMIDAD' => self::value('extremity'),
+            'PRESTA_EST' => self::value('establishmentHealthCareService.text'),
+            'F_ENTRADA' => self::date('entry_date'),
+            'ESTAB_ORIG' => self::value('originEstablishment.code_deis'),
+            'ESTAB_DEST' => self::value('destinyEstablishment.code_deis'),
+            'F_SALIDA' => self::date('exit_date'),
+            'C_SALIDA' => self::value('exit_code'),
+            'E_OTOR_AT' => self::value('referring_specialty'),
+            'PRESTA_MIN_SALIDA' => self::value('minsalExitSpecialty.code'),
+            'PRAIS' => self::value('prais'),
+            'REGION' => self::value('region_id'),
+            'COMUNA' => self::value('commune.code_deis'),
+            'SOSPECHA_DIAG' => self::value('suspected_diagnosis'),
+            'CONFIR_DIAG' => self::value('confirmed_diagnosis'),
+            'CIUDAD' => self::value('user.address.city'),
+            'COND_RURALIDAD' => fn ($record) => self::ruralCode($record->user?->address?->is_rural),
+            'VIA_DIRECCION' => fn ($record) => self::viaCode($record->user?->address?->via),
+            'NOM_CALLE' => self::value('user.address.text'),
+            'NUM_DIRECCION' => self::value('user.address.line'),
+            'RESTO_DIRECCION' => self::value('user.address.suburb'),
+            'FONO_FIJO' => self::value('user.homeContactPoint.value'),
+            'FONO_MOVIL' => self::value('user.mobileContactPoint.value'),
+            'EMAIL' => self::value('user.emailContactPoint.value'),
+            'F_CITACION' => self::date('appointment_date'),
+            'RUN_PROF_SOL' => self::value('requestingProfessional.officialIdentifier.value'),
+            'DV_PROF_SOL' => self::value('requestingProfessional.officialIdentifier.dv'),
+            'RUN_PROF_RESOL' => self::value('resolvingProfessional.officialIdentifier.value'),
+            'DV_PROF_RESOL' => self::value('resolvingProfessional.officialIdentifier.dv'),
+            'ID_LOCAL' => self::value('local_id'),
+            'RESULTADO' => self::value('result'),
+            'SIGTE_ID' => self::value('sigte_id'),
+            'DIAS_PASADOS' => self::value('elapsed_days'),
+            'EDAD' => fn ($record) => self::formatAge($record->waitlistAge),
+            'AÑO' => self::value('waitlistYear'),
+            'TIPO PRESTACION' => self::value('medicalBenefit.text'),
+            'ESPECIALIDAD' => self::value('waitlistSpecialty.text'),
+            'ESTABLECIMIENTO' => self::value('establishment.alias'),
+            'FUNCIONARIO' => self::value('worker'),
+            'PEDIATRICO' => self::value('pediatric'),
+            'LB' => self::value('lb'),
+            'Tipo de IQ' => self::value('iqType'),
+            'Comuna Origen' => self::value('originCommune.name'),
+            'Usuario PRAIS' => self::value('praisUser'),
+            'LB PRAIS' => self::value('lbPrais'),
+            'LB INCONTINENCIA URINARIA' => self::value('lbUrinary'),
+            'Error Egreso' => self::value('exitError'),
+            'Tipo Procedimiento' => self::value('procedureType'),
+            'SENAME ' => self::value('sename'),
             // No source data yet for these two columns of the template —
             // kept so the exported file's column structure still matches.
-            Column::make('resolutividad_placeholder')
-                ->heading('RESOLUTIVIDAD')
-                ->getStateUsing(fn () => null),
-            Column::make('lb_iq_aps_placeholder')
-                ->heading('LB IQ APS')
-                ->getStateUsing(fn () => null),
+            'RESOLUTIVIDAD' => fn () => null,
+            'LB IQ APS' => fn () => null,
 
             // App-specific fields, not part of the SIGTE template.
-            Column::make('status')
-                ->heading('Estado')
-                ->getStateUsing(fn ($record) => filled($record->status) ? ucfirst($record->status) : null),
-            self::yesNo('pase_odontologico', 'Pase Odontológico'),
-            self::yesNo('visible_municipality', 'Visible Municipalidad'),
+            'Estado' => fn ($record) => filled($record->status) ? ucfirst($record->status) : null,
+            'Pase Odontológico' => self::yesNo('pase_odontologico'),
+            'Visible Municipalidad' => self::yesNo('visible_municipality'),
         ];
     }
 }

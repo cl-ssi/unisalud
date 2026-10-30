@@ -7,7 +7,6 @@ use App\Imports\OdontologyWaitlistImport;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
-use pxlrbt\FilamentExcel;
 use App\Filament\Resources\OdontologyWaitlistResource\Pages;
 use App\Filament\Resources\OdontologyWaitlistResource\RelationManagers;
 use App\Models\OdontologyWaitlist;
@@ -393,7 +392,7 @@ class OdontologyWaitlistResource extends Resource
                         $import = new OdontologyWaitlistImport();
 
                         try {
-                            Excel::import($import, Storage::disk('local')->path($data['archivo']));
+                            $import->import(Storage::disk('local')->path($data['archivo']));
                         } catch (\Throwable $e) {
                             Notification::make()
                                 ->title('Error durante la importación')
@@ -421,18 +420,11 @@ class OdontologyWaitlistResource extends Resource
                             ->persistent()
                             ->send();
                     }),
-                FilamentExcel\Actions\Tables\ExportAction::make()
+                Tables\Actions\Action::make('export')
                     ->label('Exportar')
                     ->icon('heroicon-o-arrow-up-tray')
                     ->visible(fn() => ! auth()->user()->hasRole(self::MUNICIPALITY_ROLE))
-                    ->exports([
-                        FilamentExcel\Exports\ExcelExport::make()
-                            ->withFilename(fn() => 'lista-espera-odontologia-' . date('Y-m-d_H-i-s'))
-                            ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
-                            ->useTableQuery()
-                            ->modifyQueryUsing(fn(Builder $query) => $query->with(OdontologyWaitlistExport::RELATIONS))
-                            ->withColumns(OdontologyWaitlistExport::columns()),
-                    ]),
+                    ->action(fn($livewire) => OdontologyWaitlistExport::download($livewire->getFilteredSortedTableQuery())),
                 Tables\Actions\Action::make('stats')
                     ->label('Estadísticas')
                     ->icon('heroicon-o-chart-bar')
