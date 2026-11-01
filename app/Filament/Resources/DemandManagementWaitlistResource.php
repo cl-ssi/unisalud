@@ -6,8 +6,6 @@ use App\Exports\DemandManagementWaitlistExport;
 use App\Imports\DemandManagementWaitlistImport;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Storage;
-use Maatwebsite\Excel\Facades\Excel;
-use pxlrbt\FilamentExcel;
 use App\Filament\Resources\DemandManagementWaitlistResource\Pages;
 use App\Filament\Resources\DemandManagementWaitlistResource\RelationManagers;
 use App\Models\DemandManagementWaitlist;
@@ -393,7 +391,7 @@ class DemandManagementWaitlistResource extends Resource
                         $import = new DemandManagementWaitlistImport();
 
                         try {
-                            Excel::import($import, Storage::disk('local')->path($data['archivo']));
+                            $import->import(Storage::disk('local')->path($data['archivo']));
                         } catch (\Throwable $e) {
                             Notification::make()
                                 ->title('Error durante la importación')
@@ -421,18 +419,11 @@ class DemandManagementWaitlistResource extends Resource
                             ->persistent()
                             ->send();
                     }),
-                FilamentExcel\Actions\Tables\ExportAction::make()
+                Tables\Actions\Action::make('export')
                     ->label('Exportar')
                     ->icon('heroicon-o-arrow-up-tray')
                     ->visible(fn() => ! auth()->user()->hasRole(self::MUNICIPALITY_ROLE))
-                    ->exports([
-                        FilamentExcel\Exports\ExcelExport::make()
-                            ->withFilename(fn() => 'lista-espera-gestion-demanda-' . date('Y-m-d_H-i-s'))
-                            ->withWriterType(\Maatwebsite\Excel\Excel::XLSX)
-                            ->useTableQuery()
-                            ->modifyQueryUsing(fn(Builder $query) => $query->with(DemandManagementWaitlistExport::RELATIONS))
-                            ->withColumns(DemandManagementWaitlistExport::columns()),
-                    ]),
+                    ->action(fn($livewire) => DemandManagementWaitlistExport::download($livewire->getFilteredSortedTableQuery())),
                 Tables\Actions\Action::make('stats')
                     ->label('Estadísticas')
                     ->icon('heroicon-o-chart-bar')

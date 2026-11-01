@@ -25,7 +25,11 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\OnEachRow;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Maatwebsite\Excel\Row;
+use OpenSpout\Reader\XLSX\Options as XlsxOptions;
+use OpenSpout\Reader\XLSX\Reader as XlsxReader;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 /**
@@ -110,11 +114,83 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
         self::$initialized = true;
     }
 
+    /**
+     * Entry point. .xlsx files are streamed with OpenSpout: maatwebsite
+     * (PhpSpreadsheet) re-parses the whole file for every chunk, which alone
+     * took ~10ms per row on large files. Other formats still go through
+     * maatwebsite, which calls onRow() below.
+     */
+    public function import(string $path): void
+    {
+        if (strtolower(pathinfo($path, PATHINFO_EXTENSION)) !== 'xlsx') {
+            Excel::import($this, $path);
+
+            return;
+        }
+
+        $options = new XlsxOptions();
+        $options->SHOULD_PRESERVE_EMPTY_ROWS = true;
+        $reader = new XlsxReader($options);
+        $reader->open($path);
+
+        try {
+            // Like maatwebsite without WithMultipleSheets: every sheet, each
+            // with its own heading row.
+            foreach ($reader->getSheetIterator() as $sheet) {
+                $headings = [];
+                $rowNumber = 0;
+
+                foreach ($sheet->getRowIterator() as $sheetRow) {
+                    $values = array_map(fn($value) => self::cellToString($value), $sheetRow->toArray());
+
+                    if (++$rowNumber === 1) {
+                        $headings = HeadingRowFormatter::format($values);
+                        continue;
+                    }
+
+                    $data = [];
+                    foreach ($values as $i => $value) {
+                        if (array_key_exists($i, $headings)) {
+                            $data[$headings[$i]] = $value;
+                        } else {
+                            $data[] = $value;
+                        }
+                    }
+
+                    $this->handleRow($data, $rowNumber);
+                }
+            }
+        } finally {
+            $reader->close();
+        }
+    }
+
+    /**
+     * Cell values as maatwebsite's read-only import yields them: plain
+     * strings, with dates as Excel serial numbers (parseFlexibleDate and
+     * parseDateTime handle those).
+     */
+    protected static function cellToString(mixed $value): ?string
+    {
+        return match (true) {
+            $value === null, $value === '' => null,
+            $value instanceof \DateTimeInterface => (string) Date::PHPToExcel($value),
+            $value instanceof \DateInterval => $value->format('%H:%I:%S'),
+            is_bool($value) => $value ? 'TRUE' : 'FALSE',
+            default => (string) $value,
+        };
+    }
+
     public function onRow(Row $row): void
+    {
+        $this->handleRow($row->toArray(), $row->getIndex());
+    }
+
+    protected function handleRow(array $data, int $rowIndex): void
     {
         self::ensureCachesAreLoaded();
 
-        $data = array_map(fn($value) => is_string($value) ? trim($value) : $value, $row->toArray());
+        $data = array_map(fn($value) => is_string($value) ? trim($value) : $value, $data);
 
         // Skip fully empty rows (trailing formatted rows in the template).
         if (collect($data)->filter(fn($value) => filled($value))->isEmpty()) {
@@ -125,8 +201,8 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
             $this->importRow($data);
             $this->successfulRows++;
         } catch (\Throwable $e) {
-            $this->failedRows[] = ['row' => $row->getIndex(), 'error' => $e->getMessage()];
-            Log::error('DemandManagementWaitlistImport: error en fila ' . $row->getIndex(), [
+            $this->failedRows[] = ['row' => $rowIndex, 'error' => $e->getMessage()];
+            Log::error('DemandManagementWaitlistImport: error en fila ' . $rowIndex, [
                 'sigte_id' => $data['sigte_id'] ?? null,
                 'run'      => $data['run'] ?? null,
                 'error'    => $e->getMessage(),
@@ -168,18 +244,18 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
             $sexValue = self::SEX_CODE_MAP[$sexoCode] ?? null;
             $isNewUser = is_null($user);
 
-            $userCreatedOrUpdated = User::updateOrCreate(
-                ['id' => optional($user)->id],
-                [
-                    'active'            => 1,
-                    'text'              => $val('NOMBRES') . ' ' . $val('PRIMER_APELLIDO') . ' ' . $val('SEGUNDO_APELLIDO'),
-                    'given'             => $val('NOMBRES'),
-                    'fathers_family'    => $val('PRIMER_APELLIDO'),
-                    'mothers_family'    => $val('SEGUNDO_APELLIDO'),
-                    'birthday'          => $this->parseFlexibleDate($val('FECHA_NAC')),
-                    'sex'               => $sexValue,
-                ]
-            );
+            // fill()/save() on the already-loaded models below instead of
+            // updateOrCreate(['id' => ...]), which re-selects them by id.
+            $userCreatedOrUpdated = ($user ?? new User())->fill([
+                'active'            => 1,
+                'text'              => $val('NOMBRES') . ' ' . $val('PRIMER_APELLIDO') . ' ' . $val('SEGUNDO_APELLIDO'),
+                'given'             => $val('NOMBRES'),
+                'fathers_family'    => $val('PRIMER_APELLIDO'),
+                'mothers_family'    => $val('SEGUNDO_APELLIDO'),
+                'birthday'          => $this->parseFlexibleDate($val('FECHA_NAC')),
+                'sex'               => $sexValue,
+            ]);
+            $userCreatedOrUpdated->save();
 
             if ($isNewUser && !empty($runValue)) {
                 // SE CREA IDENTIFIER
@@ -220,11 +296,10 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
             $region = self::$regionCache[strtolower(trim($val('REGION', '')))] ?? null;
 
 
-            $address = $userCreatedOrUpdated->addresses()->where('use', 'home')->first();
+            $address = $userCreatedOrUpdated->addresses()->where('use', 'home')->first()
+                ?? new Address(['user_id' => $userCreatedOrUpdated->id]);
 
-            Address::updateOrCreate(
-                ['id' => optional($address)->id, 'user_id' => $userCreatedOrUpdated->id],
-                [
+            $address->fill([
                     'use'           => 'home',
                     'type'          => 'physical',
                     'text'          => $val('NOM_CALLE'),
@@ -244,26 +319,23 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
                         '4' => 'otro',
                         default => null,
                     },
-                ]
-            );
+            ]);
+            $address->save();
 
-            $contactPointHome = $userCreatedOrUpdated->contactPoints()->where('use', 'home')->first();
-            ContactPoint::updateOrCreate(
-                ['id' => optional($contactPointHome)->id, 'user_id' => $userCreatedOrUpdated->id, 'system' => 'phone', 'use' => 'home'],
-                ['value' => $val('FONO_FIJO'), 'actually' => 0]
-            );
-
-            $contactPointMobile = $userCreatedOrUpdated->contactPoints()->where('use', 'mobile')->first();
-            ContactPoint::updateOrCreate(
-                ['id' => optional($contactPointMobile)->id, 'user_id' => $userCreatedOrUpdated->id, 'system' => 'phone', 'use' => 'mobile'],
-                ['value' => $val('FONO_MOVIL'), 'actually' => 0]
-            );
-
-            $contactPointEmail = $userCreatedOrUpdated->contactPoints()->where('use', 'work')->first();
-            ContactPoint::updateOrCreate(
-                ['id' => optional($contactPointEmail)->id, 'user_id' => $userCreatedOrUpdated->id, 'system' => 'email', 'use' => 'work'],
-                ['value' => $val('EMAIL'), 'actually' => 0]
-            );
+            $contactPoints = $userCreatedOrUpdated->contactPoints()->whereIn('use', ['home', 'mobile', 'work'])->get();
+            foreach ([
+                ['phone', 'home', $val('FONO_FIJO')],
+                ['phone', 'mobile', $val('FONO_MOVIL')],
+                ['email', 'work', $val('EMAIL')],
+            ] as [$system, $use, $value]) {
+                // The existing point for this use is only updated when its
+                // system matches too; otherwise a new one is created.
+                $contactPoint = $contactPoints->firstWhere('use', $use);
+                if (! $contactPoint || $contactPoint->system !== $system) {
+                    $contactPoint = new ContactPoint(['user_id' => $userCreatedOrUpdated->id, 'system' => $system, 'use' => $use]);
+                }
+                $contactPoint->fill(['value' => $value, 'actually' => 0])->save();
+            }
 
 
             $textSpecialty = strtolower(trim($val('ESPECIALIDAD', 'sin especialidad')));
@@ -341,7 +413,9 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
                 ]
             );
 
-            if ($waitlistCreatedOrUpdated->events()->count() == 0) {
+            $isNewWaitlist = $waitlistCreatedOrUpdated->wasRecentlyCreated;
+
+            if ($isNewWaitlist || ! $waitlistCreatedOrUpdated->events()->exists()) {
                 $waitlistCreatedOrUpdated->events()->create([
                     'status'            => ($val('ESTADO') ?? null) ? strtolower(trim($val('ESTADO'))) : null,
                     'registered_at'     => now(),
@@ -352,7 +426,7 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
                 ]);
             }
 
-            if ($waitlistCreatedOrUpdated->contacts()->count() == 0) {
+            if ($isNewWaitlist || ! $waitlistCreatedOrUpdated->contacts()->exists()) {
                 $estado = strtolower(trim($val('ESTADO', '')));
                 $statusContact = null;
 
