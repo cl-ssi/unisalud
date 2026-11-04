@@ -1,0 +1,4510 @@
+{
+    "source": "MINSAL, \"Mantenedor Procediminento de SIGTE.xlsx\" (hoja \"Hoja1\"); TIPO_PREST = 3",
+    "types": [
+        {
+            "id": 1,
+            "name": "EXAMENES RADIOLOGICOS."
+        },
+        {
+            "id": 2,
+            "name": "EXAMENES RADIOLOGICOS COMPLEJOS"
+        },
+        {
+            "id": 12,
+            "name": "ENDOCRINOLOGIA"
+        },
+        {
+            "id": 13,
+            "name": "ENDOCRINOLOGIA"
+        },
+        {
+            "id": 19,
+            "name": "BRONCOPULMONAR"
+        },
+        {
+            "id": 21,
+            "name": "CARDIOLOGIA \/ PROCEDIMIENTOS DIAGNOSTICO Y TERAPEUTICO."
+        },
+        {
+            "id": 23,
+            "name": "EXAMENES RADIOLOGICOS SIMPLES"
+        },
+        {
+            "id": 24,
+            "name": "GASTROENTEROLOGIA \/ PROCEDIMIENTOS DIAGNOSTICO Y TERAPEUTICO."
+        },
+        {
+            "id": 25,
+            "name": "GINECOLOGIA Y OBSTETRICIA \/ PROCEDIMIENTOS DIAGNOSTICOS Y TERAPEUTICOS."
+        },
+        {
+            "id": 26,
+            "name": "KINESIOLOGIA Y FISIOTERAPIA"
+        },
+        {
+            "id": 27,
+            "name": "MEDICINA NUCLEAR Y RADIOTERAPIA \/ PROCEDIMIENTOS TERAPEUTICOS."
+        },
+        {
+            "id": 28,
+            "name": "MEDICINA NUCLEAR Y RADIOTERAPIA \/ PROCEDIMIENTOS DIAGNOSTICOS"
+        },
+        {
+            "id": 29,
+            "name": "NEUROLOGIA Y NEUROCIRUGIA \/ PROCEDIMIENTOS DIAGNOSTICOS"
+        },
+        {
+            "id": 30,
+            "name": "OTROS PROCEDIMIENTOS"
+        },
+        {
+            "id": 31,
+            "name": "PROCEDIM.CARDIOLOGIA, NEUMOLOG., CARDIOVASC. Y TORAX"
+        },
+        {
+            "id": 32,
+            "name": "PROCEDIMIENTOS DE DERMATOLOGÍA"
+        },
+        {
+            "id": 33,
+            "name": "PROCEDIMIENTOS DE GASTROENTEROLOGÍA"
+        },
+        {
+            "id": 34,
+            "name": "PROCEDIMIENTOS DE NEUROLOGÍA"
+        },
+        {
+            "id": 35,
+            "name": "PROCEDIMIENTOS DE OFTALMOLOGÍA"
+        },
+        {
+            "id": 36,
+            "name": "PROCEDIMIENTOS DE OTORRINOLARINGOLOGÍA"
+        },
+        {
+            "id": 37,
+            "name": "PROCEDIMIENTOS DE PSIQUIATRIA"
+        },
+        {
+            "id": 38,
+            "name": "PROCEDIMIENTOS DE TRAUMATOLOGÍA"
+        },
+        {
+            "id": 39,
+            "name": "PROCEDIMIENTOS DE UROLOGÍA Y NEFROLOGÍA"
+        },
+        {
+            "id": 40,
+            "name": "PROCEDIMIENTOS O DETERMINACIONES DIRECTAMENTE CON EL PACIENTE"
+        },
+        {
+            "id": 41,
+            "name": "PROCEDIMIENTOS ODONTOLÓGICOS"
+        },
+        {
+            "id": 42,
+            "name": "PROCEDIMIENTOS ORTOPEDICOS"
+        },
+        {
+            "id": 43,
+            "name": "PROTESIS"
+        },
+        {
+            "id": 44,
+            "name": "RESONANCIA MAGNÉTICA"
+        },
+        {
+            "id": 45,
+            "name": "TIROIDES"
+        },
+        {
+            "id": 46,
+            "name": "TOMOGRAFIA AXIAL COMPUTARIZADA (TAC)"
+        },
+        {
+            "id": 47,
+            "name": "ULTRASONOGRAFIA"
+        },
+        {
+            "id": 48,
+            "name": "UROLOGIA Y NEFROLOGIA \/ DIALISIS."
+        }
+    ],
+    "procedures": [
+        {
+            "code": "00-01-013",
+            "name": "Abdomen simple (1 proyección) (1 exp.) ( con equipo estático o móvil)",
+            "type_id": 1
+        },
+        {
+            "code": "03-07-001",
+            "name": "Dietilendiamina tetraacetato de sodio cromo (EDTA Cr 51)",
+            "type_id": 40
+        },
+        {
+            "code": "03-07-002",
+            "name": "Prueba de la sed (volumen, densidad, osmolalidad seriada en sangre y orina)",
+            "type_id": 40
+        },
+        {
+            "code": "03-07-003",
+            "name": "Prueba de sobrecarga de almidón",
+            "type_id": 40
+        },
+        {
+            "code": "03-07-004",
+            "name": "Prueba de sobrecarga de insulina o tolbutamida",
+            "type_id": 40
+        },
+        {
+            "code": "03-07-005",
+            "name": "Reacción cutánea de parche c\/u",
+            "type_id": 40
+        },
+        {
+            "code": "03-07-006",
+            "name": "Sobrecarga hídrica",
+            "type_id": 40
+        },
+        {
+            "code": "03-07-007",
+            "name": "Test del sudor (procedimiento completo)",
+            "type_id": 40
+        },
+        {
+            "code": "03-07-008",
+            "name": "Vasopresina test o similares (incluye, además, mediciones de diuresis)",
+            "type_id": 40
+        },
+        {
+            "code": "03-07-011",
+            "name": "Toma de muestra de sangre venosa en adultos",
+            "type_id": 30
+        },
+        {
+            "code": "03-07-012",
+            "name": "Toma de muestra de sangre venosa en niños y lactantes",
+            "type_id": 30
+        },
+        {
+            "code": "03-07-023",
+            "name": "Aspirados nasofaríngeo para adulto y niño.",
+            "type_id": 40
+        },
+        {
+            "code": "04-01-001",
+            "name": "Radiografía de las glándulas salivales \"sialografía\"",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-002",
+            "name": "Radiografía de partes blandas, laringe lateral, cavum rinofaríngeo (rinofarinx).",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-004",
+            "name": "Radiografía de tórax, proyección complementaria (oblicuas, selectivas u otras)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-006",
+            "name": "Estudio radiológico de corazón (incluye fluoroscopía, telerradiografías frontal y lateral con esofagograma)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-008",
+            "name": "Radiografía de tórax frontal o lateral con equipo móvil fuera del departamento de rayos.",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-009",
+            "name": "Radiografía de tórax simple frontal o lateral",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-010",
+            "name": "Mamografía bilateral",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-011",
+            "name": "Marcación preoperatoria de lesiones de la mama",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-012",
+            "name": "Radiografía de mama, pieza operatoria",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-013",
+            "name": "Radiografía de Abdomen Simple",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-014",
+            "name": "Radiografía de abdomen simple, proyección complementaria (lateral y\/o oblicua)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-015",
+            "name": "Colangiografía intra o postoperatoria (por sonda T, o similar)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-018",
+            "name": "Enema baritado del colon (incluye llene y control post-vaciamiento)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-019",
+            "name": "Enema baritado del colon o intestino delgado, doble contraste",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-020",
+            "name": "Esofagograma (incluye pesquisa de cuerpo extraño) (proc.aut.)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-021",
+            "name": "Radiografía de esófago, estómago y duodeno, relleno y\/o doble contraste",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-022",
+            "name": "Estudio radiológico de deglución faríngea",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-023",
+            "name": "Estudio radiológico del intestino delgado",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-024",
+            "name": "Radiografía de esófago, estómago y duodeno, simple en niños",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-027",
+            "name": "Pielografía de eliminación o descendente: incluye renal y vesical simples previas, 3 placas post inyección de medio de contraste, controles de pie y cistografía pre y post miccional.",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-028",
+            "name": "Radiografía renal simple (proc. aut.)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-029",
+            "name": "Radiografía vesical simple o perivesical (proc. aut.)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-030",
+            "name": "Radiografía agujeros ópticos, ambos lados",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-031",
+            "name": "Radiografía de cavidades perinasales, órbitas, articulaciones temporomandibulares, huesos propios de la nariz, malar, maxilar, arco cigomático y cara",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-032",
+            "name": "Radiografía de cráneo frontal y lateral",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-033",
+            "name": "Radiografía de Cráneo proyección especial de base de cráneo (Towne)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-034",
+            "name": "Radiografía de globo ocular, estudio de cuerpo extraño",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-035",
+            "name": "Radiografía de oído, uno o ambos",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-040",
+            "name": "Radiografía de silla turca frontal y lateral",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-042",
+            "name": "Radiografía de columna cervical o atlas-axis (frontal y lateral)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-043",
+            "name": "Radiografía de columna cervical (frontal, lateral y oblicuas)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-044",
+            "name": "Radiografía de columna cervical flexión y extensión (Dinámicas)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-045",
+            "name": "Radiografía de columna dorsal o dorsolumbar localizada, parrilla costal adultos (frontal y lateral).",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-046",
+            "name": "Radiografía columna lumbar o lumbosacra",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-047",
+            "name": "Radiografía columna lumbar o lumbosacra flexión y extensión (Dinámicas)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-048",
+            "name": "Radiografía columna lumbar o lumbosacra, oblicuas adicionales",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-049",
+            "name": "Radiografía de columna total, panorámica con folio graduado frontal o lateral",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-051",
+            "name": "Radiografía de pelvis, cadera o coxofemoral",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-052",
+            "name": "Radiografía de pelvis, cadera o coxofemoral, proyecciones especiales; (rotación interna, abducción, lateral, Lawenstein u otras)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-053",
+            "name": "Radiografía de Sacrocoxis o articulaciones sacroilíacas.",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-054",
+            "name": "Radiografía de brazo, antebrazo, codo, muñeca, mano, dedos, pie (frontal y lateral)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-055",
+            "name": "Radiografía de clavícula.",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-056",
+            "name": "Radiografía Edad Ósea: carpo y mano",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-057",
+            "name": "Radiografía Edad ósea : rodilla frontal",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-058",
+            "name": "Estudio radiológico de escafoides",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-059",
+            "name": "Estudio radiológico de muñeca o tobillo frontal lateral y oblicuas",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-060",
+            "name": "Radiografía de hombro, fémur, rodilla, pierna, costilla o esternón Frontal y Lateral",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-062",
+            "name": "Radiografía de Proyecciones especiales oblicuas u otras en hombro, brazo, codo, rodilla, rótulas, sesamoideos, axial de ambas rótulas o similares",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-063",
+            "name": "Radiografía de túnel intercondíleo o radio-carpiano",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-064",
+            "name": "Apoyo fluoroscópico a procedimientos intraoperatorios y\/o biopsia (no incluye el proc.)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-070",
+            "name": "Radiografía de tórax frontal y lateral",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-110",
+            "name": "Mamografía unilateral",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-130",
+            "name": "Mamografía proyección complementaria (axilar u otras)",
+            "type_id": 23
+        },
+        {
+            "code": "04-01-151",
+            "name": "Radiografía de pelvis, cadera o coxofemoral de RN, lactante o niño menor de 6 años.",
+            "type_id": 23
+        },
+        {
+            "code": "04-02-001",
+            "name": "Vía lagrimal (un lado) (2 exp.)",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-005",
+            "name": "Galactografía, un lado (a.c. 20-01-012) (3 exp.)",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-008",
+            "name": "Colangiopancreatografía endoscópica (5-7 exp)",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-009",
+            "name": "Fistulografía (3 exp.)",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-011",
+            "name": "Histerosalpingografía (a.c. 20-01-013) (4 exp.; incluye prueba de Cotte tardía)",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-012",
+            "name": "Pielografía ascendente (3 exp.)",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-014",
+            "name": "Uretro y\/o cistouretrografía miccional retrógrada (5 exp.)",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-015",
+            "name": "Artrografía facetaria",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-016",
+            "name": "Discografía",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-017",
+            "name": "Neumoartrografía de cadera, hombro, codo, muñeca, etc., c\/u (8 exp.)",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-018",
+            "name": "Neumoartrografía de rodilla (14 exp.)",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-019",
+            "name": "Angiografía selectiva de carótida externa o interna",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-020",
+            "name": "Angiografía selectiva medular",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-024",
+            "name": "Aortografía con AOT o cineangiografía",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-025",
+            "name": "Arteriografía de cada extremidad",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-027",
+            "name": "Arteriografía selectiva con AOT o cineangiografía (pulmonar, renal, tronco celíaco o similar) c\/u",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-029",
+            "name": "Carótida vertebral por cateterización (de la subclavia axilar, humeral o femoral)",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-030",
+            "name": "Cinecoronariografía (a.c. 17-01-019)",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-031",
+            "name": "Embolización o balonización (a.c. de la angiografía correspondiente) (incluye control radiológico inmediato)",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-032",
+            "name": "Instalación de catéter o sonda intracardíaca, control por radiólogo",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-033",
+            "name": "Ventriculografía derecha y\/o izquierda (a.c. 17-01-011, 17-01-020 ó 17-01-021 ó 17-01-041 ó 17-01-42 ó 17-01-43, según corresponda)",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-035",
+            "name": "Cavografía",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-038",
+            "name": "Flebografía extremidad inferior o superior, un lado cada extremidad.",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-040",
+            "name": "Flebografía orbitaria o yugular",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-041",
+            "name": "Flebografía selectiva (suprarrenal y similares)",
+            "type_id": 2
+        },
+        {
+            "code": "04-02-050",
+            "name": "Mielografía por punción lumbar con contraste hidrosoluble",
+            "type_id": 2
+        },
+        {
+            "code": "04-03-001",
+            "name": "Tomografía Computarizada de cráneo encefálica",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-002",
+            "name": "Tomografía Computarizada de hipotálamo-hipófisis",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-003",
+            "name": "Tomografía Computarizada de fosa posterior",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-004",
+            "name": "Tomografía Computarizada cortes coronales complementarios",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-006",
+            "name": "Tomografía Computarizada de temporal-oído",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-007",
+            "name": "Tomografía Computarizada de órbitas maxilofacial",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-008",
+            "name": "Tomografía Computarizada de columna cervical",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-009",
+            "name": "Tomografía Computarizada de columna dorsal o lumbar",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-010",
+            "name": "Cada espacio adicional (10 cortes 2-4 mm)",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-012",
+            "name": "Tomografía Computarizada de cuello, partes blandas",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-013",
+            "name": "Tomografía Computarizada de tórax total",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-014",
+            "name": "Tomografía Computarizada de abdomen (hígado, vías y vesícula biliar, páncreas, bazo, suprarrenales y riñones)",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-016",
+            "name": "Tomografía Computarizada de pelvis",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-017",
+            "name": "Tomografía Computarizada de extremidades",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-018",
+            "name": "Tomografía Computarizada de Columna Dorsal",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-019",
+            "name": "Tomografía Computarizada de Columna Lumbar",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-020",
+            "name": "Tomografía Computarizada de Abdomen y Pelvis",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-021",
+            "name": "Tomografía Computarizada Pielografía",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-022",
+            "name": "Tomografía Computarizada Urografía",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-023",
+            "name": "Tomografía Computarizada de Colonografía",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-024",
+            "name": "Tomografía Computarizada Planificación Radioterapi",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-025",
+            "name": "Tomografía Computarizada de Calcio Coronario",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-101",
+            "name": "Tomografía Computarizada angio de encéfalo",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-102",
+            "name": "Tomografía Computarizada angio de tórax",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-103",
+            "name": "Tomografía Computarizada angio de abdomen",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-104",
+            "name": "Tomografia Computarizada Angio de Cuello",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-105",
+            "name": "Tomografía Computarizada Angio de Pelvis",
+            "type_id": 46
+        },
+        {
+            "code": "04-03-106",
+            "name": "Tomografía Computarizada Angio Cardíaco",
+            "type_id": 46
+        },
+        {
+            "code": "04-04-002",
+            "name": "Ecografía obstétrica",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-003",
+            "name": "Ecografía abdominal (incluye hígado, vía biliar, vesícula, páncreas, riñones, bazo, retroperitoneo y grandes vasos)",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-004",
+            "name": "Ecografía como apoyo a cirugía, o a procedimiento (de tórax, muscular, partes blandas, etc.)",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-005",
+            "name": "Ecografía transvaginal o transrectal",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-006",
+            "name": "Ecografía ginecológica, pelviana femenina u obstétrica con estudio fetal",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-007",
+            "name": "Ecografía transvaginal para seguimiento de ovulación, procedimiento completo (6-8 sesiones )",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-008",
+            "name": "Ecografía para seguimiento de ovulación, procedimiento completo (6 a 8 sesiones)",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-009",
+            "name": "Ecografía pélvica masculina (incluye vejiga y próstata)",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-010",
+            "name": "Ecografía renal (bilateral), o de bazo",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-011",
+            "name": "Ecografía encefálica (RN o lactante)",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-012",
+            "name": "Ecografía mamaria bilateral (incluye Doppler)",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-013",
+            "name": "Ecografía ocular, uno o ambos ojos.",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-014",
+            "name": "Ecografía testicular (uno o ambos) (Incluye Doppler)",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-015",
+            "name": "Ecografía tiroidea (Incluye Doppler)",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-016",
+            "name": "Ecografía vascular periférica, articular o de partes blandas",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-118",
+            "name": "Ecografía vascular (arterial y venosa) periférica (bilateral)",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-119",
+            "name": "Ecografía doppler de vasos del cuello",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-120",
+            "name": "Ecografía transcraneana",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-121",
+            "name": "Ecografía abdominal o de vasos testiculares",
+            "type_id": 47
+        },
+        {
+            "code": "04-04-122",
+            "name": "Ecografía doppler de vasos placentarios",
+            "type_id": 47
+        },
+        {
+            "code": "04-05-001",
+            "name": "Resonancia Magnética cráneo encefálica",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-002",
+            "name": "Resonancia Magnética de hipotálamo - hipófisis",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-003",
+            "name": "Resonancia Magnética de órbitas",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-004",
+            "name": "Resonancia Magnética de articulaciones temporomandibulares",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-005",
+            "name": "Resonancia Magnética de columna cervical",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-006",
+            "name": "Resonancia Magnética de columna dorsal",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-007",
+            "name": "Resonancia Magnética de columna lumbar",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-008",
+            "name": "Angiografía por resonancia",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-009",
+            "name": "Resonancia Magnética de tórax",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-010",
+            "name": "Resonancia Magnética de abdomen",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-011",
+            "name": "Resonancia Magnética de pelvis",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-012",
+            "name": "Resonancia Magnética de abdomen y pelvis",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-013",
+            "name": "Resonancia Magnética de rodilla",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-014",
+            "name": "Resonancia Magnética extremidad superior (uno o mas segmentos)",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-015",
+            "name": "Resonancia Extremidad inferior (uno o mas segmentos)",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-016",
+            "name": "Resonancia Columna Total (cervical, dorsal, lumbar)",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-017",
+            "name": "Resonancia Magnética Angiografía de Encéfalo",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-018",
+            "name": "Resonancia Magnética Angiografía de Cuello",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-019",
+            "name": "Resonancia Magnética Angiografía de Tórax",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-020",
+            "name": "Resonancia Magnética Angiografía de Abdomen",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-021",
+            "name": "Resonancia Magnética Angiografía de Pelvis",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-022",
+            "name": "Resonancia Magnética Angiografía de Extremidad Su",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-023",
+            "name": "Resonancia Magnética Angiografia de Extremidad In",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-024",
+            "name": "Resonancia Magnética de Mano o Muñeca",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-025",
+            "name": "Resonancia Magnética de Antebrazo o Brazo",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-026",
+            "name": "Resonancia Magnética de Codo",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-027",
+            "name": "Resonancia Magnética de Hombro",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-028",
+            "name": "Resonancia Magnética de Pie, Antepie o Tobillo",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-029",
+            "name": "Resonancia Magnética de Pierna",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-030",
+            "name": "Resonancia Magnética de Muslo",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-031",
+            "name": "Resonancia Magnética de Mama (bilateral)",
+            "type_id": 44
+        },
+        {
+            "code": "04-05-098",
+            "name": "Colangioresonancia",
+            "type_id": 44
+        },
+        {
+            "code": "05-01-100",
+            "name": "Captación I-131 a las 2 y\/o 24 horas",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-101",
+            "name": "Cintigrafía tiroidea, cualquier radioisótopo",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-102",
+            "name": "Cintigrafía glándulas paratiroides (no incluye MIBI)",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-103",
+            "name": "Cintigrafía ósea completa planar o médula ósea (a.c. 0501133, cuando corresponda)",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-104",
+            "name": "Cintigrafía ósea trifásica (incluye mediciones fase precoz y tardía)",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-105",
+            "name": "Spect cardíaco stress y reposo (no incluye honorarios médico cardiólogo)",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-106",
+            "name": "Ventriculografía cardíaca isotópica",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-107",
+            "name": "Pool sanguíneo, arteriografia isotópica c\/u",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-108",
+            "name": "Linfocintigrafía isotópica (no incluye procedimiento)",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-109",
+            "name": "Pool sanguíneo spect",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-110",
+            "name": "Cintigrafía glándulas salivales o dacriocintigrafía",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-111",
+            "name": "Estudio motilidad esofágica y\/o reflujo gastroesofágico",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-112",
+            "name": "Vaciamiento gástrico líquido o sólido",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-113",
+            "name": "Cintigrafía vesícula y vía biliar",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-114",
+            "name": "Detección de sitio de sangramiento digestivo con glóbulos rojos marcados",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-115",
+            "name": "Detección divertículo Meckel",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-116",
+            "name": "Spect hepatoesplénico, evaluación hemangioma o hiperplasia (incluye mediciones fase precoz y tardía)",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-117",
+            "name": "Cintigrafía renal con D.M.S.A.",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-118",
+            "name": "Estudio dinámico renal con Tc 99 - DTPA",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-119",
+            "name": "Estudio dinámico renal con Tc 99 - MAG 3",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-120",
+            "name": "Cistografía isotópica indirecta",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-121",
+            "name": "Cistografía isotópica directa (no incluye procedimiento)",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-122",
+            "name": "Cintigrafía pulmonar perfusión o ventilación o difusión, c\/u",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-123",
+            "name": "Cintigrafía y estudio aspiración pulmonar",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-124",
+            "name": "Spect cerebral de perfusión (no incluye radiofármaco)",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-125",
+            "name": "Estudio dinámico sistema nervioso (radiocisternografia, fístula L.C.R, radioventriculografía, control válvula derivatíva, sub-durografía isotópica), c\/u (no incluye procedimiento).",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-126",
+            "name": "Cintigrafía evaluación infecciones (leucocitos, infecton, granulocitos u otros) (no incluye radiofármaco ni procedimiento).",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-127",
+            "name": "Cintigrafía con galio-67 planar infección (no incluye radioisótopo) (a.c. 0501133, cuando corresponda)",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-128",
+            "name": "Detección y\/o marcación de ganglio centinela, no incluye, punción ni detección con gammaprobe",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-129",
+            "name": "Cintigrafía con galio-67 planar y Spect, para estudio de tumores (no incluye radioisótopo)",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-130",
+            "name": "Exploración sistémica con I-131 (incluye mediciones fase precoz y tardía)",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-131",
+            "name": "Estudio glándulas mamarias (mamocintigrafia) (no incluye MIBI)",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-132",
+            "name": "Estudio de tumores (anticuerpos monoclonales, octreoscan, DMSA pentavalente, prostacint u otros) (no incluye radioisótopo)",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-133",
+            "name": "Spect - Tomografía por emisión foton único, cualquier órgano (no incluye radioisótopo)",
+            "type_id": 28
+        },
+        {
+            "code": "05-01-134",
+            "name": "Densitometría ósea a fotón doble, columna y cadera (unilateral o bilateral) o cuerpo entero",
+            "type_id": 28
+        },
+        {
+            "code": "05-02-001",
+            "name": "Dosis terapéuticas con I-131 hasta 30 mCi.",
+            "type_id": 27
+        },
+        {
+            "code": "05-02-002",
+            "name": "Dosis terapéuticas con I-131 entre 31 a 100 mCi.",
+            "type_id": 27
+        },
+        {
+            "code": "05-02-003",
+            "name": "Dosis terapéuticas con I-131 entre 101 a 200 mCi.",
+            "type_id": 27
+        },
+        {
+            "code": "05-02-004",
+            "name": "Dosis terapéuticas con I-131 entre 201 a 300 mCi.",
+            "type_id": 27
+        },
+        {
+            "code": "05-02-005",
+            "name": "Terapia paliativa del dolor con radioisótopos (no incluye radiofármaco)",
+            "type_id": 27
+        },
+        {
+            "code": "05-03-001",
+            "name": "Endocavitaria o intersticial (radium, cesio o iridium)",
+            "type_id": 27
+        },
+        {
+            "code": "05-03-003",
+            "name": "Superficial (estroncio)",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-001",
+            "name": "Cáncer de esófago pre o postoperatorio",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-002",
+            "name": "Cáncer de esófago sin intervención quir.",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-003",
+            "name": "Cáncer de mama sin intervención quir.",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-004",
+            "name": "Radioterapia, cáncer de mama, trat. Postoperatorio (tumorectomía; mastectomía parcial, total o radical)",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-005",
+            "name": "Cáncer de órganos de abdomen y\/o pelvis, excepto útero",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-006",
+            "name": "Cáncer de órganos de cabeza y\/o cuello",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-007",
+            "name": "Cáncer de piel",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-008",
+            "name": "Cáncer de pulmón o esófago torácico",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-009",
+            "name": "Cáncer de testículo",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-010",
+            "name": "Cáncer uterino (cuello y\/o endometrio)",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-011",
+            "name": "Leucemia tratamiento de",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-012",
+            "name": "Linfoma maligno irradiación ganglionar total",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-013",
+            "name": "Linfomas malignos, trat. parcial",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-014",
+            "name": "Paliativo en cáncer metastásico (cualquier localización) (mínimo 2.500 rads. en cada zona anatómica simultánea)",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-015",
+            "name": "Sarcoma óseo o de partes blandas",
+            "type_id": 27
+        },
+        {
+            "code": "05-04-016",
+            "name": "Tumores del sistema nervioso central",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-001",
+            "name": "Cáncer de esófago pre o postoperatorio",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-002",
+            "name": "Cáncer de esófago sin intervención quir.",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-003",
+            "name": "Cáncer de mama, trat. postoperatorio (tumorectomía; mastectomía parcial, total o radical)",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-004",
+            "name": "Cáncer de mama sin intervención quir.",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-005",
+            "name": "Cáncer de órganos de abdomen y\/o pelvis, excepto útero",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-006",
+            "name": "Cáncer de órganos de cabeza y cuello",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-007",
+            "name": "Cáncer de piel",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-008",
+            "name": "Cáncer de pulmón o esófago torácico",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-009",
+            "name": "Cáncer de testículo",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-010",
+            "name": "Cáncer uterino (cuello y\/o endometrio)",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-011",
+            "name": "Leucemia, trat. de",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-012",
+            "name": "Linfoma maligno irradiación ganglionar total",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-013",
+            "name": "Linfomas malignos, trat. parcial",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-014",
+            "name": "Paliativo en cáncer metastásico (cualquier localización) mínimo 2.500 rads en cada zona anatómica simultánea",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-015",
+            "name": "Sarcoma óseo o de partes blandas",
+            "type_id": 27
+        },
+        {
+            "code": "05-05-016",
+            "name": "Tumores del sistema nervioso central",
+            "type_id": 27
+        },
+        {
+            "code": "05-06-001",
+            "name": "Antiinflamatoria",
+            "type_id": 27
+        },
+        {
+            "code": "05-06-002",
+            "name": "Cáncer de piel",
+            "type_id": 27
+        },
+        {
+            "code": "05-06-003",
+            "name": "Paliativo en cáncer metastásico",
+            "type_id": 27
+        },
+        {
+            "code": "06-01-001",
+            "name": "Evaluacion Kinesiologica: muscular, articular, postural neurologica y funcional (maximo 2 por tratamiento)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-003",
+            "name": "*Examen de la funcion muscular, c\/dinamometros o similares",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-004",
+            "name": "*Piscina temperada (incluye ejercicios) (proc.aut)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-005",
+            "name": "*Radiacion infrarroja, horno, baño parafina, compresas humedas, c\/u (proc. Aut)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-006",
+            "name": "Tanque de hubbard con ejercicios (hiper o hipo-termal sobre 1.000 lts de capacidad) (proc.aut.)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-007",
+            "name": "*Turbion, tanque con remolino (hiper o hipotermal, baño de contraste)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-008",
+            "name": "* Laserteria (Proc. Autónomo)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-009",
+            "name": "*Onda corta (ultratermia) , microondas, c\/u (proc. aut)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-010",
+            "name": "* Radiacion ultravioleta localizada (proc.aut.)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-011",
+            "name": "*Ultrasonido (proc. Aut)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-012",
+            "name": "* Analgesia Transcutanea (tens) (proc.aut)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-013",
+            "name": "*Estimulacion eléctrica (interferencialm diadinamicas, exponenciales, galvanica, faradica, ultraexcitante",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-014",
+            "name": "*Iontoforesis",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-015",
+            "name": "*Retrolimentacion neuromuscular (miofeedback)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-016",
+            "name": "*Compresion neumática (masaje compresivo)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-017",
+            "name": "*Ejercicios respiratorios y procedimientos de kinesioterapia toracica",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-018",
+            "name": "*Entrenamiento ergonometrico con treadmill o cicloergometro (proc.aut)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-019",
+            "name": "*Entrenamiento ortesico de gran incapacitado (proc.aut)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-020",
+            "name": "*Entrenamiento protesico extremidades (proc.aut)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-021",
+            "name": "*Manipulacion Osteopatica (liberacion articular, manipulacion vertebral)(proc.aut)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-022",
+            "name": "*Masoterapia por sesion (proc.aut)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-023",
+            "name": "* Orientación y entrenamiento de ciegos (reeducacion postural, entrenamiento vicariante, desplazamiento) (proc.aut.)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-024",
+            "name": "*Reeducacion motriz (ejercicios terapeuticos para recuperacion muscular, capacidad de trabajo, coordinacion, gimnasia ortopedica, reeducacion funcional, de marcha) (individual y por sesion, minimo 30 min)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-025",
+            "name": "*Tecnicas de facilitacion, tecnicas de inhibicion (kabat y\/o bobath)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-026",
+            "name": "*Tecnicas de relajacion (entrenamiento autogeno schultz-jacobson o similar) (proc.aut)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-027",
+            "name": "*Tracción cervical y\/o lumbar (mecanica o manual)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-028",
+            "name": "*Entrenamiento cardiorespiratorio (sesiones individuales, minimo 30 min.)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-029",
+            "name": "Atencion kinesiologica integral",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-030",
+            "name": "*Drenajes posturales bronquiales (proc.aut)",
+            "type_id": 26
+        },
+        {
+            "code": "06-01-031",
+            "name": "Atencion kinesiologica integral, al enfermo hosp. En uti o intermedio",
+            "type_id": 26
+        },
+        {
+            "code": "09-01-002",
+            "name": "Desintoxicacion alcohol y drogas ( procedimiento)",
+            "type_id": 37
+        },
+        {
+            "code": "09-01-003",
+            "name": "Electroshocks e Insulino-Terapia (efectuada y controlada por el médico psiquiatra)",
+            "type_id": 37
+        },
+        {
+            "code": "10-01-001",
+            "name": "dTermografía (mamaria, tiroidea u otras) c\/u.d",
+            "type_id": 13
+        },
+        {
+            "code": "10-01-002",
+            "name": "De estimulación con glucagón, histamina o similar.",
+            "type_id": 13
+        },
+        {
+            "code": "10-01-003",
+            "name": "De estimulación de renina, furosemida o similar",
+            "type_id": 13
+        },
+        {
+            "code": "10-01-004",
+            "name": "De estimulación HGH en ergómetro.",
+            "type_id": 13
+        },
+        {
+            "code": "10-01-005",
+            "name": "De estimulación o frenación con ACTH, clomifeno, glucosa, GnRH, gonadotrofinas, L-DOPA, metoclopramida, metopirona, TRH, THS, o similares, c\/u.",
+            "type_id": 13
+        },
+        {
+            "code": "10-01-006",
+            "name": "De estímulo mineralocorticoideo y de respuesta vascular a angiotensina II ó III o similar.",
+            "type_id": 13
+        },
+        {
+            "code": "10-01-007",
+            "name": "De hipoglicemia con insulina o tolbutamida o similar.",
+            "type_id": 13
+        },
+        {
+            "code": "10-01-008",
+            "name": "De infusión prolongada de ACTH, arginina, GnRH o similar, c\/u.",
+            "type_id": 13
+        },
+        {
+            "code": "10-01-009",
+            "name": "De privación acuosa, con o sin ADH",
+            "type_id": 13
+        },
+        {
+            "code": "10-01-010",
+            "name": "De regitina o similar",
+            "type_id": 13
+        },
+        {
+            "code": "10-01-011",
+            "name": "De sobrecarga de calcio",
+            "type_id": 13
+        },
+        {
+            "code": "10-01-012",
+            "name": "De sobrecarga hídrica",
+            "type_id": 13
+        },
+        {
+            "code": "11-01-001",
+            "name": "Intraventricular por fontanela, cisternal o latero-cervical alta o de hematoma intracraneal",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-002",
+            "name": "Subdural",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-003",
+            "name": "Lumbar c\/s manometria c\/s queckensted",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-004",
+            "name": "E.E.G. de 16 o más canales (incluye el cód. 11-01-006)",
+            "type_id": 29
+        },
+        {
+            "code": "11-01-005",
+            "name": "Electrocorticografia",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-006",
+            "name": "Electroencefalograma (E.E.G.) standard y\/o activado \"sin privación de sueño\" (incluye mono y bipolares, hiperventilación, c\/s reactividad auditiva, visual, lumínica, por drogas u otras). Equipo de 8 canales",
+            "type_id": 29
+        },
+        {
+            "code": "11-01-007",
+            "name": "Estereo-electroencefalografia (incluye uno o mas electrodos",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-008",
+            "name": "Monitoreo e.e.g. (electrodos implantados) por sesion.",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-009",
+            "name": "Electromiografia de fibra unica",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-010",
+            "name": "Electromiografias cualquier region, por ej.: musculos faciales, faringe, paravertebrales, vejiga y perone, test de miastenia (incluye el estudio clinico y muestreo suficiente para diagnosticar naturaleza del trastorno y estado evolutivo), c\/u",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-011",
+            "name": "Potenciales evocados en corteza ( por ej.: auditivo, ocular",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-012",
+            "name": "Velocidad de conduccion (incluye reflejo h, onda f y otros)",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-013",
+            "name": "Carotida-vertebral por cateterizacion de la subclavia, axilar, humeral o femoral (a.c 04-02-029)",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-015",
+            "name": "Flebografia orbitaria ( a.c. 04-02-040 )",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-018",
+            "name": "Yugulografia ( a.c. 04-02-040 )",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-019",
+            "name": "Neumoencefalografia fraccionada, por puncion lumbar",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-020",
+            "name": "Neumoencefalografia p\/puncion suboccipital( a.c. 04-02-045 )",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-025",
+            "name": "Por puncion lumbar, con medio de contraste gaseoso o hidrosoluble (A.C. 04-02-049 O 04-02-050 S\/corresp.)",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-026",
+            "name": "De nervios perifericos intramuscular (de punto motor)",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-027",
+            "name": "De nervios perifericos troncular",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-028",
+            "name": "De ramas del trigemino o del facial",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-029",
+            "name": "Del ganglio estrellado",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-030",
+            "name": "Epidural, cervical, lumbar o similares, cada sesion",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-031",
+            "name": "Intercostales (cualquier numero)",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-032",
+            "name": "Rizotomia quimica por medio de inyeccion intratecal.",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-033",
+            "name": "Suboccipital u otros nervios cervicales",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-034",
+            "name": "Intramuscular",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-035",
+            "name": "Intratecal",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-036",
+            "name": "Troncular",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-040",
+            "name": "E.E.G. Post-privacion de sueno (incluye codigo 11-01-006). Equipo de 8 canales",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-041",
+            "name": "E.E.G. Post-privacion de sueno (incluye codigo 11-01-004) equipo de 16 o mas canales",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-042",
+            "name": "E.E.G. Digital (con activaciones) 20 canales",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-043",
+            "name": "E.E.G. Digital (con activaciones) 32 canales",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-044",
+            "name": "Monitoreo e.e.g. Continuo de 24 hrs.",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-045",
+            "name": "Polisomnografia (estudio poligrafico del sueno),",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-046",
+            "name": "Electroencefalograma digital de 32 canales con \"mapeo\"",
+            "type_id": 34
+        },
+        {
+            "code": "11-01-113",
+            "name": "Angiografía cerebral digital por cateterización (incluye proc. radiológico, medio de contraste e insumos)",
+            "type_id": 29
+        },
+        {
+            "code": "11-01-140",
+            "name": "Esclerosis Múltiple Remitente Recurrente, Tratamiento médico farmacológico Anual (incluye inmunomoduladores)",
+            "type_id": 29
+        },
+        {
+            "code": "11-01-141",
+            "name": "Esclerosis Múltiple Remitente Recurrente, Tratamiento rehabilitación",
+            "type_id": 29
+        },
+        {
+            "code": "11-01-142",
+            "name": "Esclerosis Múltiple Remitente Recurrente, Tratamiento Brote",
+            "type_id": 29
+        },
+        {
+            "code": "12-01-001",
+            "name": "& campimetria de proyeccion, c\/ojo (proc.aut.)",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-002",
+            "name": "& coordimetria, test de hess u otro, c\/ojo",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-003",
+            "name": "& cuantificacion de lagrimacion (test de schirmer), uno o",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-004",
+            "name": "& curva de tension aplanatica (por cada dia), c\/ojo",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-005",
+            "name": "& diploscopia cuantitativa, ambos ojos",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-006",
+            "name": "& electromiografia musculos oculares adultos, c\/ojo",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-007",
+            "name": "& electromiografia musculos oculares ninos, c\/ojo",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-008",
+            "name": "& electrooculografia, ambos ojos",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-009",
+            "name": "& exploracion sensoriomotora: estrabismo, estudio completo ,",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-010",
+            "name": "& perimetria estatica (con campimetria de proyeccion) ,",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-011",
+            "name": "& pruebas de provocacion para glaucoma (prueba de oscuridad",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-012",
+            "name": "& retinografia, ambos ojos",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-013",
+            "name": "& tonografia electronica, c\/ojo",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-014",
+            "name": "& tonometria ocular, cualquier tecnica, c\/ojo",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-015",
+            "name": "& tratamiento ortoptico y\/ o pleoptico (por sesion) ,",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-016",
+            "name": "Angiografia de retina o de iris, (con fluoresceina o",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-017",
+            "name": "Angioscopia retinal y\/o iris (con fluoresceina o similar),",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-018",
+            "name": "Electrorretinografia, c\/ojo",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-019",
+            "name": "Exploracion vitreorretinal, ambos ojos",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-020",
+            "name": "Ecobiometria con calculo de lente intraocular, ambos ojos.",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-023",
+            "name": "& potencial visual evocado en adultos, ambos ojos",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-024",
+            "name": "& potencial visual evocado en ninos, ambos ojos",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-028",
+            "name": "Flebografia orbitaria (a.c. 04-02-040)",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-029",
+            "name": "Cuerpo extrano conjuntival y\/o corneal en adultos",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-030",
+            "name": "Cuerpo extrano conjuntival y\/o corneal en ninos",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-031",
+            "name": "Via lagrimal,cateterismo o sondaje en adultos",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-032",
+            "name": "Via lagrimal, cateterismo o sondaje en lactantes",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-033",
+            "name": "Via lagrimal, cateterismo o sondaje en ninos",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-034",
+            "name": "Tocacion corneal c\/yodo y\/o eter u otros, en ninos o adultos",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-035",
+            "name": "Criocoagulacion conjuntival, corneal o palpebral en adultos",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-036",
+            "name": "Criocoagulacion conjuntival, corneal o palpebral en ninos",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-037",
+            "name": "Glaucoma, ciclodiatermia y\/o ciclocrioterapia",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-038",
+            "name": "Inyeccion retrobulbar",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-039",
+            "name": "Pestanas, extirp. Por electrocoagulacion (cualquier numero)",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-040",
+            "name": "Puntos lagrimales; electrotermocoagulacion",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-041",
+            "name": "Sondaje vía lagrimal en niños (bajo anestesia general)",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-042",
+            "name": "Campimetria computarizada, c\/ojo",
+            "type_id": 35
+        },
+        {
+            "code": "12-01-043",
+            "name": "& topografia corneal computarizada, c\/ojo",
+            "type_id": 35
+        },
+        {
+            "code": "13-01-001",
+            "name": "Electrogustometria",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-002",
+            "name": "& rinomanometria c\/s vasocontrictor",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-003",
+            "name": "Nasofaringolaringofibroscopia",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-004",
+            "name": "Rinoscopia posterior, con nasofaringoscopia c\/s toma",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-005",
+            "name": "Sinusoscopia de cada seno maxilar por puncion, c\/s biopsia,",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-006",
+            "name": "Con microscopio",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-007",
+            "name": "Sin microscopio",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-008",
+            "name": "& - en ninos",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-009",
+            "name": "& impedanciometria",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-010",
+            "name": "& prueba de audifonos",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-011",
+            "name": "& audiometria por potenciales evocados ( adultos o ninos )",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-012",
+            "name": "& cocleovestibular con electronistagmografia",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-015",
+            "name": "& electronistagmografia c\/s nistag.de posicion (proc.aut.)",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-016",
+            "name": "& permeabilidad tubaria, estudio instrumental de",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-017",
+            "name": "& prueba calorica (proc.aut.)",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-019",
+            "name": "& test de glicerol (con dos audiometrias )",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-020",
+            "name": "& viii par, estudio de ( examen cocleovestibular)",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-021",
+            "name": "Audiometria en Adulto",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-024",
+            "name": "Senos perinasales, puncion evacuadora c\/s toma de muestras,",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-025",
+            "name": "Taponamiento anterior (proc. Aut.)",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-026",
+            "name": "Taponamiento posterior",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-027",
+            "name": "Vaciamiento cavid. Perinasales (proetz y sim.) (10 sesiones)",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-028",
+            "name": "Vasos y\/o cornetes, electrocauterizacion (uni o bilateral)",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-029",
+            "name": "Cuerpo extraño en fosas nasales, extraccion de: En adultos",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-030",
+            "name": "Cuerpo extraño en fosas nasales, extraccion de: En ninos",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-035",
+            "name": "Cuerpo extraño en laringe y\/o traquea, extraccion de (incluyela endoscopia con tubo rigido): En adultos",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-036",
+            "name": "Cuerpo extraño en laringe y\/o traquea, extraccion de (incluyela endoscopia con tubo rigido): En ninos",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-037",
+            "name": "Dilatacion esofagica por sesion",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-038",
+            "name": "En ninos",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-039",
+            "name": "En adultos",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-040",
+            "name": "Lesiones del oido externo y\/o medio, curacion bajo micros",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-041",
+            "name": "Trompa de eustaquio, insuflacion instrumental (proc. Aut.)",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-042",
+            "name": "En adultos",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-043",
+            "name": "En ninos",
+            "type_id": 36
+        },
+        {
+            "code": "13-01-044",
+            "name": "Biopsia oido (proc. Aut.)",
+            "type_id": 36
+        },
+        {
+            "code": "13-02-001",
+            "name": "Absceso y\/o hematomas de Oido Externo, trat. quir.",
+            "type_id": 19
+        },
+        {
+            "code": "13-03-001",
+            "name": "Evaluacion de la voz (incluye respiracion, tonicidad",
+            "type_id": 36
+        },
+        {
+            "code": "13-03-002",
+            "name": "Evaluacion del habla (incluye articulacion, prosodia,",
+            "type_id": 36
+        },
+        {
+            "code": "13-03-003",
+            "name": "Evaluacion del lenguaje (incluye voz, habla y aspecto",
+            "type_id": 36
+        },
+        {
+            "code": "13-03-004",
+            "name": "Rehabilitacion de la voz (maximo 15 sesiones anuales) (cada sesion minimo 30'')",
+            "type_id": 36
+        },
+        {
+            "code": "13-03-005",
+            "name": "Rehabilitacion del habla y\/o del lenguaje (maximo 30 sesiones anuales) (cada sesion minimo 30'')",
+            "type_id": 36
+        },
+        {
+            "code": "14-01-001",
+            "name": "Punción evacuadora de quiste tiroídeo c\/s toma de muestra, c\/s inyección de medicamentos",
+            "type_id": 45
+        },
+        {
+            "code": "16-01-110",
+            "name": "Curetaje de lesiones virales o similares hasta 10 lesiones",
+            "type_id": 32
+        },
+        {
+            "code": "16-01-111",
+            "name": "Aplicación de inmunomodulares, quimicos y similares hasta 10 lesiones",
+            "type_id": 32
+        },
+        {
+            "code": "16-01-112",
+            "name": "Fototerapia UVB, UVA localizada, por sesion",
+            "type_id": 32
+        },
+        {
+            "code": "16-01-113",
+            "name": "Fototerapia UVB, banda angosta y UVA por sesion en cabina",
+            "type_id": 32
+        },
+        {
+            "code": "16-01-115",
+            "name": "Implantes subcutaneos",
+            "type_id": 32
+        },
+        {
+            "code": "16-01-116",
+            "name": "Crioterapia hasta 5 lesiones",
+            "type_id": 32
+        },
+        {
+            "code": "16-01-117",
+            "name": "Crioterapia 6 a 10 lesiones",
+            "type_id": 32
+        },
+        {
+            "code": "16-01-118",
+            "name": "Tumor maligno por criocirugia (por cada lesion)",
+            "type_id": 32
+        },
+        {
+            "code": "16-01-119",
+            "name": "Inyeccion intracutanea en areas hasta 9 cms2",
+            "type_id": 32
+        },
+        {
+            "code": "16-01-120",
+            "name": "Tratamiento abrasivo cutaneo mecanico",
+            "type_id": 32
+        },
+        {
+            "code": "16-01-121",
+            "name": "Tratamiento abrasivo cutaneo quimico",
+            "type_id": 32
+        },
+        {
+            "code": "16-01-122",
+            "name": "Tricograma",
+            "type_id": 32
+        },
+        {
+            "code": "16-01-124",
+            "name": "Tratamiento por laser, IPL o similar por area hasta 16 cm2",
+            "type_id": 32
+        },
+        {
+            "code": "16-01-125",
+            "name": "Terapia fotodinamica ( no incluye medicamento)",
+            "type_id": 32
+        },
+        {
+            "code": "16-01-126",
+            "name": "Dermatoscopia digital con registro graficos hasta 5 lesiones",
+            "type_id": 32
+        },
+        {
+            "code": "17-01-001",
+            "name": "E.C.G. de reposo (incluye mínimo 12 derivaciones y 4 complejos por derivación)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-002",
+            "name": "Electrocardiograma esofagico",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-003",
+            "name": "Ergometría (incluye E.C.G. antes, durante y después del ejercicio con monitoreo continuo y medición de la intensidad del esfuerzo)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-004",
+            "name": "En adultos o ninos",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-005",
+            "name": "Mapeo epicardico durante intervencion quirurgica.",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-006",
+            "name": "E.C.G. continuo (test Holter o similares, por ej. variabilidad de la frecuencia cardíaca y\/o alta resolución del ST y\/o depolarización tardía); 20 a 24 horas de registro",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-007",
+            "name": "Ecocardiograma Doppler, con registro (incluye cód. 17.01.008)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-008",
+            "name": "Ecocardiograma bidimensional (incluye registro modo M, papel fotosensible y fotografía), en adultos o niños (proc. aut.)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-009",
+            "name": "Monitoreo continuo de presion arterial",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-010",
+            "name": "Sondeo cardíaco derecho c\/s termodilución, en adultos o niños",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-011",
+            "name": "Sondeo cardíaco izquierdo y derecho, en adultos o niños",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-012",
+            "name": "Sondeo cardíaco izquierdo, en adultos o niños",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-013",
+            "name": "Cateterismo en recien nacido por arteria umbilical",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-014",
+            "name": "Instalacion de cateter swan-ganz o similar, en adultos o ninos",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-015",
+            "name": "Doppler con ergometria (por sesion)",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-016",
+            "name": "Doppler simple de vasos perifericos (por sesion)",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-017",
+            "name": "Pletismografia en reposo, esfuerzo c\/u (por sesion)",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-018",
+            "name": "Registro ecoarterial o ecovenoso periferico c\/u (por sesion)",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-019",
+            "name": "Cinecoronariografía derecha y\/o izquierda (incluye sondeo cardíaco izquierdo y ventriculografía izquierda)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-020",
+            "name": "Ventriculografía derecha, en adultos o niños (incl. proc. rad., y sondeo cardíaco derecho)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-021",
+            "name": "Ventriculografía izquierda, en adultos o niños (incl. proc. rad., y sondeo cardíaco izquierdo)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-022",
+            "name": "Aortografía, en adultos o niños (Incluye proc. rad.)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-023",
+            "name": "Arteriografía de extremidades, en adultos o niños (incluye proc. rad.)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-024",
+            "name": "Arteriografía selectiva o superselectiva (pulmonar, renal, tronco celíaco, etc) en adultos o niños (incl. proc. rad.)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-025",
+            "name": "Cavografia (a.c. 04-02-035)",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-026",
+            "name": "Flebografia de cada extremidad (a.c.04-02-038)",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-027",
+            "name": "Flebografia yugular, suprarrenal, portografia transhepaticas, lumbar, espermatica o similar c\/u (a.c. 04-02-041)",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-030",
+            "name": "Punción evacuadora de pericardio, c\/s toma de muestra c\/s inyección de medicamento",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-031",
+            "name": "Angioplastia intraluminal coronaria proc.cardiológico (a.c.04-02-022)",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-032",
+            "name": "Angioplastia intraluminal periférica proc.cardiológico (a.c.04-02-023)",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-033",
+            "name": "Biopsia endomiocárdica (proc. completo)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-034",
+            "name": "Cardioversion",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-035",
+            "name": "Colocación de sonda marcapaso transitorio (proc. completo)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-036",
+            "name": "Desfibrilacion",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-037",
+            "name": "Puncion subclavia o yugular con colocacion de cateter",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-038",
+            "name": "Septostomía de Rashkind",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-039",
+            "name": "Trombolisis arterial periferica",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-040",
+            "name": "Trombolisis intracoronaria",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-041",
+            "name": "Valvuloplastia mitral (a.c. 04-02-033)",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-042",
+            "name": "Valvuloplastia aortica y\/o pulmonar,c\/u (a.c. 04-02-033)",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-043",
+            "name": "Angioplastía de coartación aórtica (incl. proc. rad.) (proc. completo)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-045",
+            "name": "Ecocardiograma Doppler color",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-046",
+            "name": "Estudio electrofisiologico endocardiaco de las arritmias",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-050",
+            "name": "Ablacion con corriente continua o radiofrecuencia de nodulo",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-051",
+            "name": "Ablacion con corriente continua o con radiofrecuencia de vias accesorias y otros",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-055",
+            "name": "Ecocardiagrama doppler color transesofagico",
+            "type_id": 31
+        },
+        {
+            "code": "17-01-131",
+            "name": "Angioplastía Intraluminal coronaria uno o multiples vasos (incl. proc. rad; balón, rotablator, Stent o similar)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-132",
+            "name": "Angioplastía Intraluminal periférica (incluye proc. rad., balón, Stent o similar)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-141",
+            "name": "Valvuloplastía mitral o tricúspide (incl. proc. radiológico, incluye balón)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-142",
+            "name": "Valvuloplastía aórtica y\/o pulmonar c\/u (incl. proc. radiológico, incluye balón)",
+            "type_id": 21
+        },
+        {
+            "code": "17-01-144",
+            "name": "Angioplastía de arteria pulmonar o vena cava en niños (incluye proc. rad., balón, Stent o similar)",
+            "type_id": 21
+        },
+        {
+            "code": "17-03-023",
+            "name": "Denudación Venosa (Proc. Aut)",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-001",
+            "name": "Espirometría Basal",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-002",
+            "name": "Espirometria basal y con broncodilatador",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-003",
+            "name": "Provocacion con antigeno (incluye el antigeno)",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-004",
+            "name": "Provocacion con ejercicio, test de",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-005",
+            "name": "Provocacion con histamina (pd 20),test de, (incluye la espirometría basal y el tratamiento de los efectos advesos de la histamina)",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-006",
+            "name": "Test espirometrico de posicion lateral",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-007",
+            "name": "Analisis de gas espirado",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-008",
+            "name": "Capacidad de difusion, estudio de",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-009",
+            "name": "Capacidad fisica del trabajo",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-010",
+            "name": "Curva de lavado de nitrogeno (n)",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-011",
+            "name": "Curva de relajacion flujovolumen basal",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-012",
+            "name": "Distensibilidad pulmonar, (\"compliance\"), estudio de",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-013",
+            "name": "Medicion de presion de oclusion",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-014",
+            "name": "Medicion de presion inspiratoria maxima (proc. Aut.)",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-015",
+            "name": "Medicion de presion trans-diafragmatica",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-016",
+            "name": "Registro flujometrico, por semana",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-017",
+            "name": "Respuesta respiratoria al co2",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-018",
+            "name": "Tiempo de tolerancia a la fatiga respiratoria",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-019",
+            "name": "Ventilacion alveolar, estudio de (incluye ventilacion minuto",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-020",
+            "name": "Volumen residual, estudio de medicion de volumenes y capacidades pulmonares (incluye volumen residual y capacidad vital)",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-021",
+            "name": "Laringotraqueobroncoscopia con fibroscopio",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-022",
+            "name": "Larigotraqueoscopia con tubo rigido",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-023",
+            "name": "Mediastinoscopia c\/s biopsia",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-024",
+            "name": "Pleuroscopia (toracoscopia) c\/s biopsia",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-025",
+            "name": "Procedimiento para determinar gasometria arterial en reposo",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-026",
+            "name": "Procedimiento para determinar gasometria arterial respirando",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-027",
+            "name": "Broncoaspiración, c\/s lavado y\/o colocación de medicamentos por sonda traqueobronquial (proc. aut.)",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-029",
+            "name": "Toracocentesis evacuadora,c\/s toma de muestras",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-030",
+            "name": "Aerosolterapia con aire comprimido y oxigeno (en atencion cerrada, incluida en valor dia cama)",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-032",
+            "name": "Biopsia pleural (con aguja)",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-033",
+            "name": "Biopsia pulmonar (con aguja) no incluye la radiologia",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-034",
+            "name": "Cuerpo extrano de bronquio, extraccion por via",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-035",
+            "name": "Inmunoterapia por bcg",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-036",
+            "name": "Inmunoterapia por sesion (incluye el tratamiento de",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-037",
+            "name": "Intubacion traqueal (proc. Aut.)",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-038",
+            "name": "Monitoreo o estudio de apnea durante el sueno.",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-050",
+            "name": "Provocacion bronquial con histamina y\/o metacolina",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-051",
+            "name": "Curva dosis respuesta a broncodilatadores.",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-052",
+            "name": "Monitorizacion saturacion de o2 durante el sueno.",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-053",
+            "name": "Monitorizacion saturacion de o2 durante el sueno con presion positiva continua nasal",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-054",
+            "name": "Saturacion de O2 en reposo y\/o ejercicio (con oximetro)",
+            "type_id": 31
+        },
+        {
+            "code": "17-07-055",
+            "name": "Saturacion de O2 en reposo y\/o ejercicio y\/o O2 100% (con oximetro)",
+            "type_id": 31
+        },
+        {
+            "code": "18-01-001",
+            "name": "Gastroduodenoscopía (incluye esofagoscopía)",
+            "type_id": 24
+        },
+        {
+            "code": "18-01-002",
+            "name": "Esofagoscopia",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-003",
+            "name": "Yeyuno-ileoscopía (incluye esofago-gastro-duodenoscopía)",
+            "type_id": 24
+        },
+        {
+            "code": "18-01-004",
+            "name": "Ano-recto-sigmoidoscopia en adultos",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-005",
+            "name": "Ano-recto-sigmoidescopia en niños (además anestesia cód. 22-01-001 si corresponde)",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-006",
+            "name": "Colonoscopía larga (incluye sigmoidoscopía y colonoscopía izquierda)",
+            "type_id": 24
+        },
+        {
+            "code": "18-01-007",
+            "name": "Sigmoidoscopia y colonoscopia izquierda con tubo flexible",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-008",
+            "name": "Coledocoscopia intraoperatoria c\/s extraccion de calculos",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-009",
+            "name": "Peritoneoscopia transparietal (incluye el neumoperitoneo)",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-010",
+            "name": "Bernstein, test de",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-011",
+            "name": "Manometria esofagica",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-012",
+            "name": "Reflujo acido, test de (grossman o similar) o reflujo",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-013",
+            "name": "Sondeo gastrico con estimulacion de insulina (hollander)",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-014",
+            "name": "Vaciamiento gastrico, test de (goldstein o similar)",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-015",
+            "name": "Biopsia de intestino delgado, por capsula (de rubin,crosby o sim)",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-016",
+            "name": "Puncion biopsia transparietal de organos abdominales c\/u",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-018",
+            "name": "Colangiopancreatografia retrograda, por intubacion endoscopica con la ampolla de vater (incluye endoscopia) (a.c 04-02-009)",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-019",
+            "name": "Drenaje de la via biliar transhepatica y\/o percutaneo (a.c.",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-020",
+            "name": "Fistulografia (a.c. 04-02-009)",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-021",
+            "name": "Neumoperitoneo por puncion transparietal",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-022",
+            "name": "Intubacion sonda de sengstaken",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-023",
+            "name": "Intubacion con sonda gastrica",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-024",
+            "name": "Intubacion con sonda de miller-abbot o de alimentacion",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-025",
+            "name": "Dilatacion essofagica por balon neumatico (de mosher o similar)",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-026",
+            "name": "Dilatacion esofagica por bujia de hg (hurst o similar)",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-027",
+            "name": "Colocacion endoscopica de tubo transtumoral en via biliar",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-028",
+            "name": "Cuerpo extrano de esofago y\/o estomago, extraccion",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-029",
+            "name": "Devolvulacion del sigmoides por endoscopia (incluye ano-recto-sigmoidoscopia) (proc. Aut)",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-030",
+            "name": "Dilatacion ano-rectal, por sesion",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-031",
+            "name": "Polipos de esofago y\/o estomago o intestino delgado,",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-032",
+            "name": "Escleroterapia de hemorroides, cualquier numero (incluye cod. 18-01-004 al 18-01-007 según corresp)",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-033",
+            "name": "Escleroterapia o hemostasia de varices esofagicas y\/o ulcera",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-034",
+            "name": "Extraccion percutanea incruenta de calculos biliares",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-035",
+            "name": "Ligadura hemorroides",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-036",
+            "name": "Papilotomia endoscopica c\/s extraccion de calculos, c\/s",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-037",
+            "name": "Ureasa, test de (para helicobacter pylori) o similar",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-038",
+            "name": "Puncion evacuadora de absceso intraabdominales (hepatico u otros), c\/s toma de muestra, c\/s inyeccion de medicamentos",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-041",
+            "name": "Puncion evacuadora de liquido ascitico, con colocacion de expansores de plasma, c\/s tomada de muestra, c\/s inyeccion de medicamentos (no incluye el valor de los expansores ni otros medicamentos)",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-042",
+            "name": "Vaciamiento manual de fecaloma",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-043",
+            "name": "Manometria anorrectal",
+            "type_id": 33
+        },
+        {
+            "code": "18-01-045",
+            "name": "Polipos rectales, rectosigmoideos o de colon trat. Completo",
+            "type_id": 33
+        },
+        {
+            "code": "19-01-001",
+            "name": "Exploracion de uretra antero-posterior con bujia y\/o explo -",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-002",
+            "name": "Cistoscopia con sondeo de uno o ambos ureteres",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-003",
+            "name": "Cistoscopia y\/o uretrocistoscopia y\/o uretroscopia",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-004",
+            "name": "Ureteronefroscopia",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-005",
+            "name": "Prostatica transparietal o transrectal (ademas anestesia",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-006",
+            "name": "Renal transparietal",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-007",
+            "name": "Cistometria (proc.aut.)",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-008",
+            "name": "Electromiografia perineal y del esfinter uretral en adultos",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-009",
+            "name": "Electromiografia perineal y del esfinter uretral en ninos",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-010",
+            "name": "Perfil uretral (proc.aut.)",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-011",
+            "name": "Uroflujometria (proc.aut.)",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-012",
+            "name": "Cistografia por sonda (de relleno) o por puncion hipo-",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-013",
+            "name": "Inyeccion de medio de contraste en cuerpo cavernoso",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-015",
+            "name": "Ureteropielografia ascendente (directa) por cateterismo",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-016",
+            "name": "Uretrografia retrograda o cistouretrografia (miccional)",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-018",
+            "name": "Dilatacion uretra c\/s masaje, c\/s instilacion o inyeccion de",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-019",
+            "name": "Instilacion vesical (incluye colocacion de sonda) proc. Aut.",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-020",
+            "name": "Inyeccion de medicamentos en el pene",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-021",
+            "name": "Vac. Vesical p\/puncion hipogastrica o cistostomia p\/puncion",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-022",
+            "name": "Vac. Vesical por sonda uretral, (proc. Aut.)",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-023",
+            "name": "Hemodiálisis con insumos incluidos",
+            "type_id": 48
+        },
+        {
+            "code": "19-01-024",
+            "name": "Hemodiálisis sin insumos",
+            "type_id": 48
+        },
+        {
+            "code": "19-01-025",
+            "name": "Peritoneodiálisis (incluye insumos)",
+            "type_id": 48
+        },
+        {
+            "code": "19-01-026",
+            "name": "Peritoneodiálisis continua en paciente crónico (adulto o niños) (tratamiento mensual)",
+            "type_id": 48
+        },
+        {
+            "code": "19-01-027",
+            "name": "Hemodiálisis, tratamiento mensual (con insumos incluidos)",
+            "type_id": 48
+        },
+        {
+            "code": "19-01-028",
+            "name": "Hemodiálisis con bicarbonato con insumos (por sesion)",
+            "type_id": 48
+        },
+        {
+            "code": "19-01-029",
+            "name": "Hemodiálisis con bicarbonato con insumos (tratamiento mensual)",
+            "type_id": 48
+        },
+        {
+            "code": "19-01-030",
+            "name": "Estudio urodinamico (incluye cistometria, emg perineal y del",
+            "type_id": 39
+        },
+        {
+            "code": "19-01-126",
+            "name": "Instalación de cateter para peritoneodiális",
+            "type_id": 48
+        },
+        {
+            "code": "20-01-001",
+            "name": "Amnioscopía c\/s escalpe fetal",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-002",
+            "name": "Colposcopía",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-005",
+            "name": "Histeroscopía diagnostica o terapéutica (proc. aut.)",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-006",
+            "name": "Amniocentesis",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-007",
+            "name": "Culdocentesis (punción del Douglas)",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-008",
+            "name": "Hidrotubación y\/o insuflación de trompas",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-009",
+            "name": "Monitoreo basal con informe",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-010",
+            "name": "Monitoreo fetal estresante, con control permanente del especialista y tratamiento de las posibles complicaciones",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-012",
+            "name": "Galactografía (a.c. 04-02-005)",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-013",
+            "name": "Histerosalpingografía (a.c. 04-02-011)",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-014",
+            "name": "Biopsia endometrio, vulva, vagina, cuello, c\/u (proc. aut.)",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-015",
+            "name": "Colocación o extracción de dispositivo intrauterino (no incluye el valor del dispositivo)",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-016",
+            "name": "Electrodiatermo o criocoagulación de lesiones del cuello",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-020",
+            "name": "Test postcoital",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-021",
+            "name": "Cordocentesis",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-022",
+            "name": "Punción evacuadora de quistes mamarios, c\/s toma de muestras, c\/s inyección de medicamentos",
+            "type_id": 25
+        },
+        {
+            "code": "20-01-023",
+            "name": "Biopsia estereotaxíca digital de mama",
+            "type_id": 25
+        },
+        {
+            "code": "20-04-002",
+            "name": "Raspado uterino diagnóstico o terapéutico por metrorragia o por restos de aborto",
+            "type_id": 25
+        },
+        {
+            "code": "2004",
+            "name": "SEPA",
+            "type_id": 12
+        },
+        {
+            "code": "21-01-001",
+            "name": "Infiltracion local medicamentos (bursas, tendones, yuxtaarticulares y\/o intraarticulares",
+            "type_id": 38
+        },
+        {
+            "code": "21-01-002",
+            "name": "Procedimiento para exploraciones radiologicas (incluye maniobra e inyeccion del medio de contraste)",
+            "type_id": 38
+        },
+        {
+            "code": "21-01-003",
+            "name": "Movilizacion articular bajo anestesia general.",
+            "type_id": 38
+        },
+        {
+            "code": "21-05-001",
+            "name": "Calzon corto de yeso",
+            "type_id": 38
+        },
+        {
+            "code": "21-05-002",
+            "name": "Corbata tipo schantz",
+            "type_id": 38
+        },
+        {
+            "code": "21-05-003",
+            "name": "Minerva de yeso",
+            "type_id": 38
+        },
+        {
+            "code": "21-05-004",
+            "name": "Rodillera, bota larga o corta de yeso",
+            "type_id": 38
+        },
+        {
+            "code": "21-05-005",
+            "name": "Velpeau",
+            "type_id": 38
+        },
+        {
+            "code": "21-05-006",
+            "name": "Yeso antebraquial c\/s ferula digital",
+            "type_id": 38
+        },
+        {
+            "code": "21-05-007",
+            "name": "Yeso braquicarpiano",
+            "type_id": 38
+        },
+        {
+            "code": "21-05-008",
+            "name": "Yeso pelvipedio bilateral",
+            "type_id": 38
+        },
+        {
+            "code": "21-05-009",
+            "name": "Yeso pelvipedio unilateral",
+            "type_id": 38
+        },
+        {
+            "code": "21-05-010",
+            "name": "Yeso toracobraquial",
+            "type_id": 38
+        },
+        {
+            "code": "21-05-011",
+            "name": "Corsets de milwaukee o similares (incluye la toma de molde )",
+            "type_id": 38
+        },
+        {
+            "code": "21-05-012",
+            "name": "Corsets de risser o similares",
+            "type_id": 38
+        },
+        {
+            "code": "21-05-013",
+            "name": "Corsets de yeso simple (tipo watson jones)",
+            "type_id": 38
+        },
+        {
+            "code": "21-07-001",
+            "name": "Luxaciones de articulaciones medianas (hombro, codo, rodilla, tobillo, muñeca, tarso y esternoclavicular)",
+            "type_id": 42
+        },
+        {
+            "code": "21-07-002",
+            "name": "Luxaciones de articulaciones mayores (columna, cadera, pelvis)",
+            "type_id": 42
+        },
+        {
+            "code": "21-07-003",
+            "name": "Luxaciones de articulaciones menores (el resto)",
+            "type_id": 42
+        },
+        {
+            "code": "21-07-004",
+            "name": "Fracturas mayores (columna, pelvis, supracondílea, codo, epífisis femorales)",
+            "type_id": 42
+        },
+        {
+            "code": "21-07-005",
+            "name": "Fracturas medianas (diáfisis humeral, radial, cubital, diáfisis femoral, tibial, peroneal, clavicular, platillos tibiales)",
+            "type_id": 42
+        },
+        {
+            "code": "21-07-006",
+            "name": "Fracturas menores (el resto)",
+            "type_id": 42
+        },
+        {
+            "code": "21-07-007",
+            "name": "Tto.funcional c\/técnica Sarmiento y similares- Extremidad inferior",
+            "type_id": 42
+        },
+        {
+            "code": "21-07-008",
+            "name": "Tto.funcional c\/técnica Sarmiento y similares- Extremidad superior",
+            "type_id": 42
+        },
+        {
+            "code": "21-07-009",
+            "name": "Luxación congénita de cadera, trat. ortopédico completo (uni o bilateral)",
+            "type_id": 42
+        },
+        {
+            "code": "21-07-010",
+            "name": "Pie bot, cada pie, hasta 10 cambios de yeso",
+            "type_id": 42
+        },
+        {
+            "code": "23-01-002",
+            "name": "Ortesis cervicales (collares blandos y duros)",
+            "type_id": 43
+        },
+        {
+            "code": "23-01-029",
+            "name": "Cojin de abduccion o paulik",
+            "type_id": 43
+        },
+        {
+            "code": "23-01-032",
+            "name": "Ortesis de columna (milwaukee, taylor o similares)",
+            "type_id": 43
+        },
+        {
+            "code": "23-01-034",
+            "name": "Ortesis palmar activa (ucla)",
+            "type_id": 43
+        },
+        {
+            "code": "23-01-035",
+            "name": "Ortesis radial de posicion",
+            "type_id": 43
+        },
+        {
+            "code": "23-01-036",
+            "name": "Ortesis corta de posicion (digitales)",
+            "type_id": 43
+        },
+        {
+            "code": "23-01-037",
+            "name": "Ortesis uso nocturno en miembro inferior",
+            "type_id": 43
+        },
+        {
+            "code": "23-01-038",
+            "name": "Ortesis larga de posicion (ext. Superior)",
+            "type_id": 43
+        },
+        {
+            "code": "27-01-001",
+            "name": "Aplicación de sellantes",
+            "type_id": 41
+        },
+        {
+            "code": "27-01-002",
+            "name": "Desgastes selectivos",
+            "type_id": 41
+        },
+        {
+            "code": "27-01-003",
+            "name": "Destartraje y pulido coronario",
+            "type_id": 41
+        },
+        {
+            "code": "27-01-005",
+            "name": "Exodoncia permanente",
+            "type_id": 41
+        },
+        {
+            "code": "27-01-006",
+            "name": "Exodoncia temporal",
+            "type_id": 41
+        },
+        {
+            "code": "27-01-007",
+            "name": "Fluoración tópica",
+            "type_id": 41
+        },
+        {
+            "code": "27-01-008",
+            "name": "Mantenedores de espacio",
+            "type_id": 41
+        },
+        {
+            "code": "27-01-009",
+            "name": "Obturación amalgama",
+            "type_id": 41
+        },
+        {
+            "code": "27-01-010",
+            "name": "Obturación composite",
+            "type_id": 41
+        },
+        {
+            "code": "27-01-011",
+            "name": "Pulpotomía",
+            "type_id": 41
+        },
+        {
+            "code": "27-01-012",
+            "name": "Urgencias",
+            "type_id": 41
+        },
+        {
+            "code": "27-01-013",
+            "name": "Examen de salud oral",
+            "type_id": 41
+        },
+        {
+            "code": "27-01-014",
+            "name": "Trabajo comunitario",
+            "type_id": 41
+        },
+        {
+            "code": "27-01-015",
+            "name": "Radiografía retroalveolar y Bite-Wing (por placa)",
+            "type_id": 41
+        },
+        {
+            "code": "27-01-016",
+            "name": "Obturación Vidrio Ionómero",
+            "type_id": 41
+        },
+        {
+            "code": "27-01-017",
+            "name": "Barniz de Flúor",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-004",
+            "name": "Obturación Inlay metal (incluye materiales no preciosos, no incluye oro)",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-005",
+            "name": "Periodoncia, consulta",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-006",
+            "name": "Plano alivio oclusal",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-007",
+            "name": "Prótesis de restitución (fase clínica)",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-008",
+            "name": "Prótesis metálica",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-009",
+            "name": "Radiografía extraoral (por placa)",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-010",
+            "name": "Radiografía oclusal (por placa)",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-011",
+            "name": "Prótesis de restitución (fase laboratorio)",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-012",
+            "name": "Reparación compuesta de prótesis",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-013",
+            "name": "Reparación corona",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-014",
+            "name": "Reparación o reajuste prótesis",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-015",
+            "name": "Restitución por corona (combinada)",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-016",
+            "name": "Restitución por corona provisoria",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-017",
+            "name": "Sialografía (cada lado) (incluye el proc.)",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-019",
+            "name": "Tratamiento ortodoncia con aparatología removible (incluye aparato)(año 1)",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-020",
+            "name": "Tratamiento ortodoncia con aparatologia fija (incluye aparato) (año 1)",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-021",
+            "name": "Tratamiento ortodoncia con aparatologia fija (incluye aparato) (año 2)",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-022",
+            "name": "Endodoncia Multirradicular",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-023",
+            "name": "Endodoncia birradicular",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-024",
+            "name": "Endodoncia unirradicular",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-025",
+            "name": "Telerradiografia",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-026",
+            "name": "Radiografía Panoramica (por placa)",
+            "type_id": 41
+        },
+        {
+            "code": "27-02-027",
+            "name": "Tomografia Computacional Maxilo Facial Cone Beam",
+            "type_id": 41
+        },
+        {
+            "code": "27-03-014",
+            "name": "Reimplante y trasplante dentario",
+            "type_id": 41
+        },
+        {
+            "code": "27-03-016",
+            "name": "Sutura completa de herida mayor",
+            "type_id": 41
+        },
+        {
+            "code": "27-03-017",
+            "name": "Sutura completa de herida menor",
+            "type_id": 41
+        },
+        {
+            "code": "27-03-018",
+            "name": "Sutura simple de herida",
+            "type_id": 41
+        },
+        {
+            "code": "27-03-021",
+            "name": "Tratamiento de traumatismo dento alveolar simple",
+            "type_id": 41
+        },
+        {
+            "code": "27-03-022",
+            "name": "Tratamiento de traumatismo dento alveolar complejo",
+            "type_id": 41
+        },
+        {
+            "code": "27-03-024",
+            "name": "Pilar Protésico sobre Implantes",
+            "type_id": 41
+        },
+        {
+            "code": "50-99-001",
+            "name": "Paquimetría ultrasónica",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-002",
+            "name": "Paquimetría optica",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-003",
+            "name": "Biopsia estereotáxica de mama",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-004",
+            "name": "Biopsia core (BC) guiada por ultrasonido (US)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-005",
+            "name": "Gastrectomía en Manga o Gastrectomía Vertical Tipo Sleeve",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-006",
+            "name": "Banda gástrica ajustable (Banding)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-007",
+            "name": "Balón Intragástrico",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-008",
+            "name": "Medicina Fisica: Actividad Básica",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-009",
+            "name": "Medicina Fisica: Actividad Terapeutica",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-010",
+            "name": "Medicina Fisica: Evaluacion Actividad",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-011",
+            "name": "Medicina Fisica: Evaluacion prevocacional",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-012",
+            "name": "Oftalmología: Tomografia coherencia optica",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-013",
+            "name": "Oftalmología: Inyeccion intravitrea avastin",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-014",
+            "name": "Oftalmología: Toma agudeza visual (ambos ojos)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-015",
+            "name": "Oftalmología: Autorefractometria",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-016",
+            "name": "Oftalmología: Lensometria",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-017",
+            "name": "Cardiología: TILT TEST",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-018",
+            "name": "Neurología: Inyeccion toxina butolinica",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-019",
+            "name": "Neurología: Inyeccion interferon",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-020",
+            "name": "Gastroenterología: Phmetria",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-021",
+            "name": "Urología:Urodinamia",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-022",
+            "name": "Dental cirugia maxilofacial: Frenectomia",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-023",
+            "name": "Dental cirugia maxilofacial: Fenestracion",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-024",
+            "name": "Dental cirugia maxilofacial: Drenaje Abceso intra-extroral",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-025",
+            "name": "Dental cirugia maxilofacial: Cirugía preprotesica",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-026",
+            "name": "Dental cirugia maxilofacial: Bloqueo Anestesico",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-028",
+            "name": "Dental odontologia general: Actividad interseptiva de anomalias dentomaxilares OPI",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-029",
+            "name": "Dental odontologia general: Instalacion de aparato intercepcion de anomalias dentomaxilares",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-030",
+            "name": "Dental odontologia general: Examen diagnostico OPI",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-031",
+            "name": "Dental odontologia general: Alta mantencion",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-032",
+            "name": "Dental Odontopediatria: Corona metalica",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-033",
+            "name": "Dental Ortodoncia: Instalacion aparato removible",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-034",
+            "name": "Dental Ortodoncia: Instalacion aparato ortopedia prequirurgica (fisura labiopalatina)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-035",
+            "name": "Dental Ortodoncia: Ortopedia prequirurgica actividad (fisura labiopalatina)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-036",
+            "name": "Dental Endodoncia: Tratamiento de induccion al cierre",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-037",
+            "name": "Dental Endodoncia: Desobturacion de conductos",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-038",
+            "name": "Dental Periodoncia: Terapia articular especifica",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-039",
+            "name": "Dental Periodoncia: Terapia cognitiva conductual y autocontrol TTM (trastornos temporomandibulares)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-041",
+            "name": "Dental Radiologia: Telerradiografia perfil",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-042",
+            "name": "Dental Radiologia: Telerradiografia frente",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-043",
+            "name": "Dental Radiologia: Radiografia articulacion temporo mandibular",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-045",
+            "name": "Insercion Implante Anticonceptivo",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-046",
+            "name": "Remocion Implante Anticonceptivo",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-047",
+            "name": "Insercion Pellets subcutáneo",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-048",
+            "name": "Hemoglucotest instantáneo",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-049",
+            "name": "Oftalmologia-tomografia de coherencia optica",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-050",
+            "name": "Oftalmologia-campimetria de goldman",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-051",
+            "name": "Oftalmologia-test de ishihara",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-052",
+            "name": "Oftalmologia-campo visual",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-053",
+            "name": "Deramatologia-curetaje de lesiones y similares hasta 10 lesiones",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-056",
+            "name": "Odontología-desobturacion de conductos",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-057",
+            "name": "Odontología-instalacion aparotologia fija",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-058",
+            "name": "Odontología-instalacion aparato removible",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-059",
+            "name": "Odontología-examen y diagnostico ttm eje I",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-060",
+            "name": "Odontología-examen y diagnostico ttm eje I y II montaje",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-061",
+            "name": "Medicina fisica y rehabilitacion -collar cervical semirígido",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-062",
+            "name": "Medicina fisica y rehabilitacion -collar cervical blando",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-063",
+            "name": "Medicina fisica y rehabilitacion -evaluación cognitiva",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-064",
+            "name": "Medicina fisica y rehabilitacion -estimulación cognitiva",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-065",
+            "name": "Medicina fisica y rehabilitacion -canaletas bipedestación",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-066",
+            "name": "Medicina fisica y rehabilitacion -correas desrotadoras",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-067",
+            "name": "Medicina fisica y rehabilitacion -correa dorsiflexion pie",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-068",
+            "name": "Medicina fisica y rehabilitacion -férula abducción hombro",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-069",
+            "name": "Medicina fisica y rehabilitacion -ferula extension codo",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-070",
+            "name": "Medicina fisica y rehabilitacion -ferula extension muñeca",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-071",
+            "name": "Medicina fisica y rehabilitacion -ferula flexion muñeca",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-072",
+            "name": "Medicina fisica y rehabilitacion -palmeta extensión muñeca y dedos",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-073",
+            "name": "Medicina fisica y rehabilitacion -correas desrotadoras parálisis braquial obstétrica",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-074",
+            "name": "Medicina fisica y rehabilitacion -ortesis parálisis cubital",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-075",
+            "name": "Medicina fisica y rehabilitacion -ortesis tendones flexores",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-076",
+            "name": "Medicina fisica y rehabilitacion -ortesis digital dinámica",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-077",
+            "name": "Medicina fisica y rehabilitacion -camiseta manga larga",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-078",
+            "name": "Medicina fisica y rehabilitacion -camiseta manga corta",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-079",
+            "name": "Medicina fisica y rehabilitacion -manga larga",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-080",
+            "name": "Medicina fisica y rehabilitacion -manga corta",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-081",
+            "name": "Medicina fisica y rehabilitacion -pantalón largo",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-082",
+            "name": "Medicina fisica y rehabilitacion -pantalón corto",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-083",
+            "name": "Medicina fisica y rehabilitacion -media larga",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-084",
+            "name": "Medicina fisica y rehabilitacion -media corta",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-085",
+            "name": "Medicina fisica y rehabilitacion -media tipo calcetín",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-086",
+            "name": "Medicina fisica y rehabilitacion -guante tipo mitón",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-087",
+            "name": "Medicina fisica y rehabilitacion -guante con dedos",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-088",
+            "name": "Medicina fisica y rehabilitacion -máscara",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-089",
+            "name": "Medicina fisica y rehabilitacion -mentonera",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-090",
+            "name": "Medicina fisica y rehabilitacion -cintillo",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-091",
+            "name": "Otorrinolaringologia-audiometria campo libre",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-092",
+            "name": "Otorrinolaringologia-retiro de taponaje anterior",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-093",
+            "name": "Otorrinolaringologia-retiro de yeso",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-094",
+            "name": "Otorrinolaringologia-cambio de canula traqueostomia (enfermera Otorrino)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-095",
+            "name": "Otorrinolaringologia-estroboscopia",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-096",
+            "name": "Neurologia-puncion lumbar",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-097",
+            "name": "Broncopulmonar-clorhidrometria",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-098",
+            "name": "Cardiologia-eco estres",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-099",
+            "name": "Gastroenterologia-endosonografia rectal",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-100",
+            "name": "Gastroenterologia-endosonografia con puncion",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-101",
+            "name": "Gastroenterologia-endosonografia compleja",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-102",
+            "name": "Gastroenterologia-endosonografia alta lineal",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-103",
+            "name": "Gastroenterologia-endosonografia alta radial",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-104",
+            "name": "Gastroenterologia-endosonografia con sonda radial",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-105",
+            "name": "Gastroenterologia-instalacion de sonda nasogastrica",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-106",
+            "name": "Gastroenterologia-litotripsia biliar",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-107",
+            "name": "Gastroenterologia-mucosectomia",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-108",
+            "name": "Gastroenterologia-dilatacion neumática de la acalasia por balón",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-109",
+            "name": "Urologia-instalacion de sonda vesical",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-110",
+            "name": "Procedimiento hemodinamia-ablacion renal",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-111",
+            "name": "Curacion avanzada de herida",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-112",
+            "name": "Infiltración intramuscular (Fenol y Toxina Botulínica)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-113",
+            "name": "Infiltración perineural",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-114",
+            "name": "Infiltración intraarticular",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-115",
+            "name": "Radiografía de pelvis, cadera o coxofemoral de SCREENING A LOS 3 MESES",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-116",
+            "name": "Radiografía torax por sospecha neumonía",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-117",
+            "name": "Examen: Carga viral Hepatitis B por técnica de PCR",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-118",
+            "name": "Examen: Carga Viral Hepatitis C por técnica de PCR",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-119",
+            "name": "Examen: Carga Viral VIH por técnica de PCR",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-120",
+            "name": "Examen: PCR detección y genotipo Virus papiloma huma (HPV)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-121",
+            "name": "Examen: PCR Traslocación t(9:22) cromosoma Filadelfia",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-122",
+            "name": "Examen: PCR Traslocación t(15:17) gen de fusión PML-RARA",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-123",
+            "name": "Examen: PCR Bordetella Pertussis",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-124",
+            "name": "Examen: PCR Mycoplasma",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-125",
+            "name": "Examen: PCR Chlamydia",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-126",
+            "name": "Examen: PCR Clostridium difficile",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-127",
+            "name": "Examen: PCR otros virus respiratorios: Metaneumovirus, Bocavirus, VRS, Coronavirus, Enterovirus, Parainfluenza A, Parainfluenza B, Rhinovirus, Adenovirus.",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-128",
+            "name": "Examen: Detección genes BRCA1 y BRCA2 (cáncer de mamas)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-129",
+            "name": "Examen: Determinación Toxina Clostridium difficile",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-130",
+            "name": "Examen: Virus HANTA (Técnica de PCR)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-131",
+            "name": "Examen: Virus HANTA (Detección de IgM))",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-132",
+            "name": "Examen: HELICOBACTER PILORY (test de ureasa)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-133",
+            "name": "Examen: Anticuerpos anti Helicobacter pylori",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-134",
+            "name": "Examen: Bartonella (Anticuerpos IgG e IgM)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-135",
+            "name": "Examen: SEROTIPICACION (ESCHERICHIA COLI, SALMONELLA, SHIGELLA)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-136",
+            "name": "Examen: BORDETELLA POR Inmunofluorescencia",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-137",
+            "name": "Examen: Prealbúmina",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-138",
+            "name": "Examen: Mioglobina",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-139",
+            "name": "Examen: NT-proBNP",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-140",
+            "name": "Examen: Procalcitonina",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-141",
+            "name": "Examen: Aminoácidos en sangre",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-142",
+            "name": "Examen: Plomo",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-143",
+            "name": "Examen: Oxalatos en orina",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-144",
+            "name": "Examen: Citratos en orina",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-145",
+            "name": "Examen: Aminoácidos en orina (cuantitativa)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-146",
+            "name": "Examen: Viscosidad sanguínea",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-147",
+            "name": "Examen: INR capilar por técnica electroquímica",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-148",
+            "name": "Examen: Péptido C",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-149",
+            "name": "Examen: Anticuerpos antiendomiso",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-150",
+            "name": "Examen: Anticuerpos antigliadina",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-151",
+            "name": "Examen: MIELOPEROXIDASA (MPO)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-152",
+            "name": "Examen: PROTEINASA (PR3)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-153",
+            "name": "Examen: ANTI-B2 GLICOPROTEINA I IgG",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-154",
+            "name": "Examen: ANTIC. ANTI PEROXIDASA",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-155",
+            "name": "Examen: OXCARBAZEPINA",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-156",
+            "name": "Examen: COCAINA-MARIHUANA-ANFETAMINAS c\/u",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-157",
+            "name": "Examen: ANT.ANTIPEPTIDO CITRULINADO",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-158",
+            "name": "Examen: Calcitonina",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-159",
+            "name": "Examen: Enolasa (NSE)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-160",
+            "name": "Examen: Antígeno inhibidor del melanoma (MIA)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-161",
+            "name": "Examen: Antígeno asociado a los carcinomas escamosos (SCCA- y SSCA-2)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-162",
+            "name": "Examen: CYFRA 21.1",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-163",
+            "name": "Examen: HER-2\/neu",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-164",
+            "name": "Examen: He4 Proteína 4 Del Epididimo Humano",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-165",
+            "name": "Examen: Ki65",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-166",
+            "name": "Examen: TAG-72 Glicoproteína 72 asociada a tumores",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-167",
+            "name": "Examen: TRAB.=ANTIC.ANTIRECEPTOR TSH",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-168",
+            "name": "Examen: ANTI-B2 GLICOPROTEINA I IgM",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-169",
+            "name": "Examen: Dímero D",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-170",
+            "name": "Examen: Marcadores inmunológicos en Diabetes (anticuerpo anti-islote pancreatico: ICA, Ac. Antiinsulina, Antic. Antidecarboxilasa del ác. Glutamico, Antic. Anti ICA512",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-171",
+            "name": "Examen: Parvovirus B19 IgG, Ig M",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-172",
+            "name": "Examen: PCR parvovirus B19",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-173",
+            "name": "Examen: Metanefrinas (plasmáticas y urinarias)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-174",
+            "name": "Examen: Antígeno prostático Libre",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-175",
+            "name": "Examen: Anticuerpos antifosfolípidos",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-176",
+            "name": "Examen: Anticuerpos antiplaquetarios",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-177",
+            "name": "Examen: Homocysteina total",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-178",
+            "name": "Examen: Anticuerpo antiproteína P ribosomal",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-179",
+            "name": "Examen: Antifungigrama para levaduras",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-180",
+            "name": "Examen: Anticuerpo antineumococo",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-181",
+            "name": "Examen: Anticuerpo antisaccharomyces cerevisiae (ASCA)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-182",
+            "name": "Examen: Antigeno Urinario para Legionella y Neumococo",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-183",
+            "name": "Examen: Triptasa serica",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-184",
+            "name": "Examen: Test de nugent (cortisol serico post dexametasona)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-185",
+            "name": "Examen: PCR Toxoplasmosis",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-186",
+            "name": "Examen: PCR Streptococcus Agalactiae",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-187",
+            "name": "Examen: Arilsulfatasa (A y B)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-188",
+            "name": "Examen: Hexosaminidasa (A y B)",
+            "type_id": 30
+        },
+        {
+            "code": "50-99-189",
+            "name": "Examen: Hexosaminidasa Total",
+            "type_id": 30
+        }
+    ]
+}

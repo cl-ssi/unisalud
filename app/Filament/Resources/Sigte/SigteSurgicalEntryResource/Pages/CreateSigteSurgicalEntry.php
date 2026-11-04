@@ -203,8 +203,9 @@ class CreateSigteSurgicalEntry extends CreateRecord
             'healthcare_type_id'               => $healthcareType?->id,
             'complexity'                       => $complexityMap[$normalize($val('Tipo de IQ'))] ?? null,
             'sigte_surgical_procedure_code_id' => $procedureCode?->id,
-            'plano'                            => $val('PLANO') ?: null,
-            'extremity'                        => $val('EXTREMIDAD') ?: null,
+            // RNLE codes; the form only accepts the ones allowed for the code.
+            'plano'                            => ctype_digit($val('PLANO')) ? (string) (int) $val('PLANO') : null,
+            'extremity'                        => ctype_digit($val('EXTREMIDAD')) ? (string) (int) $val('EXTREMIDAD') : null,
             'entry_date'                       => $parseDate($val('F_ENTRADA')),
             'origin_establishment_id'          => $originEstablishment?->id,
             'destiny_establishment_id'         => $destinyEstablishment?->id,

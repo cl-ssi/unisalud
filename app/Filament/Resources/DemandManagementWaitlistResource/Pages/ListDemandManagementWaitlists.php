@@ -19,6 +19,11 @@ class ListDemandManagementWaitlists extends ListRecords
         ];
     }
 
+    public function getDefaultActiveTab(): string | int | null
+    {
+        return 'abiertos';
+    }
+
     public function getTabs(): array
     {
         return [
@@ -27,13 +32,15 @@ class ListDemandManagementWaitlists extends ListRecords
                 ->modifyQueryUsing(fn (Builder $query) => $query
                     ->whereNull('exit_date')
                     ->where(fn (Builder $q) => $q->whereNull('exit_code')->orWhere('exit_code', ''))
-                    ->whereNull('exit_minsal_specialty_id')),
+                    ->whereNull('exit_minsal_specialty_id')
+                    ->whereNull('exit_sigte_procedure_id')),
             'cerrados' => Tab::make('Cerrados')
                 ->modifyQueryUsing(fn (Builder $query) => $query
                     ->where(fn (Builder $q) => $q
                         ->whereNotNull('exit_date')
                         ->orWhere(fn (Builder $q2) => $q2->whereNotNull('exit_code')->where('exit_code', '!=', ''))
-                        ->orWhereNotNull('exit_minsal_specialty_id'))),
+                        ->orWhereNotNull('exit_minsal_specialty_id')
+                        ->orWhereNotNull('exit_sigte_procedure_id'))),
         ];
     }
 }

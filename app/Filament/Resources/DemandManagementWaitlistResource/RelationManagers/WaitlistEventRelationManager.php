@@ -73,6 +73,8 @@ class WaitlistEventRelationManager extends RelationManager
                     }),
                 Tables\Columns\TextColumn::make('text')
                     ->label('Observaciones')
+                    ->formatStateUsing(fn ($state) => nl2br(e($state)))
+                    ->html()
                     ->wrap()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.text')

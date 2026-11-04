@@ -3,19 +3,24 @@
 namespace App\Filament\Resources;
 
 use App\Exports\DemandManagementWaitlistExport;
+use App\Jobs\ImportWaitlistJob;
+use App\Services\SigteImportService;
 use App\Imports\DemandManagementWaitlistImport;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Storage;
 use App\Filament\Resources\DemandManagementWaitlistResource\Pages;
 use App\Filament\Resources\DemandManagementWaitlistResource\RelationManagers;
+use App\Models\Cie10;
 use App\Models\DemandManagementWaitlist;
+use App\Models\GesHealthProblem;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Enums\Sex;
 use Filament\Actions\Action;
@@ -104,8 +109,17 @@ class DemandManagementWaitlistResource extends Resource
                 Forms\Components\TextInput::make('minsalSpecialty')
                     ->label('Prestación MINSAL')
                     ->disabled()
+                    ->visible(fn ($record) => ! $record?->sigteProcedure)
                     ->afterStateHydrated(function ($component, $state, $record) {
                         $component->state($record?->minsalSpecialty?->text ?? null);
+                    }),
+                // PRESTA_MIN of TIPO_PREST = 3 rows.
+                Forms\Components\TextInput::make('sigteProcedure')
+                    ->label('Procedimiento SIGTE')
+                    ->disabled()
+                    ->visible(fn ($record) => (bool) $record?->sigteProcedure)
+                    ->afterStateHydrated(function ($component, $state, $record) {
+                        $component->state($record?->sigteProcedure?->label());
                     }),
                 Forms\Components\TextInput::make('plano')
                     ->label('Plano')
@@ -155,8 +169,17 @@ class DemandManagementWaitlistResource extends Resource
                 Forms\Components\TextInput::make('minsalExitSpecialty')
                     ->label('Prestación MINSAL Salida')
                     ->disabled()
+                    ->visible(fn ($record) => ! $record?->exitSigteProcedure)
                     ->afterStateHydrated(function ($component, $state, $record) {
                         $component->state($record?->minsalExitSpecialty?->text ?? null);
+                    }),
+                // PRESTA_MIN_SALIDA of TIPO_PREST = 3 rows.
+                Forms\Components\TextInput::make('exitSigteProcedure')
+                    ->label('Procedimiento SIGTE Salida')
+                    ->disabled()
+                    ->visible(fn ($record) => (bool) $record?->exitSigteProcedure)
+                    ->afterStateHydrated(function ($component, $state, $record) {
+                        $component->state($record?->exitSigteProcedure?->label());
                     }),
                 Forms\Components\TextInput::make('prais')
                     ->label('PRAIS')
@@ -188,6 +211,35 @@ class DemandManagementWaitlistResource extends Resource
                 Forms\Components\TextInput::make('confirmed_diagnosis')
                     ->label('Confirmación Diagnostico')
                     ->disabled(),
+                Forms\Components\Select::make('cie10_id')
+                    ->label('Diagnóstico CIE-10')
+                    ->placeholder('Buscar por código o nombre')
+                    ->searchable()
+                    ->getSearchResultsUsing(fn (string $search) => Cie10::query()
+                        ->where('code', 'like', "{$search}%")
+                        ->orWhere('code', 'like', GesHealthProblem::normalizeCode($search) . '%')
+                        ->orWhere('name', 'like', "%{$search}%")
+                        ->orderBy('code')
+                        ->limit(50)
+                        ->get()
+                        ->mapWithKeys(fn (Cie10 $cie10) => [$cie10->id => "{$cie10->code} - {$cie10->name}"]))
+                    ->getOptionLabelUsing(fn ($value) => ($cie10 = Cie10::find($value)) ? "{$cie10->code} - {$cie10->name}" : null)
+                    ->live(),
+                Forms\Components\Placeholder::make('ges_problems')
+                    ->label('Problemas de salud GES del diagnóstico')
+                    ->content(fn (Get $get) => GesHealthProblem::forCie10Code(Cie10::find($get('cie10_id'))?->code)
+                        ->map->label()->implode(' · ') ?: 'Ninguno'),
+                Forms\Components\Toggle::make('ges')
+                    ->label('GES')
+                    ->helperText('Requiere un diagnóstico que pertenezca a un problema de salud GES, si se indica uno. Un diagnóstico GES no implica GES: también hay criterios de edad y clínicos.')
+                    ->rules([
+                        fn (Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
+                            $cie10 = Cie10::find($get('cie10_id'));
+                            if ($value && $cie10 && GesHealthProblem::forCie10Code($cie10->code)->isEmpty()) {
+                                $fail("El diagnóstico {$cie10->code} no pertenece a ningún problema de salud GES.");
+                            }
+                        },
+                    ]),
 
                 Forms\Components\TextInput::make('full_address')
                     ->label('Dirección Completa')
@@ -357,9 +409,6 @@ class DemandManagementWaitlistResource extends Resource
                 Forms\Components\TextInput::make('elapsed_days')
                     ->label('Días Pasados')
                     ->disabled(),
-                Forms\Components\Toggle::make('visible_municipality')
-                    ->label('Visible para Municipalidad')
-                    ->helperText('Permite que este caso sea visto por usuarios con el rol Gestión Demanda Municipalidad.'),
             ]);
     }
 
@@ -377,8 +426,9 @@ class DemandManagementWaitlistResource extends Resource
                     ->form([
                         Forms\Components\FileUpload::make('archivo')
                             ->label('Archivo Excel')
-                            ->disk('local')
+                            ->disk(SigteImportService::uploadsDisk())
                             ->directory('temp-imports')
+                            ->visibility('private')
                             ->acceptedFileTypes([
                                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                                 'application/vnd.ms-excel',
@@ -388,35 +438,14 @@ class DemandManagementWaitlistResource extends Resource
                             ->required(),
                     ])
                     ->action(function (array $data) {
-                        $import = new DemandManagementWaitlistImport();
-
-                        try {
-                            $import->import(Storage::disk('local')->path($data['archivo']));
-                        } catch (\Throwable $e) {
-                            Notification::make()
-                                ->title('Error durante la importación')
-                                ->body($e->getMessage())
-                                ->danger()
-                                ->send();
-
-                            return;
-                        } finally {
-                            Storage::disk('local')->delete($data['archivo']);
-                        }
-
-                        $failed = count($import->failedRows);
-                        $body = number_format($import->successfulRows) . ' filas importadas.';
-                        if ($failed) {
-                            $body .= ' ' . number_format($failed) . ' filas con error (filas: '
-                                . collect($import->failedRows)->pluck('row')->take(20)->implode(', ')
-                                . ($failed > 20 ? '…' : '') . '). Revisa el log para el detalle.';
-                        }
+                        // Runs in the background: a full SIGTE file takes longer than
+                        // max_execution_time. The result arrives as a database notification.
+                        ImportWaitlistJob::dispatch(DemandManagementWaitlistImport::class, $data['archivo'], auth()->id(), 'Gestión Demanda', 'gestion-demanda-');
 
                         Notification::make()
-                            ->title('Importación finalizada')
-                            ->body($body)
-                            ->{$failed ? 'warning' : 'success'}()
-                            ->persistent()
+                            ->title('Archivo recibido')
+                            ->body('Se está importando en segundo plano. El resultado llegará a tus notificaciones (campana).')
+                            ->success()
                             ->send();
                     }),
                 Tables\Actions\Action::make('export')
@@ -449,6 +478,21 @@ class DemandManagementWaitlistResource extends Resource
                         return ucfirst($state);
                     })
                     ->sortable(),
+                Tables\Columns\IconColumn::make('ges')
+                    ->label('GES')
+                    ->boolean()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('cie10.code')
+                    ->label('CIE-10')
+                    ->tooltip(fn ($record) => $record->cie10?->name)
+                    ->searchable()
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('ges_problems')
+                    ->label('Problema GES')
+                    ->state(fn ($record) => $record->gesProblems()->map->label()->all())
+                    ->listWithLineBreaks()
+                    ->wrap()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('user.officialIdentifier.value')
                     ->label('RUN')
                     ->searchable(),
@@ -501,17 +545,23 @@ class DemandManagementWaitlistResource extends Resource
                     ->label('Establecimiento')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\IconColumn::make('visible_municipality')
-                    ->label('Visible Municipalidad')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\TernaryFilter::make('visible_municipality')
-                    ->label('Visible Municipalidad')
+                Tables\Filters\TernaryFilter::make('ges')
+                    ->label('GES')
                     ->placeholder('Todos')
-                    ->trueLabel('Visible')
-                    ->falseLabel('No visible'),
+                    ->trueLabel('GES')
+                    ->falseLabel('No GES'),
+                Tables\Filters\SelectFilter::make('ges_problem')
+                    ->label('Problema de salud GES')
+                    ->options(fn () => GesHealthProblem::orderBy('id')->get()->mapWithKeys(fn ($p) => [$p->id => $p->label()]))
+                    ->searchable()
+                    ->multiple()
+                    ->placeholder('Todos')
+                    ->query(fn (Builder $query, array $data) => $query->when(
+                        $data['values'] ?? null,
+                        fn (Builder $q, array $ids) => $q->whereHas('cie10', fn (Builder $c) => GesHealthProblem::whereCie10InProblems($c, $ids))
+                    )),
                 Tables\Filters\SelectFilter::make('waitlistSpecialty')
                     ->label('Especialidad')
                     ->relationship('waitlistSpecialty', 'text')
@@ -556,15 +606,6 @@ class DemandManagementWaitlistResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([]),
             ]);
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->when(
-                auth()->user()->hasRole(self::MUNICIPALITY_ROLE),
-                fn (Builder $query) => $query->where('visible_municipality', true)
-            );
     }
 
     public static function getRelations(): array

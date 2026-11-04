@@ -14,7 +14,11 @@ class ContactsRelationManager extends RelationManager
 {
     protected static string $relationship = 'contacts';
 
-    protected static ?string $title = 'Contactos';
+    protected static ?string $title = 'Evoluciones';
+
+    protected static ?string $modelLabel = 'evolución';
+
+    protected static ?string $pluralModelLabel = 'evoluciones';
 
     public function form(Form $form): Form
     {
@@ -88,7 +92,7 @@ class ContactsRelationManager extends RelationManager
             ->filters([])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                    ->label('Nuevo Contacto')
+                    ->label('Nueva Evolución')
                     ->icon('heroicon-o-plus')
                     ->modalHeading('Crear Nuevo Contacto')
                     ->mutateFormDataUsing(function (array $data): array {

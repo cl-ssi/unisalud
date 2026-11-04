@@ -16,6 +16,7 @@ use App\Models\OdontologySpeciality;
 use App\Models\OdontologyWaitlist;
 use App\Models\Organization;
 use App\Models\Region;
+use App\Models\SigteProcedure;
 use App\Models\User;
 use App\Models\WaitlistEntryType;
 use Carbon\Carbon;
@@ -60,14 +61,50 @@ class OdontologyWaitlistImport implements OnEachRow, WithHeadingRow, WithChunkRe
     protected static array $organizationCodeCache = [];
     protected static array $organizationAliasCache = [];
     protected static array $healthcareTypeCache = [];
-    protected static array $minsalSpecialtyCache = [];
     protected static array $entryTypeCache = [];
     protected static array $regionCache = [];
     protected static array $originCommuneNameCache = [];
     protected static bool $initialized = false;
+    /** Template header name => slugged key; Str::slug() is too slow to run ~70 times per row. */
+    protected static array $slugs = [];
+
+    /**
+     * Rows committed together. Each row still runs in its own (nested)
+     * transaction, so a failing row is rolled back alone, but committing
+     * every row separately made large files exceed max_execution_time.
+     */
+    public const ROWS_PER_COMMIT = 500;
 
     public int $successfulRows = 0;
     public array $failedRows = [];
+
+    /**
+     * Rows left out (warnings) or that failed, with the uploaded values, for
+     * the rejected rows file.
+     *
+     * @var array<int, array{row: int, run: ?string, reasons: string[], values: array}>
+     */
+    public array $rejectedRows = [];
+
+    /** The uploaded file's heading row, as written in the file. */
+    public array $headings = [];
+
+    /**
+     * Headings (slugged) a sheet needs to be read as the SIGTE template.
+     */
+    public const REQUIRED_HEADINGS = ['run', 'dv', 'tipo_prest', 'presta_min', 'f_entrada'];
+
+    /** Name of the .xlsx sheet that was imported. */
+    public ?string $importedSheet = null;
+
+    /** Other sheets of the .xlsx file, which were not imported. */
+    public array $skippedSheets = [];
+
+    /** Raw values of the row being imported, in file column order. */
+    protected array $currentValues = [];
+
+    /** Data-quality warnings (PRESTA_MIN code, patient age) for the row being imported. */
+    protected array $rowWarnings = [];
 
     protected static function ensureCachesAreLoaded(): void
     {
@@ -100,7 +137,6 @@ class OdontologyWaitlistImport implements OnEachRow, WithHeadingRow, WithChunkRe
         self::$specialtyCache = OdontologySpeciality::all()->pluck('id', 'text')->mapWithKeys(fn($id, $text) => [strtolower(trim($text)) => $id])->toArray();
         self::$medicalBenefitCache = OdontologyMedicalBenefit::all()->pluck('id', 'text')->mapWithKeys(fn($id, $text) => [strtolower(trim($text)) => $id])->toArray();
         self::$healthcareTypeCache = HealthcareType::all()->pluck('id', 'code')->mapWithKeys(fn($id, $code) => [strtolower(trim($code)) => $id])->toArray();
-        self::$minsalSpecialtyCache = MinsalSpecialty::all()->pluck('id', 'code')->mapWithKeys(fn($id, $code) => [strtolower(trim($code)) => $id])->toArray();
         self::$entryTypeCache = WaitlistEntryType::all()->pluck('id', 'code')->mapWithKeys(fn($id, $code) => [strtolower(trim($code)) => $id])->toArray();
         self::$regionCache = Region::all()->pluck('id', 'id')->mapWithKeys(fn($id, $regionId) => [strtolower(trim($regionId)) => $id])->toArray();
 
@@ -122,6 +158,9 @@ class OdontologyWaitlistImport implements OnEachRow, WithHeadingRow, WithChunkRe
      */
     public function import(string $path): void
     {
+        // A queue worker runs many imports in one process: reload the lookups.
+        self::$initialized = false;
+
         if (strtolower(pathinfo($path, PATHINFO_EXTENSION)) !== 'xlsx') {
             Excel::import($this, $path);
 
@@ -132,10 +171,13 @@ class OdontologyWaitlistImport implements OnEachRow, WithHeadingRow, WithChunkRe
         $options->SHOULD_PRESERVE_EMPTY_ROWS = true;
         $reader = new XlsxReader($options);
         $reader->open($path);
+        $rowsSinceCommit = 0;
+        DB::beginTransaction();
 
         try {
-            // Like maatwebsite without WithMultipleSheets: every sheet, each
-            // with its own heading row.
+            // Only the first sheet whose heading row is the SIGTE template:
+            // SIGTE workbooks also carry summary sheets and older cuts of the
+            // list, which must not be imported over the current one.
             foreach ($reader->getSheetIterator() as $sheet) {
                 $headings = [];
                 $rowNumber = 0;
@@ -145,6 +187,12 @@ class OdontologyWaitlistImport implements OnEachRow, WithHeadingRow, WithChunkRe
 
                     if (++$rowNumber === 1) {
                         $headings = HeadingRowFormatter::format($values);
+                        if ($this->importedSheet !== null || array_diff(self::REQUIRED_HEADINGS, $headings)) {
+                            $this->skippedSheets[] = $sheet->getName();
+                            continue 2;
+                        }
+                        $this->importedSheet = $sheet->getName();
+                        $this->headings = $sheetRow->toArray();
                         continue;
                     }
 
@@ -157,11 +205,24 @@ class OdontologyWaitlistImport implements OnEachRow, WithHeadingRow, WithChunkRe
                         }
                     }
 
+                    $this->currentValues = $sheetRow->toArray();
                     $this->handleRow($data, $rowNumber);
+
+                    if (++$rowsSinceCommit === self::ROWS_PER_COMMIT) {
+                        DB::commit();
+                        DB::beginTransaction();
+                        $rowsSinceCommit = 0;
+                    }
                 }
             }
         } finally {
+            // Rows already handled are kept, as when each row was committed.
+            DB::commit();
             $reader->close();
+        }
+
+        if ($this->importedSheet === null) {
+            throw new \RuntimeException('El archivo no tiene una hoja con el formato SIGTE (columnas ' . strtoupper(implode(', ', self::REQUIRED_HEADINGS)) . ').');
         }
     }
 
@@ -183,7 +244,12 @@ class OdontologyWaitlistImport implements OnEachRow, WithHeadingRow, WithChunkRe
 
     public function onRow(Row $row): void
     {
-        $this->handleRow($row->toArray(), $row->getIndex());
+        // maatwebsite only exposes the slugged headings.
+        $data = $row->toArray();
+        $this->headings = $this->headings ?: array_keys($data);
+        $this->currentValues = array_values($data);
+
+        $this->handleRow($data, $row->getIndex());
     }
 
     protected function handleRow(array $data, int $rowIndex): void
@@ -200,8 +266,11 @@ class OdontologyWaitlistImport implements OnEachRow, WithHeadingRow, WithChunkRe
         try {
             $this->importRow($data);
             $this->successfulRows++;
+        } catch (RowRejectedException $e) {
+            $this->rejectRow($data, $rowIndex, $e->reasons);
         } catch (\Throwable $e) {
             $this->failedRows[] = ['row' => $rowIndex, 'error' => $e->getMessage()];
+            $this->rejectRow($data, $rowIndex, ['Error: ' . $e->getMessage()]);
             Log::error('OdontologyWaitlistImport: error en fila ' . $rowIndex, [
                 'sigte_id' => $data['sigte_id'] ?? null,
                 'run'      => $data['run'] ?? null,
@@ -210,16 +279,39 @@ class OdontologyWaitlistImport implements OnEachRow, WithHeadingRow, WithChunkRe
         }
     }
 
+    protected function rejectRow(array $data, int $rowIndex, array $reasons): void
+    {
+        $this->rejectedRows[] = [
+            'row'     => $rowIndex,
+            'run'     => filled($data['run'] ?? null) ? $data['run'] . '-' . ($data['dv'] ?? '') : null,
+            'reasons' => $reasons,
+            'values'  => $this->currentValues,
+        ];
+    }
+
     protected function importRow(array $data): OdontologyWaitlist
     {
+        $this->rowWarnings = [];
+
         return DB::transaction(function () use ($data) {
             // Headings arrive slugged by WithHeadingRow ("TIPO PRESTACION" → "tipo_prestacion",
             // "AÑO" → "ano"), so look keys up by the template's original header name.
             $val = function ($key, $default = null) use ($data) {
-                $value = $data[Str::slug($key, '_')] ?? null;
+                $value = $data[self::$slugs[$key] ??= Str::slug($key, '_')] ?? null;
 
                 return ($value === null || $value === '') ? $default : $value;
             };
+
+            // Checked before anything is written. PRESTA_MIN is a procedure
+            // code when TIPO_PREST = 3, otherwise a specialty in the current
+            // or the old codification; the patient's age at F_ENTRADA picks
+            // between specialties sharing an old code and must fit the
+            // specialty's range. Rows with any warning are left out.
+            $age = MinsalSpecialty::ageInYears($this->parseFlexibleDate($val('FECHA_NAC')), $this->parseFlexibleDate($val('F_ENTRADA')));
+            [$minsalSpecialty, $minsalExitSpecialty, $sigteProcedure, $exitSigteProcedure] = $this->resolvePrestaMin($val('PRESTA_MIN'), $val('PRESTA_MIN_SALIDA'), $val('TIPO_PREST'), $age);
+            if ($this->rowWarnings) {
+                throw new RowRejectedException($this->rowWarnings);
+            }
 
             $text = strtolower(trim($val('PRESTA_EST', '')));
             $healthCareServiceId = self::$healthCareServiceCache[$text] ?? null;
@@ -287,9 +379,6 @@ class OdontologyWaitlistImport implements OnEachRow, WithHeadingRow, WithChunkRe
 
             $previsionCode = strtolower(trim($val('PREVISION', '')));
             $previsionValue = self::$healthcareTypeCache[$previsionCode] ?? null;
-
-            $minsalSpecialty = self::$minsalSpecialtyCache[strtolower(trim($val('PRESTA_MIN', '')))] ?? null;
-            $minsalExitSpecialty = self::$minsalSpecialtyCache[strtolower(trim($val('PRESTA_MIN_SALIDA', '')))] ?? null;
 
             $entryType = self::$entryTypeCache[strtolower(trim($val('TIPO_PREST', '')))] ?? null;
 
@@ -379,6 +468,8 @@ class OdontologyWaitlistImport implements OnEachRow, WithHeadingRow, WithChunkRe
                     'healthcare_type_id'        => $previsionValue,
                     'minsal_specialty_id'       => $minsalSpecialty,
                     'exit_minsal_specialty_id'  => $minsalExitSpecialty,
+                    'sigte_procedure_id'        => $sigteProcedure,
+                    'exit_sigte_procedure_id'   => $exitSigteProcedure,
                     'plano'                     => ($val('PLANO') !== null) ? strtolower(trim($val('PLANO'))) : null,
                     'extremity'                 => ($val('EXTREMIDAD') !== null) ? strtolower(trim($val('EXTREMIDAD'))) : null,
                     'prais'                     => ($val('PRAIS') !== null) ? strtolower(trim($val('PRAIS'))) : null,
@@ -447,6 +538,49 @@ class OdontologyWaitlistImport implements OnEachRow, WithHeadingRow, WithChunkRe
 
             return $waitlistCreatedOrUpdated;
         });
+    }
+
+    /**
+     * PRESTA_MIN / PRESTA_MIN_SALIDA ids. With TIPO_PREST = 3 both are
+     * procedure codes (SIGTE procedure catalog); otherwise specialties.
+     * Adds a row warning for unknown codes, ambiguous old codes, and a
+     * patient age outside PRESTA_MIN's specialty range.
+     *
+     * @return array{0: ?int, 1: ?int, 2: ?int, 3: ?int} specialty, exit specialty, procedure, exit procedure
+     */
+    protected function resolvePrestaMin(?string $code, ?string $exitCode, ?string $entryTypeCode, ?float $age): array
+    {
+        $isProcedure = trim((string) $entryTypeCode) === SigteProcedure::ENTRY_TYPE_CODE;
+        $specialtyIds = [];
+        $procedureIds = [];
+        foreach (['PRESTA_MIN' => $code, 'PRESTA_MIN_SALIDA' => $exitCode] as $column => $value) {
+            if ($isProcedure) {
+                $procedure = SigteProcedure::forCode($value);
+                if (filled($value) && ! $procedure) {
+                    $this->rowWarnings[] = "{$column}: " . trim($value) . ' no existe en el catálogo de procedimientos SIGTE (TIPO_PREST 3).';
+                }
+                $specialtyIds[] = null;
+                $procedureIds[] = $procedure?->id;
+                continue;
+            }
+
+            [$specialty, $warning] = MinsalSpecialty::resolve($value, $age);
+            if (filled($value) && ! $specialty) {
+                $warning = trim($value) . (SigteProcedure::forCode($value)
+                    ? ' es un código de procedimiento; para procedimientos TIPO_PREST debe ser 3.'
+                    : ' no existe en el catálogo de especialidades.');
+            }
+            if ($warning) {
+                $this->rowWarnings[] = "{$column}: {$warning}";
+            }
+            if ($column === 'PRESTA_MIN' && ($ageWarning = $specialty?->ageWarning($age))) {
+                $this->rowWarnings[] = $ageWarning;
+            }
+            $specialtyIds[] = $specialty?->id;
+            $procedureIds[] = null;
+        }
+
+        return [...$specialtyIds, ...$procedureIds];
     }
 
     protected function findOrCreateProfessional($run, $dv): ?User

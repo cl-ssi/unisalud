@@ -58,30 +58,32 @@ class DemandManagementWaitlist extends Model
     ];
 
     /**
-     * C_SALIDA (causal de egreso) codes from the SIGTE export.
+     * C_SALIDA (causal de egreso) codes from the SIGTE export, named as in
+     * "Causales de egreso v8" (Norma Nº 118). 3 and 20 are standby marks
+     * ("Condiciones" sheet): the user stays on the waitlist.
      */
     public const EXIT_CODE_LABELS = [
         '0'  => 'GES',
-        '1'  => 'Atención realizada',
-        '2'  => 'Procedimiento informado',
-        '3'  => 'Indicación médica para reevaluación',
-        '4'  => 'Atención otorgada en el extra-sistema',
-        '5'  => 'Cambio de asegurador',
-        '6'  => 'Renuncia o rechazo voluntario del usuario',
-        '7'  => 'Recuperación espontánea',
-        '8'  => 'Dos inasistencias',
+        '1'  => 'Atención Realizada',
+        '2'  => 'Procedimiento y Exámenes de Apoyo de Diagnóstico y Terapéuticos',
+        '3'  => 'Indicación Médica Para Reevaluación',
+        '4'  => 'Atención otorgada en el extra sistema',
+        '5'  => 'No Beneficiario',
+        '6'  => 'Renuncia o Rechazo Voluntario',
+        '7'  => 'Recuperación Espontánea',
+        '8'  => 'Inasistencias',
         '9'  => 'Fallecimiento',
-        '10' => 'Solicitud de indicación duplicada',
+        '10' => 'Solicitud de Indicación Duplicada',
         '11' => 'Contacto no corresponde',
         '12' => 'No corresponde realizar cirugía',
         '13' => 'Traslado coordinado',
-        '14' => 'No pertinencia',
-        '15' => 'Error de Registro',
+        '14' => 'No Pertinencia',
+        '15' => 'Error de Digitación',
         '16' => 'Atención por Resolutividad',
         '17' => 'Atención por Telemedicina',
-        '18' => 'Modificación de la condición clínico-diagnóstica',
-        '19' => 'Hospital Digital',
-        '20' => 'Suspensión Transitoria',
+        '18' => 'Modificación de la condición clínico-diagnóstica del caso',
+        '19' => 'Atención por Hospital Digital',
+        '20' => 'Postergaciones',
         '99' => 'Técnico Administrativo Nivel Central',
     ];
 
@@ -94,7 +96,8 @@ class DemandManagementWaitlist extends Model
         'health_service_id',                // SERV_SALUD
         'identifier',
         'user_id',
-        'minsal_specialty_id',              // PRESTA_MIN
+        'minsal_specialty_id',              // PRESTA_MIN (TIPO_PREST 1)
+        'sigte_procedure_id',               // PRESTA_MIN (TIPO_PREST 3)
         'plano',                            // PLANO
         'extremity',                        // EXTREMIDAD
         'wait_health_care_service_id',      // PRESTA_EST
@@ -104,13 +107,14 @@ class DemandManagementWaitlist extends Model
         'exit_date',                        // F_SALIDA
         'exit_code',                        // C_SALIDA
         'referring_specialty',              // E_OTOR_AT 
-        'exit_minsal_specialty_id',         // PRESTA_MIN_SALIDA
+        'exit_minsal_specialty_id',         // PRESTA_MIN_SALIDA (TIPO_PREST 1)
+        'exit_sigte_procedure_id',          // PRESTA_MIN_SALIDA (TIPO_PREST 3)
         'prais',                            // PRAIS
-        'visible_municipality',
         'region_id',                        // REGION
         'commune_id',                       // COMUNA
         'suspected_diagnosis',              // SOSPECHA_DIAG
         'confirmed_diagnosis',              // CONFIR_DIAG
+        'cie10_id',                         // CIE-10
         'appointment_date',                 // F_CITACION
         'requesting_professional_id',       // RUN_PROF_SOL
         'resolving_professional_id',        // RUN_PROF_RESOL
@@ -122,7 +126,8 @@ class DemandManagementWaitlist extends Model
         'lb',                               // LB
         'waitlist_entry_type_id',           // TIPO_PREST
         'status',
-        'local_id',                         // ID_LOCAL
+        'ges',                              // GES
+        'local_id',                        // ID_LOCAL
         'result',                            // RESULTADO
         'waitlistAge',                      // EDAD
         'waitlistYear',                     // AÑO
@@ -146,7 +151,7 @@ class DemandManagementWaitlist extends Model
         'entry_date'        => 'date',
         'exit_date'         => 'date',
         'appointment_date'  => 'date',
-        'visible_municipality' => 'boolean',
+        'ges'               => 'boolean',
     ];
 
 
@@ -168,6 +173,16 @@ class DemandManagementWaitlist extends Model
     public function cie10(): BelongsTo
     {
         return $this->belongsTo(Cie10::class, 'cie10_id');
+    }
+
+    /**
+     * GES health problems the case's CIE-10 code belongs to.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, GesHealthProblem>
+     */
+    public function gesProblems(): \Illuminate\Database\Eloquent\Collection
+    {
+        return GesHealthProblem::forCie10Code($this->cie10?->code);
     }
 
     public function waitlistSpecialty(): BelongsTo
@@ -253,6 +268,16 @@ class DemandManagementWaitlist extends Model
     public function minsalExitSpecialty(): BelongsTo
     {
         return $this->belongsTo(MinsalSpecialty::class, 'exit_minsal_specialty_id');
+    }
+
+    public function sigteProcedure(): BelongsTo
+    {
+        return $this->belongsTo(SigteProcedure::class, 'sigte_procedure_id');
+    }
+
+    public function exitSigteProcedure(): BelongsTo
+    {
+        return $this->belongsTo(SigteProcedure::class, 'exit_sigte_procedure_id');
     }
 
     public function establishmentHealthCareService(): BelongsTo

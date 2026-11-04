@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SigteSurgicalProcedureCode extends Model
@@ -24,4 +25,12 @@ class SigteSurgicalProcedureCode extends Model
     ];
 
     protected $table = 'sigte_surgical_procedure_codes';
+
+    /**
+     * PLANO/EXTREMIDAD rules for this code; null when it has no laterality.
+     */
+    public function laterality(): HasOne
+    {
+        return $this->hasOne(SurgicalLateralityCode::class, 'code', 'code');
+    }
 }

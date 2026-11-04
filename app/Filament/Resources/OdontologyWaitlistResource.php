@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Jobs\ImportWaitlistJob;
+use App\Services\SigteImportService;
 use App\Exports\OdontologyWaitlistExport;
 use App\Imports\OdontologyWaitlistImport;
 use Filament\Notifications\Notification;
@@ -103,8 +105,17 @@ class OdontologyWaitlistResource extends Resource
                 Forms\Components\TextInput::make('minsalSpecialty')
                     ->label('Prestación MINSAL')
                     ->disabled()
+                    ->visible(fn ($record) => ! $record?->sigteProcedure)
                     ->afterStateHydrated(function ($component, $state, $record) {
                         $component->state($record?->minsalSpecialty?->text ?? null);
+                    }),
+                // PRESTA_MIN of TIPO_PREST = 3 rows.
+                Forms\Components\TextInput::make('sigteProcedure')
+                    ->label('Procedimiento SIGTE')
+                    ->disabled()
+                    ->visible(fn ($record) => (bool) $record?->sigteProcedure)
+                    ->afterStateHydrated(function ($component, $state, $record) {
+                        $component->state($record?->sigteProcedure?->label());
                     }),
                 Forms\Components\TextInput::make('plano')
                     ->label('Plano')
@@ -154,8 +165,17 @@ class OdontologyWaitlistResource extends Resource
                 Forms\Components\TextInput::make('minsalExitSpecialty')
                     ->label('Prestación MINSAL Salida')
                     ->disabled()
+                    ->visible(fn ($record) => ! $record?->exitSigteProcedure)
                     ->afterStateHydrated(function ($component, $state, $record) {
                         $component->state($record?->minsalExitSpecialty?->text ?? null);
+                    }),
+                // PRESTA_MIN_SALIDA of TIPO_PREST = 3 rows.
+                Forms\Components\TextInput::make('exitSigteProcedure')
+                    ->label('Procedimiento SIGTE Salida')
+                    ->disabled()
+                    ->visible(fn ($record) => (bool) $record?->exitSigteProcedure)
+                    ->afterStateHydrated(function ($component, $state, $record) {
+                        $component->state($record?->exitSigteProcedure?->label());
                     }),
                 Forms\Components\TextInput::make('prais')
                     ->label('PRAIS')
@@ -378,8 +398,9 @@ class OdontologyWaitlistResource extends Resource
                     ->form([
                         Forms\Components\FileUpload::make('archivo')
                             ->label('Archivo Excel')
-                            ->disk('local')
+                            ->disk(SigteImportService::uploadsDisk())
                             ->directory('temp-imports')
+                            ->visibility('private')
                             ->acceptedFileTypes([
                                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                                 'application/vnd.ms-excel',
@@ -389,35 +410,14 @@ class OdontologyWaitlistResource extends Resource
                             ->required(),
                     ])
                     ->action(function (array $data) {
-                        $import = new OdontologyWaitlistImport();
-
-                        try {
-                            $import->import(Storage::disk('local')->path($data['archivo']));
-                        } catch (\Throwable $e) {
-                            Notification::make()
-                                ->title('Error durante la importación')
-                                ->body($e->getMessage())
-                                ->danger()
-                                ->send();
-
-                            return;
-                        } finally {
-                            Storage::disk('local')->delete($data['archivo']);
-                        }
-
-                        $failed = count($import->failedRows);
-                        $body = number_format($import->successfulRows) . ' filas importadas.';
-                        if ($failed) {
-                            $body .= ' ' . number_format($failed) . ' filas con error (filas: '
-                                . collect($import->failedRows)->pluck('row')->take(20)->implode(', ')
-                                . ($failed > 20 ? '…' : '') . '). Revisa el log para el detalle.';
-                        }
+                        // Runs in the background: a full SIGTE file takes longer than
+                        // max_execution_time. The result arrives as a database notification.
+                        ImportWaitlistJob::dispatch(OdontologyWaitlistImport::class, $data['archivo'], auth()->id(), 'Odontología', 'odontologia-');
 
                         Notification::make()
-                            ->title('Importación finalizada')
-                            ->body($body)
-                            ->{$failed ? 'warning' : 'success'}()
-                            ->persistent()
+                            ->title('Archivo recibido')
+                            ->body('Se está importando en segundo plano. El resultado llegará a tus notificaciones (campana).')
+                            ->success()
                             ->send();
                     }),
                 Tables\Actions\Action::make('export')

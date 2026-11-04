@@ -45,7 +45,8 @@ class Address extends Model
 
     protected $casts = [
         'use'   => AddressUseValue::class,
-        'type'  => AddressType::class
+        'type'  => AddressType::class,
+        'is_rural' => 'boolean',
     ];
 
     protected $appends = [

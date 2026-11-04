@@ -6,6 +6,7 @@ use App\Enums\SurgicalComplexity;
 use App\Filament\Resources\Sigte\SigteSurgicalEntryResource\Pages;
 use App\Models\SigteSurgicalProcedureCode;
 use App\Models\SigteSurgicalWaitlist;
+use App\Models\SurgicalLateralityCode;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -103,10 +104,22 @@ class SigteSurgicalEntryResource extends Resource
                         ->label('Nombre Prestación')
                         ->content(fn (Get $get) => SigteSurgicalProcedureCode::find($get('sigte_surgical_procedure_code_id'))?->text ?? 'Se completa al seleccionar código')
                         ->columnSpanFull(),
-                    Forms\Components\TextInput::make('plano')
-                        ->label('Plano (si corresponde)'),
-                    Forms\Components\TextInput::make('extremity')
-                        ->label('Extremidad (si corresponde)'),
+                    // Only for surgeries in MINSAL's laterality list, limited to
+                    // the sides / segments allowed for the selected code.
+                    Forms\Components\Select::make('plano')
+                        ->label('Plano')
+                        ->placeholder('Seleccione plano')
+                        ->options(fn (Get $get) => static::lateralityFor($get)?->planeOptions() ?? [])
+                        ->in(fn (Get $get) => array_keys(static::lateralityFor($get)?->planeOptions() ?? []))
+                        ->visible(fn (Get $get) => static::lateralityFor($get) !== null)
+                        ->required(),
+                    Forms\Components\Select::make('extremity')
+                        ->label('Extremidad')
+                        ->placeholder('Seleccione extremidad')
+                        ->options(fn (Get $get) => static::lateralityFor($get)?->extremityOptions() ?? [])
+                        ->in(fn (Get $get) => array_keys(static::lateralityFor($get)?->extremityOptions() ?? []))
+                        ->visible(fn (Get $get) => filled(static::lateralityFor($get)?->extremities))
+                        ->required(),
                     Forms\Components\DatePicker::make('entry_date')
                         ->label('Fecha Entrada LE QX')
                         ->default(now())
@@ -226,6 +239,19 @@ class SigteSurgicalEntryResource extends Resource
                 ])
                 ->columns(3),
         ];
+    }
+
+    /** @var array<int, ?SurgicalLateralityCode> procedure code id => rule, per request */
+    protected static array $lateralityCache = [];
+
+    protected static function lateralityFor(Get $get): ?SurgicalLateralityCode
+    {
+        $id = $get('sigte_surgical_procedure_code_id');
+        if (blank($id)) {
+            return null;
+        }
+
+        return static::$lateralityCache[$id] ??= SigteSurgicalProcedureCode::find($id)?->laterality;
     }
 
     public static function table(Table $table): Table

@@ -37,3 +37,15 @@ Route::get('/test/queue', function (): string {
 
     return 'Trabajo de cola despachado correctamente.';
 });
+
+/**
+ * Archivos de resultado de las importaciones de listas de espera
+ * (App\Exports\ImportReportExport); cada usuario solo accede a los suyos.
+ */
+Route::get('/import-reports/{token}/{filename}', function (string $token, string $filename) {
+    $path = App\Exports\ImportReportExport::DIRECTORY . '/' . auth()->id() . "/$token/" . basename($filename);
+    $disk = Illuminate\Support\Facades\Storage::disk(App\Services\SigteImportService::uploadsDisk());
+    abort_unless($disk->exists($path), 404);
+
+    return $disk->download($path);
+})->middleware(['auth', 'signed:relative'])->name('import-reports.download');

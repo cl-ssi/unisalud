@@ -120,4 +120,23 @@ class SigteSurgicalWaitlist extends Model
     }
 
     protected $table = 'sigte_surgical_waitlists';
+
+    /**
+     * PLANO/EXTREMIDAD only exist for surgeries with laterality, and only
+     * with the values allowed for that code; anything else is cleared so it
+     * isn't exported to SIGTE (e.g. after switching to another code).
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (self $waitlist) {
+            $laterality = SigteSurgicalProcedureCode::find($waitlist->sigte_surgical_procedure_code_id)?->laterality;
+
+            if (! array_key_exists((string) $waitlist->plano, $laterality?->planeOptions() ?? [])) {
+                $waitlist->plano = null;
+            }
+            if (! array_key_exists((string) $waitlist->extremity, $laterality?->extremityOptions() ?? [])) {
+                $waitlist->extremity = null;
+            }
+        });
+    }
 }

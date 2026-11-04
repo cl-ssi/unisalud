@@ -94,7 +94,8 @@ class OdontologyWaitlist extends Model
         'health_service_id',                // SERV_SALUD
         'identifier',
         'user_id',
-        'minsal_specialty_id',              // PRESTA_MIN
+        'minsal_specialty_id',              // PRESTA_MIN (TIPO_PREST 1)
+        'sigte_procedure_id',               // PRESTA_MIN (TIPO_PREST 3)
         'plano',                            // PLANO
         'extremity',                        // EXTREMIDAD
         'wait_health_care_service_id',      // PRESTA_EST
@@ -104,7 +105,8 @@ class OdontologyWaitlist extends Model
         'exit_date',                        // F_SALIDA
         'exit_code',                        // C_SALIDA
         'referring_specialty',              // E_OTOR_AT 
-        'exit_minsal_specialty_id',         // PRESTA_MIN_SALIDA
+        'exit_minsal_specialty_id',         // PRESTA_MIN_SALIDA (TIPO_PREST 1)
+        'exit_sigte_procedure_id',          // PRESTA_MIN_SALIDA (TIPO_PREST 3)
         'prais',                            // PRAIS
         'pase_odontologico',
         'visible_municipality',
@@ -255,6 +257,16 @@ class OdontologyWaitlist extends Model
     public function minsalExitSpecialty(): BelongsTo
     {
         return $this->belongsTo(MinsalSpecialty::class, 'exit_minsal_specialty_id');
+    }
+
+    public function sigteProcedure(): BelongsTo
+    {
+        return $this->belongsTo(SigteProcedure::class, 'sigte_procedure_id');
+    }
+
+    public function exitSigteProcedure(): BelongsTo
+    {
+        return $this->belongsTo(SigteProcedure::class, 'exit_sigte_procedure_id');
     }
 
     public function establishmentHealthCareService(): BelongsTo
