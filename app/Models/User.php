@@ -7,6 +7,7 @@ use App\Enums\Gender;
 use App\Enums\Sex;
 use App\Models\Identifier;
 use App\Models\DependentUser;
+use App\Models\VentoxUser;
 use App\Models\DependentCareGiver;
 use App\Models\Waitlist;
 use Carbon\Carbon;
@@ -147,6 +148,11 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function dependentUser(): HasOne
     {
         return $this->HasOne(DependentUser::class);
+    }
+
+    public function ventoxUser(): HasOne
+    {
+        return $this->hasOne(VentoxUser::class);
     }
 
     public function dependentCaregiver(): HasOne
