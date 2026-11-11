@@ -421,9 +421,11 @@ class DemandManagementWaitlistResource extends Resource
                     ->icon('heroicon-o-arrow-down-tray')
                     ->modalHeading('Importar Lista de Espera')
                     ->modalDescription('Sube el archivo .xlsx o .csv para procesar los registros.')
+                    ->modalWidth('3xl')
                     ->modalSubmitActionLabel('Importar')
                     ->visible(fn() => ! auth()->user()->hasRole(self::MUNICIPALITY_ROLE))
                     ->form([
+                        Forms\Components\View::make('filament.resources.demand-management-waitlist-resource.import-rules'),
                         Forms\Components\FileUpload::make('archivo')
                             ->label('Archivo Excel')
                             ->disk(SigteImportService::uploadsDisk())

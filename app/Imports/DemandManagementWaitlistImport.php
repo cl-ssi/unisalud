@@ -39,8 +39,8 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 /**
  * Imports the SIGTE demand management waitlist template ("Libro1.xlsx").
  *
- * Runs synchronously (no ShouldQueue) like the other maatwebsite imports
- * triggered from the panel, so it doesn't depend on a queue worker.
+ * Run from App\Jobs\ImportWaitlistJob. The upload rules shown to users are in
+ * resources/views/filament/resources/demand-management-waitlist-resource/import-rules.blade.php.
  */
 class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithChunkReading
 {
