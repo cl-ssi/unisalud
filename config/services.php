@@ -41,4 +41,12 @@ return [
         ],
     ],
 
+    // Cloud Run Job that runs waitlist uploads (php artisan waitlist:import).
+    // Unset: uploads go to the regular queue (local development).
+    'cloud_run_import' => [
+        'project' => env('CLOUD_RUN_IMPORT_PROJECT', env('GOOGLE_PROJECT_ID')),
+        'region' => env('CLOUD_RUN_IMPORT_REGION'),
+        'job' => env('CLOUD_RUN_IMPORT_JOB'),
+    ],
+
 ];

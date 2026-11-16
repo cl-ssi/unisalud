@@ -440,9 +440,10 @@ class DemandManagementWaitlistResource extends Resource
                             ->required(),
                     ])
                     ->action(function (array $data) {
-                        // Runs in the background: a full SIGTE file takes longer than
-                        // max_execution_time. The result arrives as a database notification.
-                        ImportWaitlistJob::dispatch(DemandManagementWaitlistImport::class, $data['archivo'], auth()->id(), 'Gestión Demanda', 'gestion-demanda-');
+                        // Runs in the background (a Cloud Run Job in production): a full
+                        // SIGTE file takes longer than a request may. The result arrives
+                        // as a database notification.
+                        ImportWaitlistJob::start(DemandManagementWaitlistImport::class, $data['archivo'], auth()->id(), 'Gestión Demanda', 'gestion-demanda-');
 
                         Notification::make()
                             ->title('Archivo recibido')

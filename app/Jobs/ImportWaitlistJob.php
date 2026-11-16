@@ -6,6 +6,7 @@ use App\Exports\ImportReportExport;
 use App\Imports\DemandManagementWaitlistImport;
 use App\Imports\OdontologyWaitlistImport;
 use App\Models\User;
+use App\Services\CloudRunJobLauncher;
 use App\Services\SigteImportService;
 use Filament\Notifications\Actions\Action as NotificationAction;
 use Filament\Notifications\Notification;
@@ -42,6 +43,32 @@ class ImportWaitlistJob implements ShouldQueue
         public string $title,
         public string $filenamePrefix,
     ) {
+    }
+
+    /**
+     * Starts an upload. In production it runs as a Cloud Run Job execution
+     * (php artisan waitlist:import): Cloud Tasks cuts a request off after at
+     * most 30 minutes and then delivers it again, so a large file ran twice
+     * at the same time and created duplicate rows. Without the Cloud Run Job
+     * configured (local development) it goes to the regular queue.
+     */
+    public static function start(string $importClass, string $filePath, int $uploadedBy, string $title, string $filenamePrefix): void
+    {
+        if (! CloudRunJobLauncher::isConfigured()) {
+            self::dispatch($importClass, $filePath, $uploadedBy, $title, $filenamePrefix);
+
+            return;
+        }
+
+        CloudRunJobLauncher::run([
+            'artisan',
+            'waitlist:import',
+            class_basename($importClass),
+            $filePath,
+            (string) $uploadedBy,
+            $title,
+            $filenamePrefix,
+        ]);
     }
 
     public function handle(): void
