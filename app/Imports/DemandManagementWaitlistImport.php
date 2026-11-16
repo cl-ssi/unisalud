@@ -364,6 +364,39 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
         $this->handleRow($data, $row->getIndex());
     }
 
+    /** Lookups are reloaded on the next row (each queued chunk starts fresh). */
+    public static function forgetCaches(): void
+    {
+        self::$initialized = false;
+    }
+
+    /**
+     * One row of a CSV uploaded with Filament's Import action
+     * (DemandManagementWaitlistImporter), keyed by the CSV headers as written.
+     * Runs inside the transaction the Import action opens for each row.
+     *
+     * @throws RowRejectedException when the row is left out
+     */
+    public function importCsvRow(array $row): void
+    {
+        self::ensureCachesAreLoaded();
+
+        $data = array_combine(HeadingRowFormatter::format(array_keys($row)), array_values($row));
+        $data = array_map(fn($value) => is_string($value) ? trim($value) : $value, $data);
+
+        if ($missing = array_diff(self::REQUIRED_HEADINGS, array_keys($data))) {
+            throw new RowRejectedException(['El archivo no tiene el formato SIGTE: faltan las columnas ' . strtoupper(implode(', ', $missing)) . '.']);
+        }
+
+        // Fully empty rows (trailing formatted rows of the template).
+        if (collect($data)->filter(fn($value) => filled($value))->isEmpty()) {
+            return;
+        }
+
+        $this->currentValues = array_values($row);
+        $this->importRow($data);
+    }
+
     protected function handleRow(array $data, int $rowIndex): void
     {
         self::ensureCachesAreLoaded();

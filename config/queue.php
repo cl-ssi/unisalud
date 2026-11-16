@@ -15,6 +15,11 @@ return [
 
     'default' => env('QUEUE_CONNECTION', 'database'),
 
+    // Queue for the Gestión Demanda CSV upload chunks (DemandManagementWaitlistImporter).
+    // In production: a Cloud Tasks queue with max concurrent dispatches = 1.
+    // Unset: the connection's default queue.
+    'waitlist_import_queue' => env('WAITLIST_IMPORT_QUEUE'),
+
     /*
     |--------------------------------------------------------------------------
     | Queue Connections

@@ -19,6 +19,13 @@ class ListDemandManagementWaitlists extends ListRecords
         ];
     }
 
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            DemandManagementWaitlistResource\Widgets\DemandManagementImportProgress::class,
+        ];
+    }
+
     public function getDefaultActiveTab(): string | int | null
     {
         return 'abiertos';

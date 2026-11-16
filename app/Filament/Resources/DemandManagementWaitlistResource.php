@@ -3,9 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Exports\DemandManagementWaitlistExport;
-use App\Jobs\ImportWaitlistJob;
-use App\Services\SigteImportService;
-use App\Imports\DemandManagementWaitlistImport;
+use App\Filament\Imports\DemandManagementWaitlistImporter;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Storage;
 use App\Filament\Resources\DemandManagementWaitlistResource\Pages;
@@ -416,41 +414,20 @@ class DemandManagementWaitlistResource extends Resource
     {
         return $table
             ->headerActions([
-                Tables\Actions\Action::make('importar')
+                // CSV upload split into small queued chunks (see DemandManagementWaitlistImporter);
+                // the DemandManagementImportProgress widget above the table shows its progress.
+                Tables\Actions\ImportAction::make('importar')
+                    ->importer(DemandManagementWaitlistImporter::class)
                     ->label('Importar Lista de Espera')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->modalHeading('Importar Lista de Espera')
-                    ->modalDescription('Sube el archivo .xlsx o .csv para procesar los registros.')
+                    ->modalHeading('Importar Lista de Espera (CSV)')
+                    ->modalDescription(view('filament.resources.demand-management-waitlist-resource.import-rules'))
                     ->modalWidth('3xl')
-                    ->modalSubmitActionLabel('Importar')
+                    // 200 rows ≈ 10-15 s per queued job: well inside a Cloud Tasks
+                    // request, and a 50,000 row file is 250 jobs.
+                    ->chunkSize(200)
                     ->visible(fn() => ! auth()->user()->hasRole(self::MUNICIPALITY_ROLE))
-                    ->form([
-                        Forms\Components\View::make('filament.resources.demand-management-waitlist-resource.import-rules'),
-                        Forms\Components\FileUpload::make('archivo')
-                            ->label('Archivo Excel')
-                            ->disk(SigteImportService::uploadsDisk())
-                            ->directory('temp-imports')
-                            ->visibility('private')
-                            ->acceptedFileTypes([
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                                'application/vnd.ms-excel',
-                                'text/csv',
-                                'text/plain',
-                            ])
-                            ->required(),
-                    ])
-                    ->action(function (array $data) {
-                        // Runs in the background (a Cloud Run Job in production): a full
-                        // SIGTE file takes longer than a request may. The result arrives
-                        // as a database notification.
-                        ImportWaitlistJob::start(DemandManagementWaitlistImport::class, $data['archivo'], auth()->id(), 'Gestión Demanda', 'gestion-demanda-');
-
-                        Notification::make()
-                            ->title('Archivo recibido')
-                            ->body('Se está importando en segundo plano. El resultado llegará a tus notificaciones (campana).')
-                            ->success()
-                            ->send();
-                    }),
+                    ->after(fn($livewire) => $livewire->dispatch('demand-management-import-started')),
                 Tables\Actions\Action::make('export')
                     ->label('Exportar')
                     ->icon('heroicon-o-arrow-up-tray')

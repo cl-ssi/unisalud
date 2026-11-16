@@ -10,14 +10,14 @@
     <p style="{{ $section }}">Cómo cargar</p>
     <ol style="list-style: decimal; padding-left: 1.25rem; margin-top: .25rem;">
         <li>Use el formato SIGTE: las mismas columnas que entrega el botón <b>Exportar</b>. La primera fila debe tener los nombres de columna.</li>
-        <li>Suba el archivo <b>.xlsx</b> (o <b>.csv</b> separado por comas) y presione <b>Importar</b>.</li>
-        <li>La carga se procesa en segundo plano. Al terminar llega una notificación a la campana con el resumen y los botones <b>Descargar cambios</b> y <b>Descargar rechazados</b>; los archivos quedan disponibles por 1 día.</li>
-        <li>Corrija las filas del Excel de rechazados (columna <b>MOTIVO RECHAZO</b>) y vuelva a subir ese mismo archivo; las columnas extra se ignoran.</li>
+        <li>En Excel, guarde la hoja con los datos como <b>CSV</b> (Archivo → Guardar como → <b>CSV UTF-8</b>), súbalo y presione <b>Importar</b>. Se aceptan archivos separados por coma o punto y coma.</li>
+        <li>La carga avanza en segundo plano, por partes. Sobre la tabla aparece una <b>barra de progreso</b> con las filas procesadas y el tiempo restante; puede seguir trabajando o cerrar la página.</li>
+        <li>Al terminar llega una notificación a la campana con el resumen. Si hubo filas rechazadas, desde ahí se descarga un archivo con esas filas y el motivo de cada una (columna <b>error</b>): corríjalas y vuelva a subir ese archivo.</li>
     </ol>
 
     <p style="{{ $section }}">Archivo</p>
     <ul style="{{ $list }}">
-        <li>Se importa solo la <b>primera hoja</b> que tenga las columnas RUN, DV, TIPO_PREST, PRESTA_MIN y F_ENTRADA. Las demás hojas (resúmenes, cortes anteriores) se ignoran. Si ninguna hoja las tiene, la carga se rechaza completa.</li>
+        <li>El archivo debe tener las columnas RUN, DV, TIPO_PREST, PRESTA_MIN y F_ENTRADA. Si falta alguna, todas las filas se rechazan.</li>
         <li>Los nombres de columna no distinguen mayúsculas ni tildes. Las columnas desconocidas y las filas vacías se ignoran.</li>
     </ul>
 
