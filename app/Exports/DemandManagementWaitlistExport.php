@@ -51,6 +51,7 @@ class DemandManagementWaitlistExport
         'resolvingProfessional.officialIdentifier',
         'medicalBenefit',
         'waitlistSpecialty',
+        'exitWaitlistSpecialty',
         'establishment',
     ];
 
@@ -201,8 +202,8 @@ class DemandManagementWaitlistExport
             'SEXO' => fn ($record) => self::sexCode($record->user?->sex?->value),
             'PREVISION' => self::value('healthcareType.code'),
             'TIPO_PREST' => self::value('entryType.code'),
-            // A specialty, or a procedure when TIPO_PREST = 3.
-            'PRESTA_MIN' => fn ($record) => $record->minsalSpecialty?->code ?? $record->sigteProcedure?->code,
+            // A specialty, a procedure when TIPO_PREST = 3, or a Código MAI when TIPO_PREST = 4.
+            'PRESTA_MIN' => fn ($record) => $record->minsalSpecialty?->code ?? $record->sigteProcedure?->code ?? $record->waitlistSpecialty?->code,
             'PLANO' => self::value('plano'),
             'EXTREMIDAD' => self::value('extremity'),
             'PRESTA_EST' => self::value('establishmentHealthCareService.text'),
@@ -212,7 +213,7 @@ class DemandManagementWaitlistExport
             'F_SALIDA' => self::date('exit_date'),
             'C_SALIDA' => self::value('exit_code'),
             'E_OTOR_AT' => self::value('referring_specialty'),
-            'PRESTA_MIN_SALIDA' => fn ($record) => $record->minsalExitSpecialty?->code ?? $record->exitSigteProcedure?->code,
+            'PRESTA_MIN_SALIDA' => fn ($record) => $record->minsalExitSpecialty?->code ?? $record->exitSigteProcedure?->code ?? $record->exitWaitlistSpecialty?->code,
             'PRAIS' => self::value('prais'),
             'REGION' => self::value('region_id'),
             'COMUNA' => self::value('commune.code_deis'),

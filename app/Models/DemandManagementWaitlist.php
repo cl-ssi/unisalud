@@ -120,7 +120,8 @@ class DemandManagementWaitlist extends Model
         'resolving_professional_id',        // RUN_PROF_RESOL
         'sigte_id',                         // SIGTE_ID
         'healthcare_type_id',               // PREVISION
-        'specialty_id',                     // ESPECIALIDAD
+        'specialty_id',                     // ESPECIALIDAD; PRESTA_MIN (TIPO_PREST 4)
+        'exit_specialty_id',                // PRESTA_MIN_SALIDA (TIPO_PREST 4)
         'establishment_id',                 // ESTABLECIMIENTO
         'pediatric',                        // PEDIATRICO
         'lb',                               // LB
@@ -188,6 +189,11 @@ class DemandManagementWaitlist extends Model
     public function waitlistSpecialty(): BelongsTo
     {
         return $this->belongsTo(DemandManagementSpeciality::class, 'specialty_id');
+    }
+
+    public function exitWaitlistSpecialty(): BelongsTo
+    {
+        return $this->belongsTo(DemandManagementSpeciality::class, 'exit_specialty_id');
     }
 
     public function commune(): BelongsTo

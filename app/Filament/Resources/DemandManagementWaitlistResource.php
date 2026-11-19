@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Filament\Resources\DemandManagementWaitlistResource\Pages;
 use App\Filament\Resources\DemandManagementWaitlistResource\RelationManagers;
 use App\Models\Cie10;
+use App\Models\DemandManagementSpeciality;
 use App\Models\DemandManagementWaitlist;
 use App\Models\GesHealthProblem;
 use Filament\Forms;
@@ -107,9 +108,17 @@ class DemandManagementWaitlistResource extends Resource
                 Forms\Components\TextInput::make('minsalSpecialty')
                     ->label('Prestación MINSAL')
                     ->disabled()
-                    ->visible(fn ($record) => ! $record?->sigteProcedure)
+                    ->visible(fn ($record) => ! $record?->sigteProcedure && blank($record?->waitlistSpecialty?->code))
                     ->afterStateHydrated(function ($component, $state, $record) {
                         $component->state($record?->minsalSpecialty?->text ?? null);
+                    }),
+                // PRESTA_MIN of TIPO_PREST = 4 rows (Código MAI).
+                Forms\Components\TextInput::make('maiSpecialty')
+                    ->label('Código MAI')
+                    ->disabled()
+                    ->visible(fn ($record) => filled($record?->waitlistSpecialty?->code))
+                    ->afterStateHydrated(function ($component, $state, $record) {
+                        $component->state($record?->waitlistSpecialty?->label());
                     }),
                 // PRESTA_MIN of TIPO_PREST = 3 rows.
                 Forms\Components\TextInput::make('sigteProcedure')
@@ -167,9 +176,17 @@ class DemandManagementWaitlistResource extends Resource
                 Forms\Components\TextInput::make('minsalExitSpecialty')
                     ->label('Prestación MINSAL Salida')
                     ->disabled()
-                    ->visible(fn ($record) => ! $record?->exitSigteProcedure)
+                    ->visible(fn ($record) => ! $record?->exitSigteProcedure && ! $record?->exitWaitlistSpecialty)
                     ->afterStateHydrated(function ($component, $state, $record) {
                         $component->state($record?->minsalExitSpecialty?->text ?? null);
+                    }),
+                // PRESTA_MIN_SALIDA of TIPO_PREST = 4 rows (Código MAI).
+                Forms\Components\TextInput::make('exitMaiSpecialty')
+                    ->label('Código MAI Salida')
+                    ->disabled()
+                    ->visible(fn ($record) => (bool) $record?->exitWaitlistSpecialty)
+                    ->afterStateHydrated(function ($component, $state, $record) {
+                        $component->state($record?->exitWaitlistSpecialty?->label());
                     }),
                 // PRESTA_MIN_SALIDA of TIPO_PREST = 3 rows.
                 Forms\Components\TextInput::make('exitSigteProcedure')
@@ -542,11 +559,16 @@ class DemandManagementWaitlistResource extends Resource
                         $data['values'] ?? null,
                         fn (Builder $q, array $ids) => $q->whereHas('cie10', fn (Builder $c) => GesHealthProblem::whereCie10InProblems($c, $ids))
                     )),
+                // By specialty name: the Código MAI catalog has many codes per specialty.
                 Tables\Filters\SelectFilter::make('waitlistSpecialty')
                     ->label('Especialidad')
-                    ->relationship('waitlistSpecialty', 'text')
+                    ->options(fn () => DemandManagementSpeciality::query()->whereNotNull('text')->distinct()->orderBy('text')->pluck('text', 'text'))
                     ->searchable()
-                    ->placeholder('Todas'),
+                    ->placeholder('Todas')
+                    ->query(fn (Builder $query, array $data) => $query->when(
+                        $data['value'] ?? null,
+                        fn (Builder $q, string $text) => $q->whereHas('waitlistSpecialty', fn (Builder $s) => $s->where('text', $text))
+                    )),
                 Tables\Filters\SelectFilter::make('originEstablishment')
                     ->label('Establecimiento Origen')
                     ->relationship('originEstablishment', 'alias')

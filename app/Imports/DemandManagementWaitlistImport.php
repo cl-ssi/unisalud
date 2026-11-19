@@ -241,7 +241,8 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
             ->toArray();
 
         self::$healthCareServiceCache = DemandManagementHealthCareService::all()->pluck('id', 'text')->mapWithKeys(fn($id, $text) => [strtolower(trim($text)) => $id])->toArray();
-        self::$specialtyCache = DemandManagementSpeciality::all()->pluck('id', 'text')->mapWithKeys(fn($id, $text) => [strtolower(trim($text)) => $id])->toArray();
+        // Free-text ESPECIALIDAD values only; coded (Código MAI) rows are matched by PRESTA_MIN.
+        self::$specialtyCache = DemandManagementSpeciality::whereNull('code')->pluck('id', 'text')->mapWithKeys(fn($id, $text) => [strtolower(trim($text)) => $id])->toArray();
         self::$medicalBenefitCache = DemandManagementMedicalBenefit::all()->pluck('id', 'text')->mapWithKeys(fn($id, $text) => [strtolower(trim($text)) => $id])->toArray();
         self::$healthcareTypeCache = HealthcareType::all()->pluck('id', 'code')->mapWithKeys(fn($id, $code) => [strtolower(trim($code)) => $id])->toArray();
         self::$entryTypeCache = WaitlistEntryType::all()->pluck('id', 'code')->mapWithKeys(fn($id, $code) => [strtolower(trim($code)) => $id])->toArray();
@@ -462,12 +463,13 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
             };
 
             // Checked before anything is written. PRESTA_MIN is a procedure
-            // code when TIPO_PREST = 3, otherwise a specialty in the current
+            // code when TIPO_PREST = 3, a Código MAI from the Gestión Demanda
+            // specialty catalog when TIPO_PREST = 4, otherwise a specialty in the current
             // or the old codification; the patient's age at F_ENTRADA picks
             // between specialties sharing an old code and must fit the
             // specialty's range. Rows with any warning are left out.
             $age = MinsalSpecialty::ageInYears($this->parseFlexibleDate($val('FECHA_NAC')), $this->parseFlexibleDate($val('F_ENTRADA')));
-            [$minsalSpecialty, $minsalExitSpecialty, $sigteProcedure, $exitSigteProcedure] = $this->resolvePrestaMin($val('PRESTA_MIN'), $val('PRESTA_MIN_SALIDA'), $val('TIPO_PREST'), $age);
+            [$minsalSpecialty, $minsalExitSpecialty, $sigteProcedure, $exitSigteProcedure, $maiSpecialty, $exitMaiSpecialty] = $this->resolvePrestaMin($val('PRESTA_MIN'), $val('PRESTA_MIN_SALIDA'), $val('TIPO_PREST'), $age);
             // CIE-10 diagnosis and GES flag (see resolveCie10AndGes()).
             $cie10AndGes = $this->resolveCie10AndGes($data, $val);
             if ($this->rowWarnings) {
@@ -598,10 +600,12 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
             }
 
 
+            // TIPO_PREST 4: the specialty is the PRESTA_MIN Código MAI;
+            // otherwise the free-text ESPECIALIDAD column.
             $textSpecialty = strtolower(trim($val('ESPECIALIDAD', 'sin especialidad')));
-            $specialtyId = self::$specialtyCache[$textSpecialty] ?? null;
+            $specialtyId = $maiSpecialty ?? self::$specialtyCache[$textSpecialty] ?? null;
             if (is_null($specialtyId)) {
-                $specialty = DemandManagementSpeciality::firstOrCreate(['text' => $textSpecialty]);
+                $specialty = DemandManagementSpeciality::firstOrCreate(['text' => $textSpecialty, 'code' => null]);
                 self::$specialtyCache[$textSpecialty] = $specialty->id;
                 $specialtyId = $specialty->id;
             }
@@ -627,6 +631,7 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
                 ],
                 [
                     'specialty_id'              => $specialtyId,
+                    'exit_specialty_id'         => $exitMaiSpecialty,
                     'origin_establishment_id'   => $originOrganizationId,
                     'wait_health_care_service_id' => $healthCareServiceId,
                     'commune_id'                => $communeId,
@@ -780,18 +785,34 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
 
     /**
      * PRESTA_MIN / PRESTA_MIN_SALIDA ids. With TIPO_PREST = 3 both are
-     * procedure codes (SIGTE procedure catalog); otherwise specialties.
+     * procedure codes (SIGTE procedure catalog); with TIPO_PREST = 4 both
+     * are Códigos MAI (Gestión Demanda specialty catalog); otherwise MINSAL
+     * specialties.
      * Adds a row warning for unknown codes, ambiguous old codes, and a
      * patient age outside PRESTA_MIN's specialty range.
      *
-     * @return array{0: ?int, 1: ?int, 2: ?int, 3: ?int} specialty, exit specialty, procedure, exit procedure
+     * @return array{0: ?int, 1: ?int, 2: ?int, 3: ?int, 4: ?int, 5: ?int} specialty, exit specialty, procedure, exit procedure, MAI specialty, exit MAI specialty
      */
     protected function resolvePrestaMin(?string $code, ?string $exitCode, ?string $entryTypeCode, ?float $age): array
     {
         $isProcedure = trim((string) $entryTypeCode) === SigteProcedure::ENTRY_TYPE_CODE;
+        $isMai = trim((string) $entryTypeCode) === DemandManagementSpeciality::ENTRY_TYPE_CODE;
         $specialtyIds = [];
         $procedureIds = [];
+        $maiIds = [];
         foreach (['PRESTA_MIN' => $code, 'PRESTA_MIN_SALIDA' => $exitCode] as $column => $value) {
+            if ($isMai) {
+                $mai = DemandManagementSpeciality::forCode($value);
+                if (filled($value) && ! $mai) {
+                    $this->rowWarnings[] = "{$column}: " . trim($value) . ' no existe en el catálogo de códigos MAI (TIPO_PREST 4).';
+                }
+                $specialtyIds[] = null;
+                $procedureIds[] = null;
+                $maiIds[] = $mai?->id;
+                continue;
+            }
+            $maiIds[] = null;
+
             if ($isProcedure) {
                 $procedure = SigteProcedure::forCode($value);
                 if (filled($value) && ! $procedure) {
@@ -804,9 +825,11 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
 
             [$specialty, $warning] = MinsalSpecialty::resolve($value, $age);
             if (filled($value) && ! $specialty) {
-                $warning = trim($value) . (SigteProcedure::forCode($value)
-                    ? ' es un código de procedimiento; para procedimientos TIPO_PREST debe ser 3.'
-                    : ' no existe en el catálogo de especialidades.');
+                $warning = trim($value) . match (true) {
+                    SigteProcedure::forCode($value) !== null => ' es un código de procedimiento; para procedimientos TIPO_PREST debe ser 3.',
+                    DemandManagementSpeciality::forCode($value) !== null => ' es un código MAI de intervención quirúrgica; para estas TIPO_PREST debe ser 4.',
+                    default => ' no existe en el catálogo de especialidades.',
+                };
             }
             if ($warning) {
                 $this->rowWarnings[] = "{$column}: {$warning}";
@@ -818,7 +841,7 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
             $procedureIds[] = null;
         }
 
-        return [...$specialtyIds, ...$procedureIds];
+        return [...$specialtyIds, ...$procedureIds, ...$maiIds];
     }
 
     /**

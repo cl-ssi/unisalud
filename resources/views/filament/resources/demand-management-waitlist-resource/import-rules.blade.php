@@ -41,7 +41,8 @@
     <ul style="{{ $list }}">
         <li><b>TIPO_PREST 1</b> (consulta) y PRESTA_MIN o PRESTA_MIN_SALIDA no es un código de especialidad del catálogo. Se aceptan el código nuevo (07-xxx / 09-xxx) y el antiguo.</li>
         <li><b>TIPO_PREST 3</b> (procedimiento) y PRESTA_MIN o PRESTA_MIN_SALIDA no es un código de procedimiento SIGTE (ej. 13-01-021).</li>
-        <li>PRESTA_MIN es un código de procedimiento pero TIPO_PREST no es 3.</li>
+        <li><b>TIPO_PREST 4</b> (intervención quirúrgica) y PRESTA_MIN o PRESTA_MIN_SALIDA no es un código MAI del catálogo (ej. 21-04-019). La especialidad se toma del código MAI, no de la columna ESPECIALIDAD.</li>
+        <li>PRESTA_MIN es un código de procedimiento pero TIPO_PREST no es 3, o es un código MAI pero TIPO_PREST no es 4.</li>
         <li>La edad del paciente a la F_ENTRADA (según FECHA_NAC) está fuera del rango de la especialidad, p. ej. Odontopediatría 0 – 15 años (15 años y 11 meses todavía es válido).</li>
         <li>Un código antiguo corresponde a varias especialidades y la edad no permite elegir una: use el código nuevo.</li>
         <li>El CIE-10 no existe en el catálogo. Se toma de la columna <b>CIE-10</b> o, si no viene, de CONFIR_DIAG / SOSPECHA_DIAG cuando contienen solo un código (ej. K07.2).</li>
