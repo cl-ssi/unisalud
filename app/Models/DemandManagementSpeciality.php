@@ -22,6 +22,7 @@ class DemandManagementSpeciality extends Model
     protected $fillable = [
         'id',
         'code',     // Código MAI (PRESTA_MIN when TIPO_PREST = 4)
+        'type',     // TIPO_PREST of the code (Tipo in "prest total")
         'text',     // Especialidad
         'name',     // Glosa
     ];
@@ -40,7 +41,11 @@ class DemandManagementSpeciality extends Model
             return null;
         }
 
-        $byCode ??= self::query()->whereNotNull('code')->get()->keyBy(fn (self $s) => trim($s->code));
+        $byCode ??= self::query()
+            ->whereNotNull('code')
+            ->where('type', self::ENTRY_TYPE_CODE)
+            ->get()
+            ->keyBy(fn (self $s) => trim($s->code));
 
         return $byCode[$code] ?? null;
     }

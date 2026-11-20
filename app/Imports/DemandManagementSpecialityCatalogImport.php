@@ -15,10 +15,12 @@ use OpenSpout\Reader\XLSX\Reader as XlsxReader;
  *   sheet whose heading row has the required columns.
  * - The heading row is found by name within the first rows, so title rows
  *   above it and column order do not matter.
- * - When the sheet has a Tipo column only TIPO_PREST 4 rows are loaded.
- * - Upsert by Código MAI: new codes are inserted, changed ones updated and
- *   soft-deleted ones restored. Codes missing from the file are left as they
- *   are (waitlists may point to them).
+ * - Every Tipo is loaded, with its TIPO_PREST in `type` (only type 4 rows are
+ *   matched for TIPO_PREST 4 waitlist rows, see DemandManagementSpeciality::forCode).
+ *   A sheet without a Tipo column is taken as all Tipo 4.
+ * - Upsert by (Tipo, Código MAI): new codes are inserted, changed ones updated
+ *   and soft-deleted ones restored. Codes missing from the file are left as
+ *   they are (waitlists may point to them).
  *
  * Writes are batched (one read, chunked inserts, one update per changed row)
  * so the import stays fast against a remote database.
@@ -46,10 +48,10 @@ class DemandManagementSpecialityCatalogImport
 
     public array $summary = [
         'sheet'      => null,
-        'read'       => 0, // data rows read from the sheet
-        'other_type' => 0, // skipped: Tipo other than 4
-        'empty'      => 0, // skipped: no Código MAI
-        'duplicate'  => 0, // skipped: Código MAI repeated in the file (first one kept)
+        'read'       => 0,  // data rows read from the sheet
+        'by_type'    => [], // rows loaded per Tipo
+        'empty'      => 0,  // skipped: no Código MAI
+        'duplicate'  => 0,  // skipped: Tipo + Código MAI repeated in the file (first one kept)
         'created'    => 0,
         'updated'    => 0,
         'restored'   => 0,
@@ -72,7 +74,7 @@ class DemandManagementSpecialityCatalogImport
     }
 
     /**
-     * @return array<string, array{text: string, name: string}> keyed by Código MAI
+     * @return array<string, array{type: ?string, code: string, text: string, name: string}> keyed by "type|code"
      */
     protected function readRows(): array
     {
@@ -138,52 +140,47 @@ class DemandManagementSpecialityCatalogImport
 
         $this->summary['read']++;
 
-        if (isset($columns['type']) && $this->normalizeType($get('type')) !== DemandManagementSpeciality::ENTRY_TYPE_CODE) {
-            $this->summary['other_type']++;
-
-            return;
-        }
-
         if ($code === '') {
             $this->summary['empty']++;
 
             return;
         }
 
-        if (isset($rows[$code])) {
+        $type = isset($columns['type'])
+            ? ($this->normalizeType($get('type')) ?: null)
+            : DemandManagementSpeciality::ENTRY_TYPE_CODE;
+        $key = "{$type}|{$code}";
+
+        if (isset($rows[$key])) {
             $this->summary['duplicate']++;
 
             return;
         }
 
-        $rows[$code] = ['text' => $specialty, 'name' => $name];
+        $rows[$key] = ['type' => $type, 'code' => $code, 'text' => $specialty, 'name' => $name];
+        $typeLabel = $type ?? 'sin Tipo';
+        $this->summary['by_type'][$typeLabel] = ($this->summary['by_type'][$typeLabel] ?? 0) + 1;
     }
 
     /**
-     * @param array<string, array{text: string, name: string}> $rows
+     * @param array<string, array{type: ?string, code: string, text: string, name: string}> $rows
      */
     protected function save(array $rows): void
     {
         $existing = DemandManagementSpeciality::withTrashed()
             ->whereNotNull('code')
-            ->get(['id', 'code', 'text', 'name', 'deleted_at'])
-            ->keyBy(fn ($s) => trim($s->code));
+            ->get(['id', 'type', 'code', 'text', 'name', 'deleted_at'])
+            ->keyBy(fn ($s) => "{$s->type}|" . trim($s->code));
 
         $now = now();
         $inserts = [];
         $updates = [];
 
-        foreach ($rows as $code => $row) {
-            $current = $existing[$code] ?? null;
+        foreach ($rows as $key => $row) {
+            $current = $existing[$key] ?? null;
 
             if (! $current) {
-                $inserts[] = [
-                    'code'       => $code,
-                    'text'       => $row['text'],
-                    'name'       => $row['name'],
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
+                $inserts[] = $row + ['created_at' => $now, 'updated_at' => $now];
 
                 continue;
             }
@@ -197,7 +194,12 @@ class DemandManagementSpecialityCatalogImport
                 continue;
             }
 
-            $updates[$current->id] = $row + ['deleted_at' => null, 'updated_at' => $now];
+            $updates[$current->id] = [
+                'text'       => $row['text'],
+                'name'       => $row['name'],
+                'deleted_at' => null,
+                'updated_at' => $now,
+            ];
             $this->summary[$restored ? 'restored' : 'updated']++;
         }
 

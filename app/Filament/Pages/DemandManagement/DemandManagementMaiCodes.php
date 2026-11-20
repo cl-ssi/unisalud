@@ -18,8 +18,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Gestión Demanda Código MAI catalog: PRESTA_MIN values accepted for
- * TIPO_PREST 4 (Prestaciones_c-fechavigencia.xlsx, hoja "prest total").
+ * Gestión Demanda Código MAI catalog, every Tipo of
+ * Prestaciones_c-fechavigencia.xlsx (hoja "prest total"); the Tipo 4 rows
+ * are the PRESTA_MIN values accepted for TIPO_PREST 4.
  * The catalog is loaded with the "Importar Excel" header action.
  */
 class DemandManagementMaiCodes extends Page implements HasTable
@@ -32,7 +33,7 @@ class DemandManagementMaiCodes extends Page implements HasTable
 
     protected static ?string $navigationIcon = 'heroicon-o-queue-list';
 
-    protected static ?string $title = 'Códigos Especialidad Gestión Demanda (TIPO_PREST 4)';
+    protected static ?string $title = 'Códigos Especialidad Gestión Demanda';
 
     protected static ?string $slug = 'gestion-demanda-codigos-especialidad';
 
@@ -50,7 +51,7 @@ class DemandManagementMaiCodes extends Page implements HasTable
                 ->label('Importar Excel')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->modalHeading('Importar catálogo de Códigos MAI')
-                ->modalDescription('Suba "Prestaciones_c-fechavigencia.xlsx". Se lee la hoja "prest total" (o la primera hoja con las columnas Código MAI, Glosa y Especialidad); si tiene columna Tipo, solo se cargan las filas Tipo 4. Los códigos nuevos se agregan y los existentes se actualizan; los que no vienen en el archivo se mantienen.')
+                ->modalDescription('Suba "Prestaciones_c-fechavigencia.xlsx". Se lee la hoja "prest total" (o la primera hoja con las columnas Código MAI, Glosa y Especialidad). Se cargan todos los Tipos (si no hay columna Tipo, se toman como Tipo 4); solo los Tipo 4 se validan contra TIPO_PREST 4 en la lista de espera. Los códigos nuevos se agregan y los existentes se actualizan; los que no vienen en el archivo se mantienen.')
                 ->form([
                     FileUpload::make('file')
                         ->label('Archivo (.xlsx)')
@@ -87,8 +88,10 @@ class DemandManagementMaiCodes extends Page implements HasTable
                 . ($s['restored'] ? ", {$n($s['restored'])} restaurados" : '')
                 . ", {$n($s['unchanged'])} sin cambios.";
 
+            ksort($s['by_type']);
+            $body .= ' Por Tipo: ' . collect($s['by_type'])->map(fn ($count, $type) => "Tipo {$type}: {$n($count)}")->implode(', ') . '.';
+
             $skipped = array_filter([
-                $s['other_type'] ? "{$n($s['other_type'])} de otro Tipo" : null,
                 $s['empty'] ? "{$n($s['empty'])} sin Código MAI" : null,
                 $s['duplicate'] ? "{$n($s['duplicate'])} códigos repetidos" : null,
             ]);
@@ -130,6 +133,11 @@ class DemandManagementMaiCodes extends Page implements HasTable
                     ->searchable()
                     ->sortable()
                     ->copyable(),
+                Tables\Columns\TextColumn::make('type')
+                    ->label('Tipo')
+                    ->badge()
+                    ->color(fn (?string $state) => $state === DemandManagementSpeciality::ENTRY_TYPE_CODE ? 'success' : 'gray')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Glosa')
                     ->searchable()
@@ -144,6 +152,15 @@ class DemandManagementMaiCodes extends Page implements HasTable
                     ->sortable(),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('type')
+                    ->label('Tipo')
+                    ->options(fn () => DemandManagementSpeciality::query()
+                        ->whereNotNull('code')
+                        ->whereNotNull('type')
+                        ->distinct()
+                        ->orderBy('type')
+                        ->pluck('type', 'type')
+                        ->map(fn ($type) => "Tipo {$type}")),
                 Tables\Filters\SelectFilter::make('text')
                     ->label('Especialidad')
                     ->options(fn () => DemandManagementSpeciality::query()
