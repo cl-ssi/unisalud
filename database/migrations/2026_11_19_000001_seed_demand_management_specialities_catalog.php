@@ -2,43 +2,40 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     /**
-     * Gestión Demanda specialty catalog: the Tipo 4 (intervención quirúrgica)
-     * rows of "Prestaciones_c-fechavigencia.xlsx", hoja "prest total"
-     * (database/data/demand_management_specialities.json). code = Código MAI,
-     * which is PRESTA_MIN when TIPO_PREST = 4; text = Especialidad; name = Glosa.
+     * Columns for the Gestión Demanda specialty catalog: code = Código MAI
+     * (PRESTA_MIN when TIPO_PREST = 4), text = Especialidad, name = Glosa.
+     * The catalog rows themselves are loaded from "Prestaciones_c-fechavigencia.xlsx"
+     * with the "Importar Excel" action on the Códigos Especialidad page
+     * (App\Imports\DemandManagementSpecialityCatalogImport).
      *
      * Also adds exit_specialty_id for PRESTA_MIN_SALIDA of TIPO_PREST 4 rows.
+     *
+     * Each step is guarded so the migration can resume after a partial run
+     * (MySQL DDL is not transactional).
      */
     public function up(): void
     {
-        Schema::table('demand_management_specialities', function (Blueprint $table) {
-            $table->text('name')->nullable()->after('text');
-            $table->index('code');
-        });
+        if (! Schema::hasColumn('demand_management_specialities', 'name')) {
+            Schema::table('demand_management_specialities', function (Blueprint $table) {
+                $table->text('name')->nullable()->after('text');
+            });
+        }
 
-        Schema::table('demand_management_waitlists', function (Blueprint $table) {
-            $table->foreignId('exit_specialty_id')->nullable()->after('specialty_id')->constrained('demand_management_specialities');
-        });
+        if (! Schema::hasIndex('demand_management_specialities', ['code'])) {
+            Schema::table('demand_management_specialities', function (Blueprint $table) {
+                $table->index('code');
+            });
+        }
 
-        $data = json_decode(file_get_contents(database_path('data/demand_management_specialities.json')), true);
-
-        foreach ($data['specialities'] as $speciality) {
-            DB::table('demand_management_specialities')->updateOrInsert(
-                ['code' => $speciality['code']],
-                [
-                    'text'       => $speciality['specialty'],
-                    'name'       => $speciality['name'],
-                    'deleted_at' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-            );
+        if (! Schema::hasColumn('demand_management_waitlists', 'exit_specialty_id')) {
+            Schema::table('demand_management_waitlists', function (Blueprint $table) {
+                $table->foreignId('exit_specialty_id')->nullable()->after('specialty_id')->constrained('demand_management_specialities');
+            });
         }
     }
 
@@ -47,15 +44,6 @@ return new class extends Migration
         Schema::table('demand_management_waitlists', function (Blueprint $table) {
             $table->dropConstrainedForeignId('exit_specialty_id');
         });
-
-        $codes = array_column(
-            json_decode(file_get_contents(database_path('data/demand_management_specialities.json')), true)['specialities'],
-            'code'
-        );
-        // Keep rows a waitlist still points to; they lose only their code.
-        $used = DB::table('demand_management_waitlists')->whereNotNull('specialty_id')->distinct()->pluck('specialty_id');
-        DB::table('demand_management_specialities')->whereIn('code', $codes)->whereNotIn('id', $used)->delete();
-        DB::table('demand_management_specialities')->whereIn('code', $codes)->update(['code' => null]);
 
         Schema::table('demand_management_specialities', function (Blueprint $table) {
             $table->dropIndex(['code']);
