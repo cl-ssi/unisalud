@@ -26,6 +26,13 @@ class DemandManagementWaitlistImporter extends Importer
 {
     protected static ?string $model = DemandManagementWaitlist::class;
 
+    /** importCsvRow() outcome => counter column on the imports table. */
+    protected const OUTCOME_COLUMNS = [
+        DemandManagementWaitlistImport::ROW_CREATED   => 'created_rows',
+        DemandManagementWaitlistImport::ROW_UPDATED   => 'updated_rows',
+        DemandManagementWaitlistImport::ROW_UNCHANGED => 'unchanged_rows',
+    ];
+
     /** One per queued chunk: its lookups are loaded once for the chunk. */
     protected ?DemandManagementWaitlistImport $rowImport = null;
 
@@ -47,7 +54,14 @@ class DemandManagementWaitlistImporter extends Importer
         }
 
         try {
-            $this->rowImport->importCsvRow($data);
+            $outcome = $this->rowImport->importCsvRow($data);
+
+            // Kept on the import (created_rows / updated_rows / unchanged_rows):
+            // the chunks are separate jobs. Inside the row's transaction, so a
+            // row that fails afterwards is not counted.
+            if ($column = self::OUTCOME_COLUMNS[$outcome] ?? null) {
+                Import::query()->whereKey($this->import->getKey())->increment($column);
+            }
         } catch (RowRejectedException $e) {
             throw new RowImportFailedException(implode(' | ', $e->reasons));
         } catch (\Throwable $e) {
@@ -89,12 +103,36 @@ class DemandManagementWaitlistImporter extends Importer
         return 'Gestión Demanda: importación finalizada';
     }
 
+    /**
+     * e.g. "20.000 filas: 19.654 casos nuevos · 237 sin cambios (el caso ya
+     * existía con los mismos datos, p. ej. fila repetida en el archivo) · 109 rechazadas."
+     */
     public static function getCompletedNotificationBody(Import $import): string
     {
-        $body = number_format($import->successful_rows, 0, ',', '.') . ' de ' . number_format($import->total_rows, 0, ',', '.') . ' filas importadas.';
+        $n = fn (int $value) => number_format($value, 0, ',', '.');
+        $import->refresh(); // counters are incremented by the chunk jobs
 
-        if ($failed = $import->getFailedRowsCount()) {
-            $body .= ' ' . number_format($failed, 0, ',', '.') . ' rechazadas: descarga el archivo para ver el motivo de cada una.';
+        $created = (int) $import->created_rows;
+        $updated = (int) $import->updated_rows;
+        $unchanged = (int) $import->unchanged_rows;
+        $failed = $import->getFailedRowsCount();
+        // Successful rows that did nothing: fully empty lines.
+        $empty = max(0, $import->successful_rows - $created - $updated - $unchanged);
+
+        $count = fn (int $value, string $one, string $many) => $n($value) . ' ' . ($value === 1 ? $one : $many);
+
+        $parts = array_filter([
+            $created ? $count($created, 'caso nuevo', 'casos nuevos') : null,
+            $updated ? $count($updated, 'actualizado', 'actualizados') : null,
+            $unchanged ? $n($unchanged) . ' sin cambios (el caso ya existía con los mismos datos, p. ej. fila repetida en el archivo)' : null,
+            $empty ? $count($empty, 'fila vacía', 'filas vacías') : null,
+            $failed ? $count($failed, 'rechazada', 'rechazadas') : null,
+        ]);
+
+        $body = $n($import->total_rows) . ' filas: ' . ($parts ? implode(' · ', $parts) : 'sin filas importadas') . '.';
+
+        if ($failed) {
+            $body .= ' Descarga el archivo de rechazadas para ver el motivo de cada una.';
         }
 
         return $body;

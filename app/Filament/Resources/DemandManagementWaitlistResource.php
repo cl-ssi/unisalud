@@ -25,6 +25,7 @@ use App\Enums\Sex;
 use Filament\Actions\Action;
 use Filament\Navigation\NavigationItem;
 use Filament\Pages\SubNavigationPosition;
+use Illuminate\Support\HtmlString;
 
 
 class DemandManagementWaitlistResource extends Resource
@@ -463,7 +464,11 @@ class DemandManagementWaitlistResource extends Resource
                     ->label('Importar Lista de Espera')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->modalHeading('Importar Lista de Espera (CSV)')
-                    ->modalDescription(view('filament.resources.demand-management-waitlist-resource.import-rules'))
+                    // Rules as modal content (a <details> block can't go in the description's <p>),
+                    // pre-rendered: a View passed through Filament's modal component comes out escaped.
+                    // No description: it would show the default (empty) example-file link.
+                    ->modalDescription(null)
+                    ->modalContent(fn () => new HtmlString(view('filament.resources.demand-management-waitlist-resource.import-rules')->render()))
                     ->modalWidth('3xl')
                     // 200 rows ≈ 10-15 s per queued job: well inside a Cloud Tasks
                     // request, and a 50,000 row file is 250 jobs.

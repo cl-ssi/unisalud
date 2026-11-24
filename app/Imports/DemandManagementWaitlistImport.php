@@ -177,6 +177,11 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
     public int $successfulRows = 0;
     public array $failedRows = [];
 
+    /** Outcomes returned by importCsvRow(). */
+    public const ROW_CREATED = 'created';
+    public const ROW_UPDATED = 'updated';
+    public const ROW_UNCHANGED = 'unchanged';
+
     public int $createdRows = 0;
     public int $unchangedRows = 0;
     /** @var array<int, array{row: int, run: ?string, created: bool, changes: string[]}> */
@@ -376,9 +381,14 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
      * (DemandManagementWaitlistImporter), keyed by the CSV headers as written.
      * Runs inside the transaction the Import action opens for each row.
      *
+     * @return string|null what the row did: self::ROW_CREATED (new case),
+     *         self::ROW_UPDATED (existing case or patient data changed),
+     *         self::ROW_UNCHANGED (case already there with the same data, e.g. a
+     *         row repeated in the file) or null for a fully empty row
+     *
      * @throws RowRejectedException when the row is left out
      */
-    public function importCsvRow(array $row): void
+    public function importCsvRow(array $row): ?string
     {
         self::ensureCachesAreLoaded();
 
@@ -391,11 +401,17 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
 
         // Fully empty rows (trailing formatted rows of the template).
         if (collect($data)->filter(fn($value) => filled($value))->isEmpty()) {
-            return;
+            return null;
         }
 
         $this->currentValues = array_values($row);
         $this->importRow($data);
+
+        return match (true) {
+            $this->rowCreated => self::ROW_CREATED,
+            (bool) $this->rowChanges => self::ROW_UPDATED,
+            default => self::ROW_UNCHANGED,
+        };
     }
 
     protected function handleRow(array $data, int $rowIndex): void
