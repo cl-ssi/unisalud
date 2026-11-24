@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Filament\Pages\DemandManagement;
+namespace App\Filament\Resources\DemandManagementWaitlistResource\Pages;
 
+use App\Filament\Resources\DemandManagementWaitlistResource;
 use App\Imports\DemandManagementSpecialityCatalogImport;
 use App\Models\DemandManagementSpeciality;
 use App\Services\SigteImportService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
-use Filament\Pages\Page;
+use Filament\Resources\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -22,26 +23,40 @@ use Illuminate\Support\Facades\Storage;
  * Prestaciones_c-fechavigencia.xlsx (hoja "prest total"); the Tipo 4 rows
  * are the PRESTA_MIN values accepted for TIPO_PREST 4.
  * The catalog is loaded with the "Importar Excel" header action.
+ *
+ * Shown as the "Códigos Especialidad" tab of Gestión Demanda
+ * (DemandManagementWaitlistResource::getSectionSubNavigation()).
  */
-class DemandManagementMaiCodes extends Page implements HasTable
+class DemandManagementSpecialityCodes extends Page implements HasTable
 {
     use InteractsWithTable;
 
-    protected static ?string $navigationGroup = 'Lista De Espera';
+    protected static string $resource = DemandManagementWaitlistResource::class;
+
+    protected static ?string $title = 'Códigos Especialidad Gestión Demanda';
 
     protected static ?string $navigationLabel = 'Códigos Especialidad';
 
     protected static ?string $navigationIcon = 'heroicon-o-queue-list';
 
-    protected static ?string $title = 'Códigos Especialidad Gestión Demanda';
+    protected static string $view = 'filament.resources.demand-management-waitlist-resource.pages.speciality-codes';
 
-    protected static ?string $slug = 'gestion-demanda-codigos-especialidad';
-
-    protected static string $view = 'filament.pages.demand-management.demand-management-mai-codes';
-
-    public static function canAccess(): bool
+    public static function canAccess(array $parameters = []): bool
     {
         return (bool) auth()->user()?->can('DemandManagementWaitlist: View');
+    }
+
+    public function getSubNavigation(): array
+    {
+        return static::getResource()::getSectionSubNavigation();
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        return [
+            static::getResource()::getUrl() => static::getResource()::getBreadcrumb(),
+            static::getNavigationLabel(),
+        ];
     }
 
     protected function getHeaderActions(): array
@@ -108,7 +123,7 @@ class DemandManagementMaiCodes extends Page implements HasTable
         } catch (\RuntimeException $e) {
             Notification::make()->title('No se pudo importar el archivo')->body($e->getMessage())->danger()->persistent()->send();
         } catch (\Throwable $e) {
-            Log::error('DemandManagementMaiCodes: error al importar catálogo', ['file' => $file, 'error' => $e->getMessage()]);
+            Log::error('DemandManagementSpecialityCodes: error al importar catálogo', ['file' => $file, 'error' => $e->getMessage()]);
             Notification::make()->title('Error al importar el catálogo')->body($e->getMessage())->danger()->persistent()->send();
         } finally {
             @unlink($tempPath);
@@ -118,13 +133,39 @@ class DemandManagementMaiCodes extends Page implements HasTable
         $this->resetTable();
     }
 
+    /**
+     * SQL counting the active waitlist rows that use a catalog row's code,
+     * through the link the waitlist import sets for its Tipo:
+     * Tipo 4 → specialty_id; Tipo 3 → sigte_procedure_id (procedure code);
+     * Tipo 1/2 → minsal_specialty_id (MINSAL specialty code).
+     */
+    protected static function patientsCountSql(): string
+    {
+        $s = 'demand_management_specialities';
+
+        return "CASE {$s}.type
+            WHEN '4' THEN (SELECT COUNT(*) FROM demand_management_waitlists w
+                WHERE w.specialty_id = {$s}.id AND w.deleted_at IS NULL)
+            WHEN '3' THEN (SELECT COUNT(*) FROM demand_management_waitlists w
+                JOIN sigte_procedures p ON p.id = w.sigte_procedure_id
+                WHERE p.code = {$s}.code AND w.deleted_at IS NULL)
+            WHEN '1' THEN (SELECT COUNT(*) FROM demand_management_waitlists w
+                JOIN minsal_specialties m ON m.id = w.minsal_specialty_id
+                WHERE m.code = {$s}.code AND w.deleted_at IS NULL)
+            WHEN '2' THEN (SELECT COUNT(*) FROM demand_management_waitlists w
+                JOIN minsal_specialties m ON m.id = w.minsal_specialty_id
+                WHERE m.code = {$s}.code AND w.deleted_at IS NULL)
+            ELSE 0 END";
+    }
+
     public function table(Table $table): Table
     {
         return $table
             ->query(
                 DemandManagementSpeciality::query()
                     ->whereNotNull('code')
-                    ->withCount('waitlists')
+                    ->select('demand_management_specialities.*')
+                    ->selectRaw(static::patientsCountSql() . ' AS waitlists_count')
             )
             ->defaultSort('code')
             ->columns([
@@ -175,8 +216,8 @@ class DemandManagementMaiCodes extends Page implements HasTable
                     ->trueLabel('Con pacientes')
                     ->falseLabel('Sin pacientes')
                     ->queries(
-                        true: fn (Builder $query) => $query->has('waitlists'),
-                        false: fn (Builder $query) => $query->doesntHave('waitlists'),
+                        true: fn (Builder $query) => $query->whereRaw('(' . static::patientsCountSql() . ') > 0'),
+                        false: fn (Builder $query) => $query->whereRaw('(' . static::patientsCountSql() . ') = 0'),
                     ),
             ])
             ->paginated([25, 50, 100]);

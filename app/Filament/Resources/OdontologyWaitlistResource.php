@@ -30,7 +30,7 @@ class OdontologyWaitlistResource extends Resource
 
     protected static ?string $model = OdontologyWaitlist::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'icon-tooth';
 
     protected static ?string $navigationGroup = 'Lista De Espera'; // Grupo de navegación
 

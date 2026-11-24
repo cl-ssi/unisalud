@@ -26,6 +26,11 @@ class ListDemandManagementWaitlists extends ListRecords
         ];
     }
 
+    public function getSubNavigation(): array
+    {
+        return static::getResource()::getSectionSubNavigation();
+    }
+
     public function getDefaultActiveTab(): string | int | null
     {
         return 'abiertos';

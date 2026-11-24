@@ -74,6 +74,25 @@ class ImportReportExport
 
     private static function store(string $filenamePrefix, string $sheetName, Closure $write): string
     {
+        $options = new Options();
+        $options->SHOULD_USE_INLINE_STRINGS = false;
+        $localPath = tempnam(sys_get_temp_dir(), 'import-report-');
+        $writer = new Writer($options);
+        $writer->openToFile($localPath);
+        $writer->getCurrentSheet()->setName($sheetName);
+        $write($writer);
+        $writer->close();
+
+        return self::storeFile($localPath, $filenamePrefix . date('Y-m-d_H-i-s') . '.xlsx');
+    }
+
+    /**
+     * Moves a finished local file to the current user's directory on the
+     * uploads disk (deleting the local copy) and returns its signed download
+     * URL, valid for a day. Also used for background exports.
+     */
+    public static function storeFile(string $localPath, string $filename): string
+    {
         $disk = Storage::disk(SigteImportService::uploadsDisk());
         $userDirectory = self::DIRECTORY . '/' . auth()->id();
 
@@ -84,16 +103,6 @@ class ImportReportExport
         }
 
         $token = (string) Str::uuid();
-        $filename = $filenamePrefix . date('Y-m-d_H-i-s') . '.xlsx';
-
-        $options = new Options();
-        $options->SHOULD_USE_INLINE_STRINGS = false;
-        $localPath = tempnam(sys_get_temp_dir(), 'import-report-');
-        $writer = new Writer($options);
-        $writer->openToFile($localPath);
-        $writer->getCurrentSheet()->setName($sheetName);
-        $write($writer);
-        $writer->close();
 
         $stream = fopen($localPath, 'r');
         $disk->writeStream("$userDirectory/$token/$filename", $stream, ['visibility' => 'private']);

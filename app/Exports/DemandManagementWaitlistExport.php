@@ -63,8 +63,27 @@ class DemandManagementWaitlistExport
     /**
      * Writes every row of $query (the table's filtered/sorted query) to an
      * XLSX file and returns it as a download.
+     *
+     * Only for small queries: the table's Exportar button runs
+     * ExportDemandManagementWaitlistJob instead, since the whole list takes
+     * longer than a web request may run in production.
      */
     public static function download(Builder $query): BinaryFileResponse
+    {
+        return response()
+            ->download(self::write($query), self::filename())
+            ->deleteFileAfterSend();
+    }
+
+    public static function filename(): string
+    {
+        return 'lista-espera-gestion-demanda-' . date('Y-m-d_H-i-s') . '.xlsx';
+    }
+
+    /**
+     * Writes every row of $query to a temporary XLSX file and returns its path.
+     */
+    public static function write(Builder $query): string
     {
         $columns = self::columns();
         $path = tempnam(sys_get_temp_dir(), 'demand-management-export-');
@@ -89,9 +108,7 @@ class DemandManagementWaitlistExport
 
         $writer->close();
 
-        return response()
-            ->download($path, 'lista-espera-gestion-demanda-' . date('Y-m-d_H-i-s') . '.xlsx')
-            ->deleteFileAfterSend();
+        return $path;
     }
 
     /**

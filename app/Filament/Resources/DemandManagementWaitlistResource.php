@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources;
 
-use App\Exports\DemandManagementWaitlistExport;
 use App\Filament\Imports\DemandManagementWaitlistImporter;
+use App\Jobs\ExportDemandManagementWaitlistJob;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Storage;
 use App\Filament\Resources\DemandManagementWaitlistResource\Pages;
@@ -23,6 +23,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Enums\Sex;
 use Filament\Actions\Action;
+use Filament\Navigation\NavigationItem;
+use Filament\Pages\SubNavigationPosition;
 
 
 class DemandManagementWaitlistResource extends Resource
@@ -31,7 +33,7 @@ class DemandManagementWaitlistResource extends Resource
 
     protected static ?string $model = DemandManagementWaitlist::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clock';
 
     protected static ?string $navigationGroup = 'Lista De Espera'; // Grupo de navegación
 
@@ -40,6 +42,29 @@ class DemandManagementWaitlistResource extends Resource
     protected static ?string $slug = 'gestion-demanda';
 
     protected static ?string $label = 'Lista de Espera Gestión Demanda';
+
+    /** The section tabs (getSectionSubNavigation) are shown above the page. */
+    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
+
+    /**
+     * Gestión Demanda section tabs: the waitlist and the Código MAI catalog.
+     *
+     * @return array<NavigationItem>
+     */
+    public static function getSectionSubNavigation(): array
+    {
+        return [
+            NavigationItem::make('Lista de Espera')
+                ->icon('heroicon-o-rectangle-stack')
+                ->url(static::getUrl('index'))
+                ->isActiveWhen(fn () => request()->routeIs(static::getRouteBaseName() . '.index')),
+            NavigationItem::make('Códigos Especialidad')
+                ->icon('heroicon-o-queue-list')
+                ->url(static::getUrl('codes'))
+                ->isActiveWhen(fn () => request()->routeIs(static::getRouteBaseName() . '.codes'))
+                ->visible(Pages\DemandManagementSpecialityCodes::canAccess()),
+        ];
+    }
 
     public static function form(Form $form): Form
     {
@@ -449,7 +474,17 @@ class DemandManagementWaitlistResource extends Resource
                     ->label('Exportar')
                     ->icon('heroicon-o-arrow-up-tray')
                     ->visible(fn() => ! auth()->user()->hasRole(self::MUNICIPALITY_ROLE))
-                    ->action(fn($livewire) => DemandManagementWaitlistExport::download($livewire->getFilteredSortedTableQuery())),
+                    // Built in the background (the whole list exceeds a web request);
+                    // the file arrives as a database notification with a download button.
+                    ->action(function ($livewire) {
+                        ExportDemandManagementWaitlistJob::start($livewire->getFilteredSortedTableQuery(), auth()->id());
+
+                        Notification::make()
+                            ->title('Exportación en proceso')
+                            ->body('Se está generando el archivo con los filtros actuales. Recibirás una notificación (campana) con el enlace de descarga.')
+                            ->info()
+                            ->send();
+                    }),
                 Tables\Actions\Action::make('stats')
                     ->label('Estadísticas')
                     ->icon('heroicon-o-chart-bar')
@@ -625,6 +660,7 @@ class DemandManagementWaitlistResource extends Resource
             'create' => Pages\CreateDemandManagementWaitlist::route('/create'),
             'edit' => Pages\EditDemandManagementWaitlist::route('/{record}/edit'),
             'stats'  => Pages\DemandManagementStats::route('/stats'),
+            'codes'  => Pages\DemandManagementSpecialityCodes::route('/codigos-especialidad'),
         ];
     }
 }
