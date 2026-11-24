@@ -88,6 +88,47 @@ class DemandManagementWaitlist extends Model
     ];
 
     /**
+     * C_SALIDA codes that keep a case open even with an exit date
+     * (Indicación Médica Para Reevaluación, Postergaciones).
+     */
+    public const STANDBY_EXIT_CODES = ['3', '20'];
+
+    /**
+     * C_SALIDA compared to STANDBY_EXIT_CODES trimmed and without leading
+     * zeros, so "03" counts as 3 ("0" becomes "", which is not a standby code).
+     */
+    protected const NORMALIZED_EXIT_CODE_SQL = "TRIM(LEADING '0' FROM TRIM(exit_code))";
+
+    /**
+     * Egresados: cases with both F_SALIDA and C_SALIDA, except C_SALIDA 3
+     * and 20, which stay open. PRESTA_MIN_SALIDA is not required: it was
+     * added to the rules recently and older discharges don't have it.
+     */
+    public function scopeDischarged(\Illuminate\Database\Eloquent\Builder $query): void
+    {
+        $standby = implode(',', array_map(fn ($code) => "'{$code}'", self::STANDBY_EXIT_CODES));
+
+        $query->whereNotNull('exit_date')
+            ->whereNotNull('exit_code')
+            ->whereRaw("TRIM(exit_code) <> ''")
+            ->whereRaw(self::NORMALIZED_EXIT_CODE_SQL . " NOT IN ({$standby})");
+    }
+
+    /**
+     * Abiertos: every case that is not discharged (scopeDischarged).
+     */
+    public function scopeOpen(\Illuminate\Database\Eloquent\Builder $query): void
+    {
+        $standby = implode(',', array_map(fn ($code) => "'{$code}'", self::STANDBY_EXIT_CODES));
+
+        $query->where(fn ($q) => $q
+            ->whereNull('exit_date')
+            ->orWhereNull('exit_code')
+            ->orWhereRaw("TRIM(exit_code) = ''")
+            ->orWhereRaw(self::NORMALIZED_EXIT_CODE_SQL . " IN ({$standby})"));
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
