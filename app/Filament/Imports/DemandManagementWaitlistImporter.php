@@ -33,6 +33,13 @@ class DemandManagementWaitlistImporter extends Importer
         DemandManagementWaitlistImport::ROW_UNCHANGED => 'unchanged_rows',
     ];
 
+    /** Row diagnosis => counter column on the imports table. */
+    protected const DIAGNOSIS_COLUMNS = [
+        DemandManagementWaitlistImport::DIAGNOSIS_GES     => 'ges_diagnosis_rows',
+        DemandManagementWaitlistImport::DIAGNOSIS_NON_GES => 'non_ges_diagnosis_rows',
+        DemandManagementWaitlistImport::DIAGNOSIS_NONE    => 'no_diagnosis_rows',
+    ];
+
     /** One per queued chunk: its lookups are loaded once for the chunk. */
     protected ?DemandManagementWaitlistImport $rowImport = null;
 
@@ -56,11 +63,15 @@ class DemandManagementWaitlistImporter extends Importer
         try {
             $outcome = $this->rowImport->importCsvRow($data);
 
-            // Kept on the import (created_rows / updated_rows / unchanged_rows):
-            // the chunks are separate jobs. Inside the row's transaction, so a
-            // row that fails afterwards is not counted.
-            if ($column = self::OUTCOME_COLUMNS[$outcome] ?? null) {
-                Import::query()->whereKey($this->import->getKey())->increment($column);
+            // Kept on the import (what the row did + its diagnosis): the chunks
+            // are separate jobs. Inside the row's transaction, so a row that
+            // fails afterwards is not counted.
+            $counters = array_fill_keys(array_filter([
+                self::OUTCOME_COLUMNS[$outcome] ?? null,
+                self::DIAGNOSIS_COLUMNS[$this->rowImport->lastRowDiagnosis()] ?? null,
+            ]), 1);
+            if ($counters) {
+                Import::query()->whereKey($this->import->getKey())->incrementEach($counters);
             }
         } catch (RowRejectedException $e) {
             throw new RowImportFailedException(implode(' | ', $e->reasons));
@@ -130,6 +141,16 @@ class DemandManagementWaitlistImporter extends Importer
         ]);
 
         $body = $n($import->total_rows) . ' filas: ' . ($parts ? implode(' · ', $parts) : 'sin filas importadas') . '.';
+
+        // CIE-10 of the imported rows, from the CIE-10 column or the diagnosis text.
+        $diagnosis = array_filter([
+            (int) $import->ges_diagnosis_rows ? $count((int) $import->ges_diagnosis_rows, 'con diagnóstico GES', 'con diagnóstico GES') : null,
+            (int) $import->non_ges_diagnosis_rows ? $count((int) $import->non_ges_diagnosis_rows, 'con CIE-10 no GES', 'con CIE-10 no GES') : null,
+            (int) $import->no_diagnosis_rows ? $count((int) $import->no_diagnosis_rows, 'sin CIE-10', 'sin CIE-10') : null,
+        ]);
+        if ($diagnosis) {
+            $body .= ' Diagnóstico: ' . implode(' · ', $diagnosis) . '.';
+        }
 
         if ($failed) {
             $body .= ' Descarga el archivo de rechazadas para ver el motivo de cada una.';

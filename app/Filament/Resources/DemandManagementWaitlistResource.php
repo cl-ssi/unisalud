@@ -523,7 +523,7 @@ class DemandManagementWaitlistResource extends Resource
                     ->label('CIE-10')
                     ->tooltip(fn ($record) => $record->cie10?->name)
                     ->searchable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('ges_problems')
                     ->label('Problema GES')
                     ->state(fn ($record) => $record->gesProblems()->map->label()->all())

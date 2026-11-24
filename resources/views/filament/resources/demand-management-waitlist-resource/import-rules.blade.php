@@ -34,7 +34,9 @@
         <li>SEXO: 1 Hombre, 2 Mujer, 3 Intersex, 93 No informado, 99 Desconocido.</li>
         <li>COND_RURALIDAD: 1 Urbano, 2 Rural. VIA_DIRECCION: 1 Calle, 2 Pasaje, 3 Avenida, 4 Otro.</li>
         <li>COMUNA, ESTAB_ORIG y ESTAB_DEST: código DEIS. Un código que no existe queda en blanco (no rechaza la fila).</li>
-        <li>GES: Sí / No (también se aceptan S, 1, X).</li>
+        <li>GES: Sí / No (también se aceptan S, 1, X). Solo se marca GES si el archivo trae la columna <b>GES</b>.</li>
+        <li>CIE-10: de la columna <b>CIE-10</b> o, si no viene, del diagnóstico (CONFIR_DIAG y luego SOSPECHA_DIAG): el código al inicio del texto (ej. «H11.0 PTERIGION») o el nombre del diagnóstico según el catálogo CIE-10 (ej. «COLELITIASIS» → K80), aunque venga cortado. Si el texto nombra una prestación (ej. «ECOGRAFÍA RENAL») queda sin CIE-10, sin rechazar la fila.</li>
+        <li>Si el CIE-10 pertenece a un problema de salud GES, el caso queda con <b>diagnóstico GES</b> (columna y filtro Problema GES). Eso no lo marca como GES: también hay criterios de edad y clínicos.</li>
     </ul>
 
     <p style="{{ $section }}">Una fila se rechaza (no se importa) si</p>
@@ -45,7 +47,7 @@
         <li>PRESTA_MIN es un código de procedimiento pero TIPO_PREST no es 3, o es un código MAI pero TIPO_PREST no es 4.</li>
         <li>La edad del paciente a la F_ENTRADA (según FECHA_NAC) está fuera del rango de la especialidad, p. ej. Odontopediatría 0 – 15 años (15 años y 11 meses todavía es válido).</li>
         <li>Un código antiguo corresponde a varias especialidades y la edad no permite elegir una: use el código nuevo.</li>
-        <li>El CIE-10 no existe en el catálogo. Se toma de la columna <b>CIE-10</b> o, si no viene, de CONFIR_DIAG / SOSPECHA_DIAG cuando contienen solo un código (ej. K07.2).</li>
-        <li>GES = Sí, pero el CIE-10 no pertenece a ningún problema de salud GES. Si no viene la columna GES, se calcula a partir del CIE-10.</li>
+        <li>El CIE-10 de la columna <b>CIE-10</b>, o de un CONFIR_DIAG / SOSPECHA_DIAG que contiene solo un código (ej. K07.2), no existe en el catálogo.</li>
+        <li>GES = Sí, pero el CIE-10 no pertenece a ningún problema de salud GES.</li>
     </ul>
 </details>

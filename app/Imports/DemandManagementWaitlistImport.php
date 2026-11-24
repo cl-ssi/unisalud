@@ -163,7 +163,23 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
     protected static array $originCommuneNameCache = [];
     /** normalized CIE-10 code ("N184") => cie10 id */
     protected static array $cie10Cache = [];
+    /** Normalized CIE-10 name => cie10 id, or null when the name is ambiguous. */
+    protected static array $cie10NameCache = [];
+    /** Normalized CIE-10 names, sorted, for the cut-off name (prefix) search. */
+    protected static array $cie10SortedNames = [];
+    /** cie10 id => belongs to a GES health problem. */
+    protected static array $cie10GesCache = [];
     protected static bool $initialized = false;
+
+    /** Diagnosis of the last imported row, see lastRowDiagnosis(). */
+    public const DIAGNOSIS_GES = 'ges';
+    public const DIAGNOSIS_NON_GES = 'non_ges';
+    public const DIAGNOSIS_NONE = 'none';
+
+    /** A cut-off diagnosis text needs at least this many characters to be matched by prefix. */
+    protected const MIN_PREFIX_LENGTH = 20;
+
+    protected ?string $rowDiagnosis = null;
     /** Template header name => slugged key; Str::slug() is too slow to run ~70 times per row. */
     protected static array $slugs = [];
 
@@ -253,10 +269,34 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
         self::$entryTypeCache = WaitlistEntryType::all()->pluck('id', 'code')->mapWithKeys(fn($id, $code) => [strtolower(trim($code)) => $id])->toArray();
         self::$regionCache = Region::all()->pluck('id', 'id')->mapWithKeys(fn($id, $regionId) => [strtolower(trim($regionId)) => $id])->toArray();
 
-        self::$cie10Cache = Cie10::query()
-            ->pluck('id', 'code')
-            ->mapWithKeys(fn($id, $code) => [GesHealthProblem::normalizeCode($code) => $id])
+        $cie10 = Cie10::query()->get(['id', 'code', 'name']);
+
+        self::$cie10Cache = $cie10
+            ->mapWithKeys(fn($c) => [GesHealthProblem::normalizeCode($c->code) => $c->id])
             ->toArray();
+
+        // Diagnosis texts that are a CIE-10 name. A name shared by several
+        // codes is kept only when they are one category (the category code is
+        // used, e.g. "COLELITIASIS" → K80); otherwise it is ambiguous.
+        self::$cie10NameCache = $cie10
+            ->groupBy(fn($c) => self::normalizeDiagnosisText($c->name))
+            ->forget('')
+            ->map(function ($codes) {
+                if ($codes->count() === 1) {
+                    return $codes->first()->id;
+                }
+                $normalized = $codes->map(fn($c) => GesHealthProblem::normalizeCode($c->code));
+                if ($normalized->map(fn($code) => substr($code, 0, 3))->unique()->count() !== 1) {
+                    return null;
+                }
+
+                return $codes->sortBy(fn($c) => strlen(GesHealthProblem::normalizeCode($c->code)))->first()->id;
+            })
+            ->toArray(); // null = ambiguous name, kept so a prefix matching it is ambiguous too
+        self::$cie10SortedNames = array_keys(self::$cie10NameCache);
+        sort(self::$cie10SortedNames, SORT_STRING);
+
+        self::$cie10GesCache = [];
 
         self::$originCommuneNameCache = Commune::query()
             ->select('id', 'name')
@@ -468,6 +508,7 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
         $this->rowChanges = [];
         $this->rowWarnings = [];
         $this->rowCreated = false;
+        $this->rowDiagnosis = null;
 
         return DB::transaction(function () use ($data) {
             // Headings arrive slugged by WithHeadingRow ("TIPO PRESTACION" → "tipo_prestacion",
@@ -757,18 +798,23 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
     }
 
     /**
-     * cie10_id / ges attributes for the row, adding a row warning when the
-     * code isn't a CIE-10 code or GES = Sí doesn't fit it.
+     * cie10_id / ges attributes for the row, adding a row warning when an
+     * explicit code isn't a CIE-10 code or GES = Sí doesn't fit it.
      *
-     * The code comes from the "CIE-10" column or, without one, from
-     * CONFIR_DIAG / SOSPECHA_DIAG when the cell holds just a code. With a
-     * code and no GES column, GES follows the code's GES problems; GES = No
-     * with a GES code is accepted (age and clinical criteria also apply).
+     * The CIE-10 comes from the "CIE-10" column or a CONFIR_DIAG /
+     * SOSPECHA_DIAG cell that is just a code (an unknown code rejects the
+     * row), or else from the diagnosis text (CONFIR_DIAG first), which never
+     * rejects (see cie10FromDiagnosisText()).
+     *
+     * The GES flag only comes from the GES column: a GES diagnosis doesn't
+     * make the case GES (age and clinical criteria also apply), it is shown
+     * as "diagnóstico GES" (Problema GES column / filter, upload summary).
      * Neither field is overwritten when the file doesn't provide it.
      */
     protected function resolveCie10AndGes(array $data, \Closure $val): array
     {
         $attributes = [];
+        $cie10Id = null;
 
         $code = $val('CIE-10');
         if ($code === null) {
@@ -776,27 +822,108 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
                 ->first(fn ($text) => preg_match('/^[A-Z]\d{2}(\.?[0-9X]{1,2})?$/i', trim((string) $text)));
         }
 
-        $gesProblems = null;
         if (filled($code)) {
             $cie10Id = self::$cie10Cache[GesHealthProblem::normalizeCode($code)] ?? null;
             if (! $cie10Id) {
                 $this->rowWarnings[] = 'CIE-10: ' . trim($code) . ' no existe en el catálogo CIE-10.';
-            } else {
-                $attributes['cie10_id'] = $cie10Id;
-                $gesProblems = GesHealthProblem::forCie10Code($code);
             }
+        } else {
+            $cie10Id = self::cie10FromDiagnosisText($val('CONFIR_DIAG')) ?? self::cie10FromDiagnosisText($val('SOSPECHA_DIAG'));
         }
+
+        $isGesDiagnosis = $cie10Id ? self::isGesDiagnosis($cie10Id) : null;
+        if ($cie10Id) {
+            $attributes['cie10_id'] = $cie10Id;
+        }
+        $this->rowDiagnosis = match ($isGesDiagnosis) {
+            true => self::DIAGNOSIS_GES,
+            false => self::DIAGNOSIS_NON_GES,
+            null => self::DIAGNOSIS_NONE,
+        };
 
         if (array_key_exists('ges', $data)) {
             $attributes['ges'] = $this->parseYesNo($val('GES'));
-            if ($attributes['ges'] && $gesProblems !== null && $gesProblems->isEmpty()) {
-                $this->rowWarnings[] = 'GES = Sí, pero el CIE-10 ' . trim($code) . ' no pertenece a ningún problema de salud GES.';
+            if ($attributes['ges'] && $isGesDiagnosis === false) {
+                $this->rowWarnings[] = 'GES = Sí, pero el CIE-10 ' . Cie10::find($cie10Id)?->code . ' no pertenece a ningún problema de salud GES.';
             }
-        } elseif ($gesProblems !== null) {
-            $attributes['ges'] = $gesProblems->isNotEmpty();
         }
 
         return $attributes;
+    }
+
+    /**
+     * CIE-10 id from a free-text diagnosis, or null. In order:
+     *  1. a code at the start ("H11.0 PTERIGION" → H11.0), if in the catalog;
+     *  2. the exact name of a CIE-10 code ("COLELITIASIS" → K80);
+     *  3. a cut-off name (SIGTE truncates the text) that starts exactly one
+     *     CIE-10 name, with at least MIN_PREFIX_LENGTH characters.
+     * Accents, case and punctuation are ignored. Texts that name a
+     * prestación instead of a diagnosis ("ECOGRAFIA RENAL") get none.
+     */
+    public static function cie10FromDiagnosisText(?string $text): ?int
+    {
+        self::ensureCachesAreLoaded();
+
+        $text = trim((string) $text);
+        if ($text === '' || $text === '-' || $text === "'-") {
+            return null;
+        }
+
+        if (preg_match('/^([A-Z]\d{2}(?:\.?[0-9X]{1,2})?)\b/i', $text, $m)
+            && ($id = self::$cie10Cache[GesHealthProblem::normalizeCode($m[1])] ?? null)) {
+            return $id;
+        }
+
+        $name = self::normalizeDiagnosisText($text);
+        if ($name === '') {
+            return null;
+        }
+        if (array_key_exists($name, self::$cie10NameCache)) {
+            return self::$cie10NameCache[$name]; // null when ambiguous
+        }
+        if (strlen($name) < self::MIN_PREFIX_LENGTH) {
+            return null;
+        }
+
+        // Names starting with $name: a contiguous range of the sorted list.
+        $names = self::$cie10SortedNames;
+        $low = 0;
+        $high = count($names);
+        while ($low < $high) {
+            $mid = intdiv($low + $high, 2);
+            $names[$mid] < $name ? $low = $mid + 1 : $high = $mid;
+        }
+        $first = $names[$low] ?? null;
+        if ($first === null || ! str_starts_with($first, $name)) {
+            return null;
+        }
+        $second = $names[$low + 1] ?? null;
+        if ($second !== null && str_starts_with($second, $name)) {
+            return null; // several names start like this
+        }
+
+        return self::$cie10NameCache[$first];
+    }
+
+    public static function isGesDiagnosis(int $cie10Id): bool
+    {
+        return self::$cie10GesCache[$cie10Id] ??= GesHealthProblem::forCie10Code(
+            array_search($cie10Id, self::$cie10Cache, true) ?: null
+        )->isNotEmpty();
+    }
+
+    protected static function normalizeDiagnosisText(?string $text): string
+    {
+        return trim(preg_replace('/\s+/', ' ', preg_replace('/[^a-z0-9 ]+/', ' ', Str::lower(Str::ascii((string) $text)))));
+    }
+
+    /**
+     * self::DIAGNOSIS_GES / DIAGNOSIS_NON_GES / DIAGNOSIS_NONE for the last
+     * row imported by importCsvRow().
+     */
+    public function lastRowDiagnosis(): ?string
+    {
+        return $this->rowDiagnosis;
     }
 
     /**
