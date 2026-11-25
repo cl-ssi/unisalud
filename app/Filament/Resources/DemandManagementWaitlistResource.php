@@ -336,11 +336,13 @@ class DemandManagementWaitlistResource extends Resource
                     ->label('ID SIGTE')
                     ->disabled(),
                 Forms\Components\TextInput::make('waitlistAge')
-                    ->label('Edad')
-                    ->disabled(),
+                    ->label('Edad al ingreso')
+                    ->disabled()
+                    ->afterStateHydrated(fn ($component, $record) => $component->state($record?->ageAtEntry())),
                 Forms\Components\TextInput::make('waitlistYear')
-                    ->label('Año')
-                    ->disabled(),
+                    ->label('Año de ingreso')
+                    ->disabled()
+                    ->afterStateHydrated(fn ($component, $record) => $component->state($record?->entryYear())),
 
                 Forms\Components\TextInput::make('specialty_id')
                     ->label('Especialidad')
@@ -349,15 +351,21 @@ class DemandManagementWaitlistResource extends Resource
                         $component->state($record?->waitlistSpecialty->text ?? null);
                     }),
                 Forms\Components\TextInput::make('establishment_id')
+                    // Old template only: the SIGTE file has no such column.
+                    ->visible(fn ($record) => filled($record?->getRawOriginal('establishment_id')))
                     ->label('Establecimiento')
                     ->disabled()
                     ->afterStateHydrated(function ($component, $state, $record) {
                         $component->state($record?->establishment->alias ?? null);
                     }),
                 Forms\Components\TextInput::make('pediatric')
+                    // Old template only: the SIGTE file has no such column.
+                    ->visible(fn ($record) => filled($record?->getRawOriginal('pediatric')))
                     ->label('Pediatrico')
                     ->disabled(),
                 Forms\Components\TextInput::make('lb')
+                    // Old template only: the SIGTE file has no such column.
+                    ->visible(fn ($record) => filled($record?->getRawOriginal('lb')))
                     ->label('LB')
                     ->disabled(),
 
@@ -393,23 +401,27 @@ class DemandManagementWaitlistResource extends Resource
                     ->label('Servicio de Salud')
                     ->disabled(),
 
-                Forms\Components\DatePicker::make('appointment_date')
-                    ->label('Fecha Citación')
-                    ->disabled(),
-
                 Forms\Components\TextInput::make('worker')
+                    // Old template only: the SIGTE file has no such column.
+                    ->visible(fn ($record) => filled($record?->getRawOriginal('worker')))
                     ->label('Funcionario')
                     ->disabled(),
 
                 Forms\Components\TextInput::make('iqType')
+                    // Old template only: the SIGTE file has no such column.
+                    ->visible(fn ($record) => filled($record?->getRawOriginal('iqType')))
                     ->label('Tipo de IQ')
                     ->disabled(),
 
                 Forms\Components\TextInput::make('oncologic')
+                    // Old template only: the SIGTE file has no such column.
+                    ->visible(fn ($record) => filled($record?->getRawOriginal('oncologic')))
                     ->label('Oncológico')
                     ->disabled(),
 
                 Forms\Components\TextInput::make('origin_commune_id')
+                    // Old template only: the SIGTE file has no such column.
+                    ->visible(fn ($record) => filled($record?->getRawOriginal('origin_commune_id')))
                     ->label('Comuna de Origen')
                     ->disabled()
                     ->afterStateHydrated(function ($component, $state, $record) {
@@ -417,39 +429,57 @@ class DemandManagementWaitlistResource extends Resource
                     }),
 
                 Forms\Components\TextInput::make('fonasa')
+                    // Old template only: the SIGTE file has no such column.
+                    ->visible(fn ($record) => filled($record?->getRawOriginal('fonasa')))
                     ->label('Fonasa')
                     ->disabled(),
 
                 Forms\Components\TextInput::make('praisUser')
+                    // Old template only: the SIGTE file has no such column.
+                    ->visible(fn ($record) => filled($record?->getRawOriginal('praisUser')))
                     ->label('Usuario PRAIS')
                     ->disabled(),
 
                 Forms\Components\TextInput::make('lbPrais')
+                    // Old template only: the SIGTE file has no such column.
+                    ->visible(fn ($record) => filled($record?->getRawOriginal('lbPrais')))
                     ->label('LB PRAIS')
                     ->disabled(),
 
                 Forms\Components\TextInput::make('lbUrinary')
+                    // Old template only: the SIGTE file has no such column.
+                    ->visible(fn ($record) => filled($record?->getRawOriginal('lbUrinary')))
                     ->label('LB Incontinencia Urinaria')
                     ->disabled(),
 
                 Forms\Components\TextInput::make('exitError')
+                    // Old template only: the SIGTE file has no such column.
+                    ->visible(fn ($record) => filled($record?->getRawOriginal('exitError')))
                     ->label('Error Egreso')
                     ->disabled(),
 
                 Forms\Components\TextInput::make('lbIqOdonto')
+                    // Old template only: the SIGTE file has no such column.
+                    ->visible(fn ($record) => filled($record?->getRawOriginal('lbIqOdonto')))
                     ->label('LB IQ Odonto')
                     ->disabled(),
 
                 Forms\Components\TextInput::make('procedureType')
+                    // Old template only: the SIGTE file has no such column.
+                    ->visible(fn ($record) => filled($record?->getRawOriginal('procedureType')))
                     ->label('Tipo de Procedimiento')
                     ->disabled(),
 
                 Forms\Components\TextInput::make('sename')
+                    // Old template only: the SIGTE file has no such column.
+                    ->visible(fn ($record) => filled($record?->getRawOriginal('sename')))
                     ->label('SENAME')
                     ->disabled(),
                 Forms\Components\TextInput::make('elapsed_days')
                     ->label('Días Pasados')
-                    ->disabled(),
+                    ->helperText('Desde la fecha de entrada hasta la de salida, o hasta hoy si el caso sigue abierto.')
+                    ->disabled()
+                    ->afterStateHydrated(fn ($component, $record) => $component->state($record?->elapsedDays())),
             ]);
     }
 

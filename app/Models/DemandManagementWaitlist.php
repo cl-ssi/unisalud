@@ -210,6 +210,41 @@ class DemandManagementWaitlist extends Model
     ];
 
 
+    /**
+     * Días pasados: the imported DIAS_PASADOS if any (the SIGTE file has no
+     * such column), else the days from F_ENTRADA to F_SALIDA, or to today
+     * while the case is open.
+     */
+    public function elapsedDays(): ?int
+    {
+        if (filled($this->elapsed_days)) {
+            return (int) $this->elapsed_days;
+        }
+        if (! $this->entry_date) {
+            return null;
+        }
+        $end = self::isDischarged($this->exit_date, $this->exit_code) ? $this->exit_date : today();
+
+        return (int) $this->entry_date->diffInDays($end, false);
+    }
+
+    /** Edad: the imported EDAD if any, else the patient's age on F_ENTRADA. */
+    public function ageAtEntry(): int|float|null
+    {
+        if (filled($this->waitlistAge)) {
+            return $this->waitlistAge + 0;
+        }
+        $birthday = $this->user?->birthday;
+
+        return ($birthday && $this->entry_date) ? (int) $birthday->diffInYears($this->entry_date) : null;
+    }
+
+    /** Año: the imported AÑO if any, else the year of F_ENTRADA. */
+    public function entryYear(): ?int
+    {
+        return filled($this->waitlistYear) ? (int) $this->waitlistYear : $this->entry_date?->year;
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
