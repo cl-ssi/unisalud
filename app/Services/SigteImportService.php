@@ -427,21 +427,36 @@ class SigteImportService
         ]));
     }
 
+    /**
+     * Disk for import status meta and duplicates reports. Must be the shared
+     * uploads disk, not "local": the queued job may run on a different
+     * container than the web request that renders the page, and container
+     * disks are wiped on restart/redeploy — which made the page show
+     * "Sin cargar" right after a successful upload.
+     */
+    public static function stateDisk(): \Illuminate\Contracts\Filesystem\Filesystem
+    {
+        return Storage::disk(self::uploadsDisk());
+    }
+
     public function saveMeta(string $key, array $data): void
     {
-        Storage::disk('local')->makeDirectory('sigte');
-        Storage::disk('local')->put("sigte/{$key}-meta.json", json_encode($data));
+        self::stateDisk()->put("sigte/{$key}-meta.json", json_encode($data), ['visibility' => 'private']);
     }
 
     public function readMeta(string $key): array
     {
-        $raw = Storage::disk('local')->get("sigte/{$key}-meta.json");
+        try {
+            $raw = self::stateDisk()->get("sigte/{$key}-meta.json");
+        } catch (\Throwable) {
+            return [];
+        }
 
         return $raw ? (json_decode($raw, true) ?? []) : [];
     }
 
     /**
-     * Path (on the "local" disk) of the duplicates report for $key's most
+     * Path (on stateDisk()) of the duplicates report for $key's most
      * recent import — a two-sheet Excel of rows whose RUN repeats within the
      * uploaded file, and rows whose RUN already existed before the upload.
      */
@@ -456,18 +471,36 @@ class SigteImportService
     private function saveDuplicatesFile(string $key, array $sheets): void
     {
         $path = $this->duplicatesPath($key);
-        $disk = Storage::disk('local');
+        $disk = self::stateDisk();
 
         $hasRows = array_sum(array_map(fn (array $s) => count($s['rows']), $sheets)) > 0;
 
         if (! $hasRows) {
-            $disk->delete($path);
+            try {
+                $disk->delete($path);
+            } catch (\Throwable) {
+                // Nothing to delete.
+            }
 
             return;
         }
 
-        $disk->makeDirectory('sigte');
-        $this->writeDuplicatesWorkbook($disk->path($path), $sheets);
+        // OpenSpout needs a real local path; write there, then upload.
+        $baseTemp = tempnam(sys_get_temp_dir(), 'sigte_dup_');
+        $tempPath = $baseTemp . '.xlsx';
+        @unlink($baseTemp);
+
+        try {
+            $this->writeDuplicatesWorkbook($tempPath, $sheets);
+
+            $stream = fopen($tempPath, 'r');
+            $disk->writeStream($path, $stream, ['visibility' => 'private']);
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+        } finally {
+            @unlink($tempPath);
+        }
     }
 
     /**

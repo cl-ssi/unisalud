@@ -13,7 +13,6 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SigteBaseDeDatos extends Page
@@ -139,7 +138,7 @@ class SigteBaseDeDatos extends Page
     {
         $service = app(SigteImportService::class);
 
-        return Storage::disk('local')->download(
+        return SigteImportService::stateDisk()->download(
             $service->duplicatesPath($key),
             "SIGTE_{$key}_duplicados.xlsx"
         );
