@@ -123,6 +123,8 @@ class SigteSurgicalEntryResource extends Resource
                     Forms\Components\DatePicker::make('entry_date')
                         ->label('Fecha Entrada LE QX')
                         ->default(now())
+                        ->disabled(fn ($livewire) => $livewire instanceof Pages\CreateSigteSurgicalEntry)
+                        ->dehydrated()
                         ->required(),
                 ])
                 ->columns(3),
@@ -214,6 +216,8 @@ class SigteSurgicalEntryResource extends Resource
                         ->relationship('requestingProfessional', 'text')
                         ->getOptionLabelFromRecordUsing(fn ($record) => $record->text ?: trim("{$record->given} {$record->fathers_family}"))
                         ->default(fn () => auth()->id())
+                        ->disabled(fn ($livewire) => $livewire instanceof Pages\CreateSigteSurgicalEntry)
+                        ->dehydrated()
                         ->searchable()
                         ->required(),
                     Forms\Components\Select::make('resolving_professional_id')

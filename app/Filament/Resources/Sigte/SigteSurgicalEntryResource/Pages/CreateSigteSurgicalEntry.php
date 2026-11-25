@@ -123,12 +123,9 @@ class CreateSigteSurgicalEntry extends CreateRecord
             ], fn ($v) => $v !== null)
         );
 
-        // Default to today only when the LE Quirúrgica row didn't supply
-        // F_ENTRADA — otherwise that's the value "Fecha Entrada LE QX" should show.
-        $fillData['entry_date'] ??= now()->format('Y-m-d');
-
-        // Same for "Prof. Solicitante": default to the user filling the form.
-        $fillData['requesting_professional_id'] ??= auth()->id();
+        // Locked fields: always today and the user filling the form.
+        $fillData['entry_date'] = now()->format('Y-m-d');
+        $fillData['requesting_professional_id'] = auth()->id();
 
         $this->form->fill($fillData);
     }
@@ -435,7 +432,9 @@ class CreateSigteSurgicalEntry extends CreateRecord
             );
 
             $data['user_id'] = $user->id;
-            $data['requesting_professional_id'] = $data['requesting_professional_id'] ?? auth()->id();
+            // Locked on the form; enforce server-side too.
+            $data['requesting_professional_id'] = auth()->id();
+            $data['entry_date'] = now()->format('Y-m-d');
             $data['waitlist_entry_type_id'] = WaitlistEntryType::firstOrCreate(
                 ['code' => '4'],
                 ['text' => 'Lista de espera quirúrgica']
