@@ -49,4 +49,10 @@ return [
         'job' => env('CLOUD_RUN_IMPORT_JOB'),
     ],
 
+    // FONASA Certificador Previsional through the WSSSI proxy (as in ionline).
+    'wsssi' => [
+        'url' => env('WSSSI_URL'),
+        'timeout' => env('WSSSI_TIMEOUT', 15),
+    ],
+
 ];

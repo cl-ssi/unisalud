@@ -644,6 +644,29 @@ class DemandManagementWaitlistResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
+                Tables\Actions\Action::make('checkFonasa')
+                    ->label('Verificar en FONASA')
+                    ->icon('heroicon-o-identification')
+                    ->color('gray')
+                    ->visible(fn ($record) => \App\Services\FonasaService::isConfigured()
+                        && $record->status !== 'fallecido'
+                        && static::canEdit($record))
+                    ->requiresConfirmation()
+                    ->modalDescription('Consulta a FONASA si el paciente tiene fecha de defunción. Si la tiene, se guarda en el paciente y sus casos quedan como Fallecido.')
+                    ->action(function ($record) {
+                        $result = $record->user
+                            ? (new \App\Services\DeceasedPatientChecker())->check($record->user)
+                            : ['result' => 'error', 'error' => 'Caso sin paciente'];
+
+                        $notification = match ($result['result']) {
+                            'deceased' => Notification::make()->warning()->title('Paciente fallecido según FONASA')
+                                ->body('Fecha de defunción ' . \Illuminate\Support\Carbon::parse($result['date'])->format('d-m-Y') . '. ' . $result['cases'] . ' caso(s) marcados como Fallecido.'),
+                            'alive' => Notification::make()->success()->title('FONASA no registra fecha de defunción'),
+                            'no_death_field' => Notification::make()->danger()->title('La respuesta de FONASA (WSSSI) no incluye la fecha de defunción'),
+                            default => Notification::make()->danger()->title('No se pudo consultar FONASA')->body($result['error'] ?? null),
+                        };
+                        $notification->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([]),

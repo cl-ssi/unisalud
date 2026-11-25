@@ -185,6 +185,11 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->hasMany(Waitlist::class);
     }
 
+    public function demandManagementWaitlists(): HasMany
+    {
+        return $this->hasMany(DemandManagementWaitlist::class);
+    }
+
     public function organizations(): BelongsToMany
     {
         return $this->belongsToMany(Organization::class, 'organization_user')
