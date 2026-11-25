@@ -23,6 +23,9 @@ class GesHealthProblem extends Model
     /** normalized CIE-10 code => problem ids, loaded once per process. */
     protected static ?array $codeIndex = null;
 
+    /** 3-character category => problem ids of the subcodes in the GES list. */
+    protected static ?array $categoryIndex = null;
+
     /** @var array<int, self>|null */
     protected static ?array $problems = null;
 
@@ -38,8 +41,13 @@ class GesHealthProblem extends Model
     }
 
     /**
-     * GES problems covering a CIE-10 code. A 3-character code in the GES list
-     * covers its whole category (e.g. "Y05" covers Y05.0 … Y05.9).
+     * GES problems covering a CIE-10 code, both ways between a category and
+     * its subcodes:
+     *  - a 3-character code in the GES list covers its whole category
+     *    ("Y05" covers Y05.0 … Y05.9);
+     *  - a 3-character code is covered by the problems of its subcodes in the
+     *    list ("K80", e.g. a diagnosis written as "COLELITIASIS", is covered by
+     *    problem 26 through K80.0 … K80.8).
      *
      * @return Collection<int, self>
      */
@@ -52,15 +60,19 @@ class GesHealthProblem extends Model
 
         if (static::$codeIndex === null) {
             static::$codeIndex = [];
+            static::$categoryIndex = [];
             foreach (DB::table('ges_health_problem_codes')->get(['ges_health_problem_id', 'code']) as $row) {
                 static::$codeIndex[$row->code][] = $row->ges_health_problem_id;
+                if (strlen($row->code) > 3) {
+                    static::$categoryIndex[substr($row->code, 0, 3)][] = $row->ges_health_problem_id;
+                }
             }
             static::$problems = static::all()->keyBy('id')->all();
         }
 
         $ids = array_unique([
             ...static::$codeIndex[$code] ?? [],
-            ...(strlen($code) > 3 ? static::$codeIndex[substr($code, 0, 3)] ?? [] : []),
+            ...(strlen($code) > 3 ? static::$codeIndex[substr($code, 0, 3)] ?? [] : static::$categoryIndex[$code] ?? []),
         ]);
         sort($ids);
 
@@ -81,8 +93,13 @@ class GesHealthProblem extends Model
         $codes = DB::table('ges_health_problem_codes')->whereIn('ges_health_problem_id', $problemIds)->pluck('code')->unique();
         $normalized = "REPLACE({$cie10Table}.code, '.', '')";
 
+        $categoriesOfSubcodes = $codes->filter(fn ($c) => strlen($c) > 3)->map(fn ($c) => substr($c, 0, 3))->unique()->values()->all();
+
         return $query->where(fn ($q) => $q
             ->whereIn(DB::raw($normalized), $codes->all())
-            ->orWhereIn(DB::raw("LEFT({$normalized}, 3)"), $codes->filter(fn ($c) => strlen($c) === 3)->values()->all()));
+            ->orWhereIn(DB::raw("LEFT({$normalized}, 3)"), $codes->filter(fn ($c) => strlen($c) === 3)->values()->all())
+            ->orWhere(fn ($q2) => $q2
+                ->whereRaw("CHAR_LENGTH({$normalized}) = 3")
+                ->whereIn(DB::raw($normalized), $categoriesOfSubcodes)));
     }
 }
