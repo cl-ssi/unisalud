@@ -25,6 +25,7 @@
     <ul style="{{ $list }}">
         <li>El paciente se identifica por <b>RUN</b> y el caso por <b>RUN + SIGTE_ID</b>. Si el caso existe se actualiza; si no, se crea.</li>
         <li>Los valores del archivo <b>reemplazan</b> a los registrados, incluidas las celdas vacías (excepto CIE-10 y GES cuando su columna no viene en el archivo).</li>
+        <li>Un caso con <b>F_DEFUNCION</b> queda <b>Fallecido</b> (tiene prioridad sobre ESTADO y F_SALIDA) y la fecha se guarda como fecha de defunción del paciente.</li>
         <li>Estado: si el archivo no trae columna ESTADO, un caso con <b>F_SALIDA y C_SALIDA</b> queda <b>Egresado</b> (igual que la pestaña Cerrados; C_SALIDA 3 y 20 siguen abiertos). En los casos abiertos se mantiene el estado registrado.</li>
         <li>Cada caso nuevo o modificado queda registrado en la pestaña <b>Cargas</b> con el detalle de los datos que cambiaron.</li>
     </ul>

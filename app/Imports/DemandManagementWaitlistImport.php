@@ -67,6 +67,7 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
         'mothers_family' => 'Segundo apellido',
         'birthday'       => 'Fecha nacimiento',
         'sex'            => 'Sexo',
+        'deceased_datetime' => 'Fecha defunción',
     ];
 
     protected const ADDRESS_CHANGE_LABELS = [
@@ -567,6 +568,10 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
                 'birthday'          => $this->parseFlexibleDate($val('FECHA_NAC')),
                 'sex'               => $sexValue,
             ]);
+            // F_DEFUNCION also marks the patient as deceased (never cleared by an upload).
+            if ($deceasedAt = $this->parseFlexibleDate($val('F_DEFUNCION'))) {
+                $userCreatedOrUpdated->deceased_datetime = $deceasedAt;
+            }
             $userCreatedOrUpdated->save();
             if (! $isNewUser) {
                 $this->recordChanges($userCreatedOrUpdated, self::USER_CHANGE_LABELS);
@@ -685,9 +690,13 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
             // "egresado" for a discharged case (F_SALIDA + C_SALIDA other than
             // 3 / 20, as the Cerrados tab), keeping the status set by hand for
             // open cases (an "egresado" case that is open again goes back to none).
+            // A death date (F_DEFUNCION) always wins: the case is "fallecido".
             $exitDate = $this->parseFlexibleDate($val('F_SALIDA'));
             $exitCode = filled($val('C_SALIDA')) ? trim($val('C_SALIDA')) : null;
-            if (array_key_exists('estado', $data)) {
+            $deathDate = $this->parseFlexibleDate($val('F_DEFUNCION'));
+            if ($deathDate) {
+                $status = ['status' => 'fallecido'];
+            } elseif (array_key_exists('estado', $data)) {
                 $status = ['status' => ($val('ESTADO') !== null) ? strtolower(trim($val('ESTADO'))) : null];
             } elseif (DemandManagementWaitlist::isDischarged($exitDate, $exitCode)) {
                 $status = ['status' => 'egresado'];
@@ -1052,7 +1061,7 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
             in_array($key, ['ges', 'is_rural'], true) => $value ? 'Sí' : 'No',
             $key === 'sex' => Sex::tryFrom($value)?->getLabel() ?? (string) $value,
             $key === 'exit_code' => $value . ' - ' . (DemandManagementWaitlist::EXIT_CODE_LABELS[$value] ?? '?'),
-            in_array($key, ['birthday', 'entry_date', 'exit_date', 'appointment_date'], true) => Carbon::parse($value)->format('d-m-Y'),
+            in_array($key, ['birthday', 'deceased_datetime', 'entry_date', 'exit_date', 'appointment_date'], true) => Carbon::parse($value)->format('d-m-Y'),
             default => (string) $value,
         };
     }
