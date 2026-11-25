@@ -32,6 +32,12 @@ class CreateSigteSurgicalEntry extends CreateRecord
 
     protected static ?string $title = 'Ingresar Paciente';
 
+    /** MINSAL SERV_SALUD code for Servicio de Salud Tarapacá. */
+    private const HEALTH_SERVICE_TARAPACA = '2';
+
+    /** regions.id for Región de Tarapacá. */
+    private const REGION_TARAPACA = 1;
+
     public bool $searched = false;
 
     public bool $alreadyExists = false;
@@ -126,6 +132,10 @@ class CreateSigteSurgicalEntry extends CreateRecord
         // Locked fields: always today and the user filling the form.
         $fillData['entry_date'] = now()->format('Y-m-d');
         $fillData['requesting_professional_id'] = auth()->id();
+        $fillData['health_service_id'] = self::HEALTH_SERVICE_TARAPACA;
+
+        // Default region; still editable for patients living elsewhere.
+        $fillData['region_id'] ??= self::REGION_TARAPACA;
 
         $this->form->fill($fillData);
     }
@@ -311,8 +321,13 @@ class CreateSigteSurgicalEntry extends CreateRecord
                                 ->disabled(fn ($livewire) => $livewire->foundUser !== null)
                                 ->dehydrated()
                                 ->required(),
-                            Forms\Components\TextInput::make('health_service_id')
-                                ->label('Servicio de Salud'),
+                            Forms\Components\Select::make('health_service_id')
+                                ->label('Servicio de Salud')
+                                ->options([self::HEALTH_SERVICE_TARAPACA => 'Servicio de Salud Tarapacá'])
+                                ->default(self::HEALTH_SERVICE_TARAPACA)
+                                ->selectablePlaceholder(false)
+                                ->disabled()
+                                ->dehydrated(),
                             Forms\Components\TextInput::make('given')
                                 ->label('Nombres')
                                 ->disabled(fn ($livewire) => filled($livewire->foundUser?->given))
@@ -435,6 +450,7 @@ class CreateSigteSurgicalEntry extends CreateRecord
             // Locked on the form; enforce server-side too.
             $data['requesting_professional_id'] = auth()->id();
             $data['entry_date'] = now()->format('Y-m-d');
+            $data['health_service_id'] = self::HEALTH_SERVICE_TARAPACA;
             $data['waitlist_entry_type_id'] = WaitlistEntryType::firstOrCreate(
                 ['code' => '4'],
                 ['text' => 'Lista de espera quirúrgica']
