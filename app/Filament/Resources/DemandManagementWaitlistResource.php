@@ -132,7 +132,7 @@ class DemandManagementWaitlistResource extends Resource
                         $component->state($record?->entryType?->text ?? null);
                     }),
                 Forms\Components\TextInput::make('minsalSpecialty')
-                    ->label('Prestación MINSAL')
+                    ->label('PRESTA_MIN · Especialidad MINSAL')
                     ->disabled()
                     ->visible(fn ($record) => ! $record?->sigteProcedure && blank($record?->waitlistSpecialty?->code))
                     ->afterStateHydrated(function ($component, $state, $record) {
@@ -140,7 +140,7 @@ class DemandManagementWaitlistResource extends Resource
                     }),
                 // PRESTA_MIN of TIPO_PREST = 4 rows (Código MAI).
                 Forms\Components\TextInput::make('maiSpecialty')
-                    ->label('Código MAI')
+                    ->label('PRESTA_MIN · Código MAI')
                     ->disabled()
                     ->visible(fn ($record) => filled($record?->waitlistSpecialty?->code))
                     ->afterStateHydrated(function ($component, $state, $record) {
@@ -148,7 +148,7 @@ class DemandManagementWaitlistResource extends Resource
                     }),
                 // PRESTA_MIN of TIPO_PREST = 3 rows.
                 Forms\Components\TextInput::make('sigteProcedure')
-                    ->label('Procedimiento SIGTE')
+                    ->label('PRESTA_MIN · Procedimiento SIGTE')
                     ->disabled()
                     ->visible(fn ($record) => (bool) $record?->sigteProcedure)
                     ->afterStateHydrated(function ($component, $state, $record) {
@@ -200,7 +200,7 @@ class DemandManagementWaitlistResource extends Resource
                         $component->state(DemandManagementWaitlist::EXIT_CODE_LABELS[$state] ?? $state);
                     }),
                 Forms\Components\TextInput::make('minsalExitSpecialty')
-                    ->label('Prestación MINSAL Salida')
+                    ->label('PRESTA_MIN_SALIDA · Especialidad MINSAL')
                     ->disabled()
                     ->visible(fn ($record) => ! $record?->exitSigteProcedure && ! $record?->exitWaitlistSpecialty)
                     ->afterStateHydrated(function ($component, $state, $record) {
@@ -208,7 +208,7 @@ class DemandManagementWaitlistResource extends Resource
                     }),
                 // PRESTA_MIN_SALIDA of TIPO_PREST = 4 rows (Código MAI).
                 Forms\Components\TextInput::make('exitMaiSpecialty')
-                    ->label('Código MAI Salida')
+                    ->label('PRESTA_MIN_SALIDA · Código MAI')
                     ->disabled()
                     ->visible(fn ($record) => (bool) $record?->exitWaitlistSpecialty)
                     ->afterStateHydrated(function ($component, $state, $record) {
@@ -216,7 +216,7 @@ class DemandManagementWaitlistResource extends Resource
                     }),
                 // PRESTA_MIN_SALIDA of TIPO_PREST = 3 rows.
                 Forms\Components\TextInput::make('exitSigteProcedure')
-                    ->label('Procedimiento SIGTE Salida')
+                    ->label('PRESTA_MIN_SALIDA · Procedimiento SIGTE')
                     ->disabled()
                     ->visible(fn ($record) => (bool) $record?->exitSigteProcedure)
                     ->afterStateHydrated(function ($component, $state, $record) {
