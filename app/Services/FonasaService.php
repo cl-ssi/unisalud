@@ -47,7 +47,19 @@ class FonasaService
 
         $data = $response->json();
         if (! $response->successful() || ! is_array($data)) {
-            return ['error' => 'Respuesta inválida de FONASA (HTTP ' . $response->status() . ')'];
+            // Keep what the proxy said: it usually explains the rejection.
+            $detail = is_array($data)
+                ? ($data['error'] ?? $data['message'] ?? $data['errorM'] ?? json_encode($data, JSON_UNESCAPED_UNICODE))
+                : trim(preg_replace('/\s+/', ' ', strip_tags((string) $response->body())));
+            Log::warning('FONASA lookup rejected', [
+                'run' => $run,
+                'status' => $response->status(),
+                'url' => preg_replace('/\?.*/', '', (string) $response->effectiveUri()),
+                'body' => mb_substr((string) $response->body(), 0, 1000),
+            ]);
+
+            return ['error' => 'Respuesta inválida de FONASA (HTTP ' . $response->status() . ')'
+                . ($detail !== '' ? ': ' . mb_substr((string) $detail, 0, 300) : '')];
         }
         if (isset($data['message']) && ! isset($data['run'])) {
             return ['error' => (string) $data['message']];
