@@ -38,6 +38,14 @@ class CreateSigteSurgicalEntry extends CreateRecord
     /** regions.id for Región de Tarapacá. */
     private const REGION_TARAPACA = 1;
 
+    /** healthcare_types.code for Fonasa. */
+    private const HEALTHCARE_TYPE_FONASA = '1';
+
+    private static function fonasaId(): ?int
+    {
+        return HealthcareType::where('code', self::HEALTHCARE_TYPE_FONASA)->value('id');
+    }
+
     public bool $searched = false;
 
     public bool $alreadyExists = false;
@@ -133,6 +141,7 @@ class CreateSigteSurgicalEntry extends CreateRecord
         $fillData['entry_date'] = now()->format('Y-m-d');
         $fillData['requesting_professional_id'] = auth()->id();
         $fillData['health_service_id'] = self::HEALTH_SERVICE_TARAPACA;
+        $fillData['healthcare_type_id'] = self::fonasaId();
 
         // Default region; still editable for patients living elsewhere.
         $fillData['region_id'] ??= self::REGION_TARAPACA;
@@ -357,7 +366,10 @@ class CreateSigteSurgicalEntry extends CreateRecord
                             Forms\Components\Select::make('healthcare_type_id')
                                 ->label('Previsión')
                                 ->placeholder('Seleccione previsión')
-                                ->relationship('healthcareType', 'text'),
+                                ->relationship('healthcareType', 'text')
+                                ->default(fn () => self::fonasaId())
+                                ->disabled()
+                                ->dehydrated(),
                         ])
                         ->columns(3),
 
@@ -451,6 +463,7 @@ class CreateSigteSurgicalEntry extends CreateRecord
             $data['requesting_professional_id'] = auth()->id();
             $data['entry_date'] = now()->format('Y-m-d');
             $data['health_service_id'] = self::HEALTH_SERVICE_TARAPACA;
+            $data['healthcare_type_id'] = self::fonasaId();
             $data['waitlist_entry_type_id'] = WaitlistEntryType::firstOrCreate(
                 ['code' => '4'],
                 ['text' => 'Lista de espera quirúrgica']
