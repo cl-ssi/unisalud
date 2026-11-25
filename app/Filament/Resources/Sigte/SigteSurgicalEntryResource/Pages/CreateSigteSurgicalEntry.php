@@ -127,6 +127,9 @@ class CreateSigteSurgicalEntry extends CreateRecord
         // F_ENTRADA — otherwise that's the value "Fecha Entrada LE QX" should show.
         $fillData['entry_date'] ??= now()->format('Y-m-d');
 
+        // Same for "Prof. Solicitante": default to the user filling the form.
+        $fillData['requesting_professional_id'] ??= auth()->id();
+
         $this->form->fill($fillData);
     }
 
