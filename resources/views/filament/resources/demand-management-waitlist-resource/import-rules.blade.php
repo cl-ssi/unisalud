@@ -25,6 +25,7 @@
     <ul style="{{ $list }}">
         <li>El paciente se identifica por <b>RUN</b> y el caso por <b>RUN + SIGTE_ID</b>. Si el caso existe se actualiza; si no, se crea.</li>
         <li>Los valores del archivo <b>reemplazan</b> a los registrados, incluidas las celdas vacías (excepto CIE-10 y GES cuando su columna no viene en el archivo).</li>
+        <li>Estado: si el archivo no trae columna ESTADO, un caso con <b>F_SALIDA y C_SALIDA</b> queda <b>Egresado</b> (igual que la pestaña Cerrados; C_SALIDA 3 y 20 siguen abiertos). En los casos abiertos se mantiene el estado registrado.</li>
         <li>Cada caso nuevo o modificado queda registrado en la pestaña <b>Cargas</b> con el detalle de los datos que cambiaron.</li>
     </ul>
 
@@ -34,9 +35,9 @@
         <li>SEXO: 1 Hombre, 2 Mujer, 3 Intersex, 93 No informado, 99 Desconocido.</li>
         <li>COND_RURALIDAD: 1 Urbano, 2 Rural. VIA_DIRECCION: 1 Calle, 2 Pasaje, 3 Avenida, 4 Otro.</li>
         <li>COMUNA, ESTAB_ORIG y ESTAB_DEST: código DEIS. Un código que no existe queda en blanco (no rechaza la fila).</li>
-        <li>GES: Sí / No (también se aceptan S, 1, X). Solo se marca GES si el archivo trae la columna <b>GES</b>.</li>
+        <li>GES: Sí / No (también se aceptan S, 1, X). Si el archivo no trae la columna <b>GES</b>, se marca según el diagnóstico (ver abajo).</li>
         <li>CIE-10: de la columna <b>CIE-10</b> o, si no viene, del diagnóstico (CONFIR_DIAG y luego SOSPECHA_DIAG): el código al inicio del texto (ej. «H11.0 PTERIGION») o el nombre del diagnóstico según el catálogo CIE-10 (ej. «COLELITIASIS» → K80), aunque venga cortado. Si el texto nombra una prestación (ej. «ECOGRAFÍA RENAL») queda sin CIE-10, sin rechazar la fila.</li>
-        <li>Si el CIE-10 pertenece a un problema de salud GES, el caso queda con <b>diagnóstico GES</b> (columna y filtro Problema GES). Eso no lo marca como GES: también hay criterios de edad y clínicos.</li>
+        <li>Sin columna GES: el caso queda <b>GES = Sí</b> si su CIE-10 pertenece a un problema de salud GES (columna y filtro Problema GES), y <b>GES = No</b> si tiene un CIE-10 que no es GES. Sin CIE-10, GES no cambia. No se revisan los criterios de edad ni clínicos del problema GES.</li>
     </ul>
 
     <p style="{{ $section }}">Una fila se rechaza (no se importa) si</p>

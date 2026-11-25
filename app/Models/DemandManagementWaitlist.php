@@ -115,6 +115,19 @@ class DemandManagementWaitlist extends Model
     }
 
     /**
+     * scopeDischarged() for one case's values: F_SALIDA and C_SALIDA, with
+     * C_SALIDA not a standby code (3, 20).
+     */
+    public static function isDischarged($exitDate, ?string $exitCode): bool
+    {
+        $code = trim((string) $exitCode);
+
+        return filled($exitDate)
+            && $code !== ''
+            && ! in_array(ltrim($code, '0'), self::STANDBY_EXIT_CODES, true);
+    }
+
+    /**
      * Abiertos: every case that is not discharged (scopeDischarged).
      */
     public function scopeOpen(\Illuminate\Database\Eloquent\Builder $query): void

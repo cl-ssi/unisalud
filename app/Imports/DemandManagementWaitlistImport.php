@@ -681,6 +681,24 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
 
             $originCommuneId = self::$originCommuneNameCache[strtolower(trim($val('Comuna Origen', '')))] ?? null;
 
+            // Estado: the ESTADO column when the file has one; otherwise
+            // "egresado" for a discharged case (F_SALIDA + C_SALIDA other than
+            // 3 / 20, as the Cerrados tab), keeping the status set by hand for
+            // open cases (an "egresado" case that is open again goes back to none).
+            $exitDate = $this->parseFlexibleDate($val('F_SALIDA'));
+            $exitCode = filled($val('C_SALIDA')) ? trim($val('C_SALIDA')) : null;
+            if (array_key_exists('estado', $data)) {
+                $status = ['status' => ($val('ESTADO') !== null) ? strtolower(trim($val('ESTADO'))) : null];
+            } elseif (DemandManagementWaitlist::isDischarged($exitDate, $exitCode)) {
+                $status = ['status' => 'egresado'];
+            } else {
+                $currentStatus = DemandManagementWaitlist::query()
+                    ->where('user_id', $userCreatedOrUpdated->id)
+                    ->where('sigte_id', $val('SIGTE_ID'))
+                    ->value('status');
+                $status = $currentStatus === 'egresado' ? ['status' => null] : [];
+            }
+
             $waitlistCreatedOrUpdated = DemandManagementWaitlist::updateOrCreate(
                 [
                     'user_id'                => $userCreatedOrUpdated->id,
@@ -692,12 +710,11 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
                     'origin_establishment_id'   => $originOrganizationId,
                     'wait_health_care_service_id' => $healthCareServiceId,
                     'commune_id'                => $communeId,
-                    'status'                    => ($val('ESTADO') !== null) ? strtolower(trim($val('ESTADO'))) : null,
                     'destiny_establishment_id'  => $destinyOrganizationId,
                     'suspected_diagnosis'       => ($val('SOSPECHA_DIAG') !== null) ? strtolower(trim($val('SOSPECHA_DIAG'))) : null,
                     'establishment_id'          => $organizationId,
                     'entry_date'                => $this->parseFlexibleDate($val('F_ENTRADA')),
-                    'exit_date'                 => $this->parseFlexibleDate($val('F_SALIDA')),
+                    'exit_date'                 => $exitDate,
                     'healthcare_type_id'        => $previsionValue,
                     'minsal_specialty_id'       => $minsalSpecialty,
                     'exit_minsal_specialty_id'  => $minsalExitSpecialty,
@@ -730,11 +747,12 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
                     'lbIqOdonto'                => $val('LB IQ ODONTO'),
                     'procedureType'             => $val('Tipo Procedimiento'),
                     'sename'                    => $val('SENAME'),
-                    'exit_code'                 => filled($val('C_SALIDA')) ? trim($val('C_SALIDA')) : null,
+                    'exit_code'                 => $exitCode,
                     'referring_specialty'       => $val('E_OTOR_AT'),
                     'wait_medical_benefit_id'   => $medicalBenefitId,
                     'elapsed_days'              => $val('DIAS_PASADOS'),
                 ]
+                + $status
                 + $cie10AndGes
             );
 
@@ -806,9 +824,9 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
      * row), or else from the diagnosis text (CONFIR_DIAG first), which never
      * rejects (see cie10FromDiagnosisText()).
      *
-     * The GES flag only comes from the GES column: a GES diagnosis doesn't
-     * make the case GES (age and clinical criteria also apply), it is shown
-     * as "diagnóstico GES" (Problema GES column / filter, upload summary).
+     * GES comes from the GES column when the file has one; otherwise it
+     * follows the diagnosis (Sí when the CIE-10 belongs to a GES health
+     * problem). The GES problem's age and clinical criteria are not checked.
      * Neither field is overwritten when the file doesn't provide it.
      */
     protected function resolveCie10AndGes(array $data, \Closure $val): array
@@ -846,6 +864,9 @@ class DemandManagementWaitlistImport implements OnEachRow, WithHeadingRow, WithC
             if ($attributes['ges'] && $isGesDiagnosis === false) {
                 $this->rowWarnings[] = 'GES = Sí, pero el CIE-10 ' . Cie10::find($cie10Id)?->code . ' no pertenece a ningún problema de salud GES.';
             }
+        } elseif ($isGesDiagnosis !== null) {
+            // No GES column: GES follows the diagnosis.
+            $attributes['ges'] = $isGesDiagnosis;
         }
 
         return $attributes;
