@@ -7,6 +7,7 @@ use App\Models\ContactPoint;
 use App\Models\Identifier;
 use App\Models\SigteExternalWaitlistImport;
 use App\Models\SigteExternalWaitlistRun;
+use App\Models\SigteLecneRun;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -190,6 +191,16 @@ class SigteImportService
 
         if (! $sawDataRow) {
             return ['empty' => true];
+        }
+
+        // Remember which RUNs came from LE CNE (users/identifiers can't tell).
+        $now = now();
+        foreach (array_chunk(array_keys($seenRuns), 500) as $chunk) {
+            SigteLecneRun::upsert(
+                array_map(fn ($run) => ['run' => (string) $run, 'created_at' => $now, 'updated_at' => $now], $chunk),
+                ['run'],
+                ['updated_at']
+            );
         }
 
         $total = $nuevos + $actualizados;

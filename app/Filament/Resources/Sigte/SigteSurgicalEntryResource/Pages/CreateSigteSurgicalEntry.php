@@ -52,6 +52,9 @@ class CreateSigteSurgicalEntry extends CreateRecord
 
     public bool $leqxDuplicate = false;
 
+    /** RUN is in neither upload from "Base de Datos SIGTE" (LE CNE / LE Quirúrgica). */
+    public bool $notInUploads = false;
+
     public ?User $foundUser = null;
 
     public ?SigteSurgicalWaitlist $existingEntry = null;
@@ -93,15 +96,14 @@ class CreateSigteSurgicalEntry extends CreateRecord
             : null;
         $this->alreadyExists = (bool) $this->existingEntry;
         $this->leqxDuplicate = SigteBaseDeDatos::isRunInLeqxList($rut);
+        $this->notInUploads = ! $this->leqxDuplicate && ! SigteBaseDeDatos::isRunInLecneList($rut);
         $this->searched = true;
 
         if ($this->alreadyExists) {
             return;
         }
 
-        // Not in either upload from "Base de Datos SIGTE": LE CNE rows are
-        // saved as patients (users + identifiers), LE Quirúrgica rows as runs.
-        if (! $this->foundUser && ! $this->leqxDuplicate) {
+        if ($this->notInUploads) {
             Notification::make()
                 ->title("No se encontró el RUN {$rut}")
                 ->body('El RUN no figura en la información cargada (LE CNE ni LE Quirúrgica). Complete los datos del paciente para ingresarlo.')
@@ -322,8 +324,7 @@ class CreateSigteSurgicalEntry extends CreateRecord
                     ))
                     ->columnSpanFull()
                     ->visible(fn ($livewire) => $livewire->searched
-                        && $livewire->foundUser === null
-                        && ! $livewire->leqxDuplicate
+                        && $livewire->notInUploads
                         && ! $livewire->alreadyExists),
 
                 Forms\Components\Placeholder::make('leqx_duplicate_alert')

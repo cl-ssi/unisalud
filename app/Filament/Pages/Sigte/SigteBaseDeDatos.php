@@ -6,6 +6,7 @@ use App\Jobs\ImportSigteLeCneJob;
 use App\Jobs\ImportSigteLeQxJob;
 use App\Models\SigteExternalWaitlistImport;
 use App\Models\SigteExternalWaitlistRun;
+use App\Models\SigteLecneRun;
 use App\Models\SigteSurgicalWaitlist;
 use App\Services\SigteImportService;
 use Carbon\Carbon;
@@ -183,6 +184,12 @@ class SigteBaseDeDatos extends Page
     public static function isRunInLeqxList(string $run): bool
     {
         return SigteExternalWaitlistRun::where('run', $run)->exists();
+    }
+
+    /** Whether $run has appeared in any uploaded "LE CNE" file. */
+    public static function isRunInLecneList(string $run): bool
+    {
+        return SigteLecneRun::where('run', $run)->exists();
     }
 
     /**
