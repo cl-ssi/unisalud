@@ -99,6 +99,14 @@ class CreateSigteSurgicalEntry extends CreateRecord
             return;
         }
 
+        if (! $this->foundUser) {
+            Notification::make()
+                ->title("No se encontró el RUN {$rut}")
+                ->body('El paciente no está registrado. Complete sus datos para ingresarlo.')
+                ->warning()
+                ->send();
+        }
+
         $user = $this->foundUser;
 
         $address     = $user ? Address::where('user_id', $user->id)->where('use', 'home')->first() : null;
@@ -302,6 +310,17 @@ class CreateSigteSurgicalEntry extends CreateRecord
                     })
                     ->columnSpanFull()
                     ->visible(fn ($livewire) => $livewire->searched && $livewire->alreadyExists),
+
+                Forms\Components\Placeholder::make('run_not_found_alert')
+                    ->label('')
+                    ->content(fn (Forms\Get $get, $livewire) => new HtmlString(
+                        '⚠ No se encontró un paciente registrado con el RUN <strong>' . e($get('rut')) . '</strong>. '
+                        . ($livewire->leqxDuplicate
+                            ? 'Se precargaron los datos disponibles desde la LE Quirúrgica; revíselos y complete los faltantes.'
+                            : 'Complete los datos del paciente para registrarlo.')
+                    ))
+                    ->columnSpanFull()
+                    ->visible(fn ($livewire) => $livewire->searched && $livewire->foundUser === null && ! $livewire->alreadyExists),
 
                 Forms\Components\Placeholder::make('leqx_duplicate_alert')
                     ->label('')
