@@ -99,11 +99,14 @@ class CreateSigteSurgicalEntry extends CreateRecord
             return;
         }
 
-        if (! $this->foundUser) {
+        // Not in either upload from "Base de Datos SIGTE": LE CNE rows are
+        // saved as patients (users + identifiers), LE Quirúrgica rows as runs.
+        if (! $this->foundUser && ! $this->leqxDuplicate) {
             Notification::make()
                 ->title("No se encontró el RUN {$rut}")
-                ->body('El paciente no está registrado. Complete sus datos para ingresarlo.')
+                ->body('El RUN no figura en la información cargada (LE CNE ni LE Quirúrgica). Complete los datos del paciente para ingresarlo.')
                 ->warning()
+                ->persistent()
                 ->send();
         }
 
@@ -313,14 +316,15 @@ class CreateSigteSurgicalEntry extends CreateRecord
 
                 Forms\Components\Placeholder::make('run_not_found_alert')
                     ->label('')
-                    ->content(fn (Forms\Get $get, $livewire) => new HtmlString(
-                        '⚠ No se encontró un paciente registrado con el RUN <strong>' . e($get('rut')) . '</strong>. '
-                        . ($livewire->leqxDuplicate
-                            ? 'Se precargaron los datos disponibles desde la LE Quirúrgica; revíselos y complete los faltantes.'
-                            : 'Complete los datos del paciente para registrarlo.')
+                    ->content(fn (Forms\Get $get) => new HtmlString(
+                        '⚠ El RUN <strong>' . e($get('rut')) . '</strong> no se encontró en la información cargada '
+                        . '(LE CNE ni LE Quirúrgica). Complete los datos del paciente para ingresarlo.'
                     ))
                     ->columnSpanFull()
-                    ->visible(fn ($livewire) => $livewire->searched && $livewire->foundUser === null && ! $livewire->alreadyExists),
+                    ->visible(fn ($livewire) => $livewire->searched
+                        && $livewire->foundUser === null
+                        && ! $livewire->leqxDuplicate
+                        && ! $livewire->alreadyExists),
 
                 Forms\Components\Placeholder::make('leqx_duplicate_alert')
                     ->label('')
